@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    
+    <record id="group_cm_supervisor" model="res.groups">
+        <field name="name">Supervisor</field>
+        <field name="category_id" ref="base.module_category_human_resources_planning"/>
+        <field name="implied_ids" eval="[(4, ref('planning.group_planning_user'))]"/>
+    </record>
+
+    <record id="planning.group_planning_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('planning_cm.group_cm_supervisor'))]"/>
+    </record>
+    
+    <data noupdate="1">
+        <record id="planning_rule_supervisor_department" model="ir.rule">
+            <field name="name">Planning: supervisor can modify planning of his department's employees</field>
+            <field name="model_id" ref="planning.model_planning_slot"/>
+            <field name="domain_force">[
+                ('department_id', '=', user.department_id.id)
+                ]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="groups" eval="[(4,ref('group_cm_supervisor'))]"/>
+        </record>
+    </data>
+</odoo>
