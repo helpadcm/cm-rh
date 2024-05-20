@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="planning_view_form_inherit" model="ir.ui.view">
+        <field name="name">planning.slot.form.inherit</field>
+        <field name="model">planning.slot</field>
+        <field name="inherit_id" ref="planning.planning_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/header/button[1]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/header/button[7]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_unpublish']"
+                   position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//button[@name='auto_plan_id']" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/field[@name='template_id']"
+                   position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/label" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/field[@name='template_creation']"
+                   position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="planning_view_form_in_gant_inherit" model="ir.ui.view">
+        <field name="name">planning.slot.gantt.inherit</field>
+        <field name="model">planning.slot</field>
+        <field name="inherit_id" ref="planning.planning_view_form_in_gantt"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer/button[1]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//footer/button[2]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//footer/button[3]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//footer/button[4]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//footer/button[5]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+            <xpath expr="//footer/button[6]" position="attributes">
+                <attribute name="groups">
+                    planning_cm.group_cm_supervisor</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="planning.model_planning_slot_action_reset_to_draft"
+            model="ir.actions.server">
+        <field name="groups_id"
+               eval="[(4, ref('planning_cm.group_cm_supervisor'))]"/>
+    </record>
+</odoo>
