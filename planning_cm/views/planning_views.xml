@@ -84,4 +84,27 @@
         <field name="groups_id"
                eval="[(4, ref('planning_cm.group_cm_supervisor'))]"/>
     </record>
+
+    <record id="planning_role_view_tree_inherit" model="ir.ui.view">
+        <field name="name">planning.role.tree.inherit</field>
+        <field name="model">planning.role</field>
+        <field name="inherit_id" ref="planning.planning_role_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='name']" position="after">
+                <field name="department_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="planning_role_view_form_inherit" model="ir.ui.view">
+        <field name="name">planning.role.form.inherit</field>
+        <field name="model">planning.role</field>
+        <field name="inherit_id" ref="planning.planning_role_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/group/field[@name='name']"
+                   position="after">
+                <field name="department_id"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

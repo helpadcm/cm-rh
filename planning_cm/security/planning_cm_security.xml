@@ -21,9 +21,8 @@
             </field>
             <field name="model_id" ref="planning.model_planning_slot"/>
             <field name="domain_force">[
-                '|',
-                ('department_id', '=', False),
-                ('department_id', '=', user.department_id.id)
+                ('department_id', 'in', [False, user.department_id.id]),
+                ('role_department_id', 'in', [False, user.department_id.id]),
                 ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
