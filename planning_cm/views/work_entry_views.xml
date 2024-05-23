@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="cm_hr_work_entry_view_form_inherit" model="ir.ui.view">
+        <field name="name">cm_hr_work_entry_view_form_inherit</field>
+        <field name="model">hr.work.entry</field>
+        <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <div invisible="state != 'draft'"
+                     groups="hr_contract.group_hr_contract_manager">
+                    <button name="update_work_entry_type_by_planning"
+                            string="Actualizar Tipo de Entrada" type="object"
+                            class="btn-primary"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
