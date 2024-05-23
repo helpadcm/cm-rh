@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="cm_work_entry_type_125" model="hr.work.entry.type">
+            <field name="name">Hora extra 125%</field>
+            <field name="code">OVERTIME125</field>
+            <field name="color">8</field>
+        </record>
+        <record id="cm_work_entry_type_150" model="hr.work.entry.type">
+            <field name="name">Hora extra 150%</field>
+            <field name="code">OVERTIME150</field>
+            <field name="color">8</field>
+        </record>
+        <record id="cm_work_entry_type_200" model="hr.work.entry.type">
+            <field name="name">Hora extra 200%</field>
+            <field name="code">OVERTIME200</field>
+            <field name="color">8</field>
+        </record>
+        <record id="cm_work_entry_type_hour_compensation" model="hr.work.entry.type">
+            <field name="name">Gana horas compensatorias</field>
+            <field name="code">OVERTIME900</field>
+            <field name="color">11</field>
+        </record>
+        <record id="cm_work_entry_type_hour_compensation_used" model="hr.work.entry.type">
+            <field name="name">Usa horas compensatorias</field>
+            <field name="code">OVERTIME910</field>
+            <field name="color">11</field>
+        </record>
+        <record id="cm_work_entry_type_home_office" model="hr.work.entry.type">
+            <field name="name">Home Office</field>
+            <field name="code">WORK500</field>
+            <field name="color">8</field>
+        </record>
+        <record id="cm_work_entry_type_feriado_trabajado" model="hr.work.entry.type">
+            <field name="name">Feriado Trabajado</field>
+            <field name="code">WORK200</field>
+            <field name="color">10</field>
+        </record>
+        <record id="cm_work_entry_type_feriado_hora_extra" model="hr.work.entry.type">
+            <field name="name">Feriado Hora Extra</field>
+            <field name="code">OVERTIME210</field>
+            <field name="color">10</field>
+        </record>
+        
+        <record id="cm_work_entry_type_vacaciones" model="hr.work.entry.type">
+            <field name="name">Vacaciones</field>
+            <field name="code">LEAVE210</field>
+            <field name="color">3</field>
+        </record>
+        <record id="cm_work_entry_type_permiso_especial" model="hr.work.entry.type">
+            <field name="name">Permiso Especial</field>
+            <field name="code">LEAVE220</field>
+            <field name="color">2</field>
+        </record>
+        <record id="cm_work_entry_type_luto" model="hr.work.entry.type">
+            <field name="name">Luto</field>
+            <field name="code">LEAVE230</field>
+            <field name="color">2</field>
+        </record>
+        <record id="cm_work_entry_type_incapacidad" model="hr.work.entry.type">
+            <field name="name">Incapacidad</field>
+            <field name="code">LEAVE240</field>
+            <field name="color">2</field>
+        </record>
+
+    </data>
+</odoo>
