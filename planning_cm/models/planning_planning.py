@@ -5,8 +5,13 @@ class PlanningRole(models.Model):
     _inherit = 'planning.role'
 
     department_id = fields.Many2one('hr.department', string='Department')
-    cm_color = fields.Char('Color')
-    work_entry_type_id = fields.Many2one('hr.work.entry.type', string='Work Entry Type')
+    cm_color = fields.Char('CM Color')
+    work_entry_type_id = fields.Many2one(
+        'hr.work.entry.type',
+        string='Work Entry Type',
+        help=' Work Entry Type to be used for the work entries created from this role, '
+             'assume if the default is not set then should not generate work entries'
+        )
 
     @api.constrains('cm_color')
     def _check_color(self):
