@@ -50,4 +50,5 @@ class HrSalaryAttachment(models.Model):
 
             record.date_estimated_end = record.first_date_payment + relativedelta(
                 months=num_moths, day=num_days or record.first_date_payment.day
-                )
+            )
+
