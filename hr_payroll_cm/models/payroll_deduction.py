@@ -7,8 +7,7 @@ class HrSalaryAttachmentDeduction(models.Model):
     _inherit = 'hr.salary.attachment'
 
     first_date_payment = fields.Date(
-        'Fecha de inicio del pago',
-        default=False,
+        'Fecha de inicio de pago',
         compute='_compute_first_date_payment',
         help='Fecha de comienzo de pagos', )
 
@@ -19,8 +18,7 @@ class HrSalaryAttachmentDeduction(models.Model):
                 rate = record._compute_rate(record.total_amount, record.monthly_amount)
                 record._compute_date_estimated_end(rate)
             else:
-                record.date_estimated_end = None
-                record.first_date_payment = None
+                record.date_estimated_end = False
 
     @staticmethod
     def _compute_rate(total_amount, monthly_amount):
@@ -31,13 +29,12 @@ class HrSalaryAttachmentDeduction(models.Model):
     @api.depends('date_start')
     def _compute_first_date_payment(self):
         for record in self:
-            # TODO(helpad): Pasar a usar relativedelta en lugar de replace
-            record.first_date_payment = record.date_start.replace(
-                month=record.date_start.month
-                if record.date_start.day <= 15
-                else record.date_start.month + 1,
-                day=15 if 1 < record.date_start.day <= 15 else 1
-                )
+            if record.date_start.day > 15:
+                record.first_date_payment = record.date_start + relativedelta(months=1, day=1)
+            elif record.date_start.day == 1:
+                record.first_date_payment = record.date_start
+            else:
+                record.first_date_payment = record.date_start + relativedelta(day=15)
 
     def _compute_date_estimated_end(self, rate):
         for record in self:
@@ -52,4 +49,5 @@ class HrSalaryAttachmentDeduction(models.Model):
 
             record.date_estimated_end = record.first_date_payment + relativedelta(
                 months=num_moths, day=num_days or record.first_date_payment.day
-                )
+            )
+
