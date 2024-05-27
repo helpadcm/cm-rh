@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hr_work_entry_regeneration_wizard_inherit" model="ir.ui.view">
+        <field name="name">hr_work_entry_regeneration_wizard.inherit</field>
+        <field name="model">hr.work.entry.regeneration.wizard</field>
+        <field name="inherit_id" ref="hr_work_entry_contract.hr_work_entry_regeneration_wizard"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/footer" position="inside">
+                <button name="process_work_entries_cm"
+                        string="Process Work Entries" data-hotkey="p"
+                        class="btn btn-primary oe_highlight"
+                        type="object"/>
+            </xpath>
+        </field>
+    </record>    
+</odoo>
