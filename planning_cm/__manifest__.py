@@ -18,6 +18,8 @@
 
         'data/cm_work_entry_type.xml',
         'data/cm_planning_roles.xml',
+
+        'wizard/cm_work_entry_processing_wizard_view.xml',
         ],
     'installable': True,
     'application': False,
