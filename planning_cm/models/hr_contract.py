@@ -105,7 +105,8 @@ class HrContract(models.Model):
                     )
                 if not day_work_entries:
                     continue
-                result += day_work_entries._update_overtime_type(8)
+                day_work_entries, ordinary_worked_hours = day_work_entries._update_overtime_type(8)
+                result += day_work_entries
                 _logger.info(
                     f'Week: {number_of_weeks + 1}, Day: {day}, Day Work Entries: {day_work_entries} with duration: '
                     f'{sum(day_work_entries.mapped("duration"))}'
