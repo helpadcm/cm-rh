@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="cm_role_libre" model="planning.role">
+            <field name="name">Dia Libre</field>
+            <field name="color">1</field>
+            <field name="cm_color">#fd0000</field>
+        </record>
+        <record id="cm_role_alimentacion" model="planning.role">
+            <field name="name">Arlmuerzo/Alimentación</field>
+            <field name="color">1</field>
+            <field name="cm_color">#fd0000</field>
+        </record>
+        <record id="cm_role_no_incapacidad" model="planning.role">
+            <field name="name">Incapacidad</field>
+            <field name="color">2</field>
+            <field name="cm_color">#fec100</field>
+            <field name="work_entry_type_id" ref="cm_work_entry_type_incapacidad"/>
+        </record>
+        <record id="cm_role_luto" model="planning.role">
+            <field name="name">Luto</field>
+            <field name="color">2</field>
+            <field name="cm_color">#fec100</field>
+        </record>
+        <record id="cm_role_permiso_especial" model="planning.role">
+            <field name="name">Permiso Especial</field>
+            <field name="color">2</field>
+            <field name="cm_color">#fec100</field>
+            <field name="work_entry_type_id" ref="cm_work_entry_type_permiso_especial"/>
+        </record>
+        <record id="cm_role_vacaciones" model="planning.role">
+            <field name="name">Vacaciones</field>
+            <field name="color">3</field>
+            <field name="cm_color">#feff00</field>
+            <field name="work_entry_type_id" ref="cm_work_entry_type_feriado_trabajado"/>
+        </record>
+        <record id="cm_role_feriado_trabajado" model="planning.role">
+            <field name="name">Feriado Trabajado</field>
+            <field name="color">10</field>
+            <field name="cm_color">#90d24c</field>
+            <field name="work_entry_type_id" ref="cm_work_entry_type_feriado_trabajado"/>
+        </record>
+        <record id="cm_role_capacitacion" model="planning.role">
+            <field name="name">Capacitación</field>
+            <field name="color">8</field>
+            <field name="cm_color">#02aff0</field>
+            <field name="work_entry_type_id" ref="hr_work_entry.work_entry_type_attendance"/>
+        </record>
+        
+        <record id="cm_role_base" model="planning.role">
+            <field name="name">Base</field>
+            <field name="color">0</field>
+            <field name="cm_color">#ffffff</field>
+            <field name="active" eval="False"/>
+            <field name="work_entry_type_id" ref="hr_work_entry.work_entry_type_attendance"/>
+        </record>
+    </data>
+</odoo>
