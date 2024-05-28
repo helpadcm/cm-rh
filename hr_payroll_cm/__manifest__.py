@@ -11,6 +11,7 @@
     'depends': ['hr_payroll', 'hr'],
     'data': [
         'views/hr_payroll_views.xml',
+        'views/hr_employee_info_views.xml'
     ],
     'installable': True,
     'application': False,
@@ -18,3 +19,4 @@
     'license': 'LGPL-3',
 
 }
+
