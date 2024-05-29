@@ -1,0 +1,22 @@
+<odoo>
+    <record model="ir.ui.view" id="view_model_payslip_bonus_inherit">
+        <field name="name">hr_payroll_cm.HrPayslipBonus</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <header>
+                <button name="action_recalculate_eh_day_based_cm" string="Calcular Horas Extras" type="object"
+                        class="btn-success"/>
+            </header>
+        </field>
+    </record>
+
+    <record id="action_recalculate_eh_day_based_cm" model="ir.actions.server">
+        <field name="name">Calcular Horas Extras</field>
+        <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">records.action_recalculate_eh_day_based_cm()</field>
+    </record>
+</odoo>
