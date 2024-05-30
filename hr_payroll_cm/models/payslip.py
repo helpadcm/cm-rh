@@ -1,5 +1,3 @@
-import logging
-
 from odoo import models
 import dateutil
 
@@ -117,7 +115,7 @@ class HrPayslipBonus(models.Model):
         for payslip in self:
             employee_id = payslip.employee_id
             work_entries = self._get_employee_work_entries(employee_id, payslip.date_from, payslip.date_to)
-            max_bonus = payslip.contract_id.max_extra_hours
+            max_bonus = payslip.contract_id.transportation_bonus
             bonus_rate = payslip.contract_id.value_bonus
             early_checkin_bonus_time = payslip.contract_id.early_checkin_bonus_time
             late_checkout_bonus_time = payslip.contract_id.late_checkout_bonus_time
@@ -129,14 +127,14 @@ class HrPayslipBonus(models.Model):
                 early_checkin_bonus_time,
                 late_checkout_bonus_time,
             )
-            logging.info(f"Transport Bonus Count: {transport_bonus_count}")
-            if transport_bonus_count > 0:
-                input_line_values = {
-                    "name": f"Otorgados {transport_bonus_count} Bonos de Transporte",
-                    "code": "TRANSBONUS",
-                    "amount": transport_bonus_count * bonus_rate,
-                    "contract_id": payslip.contract_id.id,
-                    "payslip_id": payslip.id,
-                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
-                }
-                self.env["hr.payslip.input"].create(input_line_values)
+            if transport_bonus_count == 0:
+                return 0
+            input_line_values = {
+                "name": f"Otorgados {transport_bonus_count} Bonos de Transporte",
+                "code": "TRANSBONUS",
+                "amount": transport_bonus_count * bonus_rate,
+                "contract_id": payslip.contract_id.id,
+                "payslip_id": payslip.id,
+                "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
+            }
+            self.env["hr.payslip.input"].create(input_line_values)
