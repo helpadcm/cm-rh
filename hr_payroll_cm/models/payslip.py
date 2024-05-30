@@ -1,4 +1,5 @@
 from odoo import models
+import dateutil
 
 
 class HrPayslipBonus(models.Model):
@@ -64,3 +65,131 @@ class HrPayslipBonus(models.Model):
             payslip.write({'edited': True})
 
             self.env['hr.payslip.worked_days'].create(worked_day_lines)
+
+    def calculate_bonus_for_record(self,
+                                   work_entry, bonus_rate, early_checkin_bonus_time, late_checkout_bonus_time
+                                   ):
+
+        """
+          Calculate the bonus for a single work entry.
+
+          Parameters:
+          work_entry (dict): The work entry.
+          bonus_rate (float): The bonus rate.
+          early_checkin_bonus_time (time): The time before which an early check-in bonus is assigned.
+          late_checkout_bonus_time (time): The time after which a late check-out bonus is assigned.
+
+          Returns:
+          float: The bonus for the work entry.
+        """
+
+        tegucigalpa_tz = dateutil.tz.gettz('America/Tegucigalpa')
+        date_start = work_entry["date_start"].astimezone(tegucigalpa_tz)
+        date_stop = work_entry["date_stop"].astimezone(tegucigalpa_tz)
+        bonus = 0
+        checkin_time = (
+                date_start.time().hour
+                + date_start.time().minute / 60
+        )
+        checkout_time = (
+                date_stop.time().hour
+                + date_stop.time().minute / 60
+        )
+
+        if checkin_time <= early_checkin_bonus_time:
+            bonus += bonus_rate
+
+        if checkout_time >= late_checkout_bonus_time:
+            bonus += bonus_rate
+
+        return bonus
+
+    def calculate_transport_bonus(self,
+                                  work_entries,
+                                  max_bonus,
+                                  bonus_rate,
+                                  early_checkin_bonus_time,
+                                  late_checkout_bonus_time,
+                                  ):
+        """
+          Calculate the transport bonus based on a list of work entries,
+          bonus limit, bonus_rate time_upper_limit and time_lower_limit.
+
+          Parameters:
+          work_entries (list): A list of work entries.
+          max_bonus (float): The bonus limit.
+          bonus_rate (float): The bonus rate.
+          early_checkin_bonus_time (time): The upper bond of time. Before this time, the bonus is assigned.
+          late_checkout_bonus_time (time): The lower limit of hours. After this time, the bonus is assigned.
+
+          Returns:
+          float: The transport bonus.
+        """
+        bonus = 0
+        for work_entry in work_entries:
+            bonus += self.calculate_bonus_for_record(
+                work_entry,
+                bonus_rate,
+                early_checkin_bonus_time,
+                late_checkout_bonus_time,
+            )
+            if bonus >= max_bonus:
+                break
+        return min(bonus, max_bonus)
+
+    def get_employee_work_entries(self,
+                                  employee_id,
+                                  work_entries_start_date,
+                                  work_entries_end_date
+                                  ):
+        """
+          Get the work entries for a specific employee within a date range.
+
+          Parameters:
+          employee_id (int): The ID of the employee.
+          work_entries_start_date (date): The start date of the work entries period.
+          work_entries_end_date (date): The end date of the work entries period.
+
+          Returns:
+          list: A list of work entries.
+        """
+        work_entries = self.env['hr.work.entry'].search(
+            [
+                ("employee_id", "=", employee_id.id),
+                ("active", "=", True),
+                ("date_start", ">=", work_entries_start_date),
+                ("date_start", "<=", work_entries_end_date),
+            ]
+        )
+        return work_entries
+
+    def action_calculate_transport_bonus_for_payslip(self):
+        """
+        Calculate the transport bonus for each employee based on their work entries.
+        """
+
+        for payslip in self:
+            employee_id = payslip.employee_id
+            work_entries = self.get_employee_work_entries(employee_id, payslip.date_from, payslip.date_to)
+            max_bonus = payslip.contract_id.transportation_bonus
+            bonus_rate = 100
+            early_checkin_bonus_time = payslip.contract_id.early_checkin_bonus_time
+            late_checkout_bonus_time = payslip.contract_id.late_checkout_bonus_time
+            if not payslip.contract_id.transportation_bonus:
+                return 0
+            transport_bonus = self.calculate_transport_bonus(
+                work_entries,
+                max_bonus,
+                bonus_rate,
+                early_checkin_bonus_time,
+                late_checkout_bonus_time,
+            )
+            input_line_values = {
+                "name": "Transport Bonus",
+                "code": "TRANSBONUS",
+                "amount": transport_bonus,
+                "contract_id": payslip.contract_id.id,
+                "payslip_id": payslip.id,
+                "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
+            }
+            self.env["hr.payslip.input"].create(input_line_values)
