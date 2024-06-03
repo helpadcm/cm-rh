@@ -11,7 +11,7 @@ for CM Airlines employees.
         """,
     'depends': ['hr_contract', 'hr'],
     'data': [
-        'views/hr_contract_bonus_transport_views.xml',
+        'views/hr_contract_views.xml',
     ],
     'installable': True,
     'application': False,

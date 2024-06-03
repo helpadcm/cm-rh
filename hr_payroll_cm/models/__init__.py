@@ -1,3 +1,3 @@
-from . import payroll_deduction
-from . import employee_info
+from . import payroll
+from . import employee
 from . import payslip

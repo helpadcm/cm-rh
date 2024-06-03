@@ -12,7 +12,7 @@
     'depends': ['hr_payroll', 'hr_contract_cm'],
     'data': [
         'views/hr_payroll_views.xml',
-        'views/hr_employee_info_views.xml',
+        'views/hr_employee_views.xml',
         'views/hr_payslip_views.xml',
     ],
     'installable': True,
@@ -21,4 +21,3 @@
     'license': 'LGPL-3',
 
 }
-
