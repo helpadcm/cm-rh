@@ -115,12 +115,12 @@ class HrPayslipBonus(models.Model):
         for payslip in self:
             employee_id = payslip.employee_id
             work_entries = self._get_employee_work_entries(employee_id, payslip.date_from, payslip.date_to)
-            max_bonus = payslip.contract_id.transportation_bonus
+            max_bonus = payslip.contract_id.max_transportation_bonus
             bonus_rate = payslip.contract_id.value_bonus
             early_checkin_bonus_time = payslip.contract_id.early_checkin_bonus_time
             late_checkout_bonus_time = payslip.contract_id.late_checkout_bonus_time
             if not payslip.contract_id.value_bonus:
-                return 0
+                return
             transport_bonus_count = self._calculate_transport_bonus(
                 work_entries,
                 max_bonus,
@@ -128,7 +128,7 @@ class HrPayslipBonus(models.Model):
                 late_checkout_bonus_time,
             )
             if transport_bonus_count == 0:
-                return 0
+                return
             input_line_values = {
                 "name": f"Otorgados {transport_bonus_count} Bonos de Transporte",
                 "code": "TRANSBONUS",

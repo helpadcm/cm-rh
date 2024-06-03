@@ -19,13 +19,13 @@ class Contract(models.Model):
         help='Máximo de horas extras que el empleado puede realizar',
         tracking=True
     )
-    maximus_performance_bonus = fields.Monetary(
+    max_performance_bonus = fields.Monetary(
         string='Máximo de Bono de Desempeño',
         help='Bono de Desempeño que se le otorgara al empleado',
         tracking=True
     )
 
-    transportation_bonus = fields.Integer(
+    max_transportation_bonus = fields.Integer(
         string='Bono de Trasporte Máximo',
         help='Bono de Trasporte Máximo',
         tracking=True
