@@ -7,10 +7,13 @@
     'summary': 'Planning module for CM Airlines',
     'description': """
         This module provides the necessary functionality for CM Airlines.
+        - Calculate the bonus based on the extra hours worked according to their contract.
         """,
-    'depends': ['hr_payroll', 'hr'],
+    'depends': ['hr_payroll', 'hr_contract_cm'],
     'data': [
         'views/hr_payroll_views.xml',
+        'views/hr_employee_views.xml',
+        'views/hr_payslip_views.xml',
     ],
     'installable': True,
     'application': False,

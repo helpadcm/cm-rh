@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
 
 
-class HrSalaryAttachmentDeduction(models.Model):
+class HrSalaryAttachment(models.Model):
     _inherit = 'hr.salary.attachment'
 
     first_date_payment = fields.Date(
