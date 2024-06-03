@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Transportation bonus module for CM Airlines',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Human Resources/Contract',
     'sequence': 244,
     'summary': 'Transportation bonus module for CM Airlines',
@@ -11,7 +11,7 @@ for CM Airlines employees.
         """,
     'depends': ['hr_contract', 'hr'],
     'data': [
-        'views/hr_contract_bonus_transport_views.xml',
+        'views/hr_contract_views.xml',
     ],
     'installable': True,
     'application': False,
