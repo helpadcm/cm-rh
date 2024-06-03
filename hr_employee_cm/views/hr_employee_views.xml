@@ -1,0 +1,48 @@
+<odoo>
+    <data noupdate="1">
+        <record id="hr_employee_export_name_field" model="ir.exports.line">
+            <field name="name">name</field>
+        </record>
+        <record id="hr_employee_export_birthday_field" model="ir.exports.line">
+            <field name="name">birthday</field>
+        </record>
+        <record id="hr_employee_export_next_birthday_field" model="ir.exports.line">
+            <field name="name">next_birthday</field>
+        </record>
+        <record id="hr_employee_custom_export" model="ir.exports">
+            <field name="name">Cumpleaños</field>
+            <field name="resource">hr.employee</field>
+            <field name="export_fields"
+                   eval="[(6, 0, [ref('hr_employee_export_name_field'), ref('hr_employee_export_birthday_field'), ref('hr_employee_export_next_birthday_field')])]"/>
+        </record>
+    </data>
+
+
+    <record id="hr_employee_birthday_filter" model="ir.ui.view">
+        <field name="name">hr.employee.HrEmployeeInfo.filter</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter string="Cumpleaños del Mes"
+                        name="this_month_birthdays"
+                        domain="[('birthday', 'like', context_today().strftime('-%m-%'))]"/>
+                <filter string="Cumpleaños del Próximo Mes"
+                        name="next_month_birthdays"
+                        domain="[('birthday', 'like', (context_today() + relativedelta(months=1)).strftime('-%m-%'))]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_birthday_view_form" model="ir.ui.view">
+        <field name="name">hr_payroll_cm.HrEmployeeInfo.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='birthday']" position="after">
+                <field name="next_birthday"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
