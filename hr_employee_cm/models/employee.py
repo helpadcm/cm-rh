@@ -30,6 +30,7 @@ class HrEmployee(models.Model):
                 else:
                     record.identification_id = False
                     raise exceptions.UserError(
-                        """El número de identificación debe ser de 13 dígitos.""")
+                        f"El número de identificación debe ser de 13 dígitos numericos.\n"
+                        f"Tome como referencia el siguiente ejemplo: 0801199912345\n")
             else:
                 record.identification_id = False

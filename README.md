@@ -32,6 +32,10 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
   formulario `hr.view_employee_form` en la pestaña 'Información Privada', los filtros se incoporaron en view filter
   `hr.view_employee_filter`
 
+
+- Se ha implementado un método que formatea el campo del número de identidad del empleado. Este método se basa en el
+  estándar hondureño, donde la identidad consta de 13 dígitos numéricos.
+
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_employee_cm`
 
 ## Modulo hr_payroll_cm
