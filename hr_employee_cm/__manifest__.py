@@ -7,7 +7,8 @@
     'summary': 'Employee module for CM Airlines',
     'description': """
         This module provides the necessary functionality for CM Airlines.
-        - Gets the employees who have birthdays during the month
+        - Gets the employees who have birthdays during the month.
+        - Formats the employee's identification number to the Honduran standard of exactly 13 digits.
         """,
     'depends': ['hr', ],
     'data': [
