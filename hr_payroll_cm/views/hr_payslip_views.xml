@@ -7,10 +7,13 @@
             <header>
                 <button name="action_recalculate_eh_day_based_cm" string="Calcular Horas Extras" type="object"
                         class="btn-primary"
+                        invisible="state not in ('draft', 'verify')"
                         help="Calcula el pago de horas extras basado en las reglas definidas en el contrato del empleado.
                         Este cálculo se realiza considerando las horas trabajadas en exceso a la jornada laboral ordinaria."/>
+
                 <button name="action_calculate_transport_bonus_for_payslip" string="Calcular Bono Trasporte"
                         type="object"
+                        invisible="state not in ('draft', 'verify')"
                         class="btn-primary"
                         help="Calcula y aplica el bono de transporte del empleado según las reglas definidas en su contrato."/>
             </header>
