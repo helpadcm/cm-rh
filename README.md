@@ -36,6 +36,9 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
 - Se ha implementado un método que formatea el campo del número de identidad del empleado. Este método se basa en el
   estándar hondureño, donde la identidad consta de 13 dígitos numéricos.
 
+- Se oculto la seccion de "PERMISO DE TRABAJO" en la pestaña "Informacion Privada" en el formulario de
+  empleado `hr.view_employee_form`
+
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_employee_cm`
 
 ## Modulo hr_payroll_cm
