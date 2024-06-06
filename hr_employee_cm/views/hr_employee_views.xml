@@ -39,9 +39,20 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
+            <!-- NOTEBOOK INFORMACION PRIVADA -->
+                <!-- CIUDADANÍA -->
             <xpath expr="//field[@name='birthday']" position="after">
                 <field name="next_birthday"/>
             </xpath>
+                <!-- PERMISO DE TRABAJO -->
+            <xpath expr="//separator[@name='has_work_permit']" position="replace"/>
+            <xpath expr="//field[@name='visa_no']" position="replace"/>
+            <xpath expr="//field[@name='permit_no']" position="replace"/>
+            <xpath expr="//field[@name='visa_expire']" position="replace"/>
+            <xpath expr="//field[@name='work_permit_expiration_date']" position="replace"/>
+            <xpath expr="//field[@name='work_permit_name']" position="replace"/>
+            <xpath expr="//field[@name='has_work_permit']" position="replace"/>
+
         </field>
     </record>
 
