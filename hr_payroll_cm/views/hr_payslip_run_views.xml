@@ -7,7 +7,12 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <button name="action_load_nomina_from_excel_wizard"
-                        string="Load Nomina from Excel"
+                        string="Cargar nomina desde Excel"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state not in ['draft', 'verify']"/>
+                <button name="action_load_catorceavo_from_excel_wizard"
+                        string="Cargar catorceavo desde Excel"
                         type="object"
                         class="btn-primary"
                         invisible="state not in ['draft', 'verify']"/>

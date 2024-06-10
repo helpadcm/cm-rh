@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="load_catorceavo_from_excel_wizard_form" model="ir.ui.view">
+        <field name="name">load.catorceavo.from.excel.wizard.form</field>
+        <field name="model">load.catorceavo.from.excel.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Load Nomina from Excel">
+                <group>
+                    <field name="file" widget="binary"
+                           options="{'accepted_file_extensions': 'xls/xlsx'}"/>
+                    <field name="sheet_index"/>
+                    <field name="row_header"/>
+                    <field name="row_start"/>
+                    <field name="payslip_run_id"/>
+                    <field name="payslip_ids" widget="many2many_tags"/>
+                    <field name="warnings"/>
+                </group>
+                <footer>
+                    <button name="action_load_raw_payslip"
+                            string="Load"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_process_payslips"
+                            string="Process"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_load_catorceavo_from_excel_wizard"
+            model="ir.actions.act_window">
+        <field name="name">Load Catorceavo from Excel</field>
+        <field name="res_model">load.catorceavo.from.excel.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id"
+               ref="hr_payroll_cm.load_catorceavo_from_excel_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
