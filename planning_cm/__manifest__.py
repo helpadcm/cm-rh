@@ -8,7 +8,7 @@
     'description': """
         This module provides the necessary functionality for CM Airlines.
         """,
-    'depends': ['planning', 'hr_work_entry_contract'],
+    'depends': ['base', 'planning', 'hr_work_entry_contract'],
     'data': [
         'security/planning_cm_security.xml',
         'security/ir.model.access.csv',
