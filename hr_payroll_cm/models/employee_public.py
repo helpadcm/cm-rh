@@ -7,7 +7,7 @@ class HrEmployeePublic(models.Model):
     employee_no = fields.Char(
         string="Código de Empleado",
         help="Este código es único para cada empleado y se utiliza para identificarlo en el sistema.",
-        compute="_get_employee_no"
+        compute_sudo="_get_employee_no"
         )
 
     def _get_employee_no(self):
