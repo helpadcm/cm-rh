@@ -68,6 +68,9 @@ El modulo `hr_payroll_cm` realiza las siguientes modificaciones:
 
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_payroll_cm`
 
+- 2024-06-12 Se adicionó el campo employee_no a la vista emloyee_public_form_view, en la misma posición que la vista 
+  privada.
+
 ## Modulo plannig_cm
 
 Para la instalacion de este modulo se necesitan las siguientes dependencias
