@@ -11,5 +11,6 @@ class HrEmployeePublic(models.Model):
         )
 
     def _get_employee_no(self):
-        for record in self:
-            record.employee_no = record['registration_number'] or record['barcode'] or record['pin'] or ''
+        for employee_public in self:
+            employee_public.employee_no = (employee_public.employee_id.registration_number or
+                                           employee_public.employee_id.barcode or employee_public.employee_id.pin or '')
