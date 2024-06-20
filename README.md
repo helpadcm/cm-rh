@@ -39,6 +39,14 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
 - Se oculto la seccion de "PERMISO DE TRABAJO" en la pestaña "Informacion Privada" en el formulario de
   empleado `hr.view_employee_form`
 
+- Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo 
+  "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` , 
+  este cambio unicamente fue realizado a nivel de vista modificando mediante herencia el archivo `hr_employee_view.xml`
+  
+  ***IMPORTANTE*** al modificar los dominios del `user_id` se esta considerando que unicamente se trabaja en base a 
+  una empresa, si se desea trabajar con multiples empresas este codigo no sera eficiente y se debera de modificar 
+  para adaptase al cambio.
+
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_employee_cm`
 
 ## Modulo hr_payroll_cm
