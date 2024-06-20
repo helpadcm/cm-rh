@@ -40,7 +40,7 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
   empleado `hr.view_employee_form`
 
 - Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo 
-  "user_id" se encuentra en la pestaña "AJUSTES DE RRHH" en el formulario de empleado `hr.view_employee_form` , 
+  "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` , 
   este cambio unicamente fue realizado a nivel de vista modificando mediante herencia el archivo `hr_employee_view.xml`
   
   ***IMPORTANTE*** al modificar los dominios del `user_id` se esta considerando que unicamente se trabaja en base a 
