@@ -13,8 +13,6 @@
     'data': [
         'security/ir.model.access.csv',
         'views/hr_payroll_views.xml',
-        'views/hr_employee_public_views.xml',
-        'views/hr_employee_views.xml',
         'views/hr_payslip_run_views.xml',
         'views/hr_payslip_views.xml',
         'wizard/load_catorceavo_from_excel_wizard_views.xml',
