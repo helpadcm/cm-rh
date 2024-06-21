@@ -39,6 +39,11 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
+            <!-- PRINCIPAL -->
+            <xpath expr="//field[@name='mobile_phone']" position="before">
+                <field name="employee_no"/>
+            </xpath>
+
             <!-- NOTEBOOK INFORMACION PRIVADA -->
             <!-- CIUDADANÍA -->
             <xpath expr="//field[@name='birthday']" position="after">
@@ -53,7 +58,7 @@
             <xpath expr="//field[@name='work_permit_name']" position="replace"/>
             <xpath expr="//field[@name='has_work_permit']" position="replace"/>
 
-            <!-- PESTAÑA AJUSTES DE RR.HH -->
+            <!-- PESTAÑA AJUSTES DE RR.HH-->
             <xpath
                     expr="//sheet/notebook/page[@name='hr_settings']/group/group[@name='active_group']/field[@name='user_id']"
                     position="attributes">
