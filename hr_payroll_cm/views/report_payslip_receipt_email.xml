@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="report_payslip_email_cm">
+        <xpath expr="//div[@class='page']" position="replace">
+            <t t-name="hr_payroll.report_payslip">
+
+                 <!--<div class="page">-->
+                    <h2 id="payslip_name">
+                        Comprobante de pago de planilla
+                    </h2>
+                    <t t-set="is_invalid" t-value="o._is_invalid()"/>
+                    <div t-if="is_invalid">
+                        <strong id="invalid_warning">
+                            <span t-out="is_invalid">This payslip is not validated. This is
+                                not a legal document.
+                            </span>
+                        </strong>
+                    </div>
+                    <div t-else="">
+                        <div class="oe_structure"/>
+                    </div>
+                    <table name="employee-infos" id="employee_info_table_1" class="table table-sm table-bordered">
+                        <tr id="employee_info_line_1">
+                            <td class="w-25">
+                                <strong>Código de empleado</strong>
+                            </td>
+                            <td class="w-25">
+                                <strong>Employee</strong>
+                            </td>
+                            <td>
+                                <strong>Identification</strong>
+                            </td>
+                            <td>
+                                <strong>Fecha</strong>
+                            </td>
+                        </tr>
+                        <tr id="employee_info_line_2">
+                            <td>
+                                <span t-field="o.employee_id.barcode">316-1</span>
+                            </td>
+                            <td>
+                                <span t-field="o.employee_id">John Smith</span>
+                            </td>
+                            <td name="identification-id">
+                                <span t-field="o.employee_id.identification_id">John123
+                                </span>
+                            </td>
+                            <td>
+                                <span t-field="o.paid_date">2023-08-10</span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="table table-sm" t-if="not o.struct_id.hide_basic_on_pdf">
+                        <tr>
+                            <td class="w-25">
+                                <strong>Salario Ordinario (Mensual)</strong>
+                            </td>
+                            <td style="color:#875A7B" class="w-25">
+                                <span t-out="o.contract_id.wage"
+                                      t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}">
+                                    $100.0
+                                </span>
+                            </td>
+                            <td class="w-25">
+                                <strong>Salario Ordinario (Quincenal)</strong>
+                            </td>
+                            <td style="color:#875A7B" class="w-25">
+                                <span t-out="o.contract_id._get_contract_wage()"
+                                      t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}">
+                                    $100.0
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                    <div id="total">
+                        <table class="table table-sm">
+                            <thead class="o_black_border">
+                                <tr>
+                                    <th id="line_header_name" class="text-start">Name</th>
+                                    <th id="line_header_hours" class="text-end">Number of Hours</th>
+                                    <th id="line_header_amount" class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t id="worked_days_lines">
+                                    <span t-foreach="o.worked_days_line_ids.filtered(lambda worked_days: worked_days.code != 'OUT')"
+                                          t-as="worked_days">
+                                        <tr style="color:none">
+                                            <td id="worked_days_name">
+                                                <span t-field="worked_days.work_entry_type_id.name">
+                                                    Regular Hours
+                                                </span>
+                                            </td>
+                                            <td id="worked_days_hours" class="text-end">
+                                                <span t-field="worked_days.number_of_hours">
+                                                    8
+                                                </span>
+                                            </td>
+                                            <td id="worked_days_amount" class="text-end">
+                                                <span t-out="worked_days.amount" digits="[42, 2]"
+                                                      t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}">
+                                                    40
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </span>
+                                </t>
+                                <t id="payslip_lines">
+                                    <span t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)"
+                                          t-as="line">
+                                        <t t-if="line.total !=0">
+                                            <t t-set="line_styling" t-value="line.get_payslip_styling_dict()"/>
+                                            <t t-set="line_style"/>
+                                            <t t-set="line_class"/>
+                                            <t t-if="line.code in line_styling">
+                                                <t t-set="line_style" t-value="line_styling[line.code]['line_style']"/>
+                                                <t t-set="line_class" t-value="line_styling[line.code]['line_class']"/>
+                                            </t>
+                                            <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                                <td id="payslip_line_name">
+                                                    <span t-field="line.name"/>
+                                                </td>
+                                                <td/>
+                                                <td id="payslip_line_total" class="text-end">
+                                                    <span t-esc="line.total"
+                                                          t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"
+                                                          t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </span>
+                                </t>
+                            </tbody>
+                        </table>
+                        <!-- Signature -->
+                        <div id="signature" style="text-align: center;">
+                            <span>_________________________________</span>
+                            <br/>
+                            <a>Recibi Conforme</a>
+                            <br/>
+                            <span t-field="o.employee_id"/>
+
+                        </div>
+                        <div class="oe_structure"/>
+                    </div>
+                    <!--</div>-->
+
+                </t>
+
+        </xpath>
+    </template>
+</odoo>
