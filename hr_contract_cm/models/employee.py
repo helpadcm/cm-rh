@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.tools.date_utils import relativedelta
 
 
 class Employee(models.Model):
@@ -14,7 +15,7 @@ class Employee(models.Model):
     def _compute_seniority(self):
         for employee in self:
             if employee.contract_id:
-                seniority = fields.Date.today() - employee.contract_id.date_start
-                employee.seniority = f'{seniority.year} años, {seniority.month} meses y {seniority.day} días'
+                seniority = relativedelta(fields.Date.today(), employee.contract_id.date_start)
+                employee.seniority = f'{seniority.years} años, {seniority.months} meses y {seniority.days} días'
             else:
                 employee.seniority = False
