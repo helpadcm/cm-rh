@@ -13,7 +13,7 @@
     'depends': ['hr', ],
     'data': [
         'views/hr_employee_views.xml',
-        'views/hr_employee_public_views.xml'
+        'views/hr_employee_public_views.xml',
         'data/crm_create_user.xml',
     ],
     'installable': True,

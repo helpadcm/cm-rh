@@ -1,8 +1,9 @@
-from odoo import models, fields, api, exceptions
-from dateutil.relativedelta import relativedelta
 import logging
 import re
 
+from dateutil.relativedelta import relativedelta
+
+from odoo import models, fields, api, exceptions
 
 
 class HrEmployee(models.Model):
@@ -16,9 +17,8 @@ class HrEmployee(models.Model):
         )
 
     def get_employee_no(self):
-        for record in self:
-            record.employee_no = record['registration_number'] or record['barcode'] or record['pin'] or ''
-
+        for employee in self:
+            employee.employee_no = employee.barcode or employee.pin or ''
 
     @api.depends('birthday')
     def _compute_next_birthday(self):
@@ -42,8 +42,9 @@ class HrEmployee(models.Model):
                 else:
                     record.identification_id = False
                     raise exceptions.UserError(
-                        f"El número de identificación debe ser de 13 dígitos numericos.\n"
-                        f"Tome como referencia el siguiente ejemplo: 0801199912345\n")
+                        "El número de identificación debe ser de 13 dígitos numericos.\n"
+                        "Tome como referencia el siguiente ejemplo: 0801199912345\n"
+                        )
             else:
                 record.identification_id = False
 
@@ -59,17 +60,19 @@ class HrEmployee(models.Model):
             work_email = employee.work_email
 
             if work_email:
-                username, domain = work_email.split('@')
+                username, _ = work_email.split('@')
 
                 if not employee.user_id:
                     existing_user = Users.search([('login', '=', work_email)], limit=1)
                     if not existing_user:
-                        new_user = Users.create({
-                            'login': work_email,
-                            'name': username,
-                            'email': work_email,
-                            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-                        })
+                        new_user = Users.create(
+                            {
+                                'login': work_email,
+                                'name': username,
+                                'email': work_email,
+                                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+                                }
+                            )
                         employee.user_id = new_user.id
                         _logger.info(f'Se creó el usuario: {username}')
                     else:
