@@ -16,6 +16,7 @@
         'views/hr_branch_views.xml',
         'views/hr_employee_views.xml',
         'views/hr_employee_public_views.xml',
+        'data/cron_create_portal_user_to_employee.xml',
         'data/crm_create_user.xml',
         ],
     'installable': True,
