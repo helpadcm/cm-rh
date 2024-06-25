@@ -19,7 +19,7 @@
 
 
     <record id="hr_employee_birthday_filter" model="ir.ui.view">
-        <field name="name">hr.employee.HrEmployeeInfo.filter</field>
+        <field name="name">hr.employee.hremployeeinfo.filter</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_filter"/>
         <field name="arch" type="xml">
@@ -35,16 +35,21 @@
     </record>
 
     <record id="hr_employee_birthday_view_form" model="ir.ui.view">
-        <field name="name">hr_payroll_cm.HrEmployeeInfo.form</field>
+        <field name="name">hr_payroll_cm.hremployeeinfo.form</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
+            <!-- PRINCIPAL -->
+            <xpath expr="//field[@name='mobile_phone']" position="before">
+                <field name="employee_no"/>
+            </xpath>
+
             <!-- NOTEBOOK INFORMACION PRIVADA -->
-                <!-- CIUDADANÍA -->
+            <!-- CIUDADANÍA -->
             <xpath expr="//field[@name='birthday']" position="after">
                 <field name="next_birthday"/>
             </xpath>
-                <!-- PERMISO DE TRABAJO -->
+            <!-- PERMISO DE TRABAJO -->
             <xpath expr="//separator[@name='has_work_permit']" position="replace"/>
             <xpath expr="//field[@name='visa_no']" position="replace"/>
             <xpath expr="//field[@name='permit_no']" position="replace"/>
@@ -53,6 +58,12 @@
             <xpath expr="//field[@name='work_permit_name']" position="replace"/>
             <xpath expr="//field[@name='has_work_permit']" position="replace"/>
 
+            <!-- PESTAÑA AJUSTES DE RR.HH-->
+            <xpath
+                    expr="//sheet/notebook/page[@name='hr_settings']/group/group[@name='active_group']/field[@name='user_id']"
+                    position="attributes">
+                <attribute name="domain">[]</attribute>
+            </xpath>
         </field>
     </record>
 

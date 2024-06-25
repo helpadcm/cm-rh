@@ -12,6 +12,7 @@ for CM Airlines employees.
     'depends': ['hr_contract', 'hr'],
     'data': [
         'views/hr_contract_views.xml',
+        'views/hr_employee_views_inherit.xml',
     ],
     'installable': True,
     'application': False,
