@@ -49,35 +49,18 @@ class HrEmployee(models.Model):
                 record.identification_id = False
 
     @api.model
-    def crm_create_user(self):
-        _logger = logging.getLogger(__name__)
-        employees = self.search([])
-
-        Users = self.env['res.users']
+    def cron_create_portal_user_to_employee(self):
+        employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
 
         for employee in employees:
+            username = employee.name.replace(' ', '')
+            if self.env['res.users'].search([('login', '=', username)]):
+                continue
 
-            work_email = employee.work_email
-
-            if work_email:
-                username, _ = work_email.split('@')
-
-                if not employee.user_id:
-                    existing_user = Users.search([('login', '=', work_email)], limit=1)
-                    if not existing_user:
-                        new_user = Users.create(
-                            {
-                                'login': work_email,
-                                'name': username,
-                                'email': work_email,
-                                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-                                }
-                            )
-                        employee.user_id = new_user.id
-                        _logger.info(f'Se creó el usuario: {username}')
-                    else:
-                        _logger.info(f'El usuario con el correo electrónico {work_email} ya existe.')
-                else:
-                    _logger.info(f'El empleado {username} ya tiene un usuario asociado.')
-            else:
-                _logger.info(f'El empleado {employee.name} no tiene un correo electrónico de trabajo.')
+            user = self.env['res.users'].create({
+                'name': employee.name,
+                'login': username,
+                'email': employee.work_email,
+                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+            })
+            employee.user_id = user.id
