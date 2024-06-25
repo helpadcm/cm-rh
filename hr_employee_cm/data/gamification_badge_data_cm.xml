@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="one_year" model="gamification.badge">
+            <field name="name">Un Año de Exitos</field>
+            <field name="description">Este reconocimiento se te otorga por haber colaborado con nosotros durante un año.</field>
+            <field name="rule_auth">everyone</field>
+            <field name="rule_max">True</field>
+            <field name="rule_max_number">1</field>
+            <field name="image_1920" type="base64" file="hr_employee_cm/static/img/badge_one_year.jpg"/>
+        </record>
+    </data>
+</odoo>

@@ -41,11 +41,32 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
 
 - Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo
   "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` ,
+
+- Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo 
+  "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` , 
   este cambio unicamente fue realizado a nivel de vista modificando mediante herencia el archivo `hr_employee_view.xml`
 
   ***IMPORTANTE*** al modificar los dominios del `user_id` se esta considerando que unicamente se trabaja en base a
   una empresa, si se desea trabajar con multiples empresas este codigo no sera eficiente y se debera de modificar
   para adaptase al cambio.
+
+
+- Se ha creado una accion automatizada (cron) para la creacion de usuarios de portal , el cron se ejecturada de 
+  forma diaria a las 07:00 am hora hondureña , la accion creara un usuario del portal al empleado unicamente si: 
+  el empleado cuenta con un correo empresarial y actualmente no cuenta con un usuario ya creado. para comprender 
+  esta tarea consultar el archivo `models/hr_employee.py` en la funcion `cron_create_portal_user_to_employee` , para 
+  la vista consultar el archivo `data/cron_create_portal_user_to_employee.xml`
+
+
+- Se ha creado una accion automatizada(cron) para otorgar una insignia a los empleados que cumplan un año en la 
+  empresa, este cron se ejecutara de forma diaira a las 07:00 am hora hondureña , la accion buscara a los empleados 
+  que segun su contrato cumplan este intervalo de tiempo mayor o igual a un año y menor a dos años, para poder 
+  otorgarle la insignia el empleado debera tener un usuario relacionado, ya que las insignias se otorgan al usuario 
+  y no al empleado como tal. para comprender mejor la esta tarea consultar el archivo `models/hr_employee.py` en la 
+  funcion `cron_award_one_year_badge`, para la vista consultar el archivo `data/cron_award_one_year_badge.xml`, para 
+  consultar la creacion de la insignia consultar el archivo `data/gamification_badge_data_cm.xml`
+
+para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_employee_cm`
 
 - 2024-07-05 Se adicionó el modelo branch(sucursal) y se relacionó con el modelo hr.employee, se adicionó el campo
   branch_id en el formulario de empleado `hr.view_employee_form` para obtener mas informacion, revisar el codigo

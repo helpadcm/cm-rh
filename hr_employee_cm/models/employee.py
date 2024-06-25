@@ -69,3 +69,37 @@ class HrEmployee(models.Model):
                 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
             })
             employee.user_id = user.id
+
+    @api.model
+    def cron_award_one_year_badge(self):
+        today = fields.Date.today()
+        one_year_ago = today - relativedelta(years=1)
+        two_years_ago = today - relativedelta(years=2)
+
+        badge = self.env.ref('hr_employee_cm.one_year').id
+        if not badge:
+            return
+
+        contracts = self.env['hr.contract'].search([
+            ('date_start', '>=', two_years_ago),
+            ('date_start', '<=', one_year_ago),
+        ])
+
+        if not contracts:
+            return
+
+        employees = contracts.mapped('employee_id')
+
+        for employee in employees:
+            if employee.user_id:
+                badge_user = self.env['gamification.badge.user'].search([
+                    ('badge_id', '=', badge),
+                    ('user_id', '=', employee.user_id.id),
+                ], limit=1)
+                if not badge_user:
+                    self.env['gamification.badge.user'].create({
+                        'user_id': employee.user_id.id,
+                        'sender_id': self.env.user.id,
+                        'badge_id': badge,
+                        'employee_id': employee.id,
+                    })

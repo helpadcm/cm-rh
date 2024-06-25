@@ -17,6 +17,8 @@
         'views/hr_employee_views.xml',
         'views/hr_employee_public_views.xml',
         'data/cron_create_portal_user_to_employee.xml',
+        'data/cron_award_one_anniversary_badge.xml',
+        'data/gamification_badge_data_cm.xml',
         'data/crm_create_user.xml',
         ],
     'installable': True,
