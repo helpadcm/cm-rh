@@ -6,7 +6,8 @@
         <record id="hr_employee_export_birthday_field" model="ir.exports.line">
             <field name="name">birthday</field>
         </record>
-        <record id="hr_employee_export_next_birthday_field" model="ir.exports.line">
+        <record id="hr_employee_export_next_birthday_field"
+                model="ir.exports.line">
             <field name="name">next_birthday</field>
         </record>
         <record id="hr_employee_custom_export" model="ir.exports">
@@ -50,11 +51,13 @@
                 <field name="next_birthday"/>
             </xpath>
             <!-- PERMISO DE TRABAJO -->
-            <xpath expr="//separator[@name='has_work_permit']" position="replace"/>
+            <xpath expr="//separator[@name='has_work_permit']"
+                   position="replace"/>
             <xpath expr="//field[@name='visa_no']" position="replace"/>
             <xpath expr="//field[@name='permit_no']" position="replace"/>
             <xpath expr="//field[@name='visa_expire']" position="replace"/>
-            <xpath expr="//field[@name='work_permit_expiration_date']" position="replace"/>
+            <xpath expr="//field[@name='work_permit_expiration_date']"
+                   position="replace"/>
             <xpath expr="//field[@name='work_permit_name']" position="replace"/>
             <xpath expr="//field[@name='has_work_permit']" position="replace"/>
 
@@ -64,6 +67,9 @@
                     position="attributes">
                 <attribute name="domain">[]</attribute>
             </xpath>
+            <field name="department_id" position="after">
+                <field name="branch_id"/>
+            </field>
         </field>
     </record>
 
