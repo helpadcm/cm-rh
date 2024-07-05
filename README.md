@@ -104,3 +104,28 @@ El modulo `planning_cm` realiza las siguientes modificaciones:
 - Se extiende de `planning.role` para agregar nuevos campos heredados con el objetivo de crear nuevos roles
 
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/planning_cm`
+
+## Modulo rh_attendance_cm
+### Notas de Actualización - 2024-07-05
+
+#### Nuevas Características
+- Se ha añadido soporte para dispositivos de asistencia en el módulo de Recursos Humanos. Esto incluye la gestión de dispositivos de asistencia, permitiendo registrar y configurar cada dispositivo utilizado para el registro de asistencias de los empleados.
+- Implementación de campos relacionados en los registros de asistencia para vincular cada marca de tiempo con un dispositivo específico y la sucursal correspondiente.
+
+#### Mejoras
+- Extensión de las vistas de asistencia para incluir el dispositivo de asistencia utilizado. Ahora es posible filtrar y agrupar las asistencias por dispositivo, facilitando la gestión y el análisis de los datos de asistencia.
+- Actualización de las vistas de formulario y árbol para dispositivos de asistencia, mejorando la usabilidad y accesibilidad de la información relacionada con los dispositivos.
+
+#### Correcciones de Errores
+- Se ha corregido un error en la definición del dominio del filtro `company_filter` en la vista de búsqueda de dispositivos de asistencia. Anteriormente, se producía un error debido a la referencia incorrecta al objeto `user` en el dominio del filtro.
+
+#### Seguridad
+- Actualización de los archivos de seguridad para incluir nuevos grupos y permisos relacionados con la gestión de dispositivos de asistencia. Esto asegura que solo los usuarios autorizados puedan acceder a la información y realizar operaciones relacionadas con los dispositivos de asistencia.
+
+#### Documentación y Ayuda
+- Se ha añadido documentación detallada sobre la configuración y uso de los dispositivos de asistencia dentro del módulo de Recursos Humanos. Esto incluye guías para la configuración de dispositivos y la asignación de dispositivos a empleados.
+
+#### Dependencias
+- Este módulo requiere `hr`, `hr_attendance`, y `hr_employee_cm` para su correcto funcionamiento.
+
+Para más detalles sobre estas actualizaciones, por favor consulte la documentación del módulo en el sistema de ayuda en línea.

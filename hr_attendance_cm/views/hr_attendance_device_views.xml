@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_attendance_device_form" model="ir.ui.view">
+        <field name="name">hr.attendance.device.form</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <form string="Attendance Device">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="device_id"/>
+                        <field name="ip_address"/>
+                        <field name="port"/>
+                        <field name="company_id"/>
+                        <field name="branch_id"/>
+                        <field name="employee_ids" widget="many2many_tags"/>
+                        <field name="latitude"/>
+                        <field name="longitude"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_device_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.device.tree</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <tree string="Attendance Devices">
+                <field name="name"/>
+                <field name="device_id"/>
+                <field name="ip_address"/>
+                <field name="port"/>
+                <field name="company_id"/>
+                <field name="branch_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_device_search" model="ir.ui.view">
+        <field name="name">hr.attendance.device.search</field>
+        <field name="model">hr.attendance.device</field>
+        <field name="arch" type="xml">
+            <search string="Search Attendance Device">
+                <field name="name"/>
+                <field name="device_id"/>
+                <field name="ip_address"/>
+                <field name="company_id"/>
+                <field name="branch_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_attendance_device" model="ir.actions.act_window">
+        <field name="name">Attendance Devices</field>
+        <field name="res_model">hr.attendance.device</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create the first attendance device
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+            id="menu_hr_attendance_device"
+            name="Attendance Devices"
+            parent="hr_attendance.menu_hr_attendance_root"
+            sequence="40"
+            action="action_hr_attendance_device"/>
+</odoo>
