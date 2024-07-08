@@ -10,8 +10,7 @@
     'depends': ['hr', 'hr_attendance', 'hr_contract', 'hr_work_entry_contract'],
     'data': [
         'security/ir.model.access.csv',
-        'report/hr_attendance_report.xml',
-        'report/hr_attendance_report_templates.xml',
+        'views/hr_attendance_report_views.xml',
     ],
     'installable': True,
     'application': False,

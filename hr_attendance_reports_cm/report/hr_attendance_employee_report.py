@@ -1,4 +1,5 @@
 import io
+import zipfile
 from datetime import timedelta
 from itertools import groupby
 
@@ -11,17 +12,16 @@ class HrAttendanceEmployeeReport(models.TransientModel):
     """
     Employee Attendance Report.
     Its purpose is to provide a report that shows the attendance of employees for a given period.
-    Its desion to be used to calculate the total hours worked by an employee in a given period
+    Its decision to be used to calculate the total hours worked by an employee in a given period
     for the purpose of payroll and other analysis.
     """
     _name = "hr.attendance.employee.report"
     _description = "Employee Attendance Analysis Report"
-    _auto = False
     _rec_name = 'date'
 
     date = fields.Date('Date', readonly=True)
-    employee_id = fields.Many2one('hr.employee', 'Employee', readonly=True, required=True)
-    department_id = fields.Many2one('hr.department', 'Department', readonly=True)
+    employee_id = fields.Many2many('hr.employee', 'Employee')
+    department_id = fields.Many2one('hr.department', 'Department')
     company_id = fields.Many2one('res.company', 'Company', readonly=True)
 
     date_from = fields.Date('Start Date', readonly=True)
@@ -50,7 +50,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
     def _get_attendance(self):
         return self.env['hr.attendance'].search(self._get_domain()).read()
 
-    def groupby(iterable, key_func):
+    def groupby(self, iterable, key_func):
         result = []
         for item in iterable:
             key = key_func(item)
@@ -94,7 +94,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         attendances_report = []
 
         for _date in dates:
-            self._processo_date()
+            self._process_date(employee, _date, attendance_date)
 
         report["header"] = {
             "employee_id": employee.id,
@@ -155,12 +155,6 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         ordinary_hours = round(min(worked_hours, 8) / precision) * precision
         extra_hours = round(max(worked_hours - ordinary_hours, 0) / precision) * precision
         return worked_hours, ordinary_hours, extra_hours
-
-    def _get_attendance_from_date(self, employee, _date, attendance_date, attendances_report):
-        attendances = attendance_date[_date]
-        if len(attendances) == 4:
-            return self._process_single_attendance(employee, _date, attendances, attendances_report)
-        return self._process_double_attendance(employee, _date, attendances, attendances_report)
 
     @staticmethod
     def _excel_formats(workbook):
@@ -309,8 +303,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         """
         self.ensure_one()
 
-        employee_attendaces = self._get_attendance()
-        employe_attendance_data = self.process_employee_attendance(self.employee_id, employee_attendaces)
+        employee_attendances = self._get_attendance()
+        employee_attendance_data = self.process_employee_attendance(self.employee_id, employee_attendances)
 
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(
@@ -323,38 +317,66 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         worksheet = workbook.add_worksheet()
 
-        # Process the headers of the report
-        data_header = employe_attendance_data["header"]
+        data_header = employee_attendance_data["header"]
         self._process_excel_headers(data_header, worksheet, formats)
 
-        # Process the rows of the report 
-        data_rows = employe_attendance_data["rows"]
+        data_rows = employee_attendance_data["rows"]
         self._process_excel_rows(data_rows, worksheet, formats)
 
-        # Close the workbook
         workbook.close()
         output.seek(0)
         generated_file = output.read()
         output.close()
 
         return {
-            'file_name': f'Employee Attendance Report - {employe_attendance_data["header"]["employee_id"]}.xlsx',
+            'file_name': f'Employee Attendance Report - {employee_attendance_data["header"]["employee_id"]}.xlsx',
             'file_content': generated_file,
             'file_type': 'xlsx',
             }
 
+    def export_to_excel_for_multiple_employees(self, employee_ids):
+        """
+        Generates Excel reports for multiple employees and returns them as a ZIP file.
 
-class HrAttendanceEmployeeLineReport(models.Model):
-    """
-    Employee Attendance Line Report.
-    Its purpose it to provide the information of the employee attendance for a day.
-    """
+        Parameters:
+        employee_ids (list): List of employee IDs for which to generate reports.
 
-    attendance_employee_report_id = fields.Many2one(
-        'hr.attendance.employee.report', 'Attendance Employee Report', readonly=True
-        )
-    date = fields.Date('Date', readonly=True)
-    start_hour = fields.Float('Start Hour', readonly=True)
-    end_hour = fields.Float('End Hour', readonly=True)
-    employee_id = fields.Many2one('hr.employee', 'Employee', readonly=True)
-    observation = fields.Text('Observation', readonly=True)
+        Returns:
+        dict: Information about the generated ZIP file containing all Excel reports.
+        """
+        self.ensure_one()
+
+        # Create a ZIP file in memory
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for employee_id in employee_ids:
+                employee = self.env['hr.employee'].browse(employee_id)
+                employee_attendances = self._get_attendance()
+                employee_attendance_data = self.process_employee_attendance(employee, employee_attendances)
+
+                # Create an Excel file in memory for the current employee
+                employee_output = io.BytesIO()
+                workbook = xlsxwriter.Workbook(employee_output, {'in_memory': True})
+                formats = self._excel_formats(workbook)
+                worksheet = workbook.add_worksheet()
+
+                data_header = employee_attendance_data["header"]
+                self._process_excel_headers(data_header, worksheet, formats)
+
+                data_rows = employee_attendance_data["rows"]
+                self._process_excel_rows(data_rows, worksheet, formats)
+
+                workbook.close()
+
+                # Add the Excel file to the ZIP file
+                zipf.writestr(f'Employee Attendance Report - {employee}.xlsx', employee_output.getvalue())
+
+        output.seek(0)
+        zip_content = output.read()
+        output.close()
+
+        return {
+            'file_name': 'Employee Attendance Reports.zip',
+            'file_content': zip_content,
+            'file_type': 'zip',
+            }
