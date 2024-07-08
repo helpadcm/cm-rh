@@ -5,8 +5,8 @@ Modulos referentes a Recursos humanos para CM AIrlines
 ## Modulo hr_contract_cm
 
 Para la instalacion de este modulo se necesitan las siguientes dependencias
-- `hr_contract`
 
+- `hr_contract`
 
 El modulo `hr_contract_cm` realiza las siguientes modificaciones:
 
@@ -20,14 +20,14 @@ para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_co
 ## Modulo hr_employee_cm
 
 Para la instalacion de este modulo se necesitan las siguientes dependencias
-- `hr`
 
+- `hr`
 
 El modulo `hr_employee_cm` realiza las siguientes modificaciones:
 
-
-- Se ha añadido un nuevo campo al modelo `hr.employee` mediante herencia, el cual se calcula a partir del campo 
-  `birthday` para determinar el próximo cumpleaños del empleado. Se han creado dos nuevos filtros centrados en este campo: uno para mostrar los empleados que
+- Se ha añadido un nuevo campo al modelo `hr.employee` mediante herencia, el cual se calcula a partir del campo
+  `birthday` para determinar el próximo cumpleaños del empleado. Se han creado dos nuevos filtros centrados en este
+  campo: uno para mostrar los empleados que
   cumplen años en el mes actual y otro para los que cumplen años en el próximo mes. Este campo se ha incorporado en el
   formulario `hr.view_employee_form` en la pestaña 'Información Privada', los filtros se incoporaron en view filter
   `hr.view_employee_filter`
@@ -39,26 +39,28 @@ El modulo `hr_employee_cm` realiza las siguientes modificaciones:
 - Se oculto la seccion de "PERMISO DE TRABAJO" en la pestaña "Informacion Privada" en el formulario de
   empleado `hr.view_employee_form`
 
-- Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo 
-  "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` , 
+- Se han quitado los dominios al campo "user_id" los cuales impedian asignar un "usuario de portal", el campo
+  "user_id" se encuentra en la pestaña "AJUSTES DE RR.HH" en el formulario de empleado `hr.view_employee_form` ,
   este cambio unicamente fue realizado a nivel de vista modificando mediante herencia el archivo `hr_employee_view.xml`
-  
-  ***IMPORTANTE*** al modificar los dominios del `user_id` se esta considerando que unicamente se trabaja en base a 
-  una empresa, si se desea trabajar con multiples empresas este codigo no sera eficiente y se debera de modificar 
+
+  ***IMPORTANTE*** al modificar los dominios del `user_id` se esta considerando que unicamente se trabaja en base a
+  una empresa, si se desea trabajar con multiples empresas este codigo no sera eficiente y se debera de modificar
   para adaptase al cambio.
 
-para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_employee_cm`
+- 2024-07-05 Se adicionó el modelo branch(sucursal) y se relacionó con el modelo hr.employee, se adicionó el campo
+  branch_id en el formulario de empleado `hr.view_employee_form` para obtener mas informacion, revisar el codigo
+  fuente en el modulo `cm_rh/hr_employee_cm`
 
 ## Modulo hr_payroll_cm
 
 Para la instalacion de este modulo se necesitan las siguientes dependencias
+
 - `hr_payroll`
 - `hr_contract_cm`
 
-
 El modulo `hr_payroll_cm` realiza las siguientes modificaciones:
 
-- Se ha creado un campo computado en el modelo `hr.employee` mediante herencia que genera el codigo del empleado. Este 
+- Se ha creado un campo computado en el modelo `hr.employee` mediante herencia que genera el codigo del empleado. Este
   valor se puede
   visualizar en el formulario `hr.view_employee_form`.
 
@@ -76,15 +78,15 @@ El modulo `hr_payroll_cm` realiza las siguientes modificaciones:
 
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_payroll_cm`
 
-- 2024-06-12 Se adicionó el campo employee_no a la vista emloyee_public_form_view, en la misma posición que la vista 
+- 2024-06-12 Se adicionó el campo employee_no a la vista emloyee_public_form_view, en la misma posición que la vista
   privada.
 
 ## Modulo plannig_cm
 
 Para la instalacion de este modulo se necesitan las siguientes dependencias
+
 - `planning`
 - `hr_work_entry_contract`
-
 
 El modulo `planning_cm` realiza las siguientes modificaciones:
 
@@ -101,5 +103,29 @@ El modulo `planning_cm` realiza las siguientes modificaciones:
 
 - Se extiende de `planning.role` para agregar nuevos campos heredados con el objetivo de crear nuevos roles
 
-
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/planning_cm`
+
+## Modulo rh_attendance_cm
+### Notas de Actualización - 2024-07-05
+
+#### Nuevas Características
+- Se ha añadido soporte para dispositivos de asistencia en el módulo de Recursos Humanos. Esto incluye la gestión de dispositivos de asistencia, permitiendo registrar y configurar cada dispositivo utilizado para el registro de asistencias de los empleados.
+- Implementación de campos relacionados en los registros de asistencia para vincular cada marca de tiempo con un dispositivo específico y la sucursal correspondiente.
+
+#### Mejoras
+- Extensión de las vistas de asistencia para incluir el dispositivo de asistencia utilizado. Ahora es posible filtrar y agrupar las asistencias por dispositivo, facilitando la gestión y el análisis de los datos de asistencia.
+- Actualización de las vistas de formulario y árbol para dispositivos de asistencia, mejorando la usabilidad y accesibilidad de la información relacionada con los dispositivos.
+
+#### Correcciones de Errores
+- Se ha corregido un error en la definición del dominio del filtro `company_filter` en la vista de búsqueda de dispositivos de asistencia. Anteriormente, se producía un error debido a la referencia incorrecta al objeto `user` en el dominio del filtro.
+
+#### Seguridad
+- Actualización de los archivos de seguridad para incluir nuevos grupos y permisos relacionados con la gestión de dispositivos de asistencia. Esto asegura que solo los usuarios autorizados puedan acceder a la información y realizar operaciones relacionadas con los dispositivos de asistencia.
+
+#### Documentación y Ayuda
+- Se ha añadido documentación detallada sobre la configuración y uso de los dispositivos de asistencia dentro del módulo de Recursos Humanos. Esto incluye guías para la configuración de dispositivos y la asignación de dispositivos a empleados.
+
+#### Dependencias
+- Este módulo requiere `hr`, `hr_attendance`, y `hr_employee_cm` para su correcto funcionamiento.
+
+Para más detalles sobre estas actualizaciones, por favor consulte la documentación del módulo en el sistema de ayuda en línea.

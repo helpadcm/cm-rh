@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="ir.actions.report" id="hr_attendance_report">
+        <field name="name">Attendance Report</field>
+        <field name="model">hr.attendance</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">report_hr_attendance_template</field>
+        <field name="report_file">hr_attendance_report</field>
+        <field name="print_report_name">'Attendance Report - %s' % (object.name).replace('/', '')</field>
+        <field name="binding_model_id" ref="model_hr_attendance_employee_report"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="report_hr_attendance_template">
+            <t t-call="web.external_layout">
+                <t t-foreach="get_data_from_report" t-as="obj">
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-12">
+                                <h2>Attendance Report</h2>
+                            </div>
+                            <div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Fecha de Inicio</th>
+                                            <th>Fecha de Fin</th>
+                                            <th>Horas Totales</th>
+                                            <th>Horas Ordinarias</th>
+                                            <th>Extra Hours</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><t t-esc="obj['header']['employee_name']"/></td>
+                                            <td><t t-esc="obj['header']['start_date']"/></td>
+                                            <td><t t-esc="obj['header']['end_date']"/></td>
+                                            <td><t t-esc="obj['header']['total_hours']"/></td>
+                                            <td><t t-esc="obj['header']['ordinary_hours']"/></td>
+                                            <td><t t-esc="obj['header']['extra_hours']"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br/>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Dia</th>
+                                            <th>Turno 1(Entrada)</th>
+                                            <th>Turno 1(Salida)</th>
+                                            <th>Turno 2(Entrada)</th>
+                                            <th>Turno 2(Salida)</th>
+                                            <th>Horas Totales</th>
+                                            <th>Horas Ordinarias</th>
+                                            <th>Horas Extras</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="obj['rows']" t-as="row">
+                                            <tr>
+                                                <td><t t-esc="row['date']"/></td>
+<!--                                                <td><t t-esc="row['day']"/></td>-->
+                                                <t t-if="row['entries'][0]">
+                                                    <td><t t-esc="row['entries'][0]['checkin']"/></td>
+                                                    <td><t t-esc="row['entries'][0]['checkout']"/></td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td></td>
+                                                    <td></td>
+                                                </t>
+                                                <t t-if="row['entries'][1]">
+                                                    <td><t t-esc="row['entries'][1]['checkin']"/></td>
+                                                    <td><t t-esc="row['entries'][1]['checkout']"/></td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td></td>
+                                                    <td></td>
+                                                </t>
+                                                <td><t t-esc="row['total_hours']"/></td>
+                                                <td><t t-esc="row['ordinary_hours']"/></td>
+                                                <td><t t-esc="row['extra_hours']"/></td>
+                                            </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Check In</th>
+                                            <th>Check Out</th>
+                                            <th>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="docs" t-as="o">
+                                            <tr>
+                                                <td><t t-esc="o.employee_id.name"/></td>
+                                                <td><t t-esc="o.check_in"/></td>
+                                                <td><t t-esc="o.check_out"/></td>
+                                                <td><t t-esc="o.duration"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

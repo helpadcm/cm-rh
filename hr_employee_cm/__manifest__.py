@@ -12,13 +12,15 @@
         """,
     'depends': ['hr', ],
     'data': [
+        'security/ir.model.access.csv',
+        'views/hr_branch_views.xml',
         'views/hr_employee_views.xml',
         'views/hr_employee_public_views.xml',
         'data/crm_create_user.xml',
-    ],
+        ],
     'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
 
-}
+    }

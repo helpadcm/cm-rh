@@ -15,6 +15,11 @@ class HrEmployee(models.Model):
         help="Este código es único para cada empleado y se utiliza para identificarlo en el sistema.",
         compute="get_employee_no"
         )
+    branch_id = fields.Many2one(
+        'hr.branch',
+        string="Sucursal",
+        help="Sucursal a la que pertenece el empleado."
+        )
 
     def get_employee_no(self):
         for employee in self:

@@ -7,6 +7,9 @@
             <xpath expr="//field[@name='mobile_phone']" position="before">
                 <field name="employee_no"/>
             </xpath>
+            <field name="department_id" position="after">
+                <field name="branch_id"/>
+            </field>
         </field>
     </record>
 </odoo>
