@@ -5,27 +5,23 @@ from itertools import groupby
 
 import xlsxwriter
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class HrAttendanceEmployeeReport(models.TransientModel):
     """
-    Employee Attendance Report.
-    Its purpose is to provide a report that shows the attendance of employees for a given period.
-    Its decision to be used to calculate the total hours worked by an employee in a given period
-    for the purpose of payroll and other analysis.
+    Abstract class for Employee Attendance Report.
     """
     _name = "hr.attendance.employee.report"
-    _description = "Employee Attendance Analysis Report"
-    _rec_name = 'date'
+    _description = "Employee Attendance Analysis Report Abstract"
 
     date = fields.Date('Date', readonly=True)
-    employee_id = fields.Many2many('hr.employee', 'Employee')
-    department_id = fields.Many2one('hr.department', 'Department')
-    company_id = fields.Many2one('res.company', 'Company', readonly=True)
+    employee_id = fields.Many2one('hr.employee', 'Employee')
+    department_id = fields.Many2one('hr.department', 'Department', readonly=True, related='employee_id.department_id', )
+    company_id = fields.Many2one('res.company', 'Company', readonly=True, related='employee_id.company_id')
 
-    date_from = fields.Date('Start Date', readonly=True)
-    date_to = fields.Date('End Date', readonly=True)
+    date_from = fields.Date('Start Date')
+    date_to = fields.Date('End Date')
 
     apply_extra_hour = fields.Boolean('Have Extra Hour', compute='_compute_apply_extra_hour', readonly=True)
 
@@ -35,8 +31,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
     def _get_domain(self):
         return [
-            ('date', '>=', self.date_from),
-            ('date', '<=', self.date_to),
+            ('check_in', '>=', self.date_from),
+            ('check_in', '<=', self.date_to),
             ('employee_id', '=', self.employee_id.id),
             ]
 
@@ -48,7 +44,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             record.apply_extra_hour = record.employee_id.contract_id.work_entry_source != 'calendar'
 
     def _get_attendance(self):
-        return self.env['hr.attendance'].search(self._get_domain()).read()
+        domain = self._get_domain()
+        return self.env['hr.attendance'].search(domain).read()
 
     def groupby(self, iterable, key_func):
         result = []
@@ -145,6 +142,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         """
         Compute the hours worked by an employee in a day.
 
+
         Parameters:
         attendances (list): The list of employee attendance data to be transformed.
 
@@ -155,6 +153,36 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         ordinary_hours = round(min(worked_hours, 8) / precision) * precision
         extra_hours = round(max(worked_hours - ordinary_hours, 0) / precision) * precision
         return worked_hours, ordinary_hours, extra_hours
+
+
+class HrAttendanceEmployeesReport(models.TransientModel):
+    """
+    Employee Attendance Report.
+    Its purpose is to provide a report that shows the attendance of employees for a given period.
+    Its decision to be used to calculate the total hours worked by an employee in a given period
+    for the purpose of payroll and other analysis.
+    """
+    _name = "hr.attendance.employees.report"
+    _description = "Employee Attendance Analysis Report"
+    _rec_name = 'date'
+
+    date = fields.Date('Date', readonly=True, default=fields.Date.context_today)
+    department_id = fields.Many2one('hr.department', 'Department')
+    employee_ids = fields.Many2many('hr.employee', 'Employee')
+    company_id = fields.Many2one('res.company', 'Company', readonly=True)
+
+    date_from = fields.Date('Start Date', required=True)
+    date_to = fields.Date('End Date', required=True)
+
+    @api.onchange('department_id')
+    def _get_users_by_department(self):
+        """
+        Get the employees of the selected department.
+        """
+        if self.department_id:
+            self.employee_ids = self.env['hr.employee'].search(
+                [('department_id', '=', self.department_id.id), ('contract_id', '!=', False)]
+                )
 
     @staticmethod
     def _excel_formats(workbook):
@@ -270,20 +298,6 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             worksheet.write(row, 12, data_row["extra_hours"], body_format)
             row += 1
 
-    def get_report_data(self):
-        """
-        Get the data for the report.
-    
-        Returns:
-        dict: The data for the report.
-        """
-        self.ensure_one()
-
-        employee_attendaces = self._get_attendance()
-        employe_attendance_data = self.process_employee_attendance(self.employee_id, employee_attendaces)
-
-        return employe_attendance_data
-
     def export_to_excel(self):
         """
         Writes it to an Excel file.
@@ -334,7 +348,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             'file_type': 'xlsx',
             }
 
-    def export_to_excel_for_multiple_employees(self, employee_ids):
+    def export_to_excel_for_multiple_employees(self):
         """
         Generates Excel reports for multiple employees and returns them as a ZIP file.
 
@@ -349,12 +363,22 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         # Create a ZIP file in memory
         output = io.BytesIO()
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for employee_id in employee_ids:
-                employee = self.env['hr.employee'].browse(employee_id)
-                employee_attendances = self._get_attendance()
-                employee_attendance_data = self.process_employee_attendance(employee, employee_attendances)
+            for employee_id in self.employee_ids:
+                employee_report = self.env['hr.attendance.employee.report'].create(
+                    {
+                        'employee_id': employee_id.id,
+                        'date_from': self.date_from,
+                        'date_to': self.date_to,
+                        }
+                    )
 
-                # Create an Excel file in memory for the current employee
+                # Utilizar los métodos del modelo abstracto para obtener y procesar los datos
+                employee_attendances = employee_report._get_attendance()
+                employee_attendance_data = employee_report.process_employee_attendance(
+                    employee_report.employee_id, employee_attendances
+                    )
+
+                # Crear un archivo Excel en memoria para el empleado actual
                 employee_output = io.BytesIO()
                 workbook = xlsxwriter.Workbook(employee_output, {'in_memory': True})
                 formats = self._excel_formats(workbook)
@@ -368,8 +392,9 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
                 workbook.close()
 
-                # Add the Excel file to the ZIP file
-                zipf.writestr(f'Employee Attendance Report - {employee}.xlsx', employee_output.getvalue())
+                # Añadir el archivo Excel al archivo ZIP
+                employee_name = self.env['hr.employee'].browse(employee_id).name
+                zipf.writestr(f'Employee Attendance Report - {employee_name}.xlsx', employee_output.getvalue())
 
         output.seek(0)
         zip_content = output.read()
