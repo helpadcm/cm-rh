@@ -139,6 +139,9 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         start_date = self.date_from
         end_date = self.date_to
+        
+        days = (end_date - start_date).days + 1
+        ordinary_hours_max = days // 7 * 44 + days % 7 * 8
 
         # a list of dates between start_date and end_date
         dates = (
@@ -151,6 +154,9 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             attendances_report.append(self._process_date(employee, _date, attendance_date))
 
         report["rows"] = attendances_report
+        
+        ordinary_hours_days = min(sum(a["ordinary_hours"] for a in attendances_report), ordinary_hours_max)
+        extra_hours_weeks = max(sum(a["extra_hours"] for a in attendances_report) - ordinary_hours_max, 0)
 
         report["header"] = {
             "employee_id": employee.id,
@@ -158,8 +164,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             "start_date": start_date,
             "end_date": end_date,
             "total_hours": sum(a["total_hours"] for a in attendances_report),
-            "ordinary_hours": sum(a["ordinary_hours"] for a in attendances_report),
-            "extra_hours": sum(a["extra_hours"] for a in attendances_report),
+            "ordinary_hours": ordinary_hours_days,
+            "extra_hours": sum(a["extra_hours"] for a in attendances_report) + extra_hours_weeks,
             "transport_bonus": sum(a["transport_bonus"] for a in attendances_report),
             }
         return report
@@ -328,18 +334,20 @@ class HrAttendanceEmployeesReport(models.TransientModel):
         Returns:
         None
         """
-        worksheet.write("A1", "Employee Name", formats["header_format"])
-        worksheet.write("C1", "Start Date", formats["header_format"])
-        worksheet.write("D1", "End Date", formats["header_format"])
-        worksheet.write("E1", "Total Hours", formats["header_format"])
-        worksheet.write("F1", "Ordinary Hours", formats["header_format"])
-        worksheet.write("G1", "Extra Hours", formats["header_format"])
+        worksheet.write("A1", "Nombre de Empleado", formats["header_format"])
+        worksheet.write("C1", "Fecha Inicio", formats["header_format"])
+        worksheet.write("D1", "Fecha Fin", formats["header_format"])
+        worksheet.write("E1", "Horas Totales", formats["header_format"])
+        worksheet.write("F1", "Horas Ordinarias", formats["header_format"])
+        worksheet.write("G1", "Horas Extras", formats["header_format"])
+        worksheet.write("H1", "Bono de transporte", formats["header_format"])
         worksheet.write("A2", data_header["employee_id"], formats["body_format"])
         worksheet.write("C2", data_header["start_date"], formats["body_date_format"])
         worksheet.write("D2", data_header["end_date"], formats["body_date_format"])
         worksheet.write("E2", data_header["total_hours"], formats["body_format"])
         worksheet.write("F2", data_header["ordinary_hours"], formats["body_format"])
         worksheet.write("G2", data_header["extra_hours"], formats["body_format"])
+        worksheet.write("H2", data_header["transport_bonus"], formats["body_format"])
 
     @staticmethod
     def _process_excel_rows(
@@ -369,6 +377,8 @@ class HrAttendanceEmployeesReport(models.TransientModel):
             "Horas totales",
             "Horas ordinarias",
             "Horas extras",
+            "Observaciones",
+            "Bono de transporte",
             ]
         header_format = formats["header_format"]
         body_format = formats["body_format"]

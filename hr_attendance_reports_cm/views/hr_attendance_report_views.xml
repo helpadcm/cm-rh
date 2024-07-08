@@ -7,17 +7,17 @@
             <form string="Employee Attendance Report">
                 <sheet>
                     <group>
-                        <field name="email"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
-                        <field name="department_id"/>
-                        <field name="employee_ids"/>
-                        <field name="company_id"/>
+                        <field name="email" string="Correo electrónico"/>
+                        <field name="date_from" string="Fecha desde"/>
+                        <field name="date_to" string="Fecha hasta"/>
+                        <field name="department_id" string="Departamento"/>
+                        <field name="employee_ids" string="Empleados"/>
+                        <field name="company_id" string="Compañía"/>
                     </group>
                     <footer>
-                        <button string="Generate Report" type="object"
+                        <button string="Generar Reporte" type="object"
                                 name="export_to_excel_for_multiple_employees" class="oe_highlight"/>
-                        <button string="Cancel" class="oe_link"
+                        <button string="Cancelar" class="oe_link"
                                 special="cancel"/>
                     </footer>
                 </sheet>
