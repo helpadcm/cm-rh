@@ -1,16 +1,15 @@
+import base64
 import io
 import zipfile
 from datetime import timedelta, time
 from itertools import groupby
 
-from odoo.exceptions import UserError
-from odoo.tools.translate import _
-import base64
-
 import xlsxwriter
 from pytz import timezone
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
+from odoo.tools.translate import _
 
 
 def convert_to_user_tz(datetime_field, user_tz):
@@ -139,7 +138,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         start_date = self.date_from
         end_date = self.date_to
-        
+
         days = (end_date - start_date).days + 1
         ordinary_hours_max = days // 7 * 44 + days % 7 * 8
 
@@ -154,7 +153,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             attendances_report.append(self._process_date(employee, _date, attendance_date))
 
         report["rows"] = attendances_report
-        
+
         ordinary_hours_days = min(sum(a["ordinary_hours"] for a in attendances_report), ordinary_hours_max)
         extra_hours_weeks = max(sum(a["extra_hours"] for a in attendances_report) - ordinary_hours_max, 0)
 
@@ -175,6 +174,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         if _date not in attendance_date:
             return {
                 "employee_id": employee.id,
+                "employee_no": employee.employee_no,
+                "employee": employee.name,
                 "date": _date,
                 "check_in_1": "",
                 "check_out_1": "",
@@ -195,6 +196,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             observations.append("More than 2 attendances for this date.")
         return {
             "employee_id": employee.id,
+            "employee_no": employee.employee_no,
+            "employee": employee.name,
             "date": _date,
             "check_in_1": convert_to_user_tz(attendances[0].check_in, user_tz) if attendances else "",
             "check_out_1": convert_to_user_tz(attendances[0].check_out, user_tz) if attendances else "",
@@ -266,7 +269,7 @@ class HrAttendanceEmployeesReport(models.TransientModel):
     _name = "hr.attendance.employees.report"
     _description = "Employee Attendance Analysis Report"
     _rec_name = 'date'
-    
+
     email = fields.Char('Email', required=True)
 
     date = fields.Date('Date', readonly=True, default=fields.Date.context_today)
@@ -335,13 +338,15 @@ class HrAttendanceEmployeesReport(models.TransientModel):
         None
         """
         worksheet.write("A1", "Nombre de Empleado", formats["header_format"])
+        worksheet.write("B1", "Código de Empleado", formats["header_format"])
         worksheet.write("C1", "Fecha Inicio", formats["header_format"])
         worksheet.write("D1", "Fecha Fin", formats["header_format"])
         worksheet.write("E1", "Horas Totales", formats["header_format"])
         worksheet.write("F1", "Horas Ordinarias", formats["header_format"])
         worksheet.write("G1", "Horas Extras", formats["header_format"])
         worksheet.write("H1", "Bono de transporte", formats["header_format"])
-        worksheet.write("A2", data_header["employee_id"], formats["body_format"])
+        worksheet.write("A2", data_header["employee"], formats["body_format"])
+        worksheet.write("B2", data_header["employee_no"], formats["body_format"])
         worksheet.write("C2", data_header["start_date"], formats["body_date_format"])
         worksheet.write("D2", data_header["end_date"], formats["body_date_format"])
         worksheet.write("E2", data_header["total_hours"], formats["body_format"])
@@ -370,10 +375,8 @@ class HrAttendanceEmployeesReport(models.TransientModel):
             "Dia",
             "Turno 1 (Entrada)",
             "Turno 1 (Salida)",
-            "Turno 1 (Horas totales)",
             "Turno 2 (Entrada)",
             "Turno 2 (Salida)",
-            "Turno 2 (Horas totales)",
             "Horas totales",
             "Horas ordinarias",
             "Horas extras",
@@ -398,24 +401,21 @@ class HrAttendanceEmployeesReport(models.TransientModel):
 
             # Write the check-in and check-out times for both shifts
             worksheet.write(
-                row, 2, data_row["check_in_1"].strftime("%Y-%m-%d %H:%M:%S") if data_row["check_in_1"] else "",
+                row, 2, data_row["check_in_1"].strftime("%H:%M:%S") if data_row["check_in_1"] else "",
                 body_format
                 )
             worksheet.write(
-                row, 3, data_row["check_out_1"].strftime("%Y-%m-%d %H:%M:%S") if data_row["check_out_1"] else "",
-                body_format
-                )
-            worksheet.write(row, 4, "", body_format)  # Placeholder for total hours of shift 1, if needed
-            worksheet.write(
-                row, 5, data_row["check_in_2"].strftime("%Y-%m-%d %H:%M:%S") if data_row["check_in_2"] else "",
+                row, 3, data_row["check_out_1"].strftime("%H:%M:%S") if data_row["check_out_1"] else "",
                 body_format
                 )
             worksheet.write(
-                row, 6, data_row["check_out_2"].strftime("%Y-%m-%d %H:%M:%S") if data_row["check_out_2"] else "",
+                row, 4, data_row["check_in_2"].strftime("%H:%M:%S") if data_row["check_in_2"] else "",
                 body_format
                 )
-            worksheet.write(row, 7, "", body_format)  # Placeholder for total hours of shift 2, if needed
-
+            worksheet.write(
+                row, 5, data_row["check_out_2"].strftime("%H:%M:%S") if data_row["check_out_2"] else "",
+                body_format
+                )
             # Write the total, ordinary, and extra hours
             worksheet.write(row, 8, data_row["total_hours"], body_format)
             worksheet.write(row, 9, data_row["ordinary_hours"], body_format)
@@ -534,9 +534,23 @@ class HrAttendanceEmployeesReport(models.TransientModel):
 
             # Prepare email content
             mail_values = {
-                'subject': _("Employee Attendance Report"),
+                'subject': _("Informe de Asistencia de Empleados"),
                 'email_to': self.email,
-                'body_html': _("Here is the Employee Attendance Report you requested."),
+                'body_html': f"""
+                    <html>
+                        <head></head>
+                        <body>
+                            <p>Estimado/a,</p>
+                            <p>Adjunto encontrará el Informe de Asistencia de Empleados correspondiente al período del 
+                            {self.date_from} al {self.date_to}.</p>
+                            <p>Este informe contiene información detallada sobre la asistencia de los empleados 
+                            durante el período solicitado.</p>
+                            <p>Si tiene alguna pregunta o necesita más información, no dude en contactarnos.</p>
+                            <p>Saludos cordiales,</p>
+                            <p>El equipo de Recursos Humanos</p>
+                        </body>
+                    </html>
+                """,
                 'attachment_ids': [(self.env['ir.attachment'].create(
                     {
                         'name': f'Employee Attendance Report - {self.date_from} - {self.date_to}.zip',
