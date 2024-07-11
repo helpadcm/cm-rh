@@ -159,7 +159,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         report["header"] = {
             "employee_id": employee.id,
-            "employee_name": employee.name,
+            "employee_no": employee.employee_no,
+            "employee": employee.name,
             "start_date": start_date,
             "end_date": end_date,
             "total_hours": sum(a["total_hours"] for a in attendances_report),
