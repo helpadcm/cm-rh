@@ -4,3 +4,4 @@ access_planning_cm_recurrency_supervisor,planning_cm.recurrency.supervisor,plann
 access_planning_cm_slot_template_manager,planning_cm.slot.template.manager,planning.model_planning_slot_template,planning_cm.group_cm_supervisor,1,1,1,1
 access_planning_cm_planning_supervisor,planning_cm.access_planning_planning_supervisor,planning.model_planning_planning,planning_cm.group_cm_supervisor,1,1,1,1
 access_planning_cm_send,access.planning_cm.send,planning.model_planning_send,planning_cm.group_cm_supervisor,1,1,1,0
+access_load_planning_wizard,load_planning_wizard_model_access,model_load_planning_wizard,"planning_cm.group_cm_supervisor",1,1,1,0

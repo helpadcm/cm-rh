@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_load_planning_wizard_form" model="ir.ui.view">
+        <field name="name">load.planning.wizard.form</field>
+        <field name="model">load.planning.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cargar Planificación Semanal">
+                <group>
+                    <field name="week_number" string="Número de Semana"/>
+                    <field name="start_date" string="Fecha de Inicio"/>
+                    <field name="end_date" string="Fecha de Fin"/>
+                    <field name="data_file" string="Archivo de Datos"/>
+                    <field name="start_row" string="Fila de Inicio"/>
+                    <field name="number_of_employee"
+                           string="Número de Empleados"/>
+                    <field name="valid_rows" string="Filas Válidas"
+                           readonly="1"/>
+                </group>
+                <group string="Empleados">
+                    <field name="employee_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button name="action_test" string="Probar" type="object"
+                            class="oe_highlight"
+                            groups="planning_cm.group_cm_supervisor"/>
+                    <button name="action_load_planning"
+                            string="Cargar Planificación"
+                            help="Se eliminarán las planificaciones existentes y se cargarán las nuevas."
+                            type="object" class="oe_highlight"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_load_weekly_planning_wizard"
+            model="ir.actions.act_window">
+        <field name="name">Load Weekly Planning</field>
+        <field name="res_model">load.planning.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="planning_cm.view_load_planning_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+            id="menu_load_weekly_planning_wizard"
+            name="Cargar Planeación Semanal"
+            sequence="30"
+            parent="planning.planning_menu_schedule"
+            action="action_load_weekly_planning_wizard"
+            groups="planning.group_planning_manager,planning_cm.group_cm_supervisor"/>
+</odoo>
