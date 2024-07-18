@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import models, fields, api, exceptions
 
+_logger = logging.getLogger(__name__)
+
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -54,35 +56,65 @@ class HrEmployee(models.Model):
                 record.identification_id = False
 
     @api.model
-    def crm_create_user(self):
-        _logger = logging.getLogger(__name__)
-        employees = self.search([])
-
-        Users = self.env['res.users']
+    def cron_create_portal_user_to_employee(self):
+        employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
 
         for employee in employees:
+            login = employee.work_email
+            if self.env['res.users'].search([('login', '=', login)]):
+                if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
+                    employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
+                    _logger.info("User found for employee %s: %s", employee.name, login)
+                continue
 
-            work_email = employee.work_email
+            user = self.env['res.users'].create(
+                {
+                    'name': employee.name,
+                    'login': login,
+                    'share': True,
+                    'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+                    }
+                )
+            employee.user_id = user.id
+            _logger.info("User created for employee %s: %s", employee.name, login)
+        _logger.info("Cron job to create portal users executed")
 
-            if work_email:
-                username, _ = work_email.split('@')
+    @api.model
+    def cron_award_one_year_badge(self):
+        today = fields.Date.today()
+        one_year_ago = today - relativedelta(years=1)
+        two_years_ago = today - relativedelta(years=2)
 
-                if not employee.user_id:
-                    existing_user = Users.search([('login', '=', work_email)], limit=1)
-                    if not existing_user:
-                        new_user = Users.create(
-                            {
-                                'login': work_email,
-                                'name': username,
-                                'email': work_email,
-                                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-                                }
-                            )
-                        employee.user_id = new_user.id
-                        _logger.info(f'Se creó el usuario: {username}')
-                    else:
-                        _logger.info(f'El usuario con el correo electrónico {work_email} ya existe.')
-                else:
-                    _logger.info(f'El empleado {username} ya tiene un usuario asociado.')
-            else:
-                _logger.info(f'El empleado {employee.name} no tiene un correo electrónico de trabajo.')
+        badge = self.env.ref('hr_employee_cm.one_year').id
+        if not badge:
+            return
+
+        contracts = self.env['hr.contract'].search(
+            [
+                ('date_start', '>=', two_years_ago),
+                ('date_start', '<=', one_year_ago),
+                ]
+            )
+
+        if not contracts:
+            return
+
+        employees = contracts.mapped('employee_id')
+
+        for employee in employees:
+            if employee.user_id:
+                badge_user = self.env['gamification.badge.user'].search(
+                    [
+                        ('badge_id', '=', badge),
+                        ('user_id', '=', employee.user_id.id),
+                        ], limit=1
+                    )
+                if not badge_user:
+                    self.env['gamification.badge.user'].create(
+                        {
+                            'user_id': employee.user_id.id,
+                            'sender_id': self.env.user.id,
+                            'badge_id': badge,
+                            'employee_id': employee.id,
+                            }
+                        )

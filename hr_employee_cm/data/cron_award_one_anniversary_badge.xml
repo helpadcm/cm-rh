@@ -1,0 +1,18 @@
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_award_one_anniversary" model="ir.cron">
+            <field name="name">Ludificacion: Insiginia de Aniversario de Un Año</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_award_one_year_badge()</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="nextcall"
+                   eval="(DateTime.now().replace(hour=7) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>
