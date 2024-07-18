@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee module for CM Airlines',
-    'version': '1.0',
+    'version': '1.0.1_20240718',
     'category': 'Human Resources/Employee',
     'sequence': 245,
     'summary': 'Employee module for CM Airlines',

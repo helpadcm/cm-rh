@@ -64,6 +64,8 @@ class HrEmployee(models.Model):
             if self.env['res.users'].search([('login', '=', login)]):
                 if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
                     employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
+                    _logger.info("User found for employee %s: %s", employee.name, login)
+                continue
 
             user = self.env['res.users'].create(
                 {
