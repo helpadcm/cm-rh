@@ -10,7 +10,7 @@
         - Gets the employees who have birthdays during the month.
         - Formats the employee's identification number to the Honduran standard of exactly 13 digits.
         """,
-    'depends': ['hr', ],
+    'depends': ['hr', 'hr_gamification', ],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_branch_views.xml',
@@ -19,7 +19,6 @@
         'data/cron_create_portal_user_to_employee.xml',
         'data/cron_award_one_anniversary_badge.xml',
         'data/gamification_badge_data_cm.xml',
-        'data/crm_create_user.xml',
         ],
     'installable': True,
     'application': False,

@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import models, fields, api, exceptions
 
+_logger = logging.getLogger(__name__)
+
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -58,17 +60,22 @@ class HrEmployee(models.Model):
         employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
 
         for employee in employees:
-            username = employee.name.replace(' ', '')
-            if self.env['res.users'].search([('login', '=', username)]):
-                continue
+            login = employee.work_email
+            if self.env['res.users'].search([('login', '=', login)]):
+                if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
+                    employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
 
-            user = self.env['res.users'].create({
-                'name': employee.name,
-                'login': username,
-                'email': employee.work_email,
-                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-            })
+            user = self.env['res.users'].create(
+                {
+                    'name': employee.name,
+                    'login': login,
+                    'share': True,
+                    'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+                    }
+                )
             employee.user_id = user.id
+            _logger.info("User created for employee %s: %s", employee.name, login)
+        _logger.info("Cron job to create portal users executed")
 
     @api.model
     def cron_award_one_year_badge(self):
@@ -80,10 +87,12 @@ class HrEmployee(models.Model):
         if not badge:
             return
 
-        contracts = self.env['hr.contract'].search([
-            ('date_start', '>=', two_years_ago),
-            ('date_start', '<=', one_year_ago),
-        ])
+        contracts = self.env['hr.contract'].search(
+            [
+                ('date_start', '>=', two_years_ago),
+                ('date_start', '<=', one_year_ago),
+                ]
+            )
 
         if not contracts:
             return
@@ -92,14 +101,18 @@ class HrEmployee(models.Model):
 
         for employee in employees:
             if employee.user_id:
-                badge_user = self.env['gamification.badge.user'].search([
-                    ('badge_id', '=', badge),
-                    ('user_id', '=', employee.user_id.id),
-                ], limit=1)
+                badge_user = self.env['gamification.badge.user'].search(
+                    [
+                        ('badge_id', '=', badge),
+                        ('user_id', '=', employee.user_id.id),
+                        ], limit=1
+                    )
                 if not badge_user:
-                    self.env['gamification.badge.user'].create({
-                        'user_id': employee.user_id.id,
-                        'sender_id': self.env.user.id,
-                        'badge_id': badge,
-                        'employee_id': employee.id,
-                    })
+                    self.env['gamification.badge.user'].create(
+                        {
+                            'user_id': employee.user_id.id,
+                            'sender_id': self.env.user.id,
+                            'badge_id': badge,
+                            'employee_id': employee.id,
+                            }
+                        )
