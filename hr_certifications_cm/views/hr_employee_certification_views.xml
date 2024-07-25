@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hr_employee_certification_report_view_list_inherit"
+            model="ir.ui.view">
+        <field name="model">hr.resume.line</field>
+        <field name="inherit_id"
+               ref="hr_skills_survey.hr_employee_certification_report_view_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="pdf_file"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_certification_resume_line_view_form_inherit"
+            model="ir.ui.view">
+        <field name="model">hr.resume.line</field>
+        <field name="inherit_id"
+               ref="hr_skills.resume_line_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="before">
+                <field name="pdf_file"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_resume_line_view_search" model="ir.ui.view">
+        <field name="model">hr.resume.line</field>
+        <field name="inherit_id"
+               ref="hr_skills_survey.hr_resume_line_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='certification_expired']"
+                   position="after">
+                <filter string="With PDF" name="certification_with_pdf"
+                        domain="[('pdf_file', '!=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_skills_hr_employee_view_form_inherit"
+            model="ir.ui.view">
+        <field name="model">hr.employee</field>
+        <field name="inherit_id"
+               ref="hr_skills.hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_type_id']" position="inside">
+                <field name="pdf_file" string="PDF File" readonly="True"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_skills_hr_employee_public_view_form_inherit"
+            model="ir.ui.view">
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id"
+               ref="hr_skills.hr_employee_public_view_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_type_id']" position="inside">
+                <field name="pdf_file" string="PDF File" readonly="True"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
