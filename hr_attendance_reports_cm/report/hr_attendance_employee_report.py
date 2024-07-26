@@ -5,6 +5,7 @@ from datetime import timedelta, time
 from itertools import groupby
 
 import xlsxwriter
+from babel.dates import format_date
 from pytz import timezone
 
 from odoo import api, fields, models
@@ -40,6 +41,10 @@ def float_to_time(float_hour):
     """
     hours = int(float_hour)
     minutes = int((float_hour - hours) * 60)
+    if not 0 <= minutes < 60:
+        raise ValueError("Minutos deben estar entre 0 y 59.")
+    if not 0 <= hours < 24:
+        raise ValueError("Las horas deben estar entre 0 y 23.")
     return time(hours, minutes)
 
 
@@ -126,12 +131,13 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         assert all(a.employee_id.id == employee.id for a in attendances)
 
         # Sort attendances by check_in date
-        attendances.sorted(key=lambda x: (x.check_in.date()))
+        attendances = attendances.sorted(key=lambda x: (x.check_in))
 
         # Group attendances by employee_id and check_in date
+        user_tz = self.env.user.tz or 'UTC'
         attendance_date = {
             _date: list(_attendance)
-            for _date, _attendance in groupby(attendances, key=lambda x: x.check_in.date())
+            for _date, _attendance in groupby(attendances, key=lambda x: convert_to_user_tz(x.check_in, user_tz).date())
             }
 
         report = {"header": {}, "rows": []}
@@ -141,6 +147,12 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         days = (end_date - start_date).days + 1
         ordinary_hours_max = days // 7 * 44 + days % 7 * 8
+        # Calculate the number of full weeks and remaining days
+        full_weeks = days // 7
+        remaining_days = days % 7
+
+        # Calculate the expected hours
+        expected_hours = (full_weeks * 44) + (remaining_days * 8)
 
         # a list of dates between start_date and end_date
         dates = (
@@ -163,6 +175,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             "employee": employee.name,
             "start_date": start_date,
             "end_date": end_date,
+            "expected_hours": expected_hours,
             "total_hours": sum(a["total_hours"] for a in attendances_report),
             "ordinary_hours": ordinary_hours_days,
             "extra_hours": sum(a["extra_hours"] for a in attendances_report) + extra_hours_weeks,
@@ -182,10 +195,12 @@ class HrAttendanceEmployeeReport(models.TransientModel):
                 "check_out_1": "",
                 "check_in_2": "",
                 "check_out_2": "",
+                "check_in_3": "",
+                "check_out_3": "",
                 "total_hours": 0,
                 "ordinary_hours": 0,
                 "extra_hours": 0,
-                "observation": "No attendance for this date.",
+                "observation": "No se registraron marcas este día.",
                 "transport_bonus": 0,
                 }
         attendances = attendance_date[_date]
@@ -204,6 +219,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             "check_out_1": convert_to_user_tz(attendances[0].check_out, user_tz) if attendances else "",
             "check_in_2": convert_to_user_tz(attendances[1].check_in, user_tz) if len(attendances) > 1 else "",
             "check_out_2": convert_to_user_tz(attendances[1].check_out, user_tz) if len(attendances) > 1 else "",
+            "check_in_3": convert_to_user_tz(attendances[2].check_in, user_tz) if len(attendances) > 2 else "",
+            "check_out_3": convert_to_user_tz(attendances[2].check_out, user_tz) if len(attendances) > 2 else "",
             "total_hours": worked_hours,
             "ordinary_hours": ordinary_hours,
             "extra_hours": extra_hours,
@@ -315,11 +332,15 @@ class HrAttendanceEmployeesReport(models.TransientModel):
                 "align": "left",
                 }
             )
+        footer_format = workbook.add_format(
+            {"bold": True, "border": 1, "font_name": "Arial", "align": "left"}
+            )
         return {
             "date_format": date_format,
             "header_format": header_format,
             "body_format": body_format,
             "body_date_format": body_date_format,
+            "footer_format": footer_format,
             }
 
     @staticmethod
@@ -339,66 +360,23 @@ class HrAttendanceEmployeesReport(models.TransientModel):
         None
         """
         worksheet.write("A1", "Nombre de Empleado", formats["header_format"])
-        worksheet.write("B1", "Código de Empleado", formats["header_format"])
-        worksheet.write("C1", "Fecha Inicio", formats["header_format"])
-        worksheet.write("D1", "Fecha Fin", formats["header_format"])
-        worksheet.write("E1", "Horas Totales", formats["header_format"])
-        worksheet.write("F1", "Horas Ordinarias", formats["header_format"])
-        worksheet.write("G1", "Horas Extras", formats["header_format"])
-        worksheet.write("H1", "Bono de transporte", formats["header_format"])
-        worksheet.write("A2", data_header["employee"], formats["body_format"])
+        worksheet.write("B1", data_header["employee"], formats["body_format"])
+        worksheet.write("A2", "Código de Empleado", formats["header_format"])
         worksheet.write("B2", data_header["employee_no"], formats["body_format"])
-        worksheet.write("C2", data_header["start_date"], formats["body_date_format"])
-        worksheet.write("D2", data_header["end_date"], formats["body_date_format"])
-        worksheet.write("E2", data_header["total_hours"], formats["body_format"])
-        worksheet.write("F2", data_header["ordinary_hours"], formats["body_format"])
-        worksheet.write("G2", data_header["extra_hours"], formats["body_format"])
-        worksheet.write("H2", data_header["transport_bonus"], formats["body_format"])
+        worksheet.write("A3", "Fecha Inicio", formats["header_format"])
+        worksheet.write("B3", data_header["start_date"], formats["body_date_format"])
+        worksheet.write("A4", "Fecha Fin", formats["header_format"])
+        worksheet.write("B4", data_header["end_date"], formats["body_date_format"])
+        worksheet.write("A5", "Horas Esperadas", formats["header_format"])
+        worksheet.write("B5", data_header["expected_hours"], formats["body_format"])
 
     @staticmethod
-    def _process_excel_rows(
-            data_rows,
-            worksheet,
-            formats,
-            ):
-        """
-        Process the rows of the report.
-    
-        Parameters:
-        data_rows (list): The list of employee data to be transformed.
-        workbook (xlsxwriter.Workbook.worksheet_class): The workbook to be used.
-    
-        Returns:
-        None
-        """
-        headers = [
-            "Fecha",
-            "Dia",
-            "Turno 1 (Entrada)",
-            "Turno 1 (Salida)",
-            "Turno 2 (Entrada)",
-            "Turno 2 (Salida)",
-            "Horas totales",
-            "Horas ordinarias",
-            "Horas extras",
-            "Observaciones",
-            "Bono de transporte",
-            ]
-        header_format = formats["header_format"]
-        body_format = formats["body_format"]
-        body_date_format = formats["body_date_format"]
-
-        # Write the headers to the worksheet with the new format and set the column width
-        for i, header in enumerate(headers):
-            worksheet.write(3, i, header, header_format)
-            worksheet.set_column(i, i, len(header) + 2)
-
-        # Write the rows to the worksheet with the new format
-        row = 4
+    def _write_data_rows(worksheet, data_rows, body_format, body_date_format, start_row):
+        row = start_row
         for data_row in data_rows:
             # Write the date and day of the week
             worksheet.write(row, 0, data_row["date"].strftime("%Y-%m-%d"), body_date_format)
-            worksheet.write(row, 1, data_row["date"].strftime("%A"), body_format)
+            worksheet.write(row, 1, format_date(data_row["date"], "EEEE", locale="es"), body_format)
 
             # Write the check-in and check-out times for both shifts
             worksheet.write(
@@ -417,8 +395,16 @@ class HrAttendanceEmployeesReport(models.TransientModel):
                 row, 5, data_row["check_out_2"].strftime("%H:%M:%S") if data_row["check_out_2"] else "",
                 body_format
                 )
+            worksheet.write(
+                row, 6, data_row["check_in_3"].strftime("%H:%M:%S") if data_row["check_in_3"] else "",
+                body_format
+                )
+            worksheet.write(
+                row, 7, data_row["check_out_3"].strftime("%H:%M:%S") if data_row["check_out_3"] else "",
+                body_format
+                )
             # Write the total, ordinary, and extra hours
-            worksheet.write(row, 8, data_row["total_hours"], body_format)
+            worksheet.write(row, 8, round(data_row["total_hours"], 2), body_format)
             worksheet.write(row, 9, data_row["ordinary_hours"], body_format)
             worksheet.write(row, 10, data_row["extra_hours"], body_format)
 
@@ -427,6 +413,65 @@ class HrAttendanceEmployeesReport(models.TransientModel):
             worksheet.write(row, 12, data_row["transport_bonus"], body_format)
 
             row += 1
+        return row
+
+    @staticmethod
+    def _process_excel_rows(
+            data_rows,
+            worksheet,
+            formats,
+            data_header,
+            ):
+        """
+        Process the rows of the report.
+    
+        Parameters:
+        data_rows (list): The list of employee data to be transformed.
+        workbook (xlsxwriter.Workbook.worksheet_class): The workbook to be used.
+    
+        Returns:
+        None
+        """
+        headers = [
+            "Fecha",
+            "Dia",
+            "Turno 1 (Entrada)",
+            "Turno 1 (Salida)",
+            "Turno 2 (Entrada)",
+            "Turno 2 (Salida)",
+            "Turno 3 (Entrada)",
+            "Turno 3 (Salida)",
+            "Horas totales",
+            "Horas ordinarias",
+            "Horas extras",
+            "Observaciones",
+            "Bono de transporte",
+            ]
+        header_format = formats["header_format"]
+        body_format = formats["body_format"]
+        body_date_format = formats["body_date_format"]
+        footer_format = formats["footer_format"]
+        row = 6
+        # Write the headers to the worksheet with the new format and set the column width
+        for i, header in enumerate(headers):
+            worksheet.write(row, i, header, header_format)
+            worksheet.set_column(i, i, len(header) + 2)
+        row += 1
+        # Write the rows to the worksheet with the new format
+
+        row = HrAttendanceEmployeesReport._write_data_rows(worksheet, data_rows, body_format, body_date_format, row)
+
+        for col in range(0, 13):
+            worksheet.write(row, col, "", footer_format)
+
+        worksheet.write(row, 0, "Total", footer_format)
+
+        worksheet.write(row, 8, round(data_header["total_hours"], 2), footer_format)
+        worksheet.write(row, 9, data_header["ordinary_hours"], footer_format)
+        worksheet.write(row, 10, data_header["extra_hours"], footer_format)
+
+        # Write the observation and transport bonus
+        worksheet.write(row, 12, data_header["transport_bonus"], footer_format)
 
     def export_to_excel(self):
         """
@@ -516,7 +561,7 @@ class HrAttendanceEmployeesReport(models.TransientModel):
                 self._process_excel_headers(data_header, worksheet, formats)
 
                 data_rows = employee_attendance_data["rows"]
-                self._process_excel_rows(data_rows, worksheet, formats)
+                self._process_excel_rows(data_rows, worksheet, formats, data_header)
 
                 workbook.close()
 
