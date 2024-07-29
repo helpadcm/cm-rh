@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models , api
 
 
 class Contract(models.Model):
@@ -35,3 +35,16 @@ class Contract(models.Model):
         help='Valor unitario del bono de transporte',
         tracking=True
     )
+
+    @api.model
+    def cron_update_contract_bonus(self):
+        value_bonus = 100
+        contracts = self.env['hr.contract'].search([])
+        for contract in contracts:
+            contract.write({"value_bonus": value_bonus,
+                            "early_checkin_bonus_time": contract.x_studio_early_checkin_bonus_time,
+                            "late_checkout_bonus_time": contract.x_lat_checkout_bonus_time,
+                            "max_extra_hours": contract.x_studio_max_extra_hours,
+                            "max_performance_bonus": contract.x_studio_max_performance_bonus,
+                            "max_transportation_bonus": contract.x_studio_max_transportation_bonus / value_bonus
+                            })
