@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Planning module for CM Airlines',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Human Resources/Planning',
     'sequence': 242,
     'summary': 'Planning modulo for CM Airlines',
@@ -20,6 +20,7 @@
         'data/cm_planning_roles.xml',
 
         'wizard/cm_work_entry_processing_wizard_view.xml',
+        'wizard/load_weekly_planning_wizard_view.xml',
         ],
     'installable': True,
     'application': False,
