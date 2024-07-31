@@ -18,13 +18,13 @@ class LoadNominaFromExcelWizard(models.TransientModel):
     _description = 'Load Nomina From Excel Wizard'
 
     file = fields.Binary(string='File', required=True, )
-    sheet_index = fields.Integer(string='Sheet Index', required=True, default=0)
-    row_header = fields.Integer(string='Row Header', required=True, default=0)
-    row_start = fields.Integer(string='Row Start', required=True, default=1)
+    sheet_index = fields.Integer(string='Sheet Index', required=True, default=1)
+    row_header = fields.Integer(string='Row Header', required=True, default=4)
+    row_start = fields.Integer(string='Row Start', required=True, default=5)
     payslip_run_id = fields.Many2one('hr.payslip.run', string='Payslip Run')
     payslip_ids = fields.Many2many('hr.payslip', string='Payslips')
     warnings = fields.Text(string='Warnings')
-    total_ordinary_hours = fields.Float(string='Total Ordinary Hours')
+    total_ordinary_hours = fields.Float(string='Total Ordinary Hours', default=96)
     raw_payslips = fields.Text(string='Raw Payslips')
 
     def set_raw_payslips(self, raw_payslips):
@@ -69,6 +69,7 @@ class LoadNominaFromExcelWizard(models.TransientModel):
             'comisiones': 14,
             'bono_resultado': 15,
             'ajuste_salarial': 16,
+            'rap': 22,
             'cuentas_por_cobrar': 24,
             'incapacidad': 28,
             }
@@ -223,6 +224,18 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                     "contract_id": payslip.contract_id.id,
                     "payslip_id": payslip.id,
                     "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "REIMBURSEMENT")])[
+                        0].id,
+                    }
+                )
+        if self._exist_and_gt0(payslip_raw['rap']):
+            input_lines.append(
+                {
+                    "name": "RAP",
+                    "code": "RAP",
+                    "amount": payslip_raw['rap'],
+                    "contract_id": payslip.contract_id.id,
+                    "payslip_id": payslip.id,
+                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "RAP")])[
                         0].id,
                     }
                 )
