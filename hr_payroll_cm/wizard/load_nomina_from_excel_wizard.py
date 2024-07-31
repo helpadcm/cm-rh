@@ -69,9 +69,9 @@ class LoadNominaFromExcelWizard(models.TransientModel):
             'comisiones': 14,
             'bono_resultado': 15,
             'ajuste_salarial': 16,
-            'rap': 22,
-            'cuentas_por_cobrar': 24,
-            'incapacidad': 28,
+            'rap': 20,
+            'cuentas_por_cobrar': 25,
+            'incapacidad': 30,
             }
         for row_index in range(self.row_start, sheet.nrows):
             row = sheet.row_values(row_index)
