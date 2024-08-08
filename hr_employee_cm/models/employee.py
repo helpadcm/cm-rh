@@ -22,6 +22,14 @@ class HrEmployee(models.Model):
         string="Sucursal",
         help="Sucursal a la que pertenece el empleado."
         )
+    certificate = fields.Selection([
+        ('graduate', 'Graduate'),
+        ('bachelor', 'Bachelor'),
+        ('master', 'Master'),
+        ('doctor', 'Doctor'),
+        ('engineering', 'Engineering'),
+        ('other', 'Other'),
+    ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True)
 
     def get_employee_no(self):
         for employee in self:
