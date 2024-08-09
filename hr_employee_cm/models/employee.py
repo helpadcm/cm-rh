@@ -1,6 +1,8 @@
 import logging
 import re
+
 from dateutil.relativedelta import relativedelta
+
 from odoo import models, fields, api, exceptions
 
 _logger = logging.getLogger(__name__)
@@ -13,21 +15,23 @@ class HrEmployee(models.Model):
         string="Código de Empleado",
         help="Este código es único para cada empleado y se utiliza para identificarlo en el sistema.",
         compute="get_employee_no"
-    )
+        )
     branch_id = fields.Many2one(
         'hr.branch',
         string="Sucursal",
         help="Sucursal a la que pertenece el empleado."
-    )
-    certificate = fields.Selection([
-        ('university intern', 'University Intern'),
-        ('graduate', 'Graduate'),
-        ('bachelor', 'Bachelor'),
-        ('master', 'Master'),
-        ('doctor', 'Doctor'),
-        ('engineering', 'Engineering'),
-        ('other', 'Other'),
-    ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True)
+        )
+    certificate = fields.Selection(
+        [
+            ('university intern', 'University Intern'),
+            ('graduate', 'Graduate'),
+            ('bachelor', 'Bachelor'),
+            ('master', 'Master'),
+            ('doctor', 'Doctor'),
+            ('engineering', 'Engineering'),
+            ('other', 'Other'),
+            ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True
+        )
 
     format_identification_id = fields.Char(
         string="Formatted Identification Number",
@@ -63,21 +67,20 @@ class HrEmployee(models.Model):
                     raise exceptions.UserError(
                         "El número de identificación debe ser de 13 dígitos numericos.\n"
                         "Tome como referencia el siguiente ejemplo: 0801199912345\n"
-                    )
+                        )
             else:
                 record.identification_id = False
+
     @api.model
     def _format_identification_with_dashes(self):
         for record in self:
             if record.identification_id:
-                formatted_identification_with_dashes = (f"{record.identification_id[:4]}-{record.identification_id[4:8]}-"
-                                f"{record.identification_id[8:]}")
+                formatted_identification_with_dashes = (
+                    f"{record.identification_id[:4]}-{record.identification_id[4:8]}-"
+                    f"{record.identification_id[8:]}")
                 record.format_identification_id = formatted_identification_with_dashes
             else:
                 record.format_identification_id = False
-
-
-
 
     @api.model
     def cron_create_portal_user_to_employee(self):
@@ -95,8 +98,8 @@ class HrEmployee(models.Model):
                     'login': login,
                     'share': True,
                     'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-                }
-            )
+                    }
+                )
             employee.user_id = user.id
             _logger.info("User created for employee %s: %s", employee.name, login)
         _logger.info("Cron job to create portal users executed")
@@ -113,8 +116,8 @@ class HrEmployee(models.Model):
             [
                 ('date_start', '>=', two_years_ago),
                 ('date_start', '<=', one_year_ago),
-            ]
-        )
+                ]
+            )
         if not contracts:
             return
         employees = contracts.mapped('employee_id')
@@ -124,8 +127,8 @@ class HrEmployee(models.Model):
                     [
                         ('badge_id', '=', badge),
                         ('user_id', '=', employee.user_id.id),
-                    ], limit=1
-                )
+                        ], limit=1
+                    )
                 if not badge_user:
                     self.env['gamification.badge.user'].create(
                         {
@@ -133,5 +136,5 @@ class HrEmployee(models.Model):
                             'sender_id': self.env.user.id,
                             'badge_id': badge,
                             'employee_id': employee.id,
-                        }
-                    )
+                            }
+                        )
