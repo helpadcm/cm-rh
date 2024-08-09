@@ -10,7 +10,6 @@ _logger = logging.getLogger(__name__)
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
-
     next_birthday = fields.Date(string="Proximo Cumpleaños", compute='_compute_next_birthday')
     employee_no = fields.Char(
         string="Código de Empleado",
@@ -21,6 +20,23 @@ class HrEmployee(models.Model):
         'hr.branch',
         string="Sucursal",
         help="Sucursal a la que pertenece el empleado."
+        )
+    certificate = fields.Selection(
+        [
+            ('university intern', 'University Intern'),
+            ('graduate', 'Graduate'),
+            ('bachelor', 'Bachelor'),
+            ('master', 'Master'),
+            ('doctor', 'Doctor'),
+            ('engineering', 'Engineering'),
+            ('other', 'Other'),
+            ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True
+        )
+
+    format_identification_id = fields.Char(
+        string="Formatted Identification Number",
+        help='This is the value of the "ID Number" field formatted with hyphens.',
+        compute="_format_identification_with_dashes"
         )
 
     def get_employee_no(self):
@@ -56,9 +72,19 @@ class HrEmployee(models.Model):
                 record.identification_id = False
 
     @api.model
+    def _format_identification_with_dashes(self):
+        for record in self:
+            if record.identification_id:
+                formatted_identification_with_dashes = (
+                    f"{record.identification_id[:4]}-{record.identification_id[4:8]}-"
+                    f"{record.identification_id[8:]}")
+                record.format_identification_id = formatted_identification_with_dashes
+            else:
+                record.format_identification_id = False
+
+    @api.model
     def cron_create_portal_user_to_employee(self):
         employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
-
         for employee in employees:
             login = employee.work_email
             if self.env['res.users'].search([('login', '=', login)]):
@@ -66,7 +92,6 @@ class HrEmployee(models.Model):
                     employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
                     _logger.info("User found for employee %s: %s", employee.name, login)
                 continue
-
             user = self.env['res.users'].create(
                 {
                     'name': employee.name,
@@ -84,23 +109,18 @@ class HrEmployee(models.Model):
         today = fields.Date.today()
         one_year_ago = today - relativedelta(years=1)
         two_years_ago = today - relativedelta(years=2)
-
         badge = self.env.ref('hr_employee_cm.one_year').id
         if not badge:
             return
-
         contracts = self.env['hr.contract'].search(
             [
                 ('date_start', '>=', two_years_ago),
                 ('date_start', '<=', one_year_ago),
                 ]
             )
-
         if not contracts:
             return
-
         employees = contracts.mapped('employee_id')
-
         for employee in employees:
             if employee.user_id:
                 badge_user = self.env['gamification.badge.user'].search(

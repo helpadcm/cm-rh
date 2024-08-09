@@ -13,6 +13,7 @@ for CM Airlines employees.
     'data': [
         'views/hr_contract_views.xml',
         'views/hr_employee_views_inherit.xml',
+        'data/cron_update_contract_bonus.xml',
     ],
     'installable': True,
     'application': False,

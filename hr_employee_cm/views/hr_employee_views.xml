@@ -46,10 +46,28 @@
             </xpath>
 
             <!-- NOTEBOOK INFORMACION PRIVADA -->
-            <!-- CIUDADANÍA -->
+
+            <xpath expr="//field[@name='identification_id']" position="after">
+                <field name="format_identification_id"/>
+            </xpath>
             <xpath expr="//field[@name='birthday']" position="after">
                 <field name="next_birthday"/>
             </xpath>
+
+            <!-- CIUDADANÍA -->
+            <xpath expr="//field[@name='private_car_plate']" position="replace"/>
+            <xpath expr="//field[@name='km_home_work']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[@name='div_km_home_work']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- ESTADO FAMILIAR-->
+            <xpath expr="//field[@name='spouse_birthdate']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <!-- PERMISO DE TRABAJO -->
             <xpath expr="//separator[@name='has_work_permit']"
                    position="replace"/>

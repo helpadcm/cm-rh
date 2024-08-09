@@ -15,6 +15,10 @@ El modulo `hr_contract_cm` realiza las siguientes modificaciones:
   campos se han incorporado en la vista form `hr_contract.hr_contract_view_form` bajo la sección 'CONFIGURACIÓN DE
   BONIFICACIONES QUINCENALES'.
 
+- Se añadio un cron que actualiza los campos de los bonus utilizando la informacion de los campos del modulo de 
+  studio de odoo , este cron se ejecutara de forma manual y se encuentra en la vista 
+  `data/cron_update_bonus.xml` , su estado siempre sera desactivado.
+
 para obtener mas informacion, revisar el codigo fuente en el modulo `cm_rh/hr_contract_cm`
 
 ## Modulo hr_employee_cm
