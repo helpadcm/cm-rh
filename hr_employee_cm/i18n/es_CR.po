@@ -257,7 +257,7 @@ msgstr ""
 msgid "Un Año de Exitos"
 msgstr ""
 
-# module: hr_employee_cm
+#. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__university_intern
 msgid "University Intern"
 msgstr "Interno Universitario"
