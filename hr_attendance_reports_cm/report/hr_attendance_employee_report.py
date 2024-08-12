@@ -59,12 +59,13 @@ def compare_datetime_with_float(datetime_obj, float_hour, operator):
     Returns:
     bool: True if the time part of datetime_obj is less than the time represented by float_hour, False otherwise.
     """
+    datetime_with_tz = convert_to_user_tz(datetime_obj, 'America/Tegucigalpa')
     time_obj = float_to_time(float_hour)
 
     if operator == '<':
-        return datetime_obj.time() < time_obj
+        return datetime_with_tz.time() < time_obj
     elif operator == '>':
-        return datetime_obj.time() > time_obj
+        return datetime_with_tz.time() > time_obj
 
 
 class HrAttendanceEmployeeReport(models.TransientModel):
