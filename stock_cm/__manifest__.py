@@ -8,9 +8,9 @@
     'description': """
         This module provides the necessary functionality for CM Airlines.
         """,
-    'depends': ['stock'],
+    'depends': ['base','stock'],
     'data': [
-
+        'views/product_view.xml',
         ],
     'installable': True,
     'application': False,
