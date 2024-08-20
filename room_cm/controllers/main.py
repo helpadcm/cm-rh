@@ -6,10 +6,11 @@ from datetime import datetime
 from werkzeug import exceptions
 
 from odoo import http
+from odoo.addons.room.controllers.main import RoomController
 from odoo.http import request
 
 
-class RoomCMController(http.Controller):
+class RoomCMController(RoomController):
 
     # ------
     # ROUTES
@@ -17,6 +18,8 @@ class RoomCMController(http.Controller):
 
     @http.route("/room/<string:short_code>/book", type="http", auth="user", website=True)
     def room_book(self, short_code):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
         room_sudo = request.env["room.room"].sudo().search([("short_code", "=", short_code)])
         if not room_sudo:
             raise exceptions.NotFound()
@@ -24,6 +27,8 @@ class RoomCMController(http.Controller):
 
     @http.route("/room/<string:access_token>/get_existing_bookings", type="json", auth="user")
     def get_existing_bookings(self, access_token):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
         room_sudo = self._fetch_room_from_access_token(access_token)
         return request.env["room.booking"].sudo().search_read(
             [("room_id", "=", room_sudo.id), ("stop_datetime", ">", datetime.now())],
@@ -33,6 +38,8 @@ class RoomCMController(http.Controller):
 
     @http.route("/room/<string:access_token>/background", type="http", auth="user")
     def room_background_image(self, access_token):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
         room_sudo = self._fetch_room_from_access_token(access_token)
         if not room_sudo.room_background_image:
             return ""
@@ -40,22 +47,44 @@ class RoomCMController(http.Controller):
 
     @http.route("/room/<string:access_token>/booking/create", type="json", auth="user")
     def room_booking_create(self, access_token, name, start_datetime, stop_datetime):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
         room_sudo = self._fetch_room_from_access_token(access_token)
+        user_id = request.env.user.id
         return request.env["room.booking"].sudo().create(
             {
                 "name": name,
                 "room_id": room_sudo.id,
                 "start_datetime": start_datetime,
                 "stop_datetime": stop_datetime,
+                "organizer_id": user_id,
                 }
             )
 
     @http.route("/room/<string:access_token>/booking/<int:booking_id>/delete", type="json", auth="user")
     def room_booking_delete(self, access_token, booking_id):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
+        user_id = request.env.user.id
+        booking = request.env["room.booking"].sudo().search([("id", "=", booking_id)])
+        if not booking:
+            raise exceptions.NotFound()
+        if (booking.organizer_id.id != user_id and
+                not request.env.user.has_group('room.group_room_manager')):
+            raise exceptions.Forbidden()
         return self._fetch_booking(booking_id, access_token).unlink()
 
     @http.route("/room/<string:access_token>/booking/<int:booking_id>/update", type="json", auth="user")
     def room_booking_update(self, access_token, booking_id, **kwargs):
+        if not request.env.user.has_group('room_cm.group_room_booking_user'):
+            raise exceptions.Forbidden()
+        user_id = request.env.user.id
+        booking = request.env["room.booking"].sudo().search([("id", "=", booking_id)])
+        if not booking:
+            raise exceptions.NotFound()
+        if (booking.organizer_id.id != user_id and
+                not request.env.user.has_group('room.group_room_manager')):
+            raise exceptions.Forbidden()
         fields_allowlist = {"name", "start_datetime", "stop_datetime"}
         return self._fetch_booking(booking_id, access_token).write(
             {

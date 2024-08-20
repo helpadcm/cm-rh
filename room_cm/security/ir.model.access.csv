@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+"access_room_user","access.room.user",room.model_room_booking,group_room_booking_user,1,"0",1,"0"
+"access_room_booking_user","access.room.booking.user","room.model_room_booking","base.group_user","1","0","0","0"
