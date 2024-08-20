@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Security Group for Booking Users -->
+    <record id="group_room_booking_user" model="res.groups">
+        <field name="name">Usuario de Sala</field>
+        <field name="category_id" ref="room.module_category_room"/>
+        <field name="implied_ids"
+               eval="[Command.link(ref('base.group_user'))]"/>
+        <field name="users"
+               eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Inherit Security Group for Room Managers -->
+    <record id="room.group_room_manager" model="res.groups">
+        <field name="implied_ids" eval="[Command.link(ref('room_cm.group_room_booking_user'))]"/>
+    </record>
+
+    <!-- Rule to allow users in group_room_booking_user to update or delete their own bookings -->
+    <record id="rule_room_booking_user_own" model="ir.rule">
+        <field name="name">Room Booking: Own Records</field>
+        <field name="model_id" ref="room.model_room_booking"/>
+        <field name="groups" eval="[(4, ref('room_cm.group_room_booking_user'))]"/>
+        <field name="domain_force">[('organizer_id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Rule to allow users in group_room_booking_user to read all bookings -->
+    <record id="rule_room_booking_user_all" model="ir.rule">
+        <field name="name">Room Booking: All Records</field>
+        <field name="model_id" ref="room.model_room_booking"/>
+        <field name="groups" eval="[(4, ref('room_cm.group_room_booking_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Rule to allow users in room.group_room_manager to read, write, create, and delete all bookings -->
+    <record id="rule_room_manager_all" model="ir.rule">
+        <field name="name">Room Booking: All Records for Managers</field>
+        <field name="model_id" ref="room.model_room_booking"/>
+        <field name="groups" eval="[(4, ref('room.group_room_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>
