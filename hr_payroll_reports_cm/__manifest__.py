@@ -9,6 +9,8 @@
         """,
     'depends': ['hr', 'hr_contract', 'hr_payroll', 'hr_payroll_cm'],
     'data': [
+        'security/ir.model.access.csv',
+        'reports/hr_attendance_employee_report_view.xml',
         ],
     'installable': True,
     'application': False,
