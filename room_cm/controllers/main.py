@@ -16,19 +16,15 @@ class RoomCMController(RoomController):
     # ROUTES
     # ------
 
-    @http.route("/room/<string:short_code>/book", type="http", auth="user", website=True)
+    @http.route("/room/<string:short_code>/book", type="http", auth="public", website=True)
     def room_book(self, short_code):
-        if not request.env.user.has_group('room_cm.group_room_booking_user'):
-            raise exceptions.Forbidden()
         room_sudo = request.env["room.room"].sudo().search([("short_code", "=", short_code)])
         if not room_sudo:
             raise exceptions.NotFound()
         return request.render("room.room_booking", {"room": room_sudo})
 
-    @http.route("/room/<string:access_token>/get_existing_bookings", type="json", auth="user")
+    @http.route("/room/<string:access_token>/get_existing_bookings", type="json", auth="public")
     def get_existing_bookings(self, access_token):
-        if not request.env.user.has_group('room_cm.group_room_booking_user'):
-            raise exceptions.Forbidden()
         room_sudo = self._fetch_room_from_access_token(access_token)
         return request.env["room.booking"].sudo().search_read(
             [("room_id", "=", room_sudo.id), ("stop_datetime", ">", datetime.now())],
@@ -36,10 +32,8 @@ class RoomCMController(RoomController):
             order="start_datetime asc",
             )
 
-    @http.route("/room/<string:access_token>/background", type="http", auth="user")
+    @http.route("/room/<string:access_token>/background", type="http", auth="public")
     def room_background_image(self, access_token):
-        if not request.env.user.has_group('room_cm.group_room_booking_user'):
-            raise exceptions.Forbidden()
         room_sudo = self._fetch_room_from_access_token(access_token)
         if not room_sudo.room_background_image:
             return ""
