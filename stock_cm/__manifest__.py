@@ -11,6 +11,7 @@
     'depends': ['base','stock'],
     'data': [
         'views/product_view.xml',
+        'views/stock_quant_view.xml',
         ],
     'installable': True,
     'application': False,
