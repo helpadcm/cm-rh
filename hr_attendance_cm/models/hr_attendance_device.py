@@ -44,6 +44,13 @@ class HrAttendanceDevice(models.Model):
         help='Branch of the attendance device.'
         )
 
+    city_id = fields.Many2one(
+        'res.city',
+        string='City',
+        required=True,
+        help='City of the attendance device.'
+        )
+
     employee_ids = fields.Many2many(
         'hr.employee',
         string='Employees',

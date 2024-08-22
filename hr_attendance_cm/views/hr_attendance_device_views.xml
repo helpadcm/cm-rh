@@ -13,6 +13,7 @@
                         <field name="port"/>
                         <field name="company_id"/>
                         <field name="branch_id"/>
+                        <field name="city_id"/>
                         <field name="employee_ids" widget="many2many_tags"/>
                         <field name="latitude"/>
                         <field name="longitude"/>
@@ -47,6 +48,11 @@
                 <field name="ip_address"/>
                 <field name="company_id"/>
                 <field name="branch_id"/>
+                <field name="city_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by':'branch_id'}"/>
+                    <filter string="City" name="group_by_city" context="{'group_by':'city_id'}"/>
+                </group>
             </search>
         </field>
     </record>
