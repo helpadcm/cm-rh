@@ -9,7 +9,7 @@
         This module provides the necessary functionality for CM Airlines.
         - Gets the employees who have birthdays during the month
         """,
-    'depends': ['hr', 'hr_gamification', ],
+    'depends': ['base_address_extended', 'hr', 'hr_gamification', ],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_branch_views.xml',

@@ -8,6 +8,7 @@ class Branch(models.Model):
     name = fields.Char('Name', required=True)
     code = fields.Char('Code', required=True)
     company_id = fields.Many2one('res.company', string='Company', required=True)
+    city_id = fields.Many2one('res.city', string='City', required=True)
     parent_id = fields.Many2one('hr.branch', string='Parent Branch')
     child_ids = fields.One2many('hr.branch', 'parent_id', string='Child Branches')
     manager_id = fields.Many2one('hr.employee', string='Manager')

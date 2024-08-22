@@ -7,7 +7,7 @@
     'description': """
         This module provides the requirements for CM Airlines attendance records.
         """,
-    'depends': ['hr', 'hr_attendance', 'hr_employee_cm'],
+    'depends': ['base_address_extended', 'hr', 'hr_attendance', 'hr_employee_cm'],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_attendance_device_views.xml',
