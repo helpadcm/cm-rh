@@ -2,13 +2,18 @@
 
 <odoo>
     <data>
-        <record id="product_template_action_product" model="ir.actions.act_window">
+        <record id="product_template_action_product"
+                model="ir.actions.act_window">
             <field name="name">Products</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">kanban,tree,form</field>
-            <field name="search_view_id" ref="stock.product_template_search_form_view_stock"/>
-            <field name="context">{"search_default_consumable": 1, 'default_detailed_type': 'product',
-                'group_by': 'categ_id', 'search_default_real_stock_available': 1}
+            <field name="search_view_id"
+                   ref="stock.product_template_search_form_view_stock"/>
+            <field name="context">{
+                "search_default_consumable": 1,
+                'default_detailed_type': 'product',
+                'group_by': 'categ_id', 'search_default_real_stock_available': 1
+                }
             </field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
@@ -21,15 +26,11 @@
         </record>
 
 
-<menuitem id="stock.menu_product_variant_config_stock"
-          name="Products"
-          action="product_template_action_product"
-          parent="stock.menu_stock_inventory_control"
-          sequence="1"/>
-
-
+        <menuitem id="stock.menu_product_variant_config_stock"
+                  name="Products"
+                  action="product_template_action_product"
+                  parent="stock.menu_stock_inventory_control"
+                  sequence="1"/>
 
     </data>
 </odoo>
-
-
