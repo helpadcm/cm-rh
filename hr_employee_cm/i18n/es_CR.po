@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e-20240321\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-08 21:19+0000\n"
-"PO-Revision-Date: 2024-08-08 15:29-0600\n"
+"POT-Creation-Date: 2024-08-09 20:45+0000\n"
+"PO-Revision-Date: 2024-08-09 14:46-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: es_CR\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -103,6 +103,11 @@ msgid "Display Name"
 msgstr ""
 
 #. module: hr_employee_cm
+#: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__divorced
+msgid "Divorced"
+msgstr "Divorciado"
+
+#. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__doctor
 msgid "Doctor"
 msgstr ""
@@ -164,6 +169,11 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: hr_employee_cm
+#: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__cohabitant
+msgid "Legal Cohabitant"
+msgstr "Unión Libre"
+
+#. module: hr_employee_cm
 #: model:ir.actions.server,name:hr_employee_cm.ir_cron_award_one_anniversary_ir_actions_server
 msgid "Ludificacion: Insiginia de Aniversario de Un Año"
 msgstr ""
@@ -172,6 +182,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__manager_id
 msgid "Manager"
 msgstr ""
+
+#. module: hr_employee_cm
+#: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee__marital
+msgid "Marital Status"
+msgstr "Estado civil"
+
+#. module: hr_employee_cm
+#: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__married
+msgid "Married"
+msgstr "Casado(a)"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__master
@@ -204,6 +224,11 @@ msgid "Public Employee"
 msgstr "Empleado público"
 
 #. module: hr_employee_cm
+#: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__single
+msgid "Single"
+msgstr "Soltero(a)"
+
+#. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee__branch_id
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee_public__branch_id
 msgid "Sucursal"
@@ -216,10 +241,15 @@ msgid "Sucursal a la que pertenece el empleado."
 msgstr ""
 
 #. module: hr_employee_cm
+#: model:ir.model.constraint,message:hr_employee_cm.constraint_hr_branch_code_uniq
+msgid "The code of the branch must be unique!"
+msgstr ""
+
+#. module: hr_employee_cm
 #: model:ir.model.fields,help:hr_employee_cm.field_hr_employee__format_identification_id
 msgid "This is the value of the \"ID Number\" field formatted with hyphens."
 msgstr ""
-"Este es la valor del campo \"Número de Identificación\" formateado con "
+"Esta es la valor del campo \"Número de Identificación\" formateado con "
 "guiones."
 
 #. module: hr_employee_cm
@@ -230,4 +260,9 @@ msgstr ""
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__university_intern
 msgid "University Intern"
-msgstr "Pasante Universitario"
+msgstr "Interno Universitario"
+
+#. module: hr_employee_cm
+#: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__widower
+msgid "Widower"
+msgstr "Viudo(a)"
