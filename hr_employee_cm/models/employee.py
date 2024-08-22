@@ -114,6 +114,7 @@ class HrEmployee(models.Model):
             return
         contracts = self.env['hr.contract'].search(
             [
+                ('date_end', '=', False),
                 ('date_start', '>=', two_years_ago),
                 ('date_start', '<=', one_year_ago),
                 ]
