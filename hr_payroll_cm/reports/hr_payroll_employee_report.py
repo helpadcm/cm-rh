@@ -56,10 +56,10 @@ class HrPayrollPayslipsReport(models.TransientModel):
             fecha_de_ingreso=employee_id.contract_id.date_start or '',
             id=employee_id.identification_id or '',
             no_de_cuenta_ban_pais=employee_id.bank_account_id.acc_number or '',
-            nombre_de_empleado=employee_id.name,
-            puesto_del_empleado=employee_id.job_id.name,
-            salario_mensual=employee_id.contract_id.wage or 0.0,
-            salario_quincenal=employee_id.contract_id.wage / 2 or 0.0
+            nombre_de_empleado=employee_id.name or '',
+            puesto_del_empleado=employee_id.job_id.name or '',
+            salario_mensual=employee_id.contract_id.wage * 2 or 0.0,
+            salario_quincenal=employee_id.contract_id.wage or 0.0
             )
 
     def _get_work_lines(self, payslip):
@@ -132,8 +132,13 @@ class HrPayrollPayslipsReport(models.TransientModel):
         :return: 
         """
         paysliplines_ids = payslip.line_ids
+        deduction_lines_ids = paysliplines_ids.filtered(lambda x: x.category_id.code == 'DED')
+        total_deducciones = sum(abs(amount) for amount in deduction_lines_ids.mapped('amount'))
         return PaySlipReportDataClass(
-            ihss=paysliplines_ids.filtered(lambda x: x.code == 'SSH').amount
+            ihss=abs(paysliplines_ids.filtered(lambda x: x.code == 'SSH').amount),
+            total_devengado=paysliplines_ids.filtered(lambda x: x.code == 'Gross').amount,
+            total_deducciones=total_deducciones,
+            total_neto_a_pagar=paysliplines_ids.filtered(lambda x: x.code == 'NET').amount,
             )
 
     def _get_payslip_record_from_payslip(self, payslip, no):
@@ -209,65 +214,80 @@ class HrPayrollPayslipsReport(models.TransientModel):
             payslip_records[contract_type] = self._process_payslips_by_contract_type(payslips)
         return payslip_records
 
-    def _payslip_records_to_excel(self, worksheet, payslip_records, department_name, row_num=1):
+    def _payslip_records_to_excel(self, worksheet, payslip_records, department_name, format_dict, row_num=1):
         """
         This method converts the payslip records to an excel sheet
         :param payslip_records: 
         :return: 
         """
+        pair_format = format_dict['light_green']
+        odd_format = format_dict['pastel_green']
+        department_format = format_dict['bold_header']
+        pair_currency_format = format_dict['currency_format_light_green']
+        odd_currency_format = format_dict['currency_format_pastel_green']
+        department_currency_format = format_dict['currency_format_bold_header']
+
+        _row_num = row_num
         for record in payslip_records:
-            worksheet.write(row_num, 0, record.no)
-            worksheet.write(row_num, 1, record.fecha_de_ingreso)
-            worksheet.write(row_num, 2, record.id)
-            worksheet.write(row_num, 3, record.no_de_cuenta_ban_pais)
-            worksheet.write(row_num, 4, record.nombre_de_empleado)
-            worksheet.write(row_num, 5, record.puesto_del_empleado)
-            worksheet.write(row_num, 6, record.salario_mensual)
-            worksheet.write(row_num, 7, record.salario_quincenal)
-            worksheet.write(row_num, 8, record.horas_extras_125)
-            worksheet.write(row_num, 9, record.valor_tiempo_extra_25)
-            worksheet.write(row_num, 10, record.bono_de_transporte_alimentacion_capacitacion)
-            worksheet.write(row_num, 11, record.charter_comisones)
-            worksheet.write(row_num, 12, record.bono_por_resultado)
-            worksheet.write(row_num, 13, record.total_devengado)
-            worksheet.write(row_num, 14, record.isr)
-            worksheet.write(row_num, 15, record.rap)
-            worksheet.write(row_num, 16, record.ihss)
-            worksheet.write(row_num, 17, record.impto_vecinal)
-            worksheet.write(row_num, 18, record.elga)
-            worksheet.write(row_num, 19, record.prestamos_internos)
-            worksheet.write(row_num, 20, record.cuentas_por_cobrar)
-            worksheet.write(row_num, 21, record.prestamos_rap)
-            worksheet.write(row_num, 22, record.odontologia)
-            worksheet.write(row_num, 23, record.optica)
-            worksheet.write(row_num, 24, record.incapacidad_1)
-            worksheet.write(row_num, 25, record.incapacidad_2)
-            worksheet.write(row_num, 26, record.total_deducciones)
-            worksheet.write(row_num, 27, record.total_neto_a_pagar)
-            row_num += 1
+            if _row_num % 2 == 0:
+                base_format = pair_format
+                currency_format = pair_currency_format
+            else:
+                base_format = odd_format
+                currency_format = odd_currency_format
+            worksheet.write(_row_num, 0, record.no, base_format)
+            worksheet.write(_row_num, 1, record.fecha_de_ingreso, base_format)
+            worksheet.write(_row_num, 2, record.id, base_format)
+            worksheet.write(_row_num, 3, record.no_de_cuenta_ban_pais, base_format)
+            worksheet.write(_row_num, 4, record.nombre_de_empleado, base_format)
+            worksheet.write(_row_num, 5, record.puesto_del_empleado, base_format)
+            worksheet.write(_row_num, 6, record.salario_mensual, currency_format)
+            worksheet.write(_row_num, 7, record.salario_quincenal, currency_format)
+            worksheet.write(_row_num, 8, record.horas_extras_125, currency_format)
+            worksheet.write(_row_num, 9, record.valor_tiempo_extra_25, currency_format)
+            worksheet.write(_row_num, 10, record.bono_de_transporte_alimentacion_capacitacion, currency_format)
+            worksheet.write(_row_num, 11, record.charter_comisones, currency_format)
+            worksheet.write(_row_num, 12, record.bono_por_resultado, currency_format)
+            worksheet.write(_row_num, 13, f'=SUM(H{_row_num + 1}:M{_row_num + 1})', currency_format)
+            worksheet.write(_row_num, 14, record.isr, currency_format)
+            worksheet.write(_row_num, 15, record.rap, currency_format)
+            worksheet.write(_row_num, 16, record.ihss, currency_format)
+            worksheet.write(_row_num, 17, record.impto_vecinal, currency_format)
+            worksheet.write(_row_num, 18, record.elga, currency_format)
+            worksheet.write(_row_num, 19, record.prestamos_internos, currency_format)
+            worksheet.write(_row_num, 20, record.cuentas_por_cobrar, currency_format)
+            worksheet.write(_row_num, 21, record.prestamos_rap, currency_format)
+            worksheet.write(_row_num, 22, record.odontologia, currency_format)
+            worksheet.write(_row_num, 23, record.optica, currency_format)
+            worksheet.write(_row_num, 24, record.incapacidad_1, currency_format)
+            worksheet.write(_row_num, 25, record.incapacidad_2, currency_format)
+            worksheet.write(_row_num, 26, f'=SUM(O{_row_num + 1}:Z{_row_num + 1})', currency_format)
+            worksheet.write(_row_num, 27, f'=N{_row_num + 1}-AA{_row_num + 1}', currency_format)
+            _row_num += 1
 
         # Write totals
-        worksheet.write(row_num, 0, 'Total')
-        worksheet.write(row_num, 4, department_name)
-        worksheet.write(row_num, 6, f'=SUM(G2:G{row_num})')
-        worksheet.write(row_num, 7, f'=SUM(H2:H{row_num})')
-        worksheet.write(row_num, 13, f'=SUM(N2:N{row_num})')
-        worksheet.write(row_num, 14, f'=SUM(O2:O{row_num})')
-        worksheet.write(row_num, 15, f'=SUM(P2:P{row_num})')
-        worksheet.write(row_num, 16, f'=SUM(Q2:Q{row_num})')
-        worksheet.write(row_num, 17, f'=SUM(R2:R{row_num})')
-        worksheet.write(row_num, 18, f'=SUM(S2:S{row_num})')
-        worksheet.write(row_num, 19, f'=SUM(T2:T{row_num})')
-        worksheet.write(row_num, 20, f'=SUM(U2:U{row_num})')
-        worksheet.write(row_num, 21, f'=SUM(V2:V{row_num})')
-        worksheet.write(row_num, 22, f'=SUM(W2:W{row_num})')
-        worksheet.write(row_num, 23, f'=SUM(X2:X{row_num})')
-        worksheet.write(row_num, 24, f'=SUM(Y2:Y{row_num})')
-        worksheet.write(row_num, 25, f'=SUM(Z2:Z{row_num})')
-        worksheet.write(row_num, 26, f'=SUM(AA2:AA{row_num})')
-        worksheet.write(row_num, 27, f'=SUM(AB2:AB{row_num})')
+        currency_format = department_currency_format
+        worksheet.write(_row_num, 0, 'Total', department_format)
+        worksheet.write(_row_num, 4, department_name, department_format)
+        worksheet.write(_row_num, 6, f'=SUM(G{row_num + 1}:G{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 7, f'=SUM(H{row_num + 1}:H{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 13, f'=SUM(N{row_num + 1}:N{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 14, f'=SUM(O{row_num + 1}:O{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 15, f'=SUM(P{row_num + 1}:P{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 16, f'=SUM(Q{row_num + 1}:Q{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 17, f'=SUM(R{row_num + 1}:R{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 18, f'=SUM(S{row_num + 1}:S{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 19, f'=SUM(T{row_num + 1}:T{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 20, f'=SUM(U{row_num + 1}:U{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 21, f'=SUM(V{row_num + 1}:V{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 22, f'=SUM(W{row_num + 1}:W{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 23, f'=SUM(X{row_num + 1}:X{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 24, f'=SUM(Y{row_num + 1}:Y{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 25, f'=SUM(Z{row_num + 1}:Z{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 26, f'=SUM(AA{row_num + 1}:AA{_row_num + 1})', currency_format)
+        worksheet.write(_row_num, 27, f'=SUM(AB{row_num + 1}:AB{_row_num + 1})', currency_format)
 
-        return row_num + 1
+        return _row_num + 1
 
     def _create_sheet_for_contract_type(self, workbook, contract_type, payslips_records_by_department):
         """
@@ -278,15 +298,29 @@ class HrPayrollPayslipsReport(models.TransientModel):
         :return: 
         """
         worksheet = workbook.add_worksheet(contract_type)
+        formats_dict = {
+            'bold_header': workbook.add_format({'bold': True, 'bg_color': '#d3d3d3'}),
+            'center': workbook.add_format({'align': 'center'}),
+            'pastel_green': workbook.add_format({'bg_color': '#77dd77'}),
+            'light_green': workbook.add_format({'bg_color': '#b2fab4'}),
+            'light_gray': workbook.add_format({'bg_color': '#d3d3d3'}),
+            'gray': workbook.add_format({'bg_color': '#a9a9a9'}),
+            'currency_format_bold_header': workbook.add_format({'num_format': 'L#,##0.00', 'bg_color': '#d3d3d3'}),
+            'currency_format_pastel_green': workbook.add_format({'num_format': 'L#,##0.00', 'bg_color': '#77dd77'}),
+            'currency_format_light_green': workbook.add_format({'num_format': 'L#,##0.00', 'bg_color': '#b2fab4'}),
+            'currency_format_light_gray': workbook.add_format({'num_format': 'L#,##0.00', 'bg_color': '#d3d3d3'}),
+
+            }
 
         headers = PaySlipReport._fields
         for index, header in enumerate(headers):
             worksheet.write(0, index, header)
+        worksheet.set_row(0, cell_format=formats_dict['bold_header'])
+        worksheet.freeze_panes(1, 0)
 
-        # payslips_by_department = self._process_payslips_by_contract_type(payslips)
         row_num = 1
         for department, payslips in payslips_records_by_department.items():
-            row_num = self._payslip_records_to_excel(worksheet, payslips, department, row_num)
+            row_num = self._payslip_records_to_excel(worksheet, payslips, department, formats_dict, row_num)
 
     def _create_workbook_from_payslip_records(self):
         """
