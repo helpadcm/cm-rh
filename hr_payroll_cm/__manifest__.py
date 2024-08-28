@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Payroll module for CM Airlines',
-    'version': '1.0',
+    'version': '1.2',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
     'summary': 'Planning module for CM Airlines',
@@ -15,6 +15,7 @@
         'views/hr_payroll_views.xml',
         'views/hr_payslip_run_views.xml',
         'views/hr_payslip_views.xml',
+        'reports/hr_payroll_employee_report_view.xml',
         'wizard/load_catorceavo_from_excel_wizard_views.xml',
         'wizard/load_nomina_from_excel_wizard_views.xml',
         ],

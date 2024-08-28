@@ -16,6 +16,11 @@
                         type="object"
                         class="btn-primary"
                         invisible="state not in ['draft', 'verify']"/>
+                <button name="action_hr_payroll_payslips_report"
+                        string="Generar Reporte"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state not in ['draft', 'verify']"/>
                 />
             </xpath>
         </field>

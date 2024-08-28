@@ -31,3 +31,17 @@ class HrPayslipRun(models.Model):
                 'default_payslip_run_id': self.id
                 }
             }
+
+    def action_hr_payroll_payslips_report(self):
+        """
+        Load the payroll report in the system.
+        """
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'hr.payroll.payslips.report',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'payslip_run_id': self.id,
+                },
+            }

@@ -3,7 +3,7 @@ import io
 
 import xlsxwriter
 
-from odoo import models, fields
+from odoo import models, fields, api
 from ..models.payslip_report import PaySlipReportDataClass, PaySlipReport
 
 
@@ -24,10 +24,18 @@ class HrPayrollPayslipsReport(models.TransientModel):
     """
     _name = "hr.payroll.payslips.report"
 
-    lot_id = fields.Many2one('hr.payslip.run', string='Payroll Batch', required=True)
-    payslips_ids = fields.One2many('hr.payslip', 'payslip_run_id', string='Payslips', related='lot_id.slip_ids')
-    file = fields.Binary('File')
-    name = fields.Char('File Name', size=64)
+    payslip_run_id = fields.Many2one('hr.payslip.run', string='Payroll Batch', required=True)
+    payslips_ids = fields.One2many('hr.payslip', 'payslip_run_id', string='Payslips', related='payslip_run_id.slip_ids')
+    file = fields.Binary('File', attachment=True)
+    name = fields.Char('File Name', size=64, default='Payslips.xlsx')
+
+    @api.onchange('payslip_run_id')
+    def _onchange_payslip_run_id(self):
+        """
+        This method is called when the payslip_run_id changes
+        :return: 
+        """
+        self.name = f'Payslips_{self.payslip_run_id.name}.xlsx'
 
     def _get_employee_data(self, payslip):
         """
@@ -47,7 +55,7 @@ class HrPayrollPayslipsReport(models.TransientModel):
         return PaySlipReportDataClass(
             fecha_de_ingreso=employee_id.contract_id.date_start or '',
             id=employee_id.identification_id or '',
-            no_de_cuenta_ban_pais=employee_id.bank_account_id or '',
+            no_de_cuenta_ban_pais=employee_id.bank_account_id.acc_number or '',
             nombre_de_empleado=employee_id.name,
             puesto_del_empleado=employee_id.job_id.name,
             salario_mensual=employee_id.contract_id.wage or 0.0,
@@ -60,7 +68,7 @@ class HrPayrollPayslipsReport(models.TransientModel):
         horas_extras_125
         valor_tiempo_extra_25
         horas_extras_150
-        valor_tiempo_extra_50
+        valor_tiempo_extra_50-
         :param payslip: 
         :return: 
         """
@@ -96,19 +104,22 @@ class HrPayrollPayslipsReport(models.TransientModel):
         inputline_ids = payslip.input_line_ids
         return PaySlipReportDataClass(
             feriado_trabajado=inputline_ids.filtered(lambda x: x.code == 'HDT').amount,
-            bono_de_transporte_alimentacion_capacitacion=inputline_ids.filtered(lambda x: x.code == 'BTA').amount,
+            bono_de_transporte_alimentacion_capacitacion=inputline_ids.filtered(
+                lambda x: x.code == 'TRANSBONUS'
+                ).amount,
             charter_comisones=inputline_ids.filtered(lambda x: x.code == 'CHT').amount,
             bono_por_resultado=inputline_ids.filtered(lambda x: x.code == 'BPR').amount,
             ajuste=inputline_ids.filtered(lambda x: x.code == 'AJU').amount,
             isr=inputline_ids.filtered(lambda x: x.code == 'ISR').amount,
             rap=inputline_ids.filtered(lambda x: x.code == 'RAP').amount,
             impto_vecinal=inputline_ids.filtered(lambda x: x.code == 'IMV').amount,
-            elga=inputline_ids.filtered(lambda x: x.code == 'ELG').amount,
-            prestamos_internos=inputline_ids.filtered(lambda x: x.code == 'PIN').amount,
-            cuentas_por_cobrar=inputline_ids.filtered(lambda x: x.code == 'CPC').amount,
-            prestamos_rap=inputline_ids.filtered(lambda x: x.code == 'PRP').amount,
+            elga=inputline_ids.filtered(lambda x: x.code == 'CACELLOANS').amount,
+            prestamos_internos=inputline_ids.filtered(lambda x: x.code == 'LOANS').amount,
+            cuentas_por_cobrar=inputline_ids.filtered(lambda x: x.code == 'CXC').amount,
+            prestamos_rap=inputline_ids.filtered(lambda x: x.code == 'RAPLOAN').amount,
             odontologia=inputline_ids.filtered(lambda x: x.code == 'ODT').amount,
-            optica=inputline_ids.filtered(lambda x: x.code == 'OPT').amount,
+            optica=inputline_ids.filtered(lambda x: x.code == 'SANTALUCIA').amount +
+                   inputline_ids.filtered(lambda x: x.code == 'REYDEREYES').amount,
             incapacidad_1=inputline_ids.filtered(lambda x: x.code == 'IN1').amount,
             incapacidad_2=inputline_ids.filtered(lambda x: x.code == 'IN2').amount
             )
@@ -122,7 +133,7 @@ class HrPayrollPayslipsReport(models.TransientModel):
         """
         paysliplines_ids = payslip.line_ids
         return PaySlipReportDataClass(
-            ihss=paysliplines_ids.filtered(lambda x: x.code == 'IHSS').amount
+            ihss=paysliplines_ids.filtered(lambda x: x.code == 'SSH').amount
             )
 
     def _get_payslip_record_from_payslip(self, payslip, no):
@@ -138,13 +149,13 @@ class HrPayrollPayslipsReport(models.TransientModel):
         inputlines = self._get_input_lines(payslip)
         paysliplines = self._get_payslip_lines(payslip)
 
-        return PaySlipReportDataClass(
-            no=no,
-            **employee_data.__dict__,
-            **worklines.__dict__,
-            **inputlines.__dict__,
-            **paysliplines.__dict__
-            )
+        ps_record = (PaySlipReportDataClass(no=no)
+                     .update_not_none(employee_data)
+                     .update_not_none(worklines)
+                     .update_not_none(inputlines)
+                     .update_not_none(paysliplines))
+
+        return ps_record
 
     def _process_payslips(self, payslips, no=1):
         """
@@ -173,13 +184,10 @@ class HrPayrollPayslipsReport(models.TransientModel):
         :param payslips: 
         :return:  
         """
-        # get departments
         departments = self._get_departments_from_payslips(payslips)
-        # group by department
         payslips_grouped = {}
         for department in departments:
             payslips_grouped[department.name] = payslips.filtered(lambda x: x.employee_id.department_id == department)
-        # process payslips
         payslip_records = {}
         for department, payslips in payslips_grouped.items():
             payslip_records[department] = self._process_payslips(payslips)
@@ -190,18 +198,15 @@ class HrPayrollPayslipsReport(models.TransientModel):
         This method processes the payslip run and returns a PaySlipReport object
         :return: 
         """
-        # get contracts_types
         contracts_type_ids = self.payslips_ids.mapped('employee_id.contract_id.structure_type_id')
-        # group by contract_type
         payslips_grouped = {}
         for contract_type in contracts_type_ids:
             payslips_grouped[contract_type.name] = self.payslips_ids.filtered(
                 lambda x: x.employee_id.contract_id.structure_type_id == contract_type
                 )
-        # process payslips
         payslip_records = {}
         for contract_type, payslips in payslips_grouped.items():
-            payslip_records[contract_type] = self.process_payslips(payslips)
+            payslip_records[contract_type] = self._process_payslips_by_contract_type(payslips)
         return payslip_records
 
     def _payslip_records_to_excel(self, worksheet, payslip_records, department_name, row_num=1):
@@ -264,7 +269,7 @@ class HrPayrollPayslipsReport(models.TransientModel):
 
         return row_num + 1
 
-    def _create_sheet_for_contract_type(self, workbook, contract_type, payslips):
+    def _create_sheet_for_contract_type(self, workbook, contract_type, payslips_records_by_department):
         """
         This method creates a sheet for a contract type
         :param workbook: 
@@ -278,9 +283,9 @@ class HrPayrollPayslipsReport(models.TransientModel):
         for index, header in enumerate(headers):
             worksheet.write(0, index, header)
 
-        payslips_by_department = self._process_payslips_by_contract_type(payslips)
+        # payslips_by_department = self._process_payslips_by_contract_type(payslips)
         row_num = 1
-        for department, payslips in payslips_by_department.items():
+        for department, payslips in payslips_records_by_department.items():
             row_num = self._payslip_records_to_excel(worksheet, payslips, department, row_num)
 
     def _create_workbook_from_payslip_records(self):
@@ -293,13 +298,24 @@ class HrPayrollPayslipsReport(models.TransientModel):
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         payslip_records = self._process_payslip_run()
-        for contract_type, payslips in payslip_records.items():
-            self._create_sheet_for_contract_type(workbook, contract_type, payslips)
+        for contract_type, payslips_records_by_dpt in payslip_records.items():
+            self._create_sheet_for_contract_type(workbook, contract_type, payslips_records_by_dpt)
         workbook.close()
 
         output.seek(0)
-        self.file = base64.b64encode(output.read())
+        xlsx_data = output.read()
         output.close()
+        encoded_data = base64.b64encode(xlsx_data)
+        self.file = encoded_data
+        return self.env['ir.attachment'].create(
+            {
+                'name': f'Payslips_{self.payslip_run_id.name}.xlsx',
+                'type': 'binary',
+                'datas': encoded_data,
+                'store_fname': f'Payslips_{self.payslip_run_id.name}.xlsx',
+                'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            )
 
     def process_payslip(self):
         """
@@ -307,10 +323,13 @@ class HrPayrollPayslipsReport(models.TransientModel):
         and processes each payslip resulting in a workbook with every payslip in a.
         Is mean to be used as a button in the view
         """
-        self._create_workbook_from_payslip_records()
-        self.name = f'Payslips_{self.lot_id.name}.xlsx'
+        self.ensure_one()
+        attachment = self._create_workbook_from_payslip_records()
+        # self.name = f'Payslips_{self.payslip_run_id.name}.xlsx'
+        if not self.file:
+            raise ValueError('No file was created')
         return {
             'type': 'ir.actions.act_url',
-            'url': f'/web/content/{self.id}/file/{self.name}?download=true',
+            'url': f'/web/content/{attachment.id}?download=true',
             'target': 'self',
-        }
+            }

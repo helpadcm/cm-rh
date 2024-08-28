@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form string="Payroll Payslips Report">
                 <group>
-                    <field name="lot_id"/>
+                    <field name="payslip_run_id"/>
                     <field name="payslips_ids" readonly="1"/>
                     <field name="file" readonly="1"/>
                     <field name="name" readonly="1"/>
@@ -23,7 +23,8 @@
         <field name="name">Payroll Payslips Report</field>
         <field name="res_model">hr.payroll.payslips.report</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_hr_payroll_payslips_report_form"/>
+        <field name="view_id" 
+               ref="view_hr_payroll_payslips_report_form"/>
         <field name="target">new</field>
     </record>
 </odoo>

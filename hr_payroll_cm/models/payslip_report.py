@@ -82,3 +82,10 @@ class PaySlipReportDataClass:
     total_deducciones: Optional[float] = field(default=None)
 
     total_neto_a_pagar: Optional[float] = field(default=None)
+
+    def update_not_none(self, other):
+        for field_name in self.__annotations__:
+            value = getattr(other, field_name)
+            if value is not None:
+                setattr(self, field_name, value)
+        return self
