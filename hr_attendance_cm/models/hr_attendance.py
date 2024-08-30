@@ -4,15 +4,34 @@ from odoo import fields, models
 class HrAttendance(models.Model):
     _inherit = 'hr.attendance'
 
-    device_id = fields.Many2one(
+    in_device_id = fields.Many2one(
         'hr.attendance.device',
-        string='Device',
+        string='Device Check In',
         help='Device of the attendance.'
         )
 
-    branch_id = fields.Many2one(
+    in_branch_id = fields.Many2one(
         'hr.branch',
-        related='device_id.branch_id',
-        string='Branch',
+        related='in_device_id.branch_id',
+        string='Branch Check In',
         help='Branch of the attendance device.'
         )
+
+    in_mode = fields.Selection(
+        selection_add=[('attendance_system', 'Attendance System')], )
+
+    out_device_id = fields.Many2one(
+        'hr.attendance.device',
+        string='Device Check Out',
+        help='Device of the attendance.'
+        )
+
+    out_branch_id = fields.Many2one(
+        'hr.branch',
+        related='out_device_id.branch_id',
+        string='Branch Check Out',
+        help='Branch of the attendance device.'
+        )
+
+    out_mode = fields.Selection(
+        selection_add=[('attendance_system', 'Attendance System')], )

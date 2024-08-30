@@ -16,7 +16,7 @@ class HrAttendanceDevice(models.Model):
         required=True,
         help='Device ID of the attendance device.'
         )
-
+    
     ip_address = fields.Char(
         string='IP Address',
         required=True,

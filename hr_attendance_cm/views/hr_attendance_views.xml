@@ -6,8 +6,10 @@
         <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='employee_id']" position="after">
-                <field name="device_id"/>
-                <field name="branch_id" invisible="1"/>
+                <field name="in_device_id"/>
+                <field name="in_branch_id" invisible="1"/>
+                <field name="out_device_id"/>
+                <field name="out_branch_id" invisible="1"/>
             </xpath>
         </field>
     </record>
@@ -17,8 +19,13 @@
         <field name="model">hr.attendance</field>
         <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='employee_id']" position="after">
-                <field name="device_id"/>
+            <xpath expr="//field[@name='in_mode']" position="after">
+                <field name="in_device_id" invisible="in_mode != 'attendance_system'"/>
+                <field name="in_branch_id" invisible="in_mode != 'attendance_system'"/>
+            </xpath>
+            <xpath expr="//field[@name='out_mode']" position="after">
+                <field name="out_device_id" invisible="in_mode != 'attendance_system'"/>
+                <field name="out_branch_id" invisible="in_mode != 'attendance_system'"/>
             </xpath>
         </field>
     </record>
@@ -29,9 +36,18 @@
         <field name="inherit_id" ref="hr_attendance.hr_attendance_view_filter"/>
         <field name="arch" type="xml">
             <search>
-                <field name="device_id"/>
+                <field name="in_device_id"/>
                 <filter string="Device" name="device_filter" domain="[]"
-                        context="{'group_by':'device_id'}"/>
+                        context="{'group_by':'in_device_id'}"/>
+                <field name="in_branch_id"/>
+                <filter string="Branch" name="branch_filter" domain="[]"
+                        context="{'group_by':'in_branch_id'}"/>
+                <field name="out_device_id"/>
+                <filter string="Device" name="device_filter" domain="[]"
+                        context="{'group_by':'out_device_id'}"/>
+                <field name="out_branch_id"/>
+                <filter string="Branch" name="branch_filter" domain="[]"
+                        context="{'group_by':'out_branch_id'}"/>
             </search>
         </field>
     </record>
