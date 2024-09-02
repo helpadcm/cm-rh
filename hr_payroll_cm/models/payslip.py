@@ -1,9 +1,20 @@
-from odoo import models
 import dateutil
+
+from odoo import models, fields
 
 
 class HrPayslipBonus(models.Model):
     _inherit = 'hr.payslip'
+
+    paid_date = fields.Date(
+        compute="_compute_paid_date",
+        string="Close Date",
+        help="The date on which the payment is made to the employee."
+        )
+
+    def _compute_paid_date(self):
+        for payslip in self:
+            payslip.paid_date = payslip.date_to
 
     def action_recalculate_eh_day_based_cm(self):
         """
@@ -50,7 +61,7 @@ class HrPayslipBonus(models.Model):
                     'name': 'Tiempo Nominal',
                     'number_of_days': ordinary_hours / 8,
                     'number_of_hours': ordinary_hours
-                },
+                    },
                 {
                     'payslip_id': payslip.id,
                     'work_entry_type_id': default_overtime_type.id,
@@ -58,17 +69,19 @@ class HrPayslipBonus(models.Model):
                     'name': 'Horas Extras',
                     'number_of_days': (payable_extra_hours / 8),
                     'number_of_hours': payable_extra_hours
-                }
-            ]
+                    }
+                ]
 
             payslip.worked_days_line_ids.unlink()
             payslip.write({'edited': True})
 
             self.env['hr.payslip.worked_days'].create(worked_day_lines)
 
-    def _count_bonus_for_record(self, work_entry,
-                                early_checkin_bonus_time,
-                                late_checkout_bonus_time):
+    def _count_bonus_for_record(
+            self, work_entry,
+            early_checkin_bonus_time,
+            late_checkout_bonus_time
+            ):
         tegucigalpa_tz = dateutil.tz.gettz('America/Tegucigalpa')
         date_start = work_entry["date_start"].astimezone(tegucigalpa_tz)
         date_stop = work_entry["date_stop"].astimezone(tegucigalpa_tz)
@@ -84,31 +97,37 @@ class HrPayslipBonus(models.Model):
 
         return bonus_count
 
-    def _calculate_transport_bonus(self,
-                                   work_entries,
-                                   max_bonus,
-                                   early_checkin_bonus_time,
-                                   late_checkout_bonus_time):
+    def _calculate_transport_bonus(
+            self,
+            work_entries,
+            max_bonus,
+            early_checkin_bonus_time,
+            late_checkout_bonus_time
+            ):
         bonus_count = 0
         for work_entry in work_entries:
-            bonus_count += self._count_bonus_for_record(work_entry,
-                                                        early_checkin_bonus_time,
-                                                        late_checkout_bonus_time)
+            bonus_count += self._count_bonus_for_record(
+                work_entry,
+                early_checkin_bonus_time,
+                late_checkout_bonus_time
+                )
             if bonus_count >= max_bonus:
                 break
         return min(bonus_count, max_bonus)
 
-    def _get_employee_work_entries(self, employee_id,
-                                   work_entries_start_date,
-                                   work_entries_end_date):
+    def _get_employee_work_entries(
+            self, employee_id,
+            work_entries_start_date,
+            work_entries_end_date
+            ):
         work_entries = self.env['hr.work.entry'].search(
             [
                 ("employee_id", "=", employee_id.id),
                 ("active", "=", True),
                 ("date_start", ">=", work_entries_start_date),
                 ("date_start", "<=", work_entries_end_date),
-            ]
-        )
+                ]
+            )
         return work_entries
 
     def action_calculate_transport_bonus_for_payslip(self):
@@ -126,7 +145,7 @@ class HrPayslipBonus(models.Model):
                 max_bonus,
                 early_checkin_bonus_time,
                 late_checkout_bonus_time,
-            )
+                )
             if transport_bonus_count == 0:
                 return
             input_line_values = {
@@ -136,5 +155,5 @@ class HrPayslipBonus(models.Model):
                 "contract_id": payslip.contract_id.id,
                 "payslip_id": payslip.id,
                 "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
-            }
+                }
             self.env["hr.payslip.input"].create(input_line_values)
