@@ -19,8 +19,8 @@ class LoadNominaFromExcelWizard(models.TransientModel):
 
     file = fields.Binary(string='File', required=True, )
     sheet_index = fields.Integer(string='Sheet Index', required=True, default=1)
-    row_header = fields.Integer(string='Row Header', required=True, default=4)
-    row_start = fields.Integer(string='Row Start', required=True, default=5)
+    row_header = fields.Integer(string='Row Header', required=True, default=3)
+    row_start = fields.Integer(string='Row Start', required=True, default=4)
     payslip_run_id = fields.Many2one('hr.payslip.run', string='Payslip Run')
     payslip_ids = fields.Many2many('hr.payslip', string='Payslips')
     warnings = fields.Text(string='Warnings')
@@ -109,7 +109,7 @@ class LoadNominaFromExcelWizard(models.TransientModel):
         for payslip in self.payslip_ids:
             raw_payslip = next(
                 filter(
-                    lambda r_payslip, ps = payslip: r_payslip['id'] == ps.employee_id.identification_id,
+                    lambda r_payslip, ps=payslip: r_payslip['id'] == ps.employee_id.identification_id,
                     raw_payslips
                     ),
                 None
@@ -265,11 +265,10 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                 )
         if input_lines:
             payslip.write({'edited': True})
-            for transbonus_input_line in payslip.input_line_ids.filtered(
-                    lambda
-                            input_line: input_line.input_type_id.code == 'TRANSBONUS'
-                    ):
-                transbonus_input_line.unlink()
+            # filter input lines with code in input_lines
+            codes = [input_line['code'] for input_line in input_lines]
+            old_input_lines = payslip.input_line_ids.filtered(lambda input_line: input_line.code in codes)
+            old_input_lines.unlink()
             self.env['hr.payslip.input'].create(input_lines)
 
     @staticmethod
