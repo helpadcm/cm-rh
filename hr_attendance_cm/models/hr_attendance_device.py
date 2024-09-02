@@ -16,7 +16,7 @@ class HrAttendanceDevice(models.Model):
         required=True,
         help='Device ID of the attendance device.'
         )
-    
+
     ip_address = fields.Char(
         string='IP Address',
         required=True,
@@ -46,6 +46,7 @@ class HrAttendanceDevice(models.Model):
 
     city_id = fields.Many2one(
         'res.city',
+        related='branch_id.city_id',
         string='City',
         required=True,
         help='City of the attendance device.'
