@@ -1,6 +1,6 @@
 {
     'name': 'Attendances for CM Airlines',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Human Resources/Attendances',
     'sequence': 241,
     'summary': 'Employee attendance',
