@@ -11,6 +11,12 @@ class Employee(models.Model):
         compute='_compute_seniority'
         )
 
+    date_start_contract = fields.Date(
+        string='Fecha de Inicio de Contrato',
+        related='contract_id.date_start',
+        help='Fecha de inicio del contrato actual del empleado'
+        )
+
     @api.depends('contract_id.date_start')
     def _compute_seniority(self):
         for employee in self:
