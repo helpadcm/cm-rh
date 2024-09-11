@@ -85,6 +85,10 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
     apply_extra_hour = fields.Boolean('Have Extra Hour', compute='_compute_apply_extra_hour', readonly=True)
 
+    max_transport_bonus = fields.Integer(related='employee_id.contract_id.max_transportation_bonus', readonly=True)
+    transport_bonus = fields.Float('Transport Bonus', readonly=True)
+    transport_bonus_value = fields.Float(compute='_compute_transport_bonus_value', readonly=True)
+
     total_hour = fields.Float('Total Hour', readonly=True)
     total_ordinary_hour = fields.Float('Total Ordinary Hour', readonly=True)
     total_extra_hour = fields.Float('Total Extra Hour', readonly=True)
@@ -95,6 +99,13 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             ('check_in', '<=', self.date_to),
             ('employee_id', '=', self.employee_id.id),
             ]
+
+    def _compute_transport_bonus_value(self):
+        for record in self:
+            if not record.employee_id.contract_id:
+                record.transport_bonus_value = 0
+                return
+            record.transport_bonus_value = record.transport_bonus * record.employee_id.contract_id.value_bonus
 
     def _compute_apply_extra_hour(self):
         for record in self:
@@ -163,7 +174,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         attendances_report = []
 
         for _date in dates:
-            attendances_report.append(self._process_date(employee, _date, attendance_date))
+            attendances_report.append(self._process_date(employee, _date, attendance_date, attendances))
 
         report["rows"] = attendances_report
 
@@ -184,7 +195,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             }
         return report
 
-    def _process_date(self, employee, _date, attendance_date):
+    def _process_date(self, employee, _date, attendance_date, attendance_records):
         user_tz = self.env.user.tz or 'UTC'
         if _date not in attendance_date:
             return {
@@ -207,10 +218,10 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         attendances = attendance_date[_date]
         assert len(attendances) > 0, "There should be at least one attendance for the date."
         worked_hours, ordinary_hours, extra_hours = self._compute_hours(attendances)
-        transport_bonus = self._compute_transport_bonus(attendances)
+        transport_bonus = self._compute_transport_bonus(attendances, attendance_records)
         observations = []
-        if len(attendances) > 2:
-            observations.append("More than 2 attendances for this date.")
+        if len(attendances) > 6:
+            observations.append("Más de seis marcas en esta fecha.")
         return {
             "employee_id": employee.id,
             "employee_no": employee.employee_no,
@@ -233,7 +244,6 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         """
         Compute the hours worked by an employee in a day.
 
-
         Parameters:
         attendances (list): The list of employee attendance data to be transformed.
 
@@ -246,7 +256,40 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
         return worked_hours, ordinary_hours, extra_hours
 
-    def _compute_transport_bonus(self, attendances):
+    def _assign_transport_bonus(self, checktimes, operator, attendance_records):
+        """ 
+        La funcion necesita hacer los siguiente:
+            verificar si checkin es menor a la hora de bono de entrada
+            si existe por lo menos uno, obtener el menor.
+            Lo mismo para checkouts pero con el operador inverso.
+            Si la ciudad de la marca menor obtenida por checkin.branch_id.city_id es igual a la ciudad del 
+            departamento.branch_id.city_id
+            sumar el valor del bono de transporte
+        """
+        if not self.employee_id.contract_id:
+            return 0
+        if operator not in ['<', '>']:
+            raise ValueError("El operador debe ser '<' o '>'.")
+        checktime = min(checktimes) if operator == '<' else max(checktimes)
+        # Find checktime_record in attendance_records with checktime
+        if operator == '<':
+            checktime_record = next((att for att in attendance_records if att.check_in == checktime), None)
+            branch_id = checktime_record.in_branch_id
+        else:
+            checktime_record = next((att for att in attendance_records if att.check_out == checktime), None)
+            branch_id = checktime_record.out_branch_id
+        bonus_time = self.employee_id.contract_id.early_checkin_bonus_time if operator == '<' else (
+            self.employee_id.contract_id.late_checkout_bonus_time)
+        if compare_datetime_with_float(checktime, bonus_time, operator):
+            if not branch_id or not self.employee_id.branch_id.city_id:
+                self.transport_bonus += 1
+                return self.transport_bonus_value
+            if branch_id.city_id == self.employee_id.branch_id.city_id:
+                self.transport_bonus += 1
+                return self.transport_bonus_value
+        return 0
+
+    def _compute_transport_bonus(self, attendances, attendance_records):
         """
         Compute the transport bonus for an employee in a day.
 
@@ -265,17 +308,22 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         if value_bonus <= 0:
             return 0
 
-        # Get the check-in and check-out times for the first attendance
         check_ins = [att.check_in for att in attendances]
         check_outs = [att.check_out for att in attendances]
 
-        transport_bonus = 0
-        if any(compare_datetime_with_float(check_in, start_time_for_bonus, '<') for check_in in check_ins):
-            transport_bonus += value_bonus
-        if any(compare_datetime_with_float(check_out, end_time_for_bonus, '>') for check_out in check_outs):
-            transport_bonus += value_bonus
+        transport_bonus_date = 0
 
-        return transport_bonus
+        if self.transport_bonus >= self.max_transport_bonus:
+            return transport_bonus_date
+
+        transport_bonus_date += self._assign_transport_bonus(check_ins, '<', attendance_records)
+
+        if self.transport_bonus >= self.max_transport_bonus:
+            return transport_bonus_date
+
+        transport_bonus_date += self._assign_transport_bonus(check_outs, '>', attendance_records)
+
+        return transport_bonus_date
 
 
 class HrAttendanceEmployeesReport(models.TransientModel):
@@ -352,11 +400,11 @@ class HrAttendanceEmployeesReport(models.TransientModel):
             ):
         """
         Process the headers of the report.
-    
+
         Parameters:
         data_header (EmployeeAttendanceHeader): The list of employee data to be transformed.
         workbook (xlsxwriter.Workbook.worksheet_class): The workbook to be used.
-    
+
         Returns:
         None
         """
@@ -425,11 +473,11 @@ class HrAttendanceEmployeesReport(models.TransientModel):
             ):
         """
         Process the rows of the report.
-    
+
         Parameters:
         data_rows (list): The list of employee data to be transformed.
         workbook (xlsxwriter.Workbook.worksheet_class): The workbook to be used.
-    
+
         Returns:
         None
         """

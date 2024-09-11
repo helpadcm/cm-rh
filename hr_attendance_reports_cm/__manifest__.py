@@ -7,7 +7,7 @@
     'description': """
         This module provides the reports needed for the CM Airlines attendance records.
         """,
-    'depends': ['hr', 'hr_attendance', 'hr_contract', 'hr_work_entry_contract', 'hr_attendance_cm'],
+    'depends': ['hr', 'hr_attendance', 'hr_contract', 'hr_work_entry_contract', 'hr_attendance_cm', 'hr_contract_cm'],
     'data': [
         'security/ir.model.access.csv',
         'views/hr_attendance_report_views.xml',
