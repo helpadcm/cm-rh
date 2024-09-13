@@ -2,3 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hr_attendance_device_employee,hr_attendance_device_employee,model_hr_attendance_device,base.group_user,1,0,0,0
 access_hr_attendance_device_officer,hr_attendance_device_officer,model_hr_attendance_device,hr.group_hr_user,1,1,1,0
 access_hr_attendance_device_manager,hr_attendance_device_manager,model_hr_attendance_device,hr.group_hr_manager,1,1,1,1
+"hr_attendance.access_hr_attendance_officer",hr.attendance.officer,"hr_attendance.model_hr_attendance","hr_attendance.group_hr_attendance_officer",1,"0","0","0"
+"hr_attendance.access_hr_attendance_officer_overtime",hr.attendance.officer.overtime,"hr_attendance.model_hr_attendance_overtime","hr_attendance.group_hr_attendance_officer",1,"0","0","0"
