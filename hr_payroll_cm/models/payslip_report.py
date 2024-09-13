@@ -28,8 +28,8 @@ PaySlipReport = namedtuple(
         'Prestamos_Rap',
         'Odontologia',
         'Optica',
-        'Incapacidad_1',
-        'Incapacidad_2',
+        'C_Sagrada_Familia',
+        'Incapacidad',
         'Total_Deducciones',
         'TOTAL_NETO_A_PAGAR'
         ]
@@ -77,8 +77,8 @@ class PaySlipReportDataClass:
     prestamos_rap: Optional[float] = field(default=None)
     odontologia: Optional[float] = field(default=None)
     optica: Optional[float] = field(default=None)
-    incapacidad_1: Optional[float] = field(default=None)
-    incapacidad_2: Optional[float] = field(default=None)
+    c_sagrada_familia: Optional[float] = field(default=None)
+    incapacidad: Optional[float] = field(default=None)
     total_deducciones: Optional[float] = field(default=None)
 
     total_neto_a_pagar: Optional[float] = field(default=None)

@@ -42,7 +42,7 @@ class LoadNominaFromExcelWizard(models.TransientModel):
 
     def action_load_raw_payslip(self):
         """
-        Load the excel file
+        Load the Excel file
         """
         # Decode the base64 file content
         file_data = base64.b64decode(self.file)
@@ -69,8 +69,11 @@ class LoadNominaFromExcelWizard(models.TransientModel):
             'comisiones': 14,
             'bono_resultado': 15,
             'ajuste_salarial': 16,
+            'isr': 19,
             'rap': 20,
+            'prestamos_internos': 24,
             'cuentas_por_cobrar': 25,
+            'c_sagrada_familia': 29,
             'incapacidad': 30,
             }
         for row_index in range(self.row_start, sheet.nrows):
@@ -227,6 +230,18 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                         0].id,
                     }
                 )
+        if self._exist_and_gt0(payslip_raw['isr']):
+            input_lines.append(
+                {
+                    "name": "ISR",
+                    "code": "ISR",
+                    "amount": payslip_raw['isr'],
+                    "contract_id": payslip.contract_id.id,
+                    "payslip_id": payslip.id,
+                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "ISR")])[
+                        0].id,
+                    }
+                )
         if self._exist_and_gt0(payslip_raw['rap']):
             input_lines.append(
                 {
@@ -251,6 +266,19 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                         0].id,
                     }
                 )
+        if self._exist_and_gt0(payslip_raw['prestamos_internos']):
+            input_lines.append(
+                {
+                    "name": "Prestamos Internos",
+                    "code": "INTLOAN",
+                    "amount": payslip_raw['prestamos_internos'],
+                    "contract_id": payslip.contract_id.id,
+                    "payslip_id": payslip.id,
+                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "INTLOAN")])[
+                        0].id,
+                    }
+                )
+        
         if self._exist_and_gt0(payslip_raw['incapacidad']):
             input_lines.append(
                 {
@@ -260,6 +288,18 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                     "contract_id": payslip.contract_id.id,
                     "payslip_id": payslip.id,
                     "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "DEDUCTION")])[
+                        0].id,
+                    }
+                )
+        if self._exist_and_gt0(payslip_raw['c_sagrada_familia']):
+            input_lines.append(
+                {
+                    "name": "C. Sagrada Familia",
+                    "code": "DEDUCTION",
+                    "amount": payslip_raw['c_sagrada_familia'],
+                    "contract_id": payslip.contract_id.id,
+                    "payslip_id": payslip.id,
+                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "CSFLOANS")])[
                         0].id,
                     }
                 )
