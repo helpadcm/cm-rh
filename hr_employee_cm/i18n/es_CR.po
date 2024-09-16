@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e-20240321\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-09 20:45+0000\n"
-"PO-Revision-Date: 2024-08-09 14:46-0600\n"
+"PO-Revision-Date: 2024-09-16 15:21-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.5\n"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__active
@@ -31,14 +31,14 @@ msgstr "Licenciatura"
 #: model:ir.model,name:hr_employee_cm.model_hr_branch
 #: model_terms:ir.ui.view,arch_db:hr_employee_cm.view_hr_branch_form
 msgid "Branch"
-msgstr ""
+msgstr "Sucursal"
 
 #. module: hr_employee_cm
 #: model:ir.actions.act_window,name:hr_employee_cm.action_hr_branch
 #: model:ir.ui.menu,name:hr_employee_cm.menu_hr_branch
 #: model_terms:ir.ui.view,arch_db:hr_employee_cm.view_hr_branch_tree
 msgid "Branches"
-msgstr ""
+msgstr "Sucursales"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee__certificate
@@ -49,22 +49,22 @@ msgstr "Nivel de certificado"
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__child_ids
 #: model_terms:ir.ui.view,arch_db:hr_employee_cm.view_hr_branch_form
 msgid "Child Branches"
-msgstr ""
+msgstr "Sucursales hijas"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__code
 msgid "Code"
-msgstr ""
+msgstr "Codigo"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__color
 msgid "Color Index"
-msgstr ""
+msgstr "Índice del color"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__company_id
 msgid "Company"
-msgstr ""
+msgstr "Comañia"
 
 #. module: hr_employee_cm
 #: model:ir.actions.server,name:hr_employee_cm.ir_cron_create_portal_user_to_employee_ir_actions_server
@@ -74,12 +74,12 @@ msgstr ""
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Creado por"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Creado el"
 
 #. module: hr_employee_cm
 #: model_terms:ir.ui.view,arch_db:hr_employee_cm.hr_employee_birthday_filter
@@ -100,7 +100,7 @@ msgstr ""
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Nombre a mostrar"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__divorced
@@ -121,7 +121,7 @@ msgstr "Empleado"
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__employee_ids
 #: model_terms:ir.ui.view,arch_db:hr_employee_cm.view_hr_branch_form
 msgid "Employees"
-msgstr ""
+msgstr "Empleados"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__engineering
@@ -181,7 +181,7 @@ msgstr ""
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__manager_id
 msgid "Manager"
-msgstr ""
+msgstr "Jefe Inmediato"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee__marital
@@ -201,7 +201,7 @@ msgstr "Maestría"
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__name
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__other
@@ -211,7 +211,7 @@ msgstr "Otros"
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__parent_id
 msgid "Parent Branch"
-msgstr ""
+msgstr "Sucursal padre"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_employee__next_birthday
