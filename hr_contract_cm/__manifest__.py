@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Transportation bonus module for CM Airlines',
+    'name': 'Contract module for CM Airlines',
     'version': '1.2',
     'category': 'Human Resources/Contract',
     'sequence': 244,
