@@ -30,6 +30,7 @@ PaySlipReport = namedtuple(
         'Optica',
         'C_Sagrada_Familia',
         'Incapacidad',
+        'Otros',
         'Total_Deducciones',
         'TOTAL_NETO_A_PAGAR'
         ]
@@ -79,6 +80,7 @@ class PaySlipReportDataClass:
     optica: Optional[float] = field(default=None)
     c_sagrada_familia: Optional[float] = field(default=None)
     incapacidad: Optional[float] = field(default=None)
+    otros: Optional[float] = field(default=None)
     total_deducciones: Optional[float] = field(default=None)
 
     total_neto_a_pagar: Optional[float] = field(default=None)

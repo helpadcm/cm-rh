@@ -75,6 +75,7 @@ class LoadNominaFromExcelWizard(models.TransientModel):
             'cuentas_por_cobrar': 25,
             'c_sagrada_familia': 29,
             'incapacidad': 30,
+            'otros': 31,
             }
         for row_index in range(self.row_start, sheet.nrows):
             row = sheet.row_values(row_index)
@@ -300,6 +301,18 @@ class LoadNominaFromExcelWizard(models.TransientModel):
                     "contract_id": payslip.contract_id.id,
                     "payslip_id": payslip.id,
                     "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "CSFLOANS")])[
+                        0].id,
+                    }
+                )
+        if self._exist_and_gt0(payslip_raw['otros']):
+            input_lines.append(
+                {
+                    "name": "Otros",
+                    "code": "DEDUCTION",
+                    "amount": payslip_raw['otros'],
+                    "contract_id": payslip.contract_id.id,
+                    "payslip_id": payslip.id,
+                    "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "OTHERS")])[
                         0].id,
                     }
                 )
