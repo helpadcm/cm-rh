@@ -32,6 +32,7 @@ class HrEmployee(models.Model):
     #         ('other', 'Other'),
     #         ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True
     #     )
+
     certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering')])
 
     format_identification_id = fields.Char(
