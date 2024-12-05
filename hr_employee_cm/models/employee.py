@@ -21,18 +21,6 @@ class HrEmployee(models.Model):
         string="Sucursal",
         help="Sucursal a la que pertenece el empleado."
         )
-    # certificate = fields.Selection(
-    #     [
-    #         ('university intern', 'University Intern'),
-    #         ('graduate', 'Graduate'),
-    #         ('bachelor', 'Bachelor'),
-    #         ('master', 'Master'),
-    #         ('doctor', 'Doctor'),
-    #         ('engineering', 'Engineering'),
-    #         ('other', 'Other'),
-    #         ], 'Certificate Level', default='other', groups="hr.group_hr_user", tracking=True
-    #     )
-
     certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering')])
 
     format_identification_id = fields.Char(
