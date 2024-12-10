@@ -9,10 +9,11 @@
 This module has added a series of fields for the management of transportation bonuses 
 for CM Airlines employees.
         """,
-    'depends': ['hr_contract', 'hr'],
+    'depends': ['hr_contract', 'hr','hr_payroll'],
     'data': [
         'views/hr_contract_views.xml',
         'views/hr_employee_views_inherit.xml',
+        'views/hr_payslip_line_view.xml',
         'data/cron_update_contract_bonus.xml',
     ],
     'installable': True,

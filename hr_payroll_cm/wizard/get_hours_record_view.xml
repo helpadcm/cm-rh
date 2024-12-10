@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_hours_record" model="ir.ui.view">
+        <field name="name">hr.hour.record.form</field>
+        <field name="model">hr.hours.employees</field>
+        <field name="arch" type="xml">
+            <form string="Employee Attendance Report">
+                <sheet>
+                    <group cols="4">
+                        <group>
+                            <field name="date_from" string="Fecha desde"/>
+                            <field name="department_id" string="Departamento"/>
+                        </group>
+                        <group >
+                            <field name="date_to" string="Fecha hasta"/>
+                            <field name="employee_ids" string="Empleados" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Obtener Registros" type="object"
+                                name="get_records" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_hours_record_employee_action" model="ir.actions.act_window">
+        <field name="name">Hours Employee Records</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.hours.employees</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
