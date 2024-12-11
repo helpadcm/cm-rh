@@ -1,4 +1,5 @@
 from odoo import fields, models, api
+from odoo.exceptions import UserError, ValidationError
 
 actions = [
     ('free', 'Libre'),
@@ -68,6 +69,13 @@ class employeeAttendanceRecords(models.Model):
                 elif rec.diff_hours > rec.eh_limit:
                     rec.eh_pay = rec.eh_limit
                     rec.aditional_he = rec.diff_hours - rec.eh_limit
+
+    def unlink(self):
+        for rec in self:
+            if rec.state != 'draft':
+                raise ValidationError('No se pueden eliminar registros revisados o finalizados')
+        res = super(employeeAttendanceRecords, self).unlink()
+        return res
                 
 
 class lineAttendanceRecords(models.Model):

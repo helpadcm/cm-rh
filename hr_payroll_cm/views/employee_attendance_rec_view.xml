@@ -125,6 +125,7 @@
                 <field name="esperated_hours"/>
                 <field name="eh_pay"/>
                 <field name="eh_holiday"/>
+                <field name="state"/>
             </tree>
         </field>
     </record>
