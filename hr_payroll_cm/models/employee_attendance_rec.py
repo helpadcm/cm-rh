@@ -1,5 +1,14 @@
 from odoo import fields, models, api
 
+actions = [
+    ('free', 'Libre'),
+    ('inc', 'Incapacidad'),
+    ('special', 'Permiso Especial'),
+    ('vac', 'Vacaciones'),
+    ('wh', 'Feriado Trabajado'),
+    ('cap', 'Capacitacion'),
+    ('coe', 'Cubrir en otra estación')
+]
 
 class employeeAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.record'
@@ -21,6 +30,12 @@ class employeeAttendanceRecords(models.Model):
     aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
+    eh_holiday = fields.Float(string="HE Feriado",compute='compute_eh_totals')
+    state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft')
+
+    def change_state(self):
+        next_state = self.env.context.get('next_stage')
+        self.state = next_state
 
 
     @api.depends('record_line_ids')
@@ -29,9 +44,22 @@ class employeeAttendanceRecords(models.Model):
             if rec.record_line_ids:
                 hours_total = 0
                 eh_total = 0
+                holiday_hours = 0
                 for line in rec.record_line_ids:
                     hours_total += line.ordinary_hours
                     eh_total += line.extra_hours
+                    if line.personal_action == 'wh':
+                        holiday_hours += line.extra_hours
+
+                    if line.personal_action == 'cap':
+                        eh_total -= line.extra_hours
+
+                    if line.personal_action == 'vac' and line.special_hours > 0:
+                        hours_total -= line.ordinary_hours
+                        hours_total += line.special_hours
+
+
+                rec.eh_holiday = holiday_hours
                 rec.total_hours = hours_total + eh_total
                 rec.diff_hours = rec.total_hours - rec.esperated_hours
                 if rec.diff_hours <= rec.eh_limit:
@@ -40,6 +68,7 @@ class employeeAttendanceRecords(models.Model):
                 elif rec.diff_hours > rec.eh_limit:
                     rec.eh_pay = rec.eh_limit
                     rec.aditional_he = rec.diff_hours - rec.eh_limit
+                
 
 class lineAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.line'
@@ -59,4 +88,13 @@ class lineAttendanceRecords(models.Model):
     observations = fields.Char(string="Observaciones")
     bonus = fields.Float(string="BT")
     attendance_rec_id = fields.Many2one('hr.employee.attendance.record',string="Registro de asistencia")
+    personal_action = fields.Selection(actions, string="Acciones de personal")
+    special_hours = fields.Float(string="Horas Especiales")
+    notes =fields.Char(string="Nota")
 
+    @api.onchange('personal_action')
+    def personal_action_change(self):
+        if self.personal_action:
+            self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
+            if self.personal_action == 'free':
+                self.ordinary_hours = 0

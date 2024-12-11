@@ -5,6 +5,12 @@
         <field name="model">hr.employee.attendance.record</field>
         <field name="arch" type="xml">
             <form string="Registro de Asistencia">
+                <header>
+                    <button string="Revisado" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'revised'}" type="object" class="oe_highlight"/>
+                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
+                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
                 <sheet>
                     <h1>
                         <field name="name" readonly="1"/>
@@ -24,6 +30,7 @@
                             <field name="esperated_hours" readonly="1"/>
                             <field name="total_hours"/>
                             <field name="eh_pay"/>
+                            <field name="eh_holiday"/>
                         </group>
                         <group>
                             <field name="eh_limit" readonly="1"/>
@@ -42,8 +49,8 @@
                     </group>
                     <notebook>
                         <page string="Lineas de Asistencia">
-                            <field name="record_line_ids" readonly="1">
-                                <tree>
+                            <field name="record_line_ids" readonly="state != 'draft'">
+                                <tree create="false" delete="false">
                                     <field name="date"/>
                                     <field name="day"/>
                                     <field name="check_in_1"/>
@@ -58,6 +65,30 @@
                                     <field name="observations"/>
                                     <field name="bonus" sum="Total Bono"/>
                                 </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="date" readonly="1"/>
+                                            <field name="check_in_1" readonly="1"/>
+                                            <field name="check_in_2" readonly="1"/>
+                                            <field name="check_in_3" readonly="1"/>
+                                            <field name="total_hours" sum="Horas totales" readonly="1"/>
+                                            <field name="bonus" sum="Total Bono" readonly="1"/>
+                                            <field name="observations" readonly="1" force_save="1"/>
+                                            <field name="special_hours" invisible="personal_action in [False, 'free']"/>
+                                            <field name="notes" invisible="personal_action in [False, 'free']" required="personal_action not in ['free', False]"/>
+                                        </group>
+                                        <group>
+                                            <field name="day" readonly="1"/>
+                                            <field name="check_out_1" readonly="1"/>
+                                            <field name="check_out_2" readonly="1"/>
+                                            <field name="check_out_3" readonly="1"/>
+                                            <field name="ordinary_hours" force_save="1" sum="Total Horas ordinarias" readonly="1"/>
+                                            <field name="extra_hours" sum="Total Horas Extras" readonly="1"/>
+                                            <field name="personal_action"/>
+                                        </group>
+                                    </group>
+                                </form>
                             </field>
                         </page>
                     </notebook>
@@ -93,6 +124,7 @@
                 <field name="end_date"/>
                 <field name="esperated_hours"/>
                 <field name="eh_pay"/>
+                <field name="eh_holiday"/>
             </tree>
         </field>
     </record>

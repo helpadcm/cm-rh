@@ -12,6 +12,7 @@
     'depends': ['hr_employee_cm', 'hr_payroll', 'hr_contract_cm','hr_work_entry_contract_enterprise','hr_attendance_reports_cm'],
     'data': [
         'security/ir.model.access.csv',
+        'security/groups.xml',
         'views/hr_payroll_views.xml',
         'views/hr_payslip_run_views.xml',
         'views/hr_payslip_views.xml',
