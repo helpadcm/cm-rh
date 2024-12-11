@@ -51,12 +51,10 @@ class Contract(models.Model):
 
     def show_historical_salary(self):
         payslip_line_ids =  self.env['hr.payslip.line'].search([('employee_id','=',self.employee_id.id)])
-        print ("/////////////////////////")
         net_line_ids = []
         for line in payslip_line_ids:
             if line.salary_rule_id.code == 'NET':
                 net_line_ids.append(line.id)
-        print (net_line_ids)  
         return {
             'type': 'ir.actions.act_window',
             'name': 'Lista de salarios netos',

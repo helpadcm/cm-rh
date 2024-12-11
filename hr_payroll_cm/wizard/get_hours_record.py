@@ -18,6 +18,8 @@ class getRecordHours(models.TransientModel):
         if not self.employee_ids:
             attendances_ids = self.env['hr.attendance'].search([('check_in', '>=', self.date_from),('check_in', '<=', self.date_to)])
             employees = attendances_ids.mapped('employee_id')
+        else:
+            employees = self.employee_ids.ids
 
         data_employee = []
         for employee_id in employees:
@@ -25,7 +27,7 @@ class getRecordHours(models.TransientModel):
                 id_employee = employee_id.id
             else:
                 id_employee = employee_id
-            
+
             employee_report = self.env['hr.attendance.employee.report'].create({
                 'employee_id': id_employee,
                 'date_from': self.date_from,

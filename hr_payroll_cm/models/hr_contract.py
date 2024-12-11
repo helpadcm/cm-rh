@@ -19,3 +19,12 @@ class Contract(models.Model):
                 if ded.deduction_type_id.code == code:
                     amount = ded.monthly_amount
         return amount
+
+    def calculate_dt_dc(self, code, payslip):
+        amount = self.wage * 2
+        payslip_line_ids =  self.env['hr.payslip.line'].search([('employee_id','=',self.employee_id.id),('date_from','>=',payslip.date_from),('date_to','<=',payslip.date_to)])
+        net_line_ids = []
+        for line in payslip_line_ids:
+            if line.salary_rule_id.code == code:
+                amount += line.amount
+        return amount/12
