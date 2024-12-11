@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_attendance_emp_record" model="ir.ui.view">
+        <field name="name">hr.attendance.employee.rec.form</field>
+        <field name="model">hr.employee.attendance.record</field>
+        <field name="arch" type="xml">
+            <form string="Registro de Asistencia">
+                <header>
+                    <button string="Revisado" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'revised'}" type="object" class="oe_highlight"/>
+                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
+                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="start_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="code" readonly="1"/>
+                            <field name="end_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Calculo de horas">
+                        <group>
+                            <field name="esperated_hours" readonly="1"/>
+                            <field name="total_hours"/>
+                            <field name="eh_pay"/>
+                            <field name="eh_holiday"/>
+                        </group>
+                        <group>
+                            <field name="eh_limit" readonly="1"/>
+                            <field name="diff_hours"/>
+                            <field name="aditional_he"/>
+                        </group>
+                    </group>
+                    <group string="Calculo de BT">
+                        <group>
+                            <field name="tb_max" readonly="1"/>
+                            <field name="tb_bonus" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="tb_limit" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lineas de Asistencia">
+                            <field name="record_line_ids" readonly="state != 'draft'">
+                                <tree create="false" delete="false">
+                                    <field name="date"/>
+                                    <field name="day"/>
+                                    <field name="check_in_1"/>
+                                    <field name="check_out_1"/>
+                                    <field name="check_in_2"/>
+                                    <field name="check_out_2"/>
+                                    <field name="check_in_3"/>
+                                    <field name="check_out_3"/>
+                                    <field name="total_hours" sum="Horas totales"/>
+                                    <field name="ordinary_hours" sum="Total Horas ordinarias"/>
+                                    <field name="extra_hours" sum="Total Horas Extras"/>
+                                    <field name="observations"/>
+                                    <field name="bonus" sum="Total Bono"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="date" readonly="1"/>
+                                            <field name="check_in_1" readonly="1"/>
+                                            <field name="check_in_2" readonly="1"/>
+                                            <field name="check_in_3" readonly="1"/>
+                                            <field name="total_hours" sum="Horas totales" readonly="1"/>
+                                            <field name="bonus" sum="Total Bono" readonly="1"/>
+                                            <field name="observations" readonly="1" force_save="1"/>
+                                            <field name="special_hours" invisible="personal_action in [False, 'free']"/>
+                                            <field name="notes" invisible="personal_action in [False, 'free']" required="personal_action not in ['free', False]"/>
+                                        </group>
+                                        <group>
+                                            <field name="day" readonly="1"/>
+                                            <field name="check_out_1" readonly="1"/>
+                                            <field name="check_out_2" readonly="1"/>
+                                            <field name="check_out_3" readonly="1"/>
+                                            <field name="ordinary_hours" force_save="1" sum="Total Horas ordinarias" readonly="1"/>
+                                            <field name="extra_hours" sum="Total Horas Extras" readonly="1"/>
+                                            <field name="personal_action"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_atte_employee_rec_search" model="ir.ui.view">
+        <field name="name">hr.employee.attendance.rec.search</field>
+        <field name="model">hr.employee.attendance.record</field>
+        <field name="arch" type="xml">
+            <search string="Search Branches">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="employee_id"/>
+                <field name="period"/>
+                <group expand="1" string="Group By">
+                    <filter string="Periodo" name="period_group" context="{'group_by':'period'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="view_hr_atte_employee_rec_tree" model="ir.ui.view">
+        <field name="name">hr.employee.attendance.record.tree</field>
+        <field name="model">hr.employee.attendance.record</field>
+        <field name="arch" type="xml">
+            <tree string="Registro de Asistencias">
+                <field name="employee_id"/>
+                <field name="code"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="esperated_hours"/>
+                <field name="eh_pay"/>
+                <field name="eh_holiday"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_hr_attendance_emp_rec" model="ir.actions.act_window">
+        <field name="name">Registros de asistencias</field>
+        <field name="res_model">hr.employee.attendance.record</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"search_default_period_group":1}</field>
+    </record>
+</odoo>

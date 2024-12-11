@@ -10,3 +10,12 @@ class Contract(models.Model):
         tracking=True,
         default=44.0
         )
+
+    def calculate_deductions(self, code):
+        deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id])])
+        amount = 0
+        if deduction_ids:
+            for ded in deduction_ids:
+                if ded.deduction_type_id.code == code:
+                    amount = ded.monthly_amount
+        return amount

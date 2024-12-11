@@ -1,7 +1,6 @@
 <odoo>
     <record id="hr_contract_bonus_trasport" model="ir.ui.view">
-        <field name="name">hr_contract_cm.hr_contract_bonus_transport.inherit
-        </field>
+        <field name="name">hr_contract_cm.hr_contract_bonus_transport.inherit</field>
         <field name="model">hr.contract</field>
         <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
         <field name="arch" type="xml">
@@ -19,6 +18,18 @@
                     </group>
                 </group>
             </xpath>
+            <button name="action_open_contract_list" position="after">
+                <button name="show_historical_salary" class="oe_stat_button" icon="fa-book" type="object">
+                    <div class="o_stat_info">
+                        <!-- <span class="o_stat_value">
+                            <field name="contracts_count"/>
+                        </span> -->
+                        <span class="o_stat_text" >
+                            Historial Salarios
+                        </span>
+                    </div>
+                </button>
+            </button>
         </field>
     </record>
 </odoo>
