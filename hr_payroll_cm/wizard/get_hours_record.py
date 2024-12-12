@@ -1,5 +1,6 @@
-from odoo import models, fields
+from odoo import models, fields, _, api
 from babel.dates import format_date
+import calendar
 
 class getRecordHours(models.TransientModel):
     _name = "hr.hours.employees"
@@ -12,6 +13,24 @@ class getRecordHours(models.TransientModel):
 
     date_from = fields.Date('Start Date', required=True)
     date_to = fields.Date('End Date', required=True)
+
+    payslip_date_from = fields.Date(_('Start Date Pasylip'))
+    payslip_date_to = fields.Date(_('End Date Payslip'))
+
+    @api.onchange('date_from')
+    def get_payslips_date(self):
+        if self.date_from:
+            year = self.date_from.year
+            month = self.date_from.month
+            if self.date_from.day >= 26:
+                date_from_payslip = "%s-%s-%s"%(year, month + 1, '01')
+                date_to_payslip = "%s-%s-%s"%(year, month + 1, 15)
+            elif self.date_from.day <= 26:
+                _, num_days = calendar.monthrange(year, month)
+                date_from_payslip = "%s-%s-%s"%(year, month, 16)
+                date_to_payslip = "%s-%s-%s"%(year, month, num_days)
+            self.payslip_date_from = date_from_payslip
+            self.payslip_date_to = date_to_payslip
 
     def get_records(self):
         employees = self.employee_ids
@@ -53,7 +72,9 @@ class getRecordHours(models.TransientModel):
                 'eh_limit': contract_id.max_extra_hours,
                 'tb_max': contract_id.max_transportation_bonus,
                 'tb_bonus': contract_id.value_bonus,
-                'tb_limit': contract_id.max_transportation_bonus * contract_id.value_bonus
+                'tb_limit': contract_id.max_transportation_bonus * contract_id.value_bonus,
+                'payslip_date_from': self.payslip_date_from,
+                'payslip_date_to': self.payslip_date_to
             })
 
             for row in rows_data:

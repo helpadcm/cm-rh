@@ -12,7 +12,16 @@
         id="attendance_emp_record_menuitem"
         name="Registro de Asistencias"
         parent="hr_work_entry_contract_enterprise.menu_hr_payroll_work_entries_root"
-        groups="hr_payroll_cm.manager_rrhh_cm,hr_payroll_cm.responsible_accounting_rrhh_cm"
+        groups="hr_payroll_cm.manager_rrhh_cm"
         sequence="20"
         action="action_hr_attendance_emp_rec"/>
+
+    <menuitem
+        id="attendance_emp_revised_menuitem"
+        name="Registro de Asistencias Revisadas"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_work_entries_root"
+        groups="hr_payroll_cm.responsible_accounting_rrhh_cm"
+        sequence="21"
+        action="action_hr_attendance_emp_revised"/>
+
 </odoo>

@@ -1,4 +1,4 @@
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 
 actions = [
@@ -14,6 +14,7 @@ actions = [
 class employeeAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.record'
     _description = 'Registro de asistencia de empleados'
+    _inherit = ['mail.thread','mail.activity.mixin']
 
     name = fields.Char('Name')
     period = fields.Char(string="Periodo")
@@ -31,8 +32,11 @@ class employeeAttendanceRecords(models.Model):
     aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
+    tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals')
     eh_holiday = fields.Float(string="HE Feriado",compute='compute_eh_totals')
     state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft')
+    payslip_date_from = fields.Date('Fecha Inicio Nomina')
+    payslip_date_to = fields.Date('Fecha Fin Nomina')
 
     def change_state(self):
         next_state = self.env.context.get('next_stage')
@@ -46,9 +50,11 @@ class employeeAttendanceRecords(models.Model):
                 hours_total = 0
                 eh_total = 0
                 holiday_hours = 0
+                pay_bt = 0
                 for line in rec.record_line_ids:
                     hours_total += line.ordinary_hours
                     eh_total += line.extra_hours
+                    pay_bt += line.bonus
                     if line.personal_action == 'wh':
                         holiday_hours += line.extra_hours
 
@@ -59,7 +65,13 @@ class employeeAttendanceRecords(models.Model):
                         hours_total -= line.ordinary_hours
                         hours_total += line.special_hours
 
+                    if line.special_hours > 0 and line.personal_action != 'vac':
+                        hours_total += line.special_hours
 
+                if pay_bt > rec.tb_limit:
+                    pay_bt = rec.tb_limit
+
+                rec.tb_pay = pay_bt
                 rec.eh_holiday = holiday_hours
                 rec.total_hours = hours_total + eh_total
                 rec.diff_hours = rec.total_hours - rec.esperated_hours
