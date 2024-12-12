@@ -36,6 +36,8 @@ class Contract(models.Model):
         tracking=True
     )
 
+    temporal_amount =  fields.Float(string="Monto Temporal")
+
     @api.model
     def cron_update_contract_bonus(self):
         value_bonus = 100
