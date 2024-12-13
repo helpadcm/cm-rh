@@ -23,8 +23,12 @@ class getRecordHours(models.TransientModel):
             year = self.date_from.year
             month = self.date_from.month
             if self.date_from.day >= 26:
-                date_from_payslip = "%s-%s-%s"%(year, month + 1, '01')
-                date_to_payslip = "%s-%s-%s"%(year, month + 1, 15)
+                if month == 12:
+                    date_from_payslip = "%s-%s-%s"%(year + 1, '01', '01')
+                    date_to_payslip = "%s-%s-%s"%(year + 1, '01', 15)
+                else:
+                    date_from_payslip = "%s-%s-%s"%(year, month + 1, '01')
+                    date_to_payslip = "%s-%s-%s"%(year, month + 1, 15)
             elif self.date_from.day <= 26:
                 _, num_days = calendar.monthrange(year, month)
                 date_from_payslip = "%s-%s-%s"%(year, month, 16)
