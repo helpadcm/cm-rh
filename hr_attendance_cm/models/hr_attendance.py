@@ -52,7 +52,8 @@ class HrAttendance(models.Model):
                 server=server,
                 user=username,
                 password=password,
-                database=database
+                database=database,
+                port=1433
             )
             _logger.info("Conexión exitosa a SQL Server.")
 
