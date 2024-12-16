@@ -1,6 +1,7 @@
 from odoo import fields, models
 import pymssql
 from datetime import datetime, timedelta
+import logging
 
 class HrAttendance(models.Model):
     _inherit = 'hr.attendance'
@@ -43,7 +44,8 @@ class HrAttendance(models.Model):
         username = 'sa'
         password = "youStrong(@)Password"
         last_date = (datetime.now() - timedelta(days=1)).date()
-        print ("####################Intentando conexion######################")
+        _logger = logging.getLogger(__name__)
+        _logger.info("####################Intentando conexion######################")
         try:
             # Crear la conexión
             conn = pymssql.connect(
@@ -52,7 +54,7 @@ class HrAttendance(models.Model):
                 password=password,
                 database=database
             )
-            print("Conexión exitosa a SQL Server.")
+            _logger.info("Conexión exitosa a SQL Server.")
 
             query_sql = """SELECT usertable.NAME as employee,
                         checking.CHECKTIME as date,
@@ -95,7 +97,7 @@ class HrAttendance(models.Model):
             conn.close()
             self.create_real_marking(markings)
         except Exception as e:
-            print(f"Error al conectar a SQL Server: {e}")
+            _logger.info(f"Error al conectar a SQL Server: {e}")
 
     def create_real_marking(self, markings):
         for mark in markings:
