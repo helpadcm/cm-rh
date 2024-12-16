@@ -23,6 +23,7 @@ class HrPayrollPayslipsReport(models.TransientModel):
 
     """
     _name = "hr.payroll.payslips.report"
+    _description = "reporte de nomina"
 
     payslip_run_id = fields.Many2one('hr.payslip.run', string='Payroll Batch', required=True)
     payslips_ids = fields.One2many('hr.payslip', 'payslip_run_id', string='Payslips', related='payslip_run_id.slip_ids')

@@ -43,6 +43,7 @@ class HrAttendance(models.Model):
         username = 'sa'
         password = "youStrong(@)Password"
         last_date = (datetime.now() - timedelta(days=1)).date()
+        print ("####################Intentando conexion######################")
         try:
             # Crear la conexión
             conn = pymssql.connect(
