@@ -32,12 +32,13 @@
                             <field name="esperated_hours" readonly="1"/>
                             <field name="total_hours"/>
                             <field name="eh_pay"/>
-                            <field name="eh_holiday"/>
+                            <field name="real_eh_pay" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="eh_limit" readonly="1"/>
                             <field name="diff_hours"/>
                             <field name="aditional_he"/>
+                            <field name="eh_holiday"/>
                         </group>
                     </group>
                     <group string="Calculo de BT">
@@ -132,7 +133,7 @@
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="esperated_hours"/>
-                <field name="eh_pay"/>
+                <field name="real_eh_pay" string="Pagar HE"/>
                 <field name="eh_holiday"/>
                 <field name="tb_pay" sum="BT a pagar"/>
                 <field name="state"/>

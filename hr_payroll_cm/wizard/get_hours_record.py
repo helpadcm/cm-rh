@@ -44,6 +44,9 @@ class getRecordHours(models.TransientModel):
         else:
             employees = self.employee_ids.ids
 
+        if self.department_id:
+            employees = self.env['hr.employee'].search([('department_id','=',self.department_id.id)])
+
         data_employee = []
         for employee_id in employees:
             if not self.employee_ids:

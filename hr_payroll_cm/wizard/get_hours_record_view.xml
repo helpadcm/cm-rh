@@ -9,7 +9,7 @@
                     <group cols="4">
                         <group>
                             <field name="date_from" string="Fecha desde"/>
-                            <field name="department_id" string="Departamento"/>
+                            <field name="department_id" string="Departamento" options="{'no_create': True}"/>
                             <field name="payslip_date_from" string="Fecha Inicio Nomina" readonly="1" force_save="1"/>
                         </group>
                         <group >

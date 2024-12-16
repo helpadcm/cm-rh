@@ -29,6 +29,7 @@ class employeeAttendanceRecords(models.Model):
     total_hours = fields.Float(string="Horas Totales",compute='compute_eh_totals',help="Suma de horas trabajadas + total horas extras")
     diff_hours = fields.Float(string="Dif. Horas",compute='compute_eh_totals',help="Diferencia Total de horas - Horas esperadas")
     eh_pay = fields.Float(string="Pagar HE",compute='compute_eh_totals',help="Horas Extras a pagar ")
+    real_eh_pay = fields.Float(string="Pagar HE Real",help="Horas Extras reales a pagar ")
     aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
