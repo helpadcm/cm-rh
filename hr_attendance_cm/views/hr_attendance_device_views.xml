@@ -68,10 +68,17 @@
         </field>
     </record>
 
+
     <menuitem
             id="menu_hr_attendance_device"
-            name="Attendance Devices"
+            name="Dispositivos de Marcaje"
             parent="hr_attendance.menu_hr_attendance_root"
-            sequence="40"
+            sequence="40"/>
+
+    <menuitem
+            id="menuitem_hr_attendance_device"
+            name="Dispositivos"
+            parent="menu_hr_attendance_device"
+            sequence="1"
             action="action_hr_attendance_device"/>
 </odoo>

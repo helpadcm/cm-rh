@@ -9,9 +9,11 @@
         """,
     'depends': ['base_address_extended', 'hr', 'hr_attendance', 'hr_employee_cm'],
     'data': [
+        'data/cron.xml',
         'security/ir.model.access.csv',
         'views/hr_attendance_device_views.xml',
         'views/hr_attendance_views.xml',
+        'views/marking_records.xml',
         ],
     'installable': True,
     'application': False,
