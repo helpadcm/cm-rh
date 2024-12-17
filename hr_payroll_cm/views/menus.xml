@@ -24,4 +24,13 @@
         sequence="21"
         action="action_hr_attendance_emp_revised"/>
 
+<!-- ############################################################################################ -->
+
+    <menuitem
+        id="rap_settings_menuitem"
+        name="Configuracion RAP"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+        sequence="81"
+        action="action_rap_settings"/>
+
 </odoo>

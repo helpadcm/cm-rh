@@ -7,3 +7,5 @@ access_hr_payroll_payslips_report,"access.hr.payroll.payslips.report","model_hr_
 hr_payroll_cm.access_hr_hours_employees,access_hr_hours_employees,hr_payroll_cm.model_hr_hours_employees,base.group_user,1,1,1,1
 hr_payroll_cm.access_hr_employee_attendance_record,access_hr_employee_attendance_record,hr_payroll_cm.model_hr_employee_attendance_record,base.group_user,1,1,1,1
 hr_payroll_cm.access_hr_employee_attendance_line,access_hr_employee_attendance_line,hr_payroll_cm.model_hr_employee_attendance_line,base.group_user,1,1,1,1
+hr_payroll_cm.access_hr_settings_rap,access_hr_settings_rap,hr_payroll_cm.model_hr_settings_rap,base.group_user,1,1,1,1
+hr_payroll_cm.access_hr_historical_deductions,access_hr_historical_deductions,hr_payroll_cm.model_hr_historical_deductions,base.group_user,1,1,1,1

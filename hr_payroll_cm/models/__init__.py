@@ -5,3 +5,5 @@ from . import payslip
 from . import payslip_report
 from . import payslip_run
 from . import employee_attendance_rec
+from . import rap
+from . import historical_deductions
