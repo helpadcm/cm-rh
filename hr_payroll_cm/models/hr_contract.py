@@ -17,7 +17,7 @@ class Contract(models.Model):
             if code != 'ALL':
                 payslip_line_ids =  self.env['hr.payslip.line'].search([('employee_id','=',rec.employee_id.id),(('salary_rule_id.code','=',code))])
                 for line in payslip_line_ids:
-                    amount = line.amount
+                    amount = line.total
                     if amount < 0:
                         amount = amount * -1
 
@@ -33,7 +33,7 @@ class Contract(models.Model):
             else:
                 payslip_line_ids =  self.env['hr.payslip.line'].search([('employee_id','=',rec.employee_id.id),('category_id.code','=','DED'),('salary_rule_id.code','not in',['RAP','SSH','ISR'])])
                 for line in payslip_line_ids:
-                    amount = line.amount
+                    amount = line.total
                     if amount < 0:
                         amount = amount * -1
                     self.env['hr.historical.deductions'].create({
@@ -73,21 +73,15 @@ class Contract(models.Model):
         return amount * -1
 
     def show_historical(self):
-        code = self.env.context.get('code')
-        if code != 'DED':
-            historical_ids = self.env['hr.historical.deductions'].search([('employee_id','=',self.employee_id.id),('code','=',code)])
-            domain = [('id','in',historical_ids.ids),('code','=',code)]
-        else:
-            historical_ids = self.env['hr.historical.deductions'].search([('employee_id','=',self.employee_id.id),('code','not in',['RAP','SSH','ISR'])])
-            domain = [('id','in',historical_ids.ids)]
+        historical_ids = self.env['hr.historical.deductions'].search([('employee_id','=',self.employee_id.id)])
+        domain = [('id','in',historical_ids.ids)]
 
         return {
             'type': 'ir.actions.act_window',
             'name': 'Deducciones',
             'view_mode': 'tree',
             'res_model': 'hr.historical.deductions',
-            'views': [(self.env.ref('hr_payroll_cm.view_historical_deductions_tree').id, 'tree')],
             'domain': domain,
             'target': 'current',
-            'context': self.env.context
+            'context': dict(self.env.context, search_default_name_group=1)
         }

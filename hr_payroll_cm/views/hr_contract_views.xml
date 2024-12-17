@@ -5,36 +5,6 @@
         <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
         <field name="arch" type="xml">
             <button name="action_open_contract_list" position="after">
-                <button name="show_historical" context="{'code': 'RAP'}" class="oe_stat_button" icon="fa-list" type="object">
-                    <div class="o_stat_info">
-                        <!-- <span class="o_stat_value">
-                            <field name="contracts_count"/>
-                        </span> -->
-                        <span class="o_stat_text" >
-                            RAP
-                        </span>
-                    </div>
-                </button>
-                <button name="show_historical" context="{'code': 'SSH'}" class="oe_stat_button" icon="fa-list" type="object">
-                    <div class="o_stat_info">
-                        <!-- <span class="o_stat_value">
-                            <field name="contracts_count"/>
-                        </span> -->
-                        <span class="o_stat_text" >
-                            IHSS
-                        </span>
-                    </div>
-                </button>
-                <button name="show_historical" context="{'code': 'ISR'}" class="oe_stat_button" icon="fa-list" type="object">
-                    <div class="o_stat_info">
-                        <!-- <span class="o_stat_value">
-                            <field name="contracts_count"/>
-                        </span> -->
-                        <span class="o_stat_text" >
-                            ISR
-                        </span>
-                    </div>
-                </button>
                 <button name="show_historical" context="{'code': 'DED'}" class="oe_stat_button" icon="fa-list" type="object">
                     <div class="o_stat_info">
                         <!-- <span class="o_stat_value">
