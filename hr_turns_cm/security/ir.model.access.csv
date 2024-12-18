@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+hr_turns_cm.access_hr_work_teams,access_hr_work_teams,hr_turns_cm.model_hr_work_teams,base.group_user,1,1,1,1
+hr_turns_cm.access_hr_options_schedules,access_hr_options_schedules,hr_turns_cm.model_hr_options_schedules,base.group_user,1,1,1,1
+hr_turns_cm.access_hr_turn_registration,access_hr_turn_registration,hr_turns_cm.model_hr_turn_registration,base.group_user,1,1,1,1

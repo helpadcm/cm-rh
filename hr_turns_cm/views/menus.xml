@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+        id="turns_menu_root"
+        name="Turnos de trabajo"
+        web_icon="hr_turns_cm,static/description/icon.png"
+        action="hr_turns_cm.action_turn_registration"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="6"/>
+
+    <menuitem
+        id="turn_registration_menuitem"
+        name="Turnos de trabajo"
+        action="hr_turns_cm.action_turn_registration"
+        parent="turns_menu_root"
+        sequence="1"/>
+    
+    <menuitem
+        id="work_teams_menuitem"
+        name="Equipos de trabajo"
+        action="hr_turns_cm.action_hr_turn_work_teams"
+        parent="turns_menu_root"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="2"/>
+
+<!-- ########################################################################## -->
+
+    <menuitem
+        id="setting_work_teams_menu"
+        name="Configuraciones"
+        parent="turns_menu_root"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="3"/>
+
+    <menuitem
+        id="schedules_options_menuitem"
+        name="Horarios de trabajo"
+        action="hr_turns_cm.action_schedules_options"
+        parent="setting_work_teams_menu"
+        sequence="1"/>
+
+</odoo>

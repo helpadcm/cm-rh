@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_schedules_tree" model="ir.ui.view">
+        <field name="name">hr.options.schedules.tree</field>
+        <field name="model">hr.options.schedules</field>
+        <field name="arch" type="xml">
+            <tree string="Horarios" editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_schedules_options" model="ir.actions.act_window">
+        <field name="name">Horarios de trabajo</field>
+        <field name="res_model">hr.options.schedules</field>
+        <field name="view_mode">tree</field>
+    </record>
+</odoo>
