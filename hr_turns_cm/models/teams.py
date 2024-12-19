@@ -9,6 +9,7 @@ class workTeams(models.Model):
     leader_id = fields.Many2one('hr.employee',string="Lider de Equipo")
     responsible_id = fields.Many2one('hr.employee',string="Responsable de Equipo")
     members_ids = fields.Many2many('hr.employee',string="Miembros")
+    active = fields.Boolean(string="Activo", default=True)
 
 class optionsSchedule(models.Model):
     _name = 'hr.options.schedules'
