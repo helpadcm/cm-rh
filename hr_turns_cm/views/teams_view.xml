@@ -11,10 +11,10 @@
                     </h1>
                     <group>
                         <group>
-                            <field name="leader_id" required="1" widget="many2one_avatar_user"/>
+                            <field name="leader_id" options="{'no_create': True}" required="1" widget="many2one_avatar_user"/>
                         </group>
                         <group>
-                            <field name="responsible_id" required="1" widget="many2one_avatar_user"/>
+                            <field name="responsible_id" options="{'no_create': True}" required="1" widget="many2one_avatar_user"/>
                         </group>
                     </group>
                     <notebook>
@@ -51,8 +51,8 @@
         <field name="arch" type="xml">
             <tree string="Registro de Asistencias">
                 <field name="name"/>
-                <field name="leader_id"/>
-                <field name="responsible_id"/>
+                <field name="leader_id" widget="many2one_avatar_user"/>
+                <field name="responsible_id" widget="many2one_avatar_user"/>
             </tree>
         </field>
     </record>

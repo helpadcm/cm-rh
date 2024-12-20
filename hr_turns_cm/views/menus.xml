@@ -11,9 +11,23 @@
     <menuitem
         id="turn_registration_menuitem"
         name="Turnos de trabajo"
-        action="hr_turns_cm.action_turn_registration"
         parent="turns_menu_root"
         sequence="1"/>
+    
+    <menuitem
+        id="turns_menuitem"
+        name="Turnos de trabajo"
+        action="hr_turns_cm.action_turn_registration"
+        parent="turn_registration_menuitem"
+        sequence="1"/>
+
+    <menuitem
+        id="validate_turns_menuitem"
+        name="Validar Turnos"
+        action="hr_turns_cm.action_validate_turns"
+        parent="turn_registration_menuitem"
+        groups="hr_turns_cm.user_turn_cm"
+        sequence="2"/>
     
     <menuitem
         id="work_teams_menuitem"
