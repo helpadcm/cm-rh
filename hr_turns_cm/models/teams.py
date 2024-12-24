@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
+from calendar import monthrange
 
 class workTeams(models.Model):
     _name = 'hr.work.teams'
@@ -58,24 +59,29 @@ class fortnights(models.Model):
 
     def get_fortnights(self):
         fortnights_array = []
-        initial_date = self.start_date
+
         final_date = self.end_date
+        init_date = self.start_date
+
+        initial_date = self.start_date.replace(day=1)
+        
         while initial_date <= final_date:
-            first_day = initial_date.replace(day=1)
-            fortnight_day = first_day.replace(day=15)
+            _, month_days = monthrange(initial_date.year, initial_date.month)
 
-            if fortnight_day >= initial_date:
-                fortnights_array.append((max(initial_date, first_day), min(fortnight_day, final_date)))
 
-            try:
-                last_day = first_day.replace(month=first_day.month + 1, day=10) - timedelta(days=1)
-            except:
-                last_day = first_day.replace(year=first_day.year + 1, month=1, day=1) - timedelta(days=1)
+            initial_first_fortnight = initial_date.replace(day=1)
+            final_first_fortnight = initial_date.replace(day=15)
 
-            if last_day >= initial_date:
-                fortnights_array.append((max(initial_date, fortnight_day + timedelta(days=1)), min(last_day, final_date)))
+            initial_second_fortnight = initial_date.replace(day=16)
+            final_second_fortnight = initial_date.replace(day=month_days)
+            
+            if initial_first_fortnight <= final_date and final_first_fortnight >= init_date:
+                fortnights_array.append((max(init_date, initial_first_fortnight), min(final_date, final_first_fortnight)))
 
-            initial_date = (first_day + timedelta(days=32)).replace(day=1)
+            if initial_second_fortnight <= final_date and final_second_fortnight >= init_date:
+                fortnights_array.append((max(init_date, initial_second_fortnight), min(final_date, final_second_fortnight)))
+
+            initial_date = (initial_date + timedelta(days=month_days)).replace(day=1)
         
         for q in fortnights_array:
             first = q[0]
