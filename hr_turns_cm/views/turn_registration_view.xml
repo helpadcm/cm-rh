@@ -6,12 +6,17 @@
         <field name="arch" type="xml">
             <tree string="Horarios" editable="bottom">
                 <field name="name" column_invisible="1"/>
-                <field name="employee_id" readonly="1" widget="many2one_avatar_user"/>
+                <field name="editable_a" column_invisible="1"/>
+                <field name="editable_b" column_invisible="1"/>
+                <field name="employee_id" column_invisible="1" readonly="1" widget="many2one_avatar_user"/>
                 <field name="date" readonly="1"/>
-                <field name="schedule1_in_id" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
-                <field name="schedule1_out_id" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
-                <field name="schedule2_in_id" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
-                <field name="schedule2_out_id" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
+                <field name="name_day" readonly="1"/>
+                <field name="turn_type_a" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
+                <field name="schedule1_in_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True}" required="1"/>
+                <field name="schedule1_out_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True}" required="1"/>
+                <field name="turn_type_b" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
+                <field name="schedule2_in_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True}" required="1"/>
+                <field name="schedule2_out_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True}" required="1"/>
                 <field name="ordinary_hours" readonly="1" force_save="1" sum="HO Laboradas"/>
                 <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>
                 <field name="state" readonly="1" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'validated'"/>
@@ -25,11 +30,13 @@
         <field name="arch" type="xml">
             <search string="Search Branches">
                 <field name="name"/>
+                <field name="fortnight_line_id"/>
                 <filter string="Borrador" name="group_draft_state" domain="[('state','=','draft')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Nombre" name="group_name" context="{'group_by':'name'}"/>
                     <filter string="Fecha" name="date" context="{'group_by':'date'}"/>
                     <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
+                    <filter string="Quincena" name="fortnight_group" context="{'group_by':'fortnight_line_id'}"/>
                 </group>
             </search>
         </field>

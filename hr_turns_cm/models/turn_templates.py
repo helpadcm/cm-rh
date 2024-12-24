@@ -1,0 +1,38 @@
+from odoo import fields, models, api, _
+from odoo.exceptions import UserError, ValidationError
+
+opt_days = [
+    ('0', 'Dia 1'),('1', 'Dia 2'),('2', 'Dia 3'),('3', 'Dia 4'),
+    ('4', 'Dia 5'),('5', 'Dia 6'),('6', 'Dia 7')
+]
+
+class turnTemplates(models.Model):
+    _name = 'hr.templates.turn'
+    _description = 'Plantillas: Plantillas para creacion de turnos'
+    _inherit = ['mail.thread','mail.activity.mixin']
+
+    @api.model
+    def _get_actual_user(self):
+        user_id = self.env.user
+        employee_id = self.env['hr.employee'].search([('user_id','=',user_id.id)])
+        return employee_id.id
+
+    name = fields.Char('Nombre',tracking=True)
+    leader_id = fields.Many2one('hr.employee',string="Lider de Equipo",default=_get_actual_user)
+    responsible_id = fields.Many2one('hr.employee',string="Responsable de Equipo",tracking=True)
+    active = fields.Boolean(string="Activo", default=True,tracking=True)
+    team_id = fields.Many2one('hr.work.teams',string="Equipo")
+    template_line_ids = fields.One2many('hr.templates.turn.lines','template_id',string="Lineas de plantilla")
+
+class turnTemplatesLines(models.Model):
+    _name = 'hr.templates.turn.lines'
+    _description = 'Lineas Plantillas: Lineas para plantillas'
+
+    template_id = fields.Many2one('hr.templates.turn',string="Plantilla")
+    day_opt = fields.Selection(opt_days,string="Dia")
+    schedule1_in_id = fields.Many2one('hr.options.schedules',string="Entrada 1")
+    schedule1_out_id = fields.Many2one('hr.options.schedules',string="Salida 1")
+    turn_type_a = fields.Many2one('hr.turn.types',string="Tipo Turno A")
+    schedule2_in_id = fields.Many2one('hr.options.schedules',string="Entrada 2")
+    schedule2_out_id = fields.Many2one('hr.options.schedules',string="Salida 2")
+    turn_type_b = fields.Many2one('hr.turn.types',string="Tipo Turno B")

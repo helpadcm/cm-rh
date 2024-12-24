@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Turns Registration for CM Airlines',
-    'version': '1.0',
+    'version': '1.2',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
     'summary': 'Turns registration module for CM Airlines',
@@ -9,7 +9,7 @@
         This module provides the necessary functionality for CM Airlines.
         - Registration turns for teams.
         """,
-    'depends': ['hr_payroll'],
+    'depends': ['hr_payroll','mail'],
     'data': [
         'data/cron.xml',
         'data/email_templates.xml',
@@ -20,6 +20,8 @@
         'views/schedules_view.xml',
         'views/turn_registration_view.xml',
         'views/employee_inh_view.xml',
+        'views/turn_templates_view.xml',
+        'views/fortnights.xml',
         'views/menus.xml',
         ],
     'installable': True,

@@ -26,5 +26,35 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+        <record id="registration_turn_damin_rule" model="ir.rule">
+            <field name="name">Regla manager registro de turnos</field>
+            <field name="model_id" ref="hr_turns_cm.model_hr_turn_registration"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.manager_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="teams_work_user_rule" model="ir.rule">
+            <field name="name">Regla usuario equipos turnos</field>
+            <field name="model_id" ref="hr_turns_cm.model_hr_work_teams"/>
+            <field name="domain_force">['|',('leader_id.user_id', '=', user.id),('responsible_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.user_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="teams_work_admin_rule" model="ir.rule">
+            <field name="name">Regla manager equipos turnos</field>
+            <field name="model_id" ref="hr_turns_cm.model_hr_work_teams"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.manager_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>
