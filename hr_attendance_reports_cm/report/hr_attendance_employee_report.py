@@ -65,7 +65,8 @@ def compare_datetime_with_float(datetime_obj, float_hour, operator):
     if operator == '<':
         return datetime_with_tz.time() < time_obj
     elif operator == '>':
-        return datetime_with_tz.time() > time_obj
+        if datetime_obj:
+            return datetime_with_tz.time() > time_obj
 
 
 class HrAttendanceEmployeeReport(models.TransientModel):

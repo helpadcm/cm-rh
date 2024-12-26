@@ -7,3 +7,4 @@ access_hr_attendance_device_manager,hr_attendance_device_manager,model_hr_attend
 
 hr_attendance_cm.access_real_marking_employees,access_real_marking_employees,hr_attendance_cm.model_real_marking_employees,base.group_user,1,1,1,1
 hr_attendance_cm.access_list_marking_employees,access_list_marking_employees,hr_attendance_cm.model_list_marking_employees,base.group_user,1,1,1,1
+hr_attendance_cm.access_hr_get_markings,access_hr_get_markings,hr_attendance_cm.model_hr_get_markings,base.group_user,1,1,1,1

@@ -1,49 +1,21 @@
-from odoo import fields, models
-import pymssql
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models
 from datetime import datetime, timedelta
+import pymssql
 import logging
 
-class HrAttendance(models.Model):
-    _inherit = 'hr.attendance'
+class getMarkings(models.TransientModel):
+    _name = 'hr.get.markings'
+    _description = "Validador de turnos"
 
-    in_device_id = fields.Many2one(
-        'hr.attendance.device',
-        string='Device Check In',
-        help='Device of the attendance.'
-        )
-
-    in_branch_id = fields.Many2one(
-        'hr.branch',
-        related='in_device_id.branch_id',
-        string='Branch Check In',
-        help='Branch of the attendance device.'
-        )
-
-    in_mode = fields.Selection(
-        selection_add=[('attendance_system', 'Attendance System')], )
-
-    out_device_id = fields.Many2one(
-        'hr.attendance.device',
-        string='Device Check Out',
-        help='Device of the attendance.'
-        )
-
-    out_branch_id = fields.Many2one(
-        'hr.branch',
-        related='out_device_id.branch_id',
-        string='Branch Check Out',
-        help='Branch of the attendance device.'
-        )
-
-    out_mode = fields.Selection(
-        selection_add=[('attendance_system', 'Attendance System')], )
+    date = fields.Date(string="Fecha")
+    employee_id = fields.Many2one('hr.employee',string="Empleado")
 
     def connect_sql_server(self):
         server = '10.1.4.56'
         database = 'attendance'
         username = 'sa'
         password = "youStrong(@)Password"
-        last_date = (datetime.now() - timedelta(days=1)).date()
         _logger = logging.getLogger(__name__)
         _logger.info("####################Intentando conexion######################")
         try:
@@ -57,18 +29,31 @@ class HrAttendance(models.Model):
             )
             _logger.info("Conexión exitosa a SQL Server.")
 
-            query_sql = """SELECT usertable.NAME as employee,
-                        checking.CHECKTIME as date,
-                        DATENAME(WEEKDAY,checking.CHECKTIME) as day,
-                        machine.MachineAlias as clock,
-                        machine.MachineNumber as CODCLOCK,
-                        usertable.SSN as codemployee
-                    FROM CHECKINOUT as checking
-                    INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
-                    INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                    WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59'
-                """%(last_date.month,last_date.day,last_date.month,last_date.day)
-
+            if not self.employee_id:
+                query_sql = """SELECT usertable.NAME as employee,
+                            checking.CHECKTIME as date,
+                            DATENAME(WEEKDAY,checking.CHECKTIME) as day,
+                            machine.MachineAlias as clock,
+                            machine.MachineNumber as CODCLOCK,
+                            usertable.SSN as codemployee
+                        FROM CHECKINOUT as checking
+                        INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
+                        INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
+                        WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59'
+                    """%(self.date.month,self.date.day,self.date.month,self.date.day)
+            else:
+                query_sql = """SELECT usertable.NAME as employee,
+                            checking.CHECKTIME as date,
+                            DATENAME(WEEKDAY,checking.CHECKTIME) as day,
+                            machine.MachineAlias as clock,
+                            machine.MachineNumber as CODCLOCK,
+                            usertable.SSN as codemployee
+                        FROM CHECKINOUT as checking
+                        INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
+                        INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
+                        WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59' AND usertable.SSN = '%s'
+                    """%(self.date.month,self.date.day,self.date.month,self.date.day, self.employee_id.barcode)
+            
             # Ejecutar una consulta de ejemplo
             cursor = conn.cursor()
             cursor.execute(query_sql)

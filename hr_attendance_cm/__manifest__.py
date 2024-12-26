@@ -11,6 +11,7 @@
     'data': [
         'data/cron.xml',
         'security/ir.model.access.csv',
+        'wizard/get_marking_view.xml',
         'views/hr_attendance_device_views.xml',
         'views/hr_attendance_views.xml',
         'views/marking_records.xml',
