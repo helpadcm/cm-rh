@@ -43,12 +43,25 @@ class markingRealEmployees(models.Model):
                     count += 1
                 mark.state = 'finalized'
             elif lines_qty == 3:
+                min_date = mark.marking_ids[0].date
+                max_date = mark.marking_ids[0].date
+                clock_in_id = mark.marking_ids[0].clock_id
+                clock_out_id = mark.marking_ids[0].clock_id
+
+                for line in mark.marking_ids:
+                    if line.date < min_date:
+                        min_date = line.date
+                        clock_in_id = line.clock_id
+                    elif line.date > max_date:
+                        max_date = line.date
+                        clock_out_id = line.clock_id
+
                 vals = {
                     'employee_id': mark.employee_id.id,
-                    'in_device_id': mark.marking_ids[0].clock_id.id,
-                    'check_in': mark.marking_ids[0].date,
-                    'out_device_id': mark.marking_ids[2].clock_id.id,
-                    'check_out': mark.marking_ids[2].date,
+                    'in_device_id': clock_in_id.id,
+                    'check_in': min_date,
+                    'out_device_id': clock_out_id.id,
+                    'check_out': max_date,
                     'in_mode': 'attendance_system'
                 }
                 attendance_obj.create(vals)

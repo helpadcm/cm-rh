@@ -10,6 +10,7 @@
     'depends': ['base_address_extended', 'hr', 'hr_attendance', 'hr_employee_cm'],
     'data': [
         'data/cron.xml',
+        'security/groups.xml',
         'security/ir.model.access.csv',
         'wizard/get_marking_view.xml',
         'views/hr_attendance_device_views.xml',
