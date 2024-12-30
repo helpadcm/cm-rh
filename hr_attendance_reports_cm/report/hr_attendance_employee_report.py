@@ -271,25 +271,31 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         """
         if not self.employee_id.contract_id:
             return 0
+
+        cleaned_data = [item for item in checktimes if item]
+        checktimes = cleaned_data
+        
         if operator not in ['<', '>']:
             raise ValueError("El operador debe ser '<' o '>'.")
-        checktime = min(checktimes) if operator == '<' else max(checktimes)
-        # Find checktime_record in attendance_records with checktime
-        if operator == '<':
-            checktime_record = next((att for att in attendance_records if att.check_in == checktime), None)
-            branch_id = checktime_record.in_branch_id
-        else:
-            checktime_record = next((att for att in attendance_records if att.check_out == checktime), None)
-            branch_id = checktime_record.out_branch_id
-        bonus_time = self.employee_id.contract_id.early_checkin_bonus_time if operator == '<' else (
-            self.employee_id.contract_id.late_checkout_bonus_time)
-        if compare_datetime_with_float(checktime, bonus_time, operator):
-            if not branch_id or not self.employee_id.branch_id.city_id:
-                self.transport_bonus += 1
-                return self.transport_bonus_value
-            if branch_id.city_id == self.employee_id.branch_id.city_id:
-                self.transport_bonus += 1
-                return self.transport_bonus_value
+        
+        if checktimes:
+            checktime = min(checktimes) if operator == '<' else max(checktimes)
+            # Find checktime_record in attendance_records with checktime
+            if operator == '<':
+                checktime_record = next((att for att in attendance_records if att.check_in == checktime), None)
+                branch_id = checktime_record.in_branch_id
+            else:
+                checktime_record = next((att for att in attendance_records if att.check_out == checktime), None)
+                branch_id = checktime_record.out_branch_id
+            bonus_time = self.employee_id.contract_id.early_checkin_bonus_time if operator == '<' else (
+                self.employee_id.contract_id.late_checkout_bonus_time)
+            if compare_datetime_with_float(checktime, bonus_time, operator):
+                if not branch_id or not self.employee_id.branch_id.city_id:
+                    self.transport_bonus += 1
+                    return self.transport_bonus_value
+                if branch_id.city_id == self.employee_id.branch_id.city_id:
+                    self.transport_bonus += 1
+                    return self.transport_bonus_value
         return 0
 
     def _compute_transport_bonus(self, attendances, attendance_records):
