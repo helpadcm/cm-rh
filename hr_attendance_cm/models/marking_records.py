@@ -30,8 +30,6 @@ class markingRealEmployees(models.Model):
                             vals.update({'check_in': line.date, 'check_out': vals.get('check_in')})
                         else:
                             vals.update({'check_out': line.date})
-
-
                         attendance_obj.create(vals)
                     else:
                         vals = {
@@ -91,7 +89,10 @@ class markingRealEmployees(models.Model):
                                 'employee_id': mark.employee_id.id,
                                 'in_device_id': line.clock_id.id,
                                 'check_in': line.date,
-                                'in_mode': 'attendance_system'
+                                'out_device_id': line.clock_id.id,
+                                'check_out': line.date,
+                                'in_mode': 'attendance_system',
+                                'observations': 'En uno de los turnos se realizo una sola marca'
                             }
                             attendance_obj.create(vals)
 
@@ -102,7 +103,10 @@ class markingRealEmployees(models.Model):
                     'employee_id': mark.employee_id.id,
                     'in_device_id': mark.marking_ids[0].clock_id.id,
                     'check_in': mark.marking_ids[0].date,
-                    'in_mode': 'attendance_system'
+                    'out_device_id': mark.marking_ids[0].clock_id.id,
+                    'check_out': mark.marking_ids[0].date,
+                    'in_mode': 'attendance_system',
+                    'observations': 'En uno de los turnos se realizo una sola marca'
                 }
                 attendance_obj.create(vals)
                 mark.state = 'finalized'

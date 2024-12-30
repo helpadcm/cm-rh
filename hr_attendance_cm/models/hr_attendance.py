@@ -38,6 +38,8 @@ class HrAttendance(models.Model):
     out_mode = fields.Selection(
         selection_add=[('attendance_system', 'Attendance System')], )
 
+    observations = fields.Char(string="Observaciones")
+
     def connect_sql_server(self):
         server = '10.1.4.56'
         database = 'attendance'

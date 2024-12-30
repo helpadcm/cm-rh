@@ -96,7 +96,7 @@ class getMarkings(models.TransientModel):
                         'employee_id': employee_id.id,
                         'date': mark.get('date')
                     })
-                    for line in mark.get('lines'):
+                    for line in sorted(mark.get('lines'), key=lambda x: x['date']):
                         clock_id = self.env['hr.attendance.device'].search([('device_id','=',line.get('code_clock'))])
                         if clock_id:
                             self.env['list.marking.employees'].create({
