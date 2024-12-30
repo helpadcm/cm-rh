@@ -220,7 +220,9 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         assert len(attendances) > 0, "There should be at least one attendance for the date."
         worked_hours, ordinary_hours, extra_hours = self._compute_hours(attendances)
         transport_bonus = self._compute_transport_bonus(attendances, attendance_records)
-        observations = []
+        obs = ', '.join([att.observations for att in attendances if att.observations])
+        observations = [obs]
+
         if len(attendances) > 6:
             observations.append("Más de seis marcas en esta fecha.")
         return {
