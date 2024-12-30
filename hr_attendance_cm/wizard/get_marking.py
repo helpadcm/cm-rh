@@ -60,6 +60,7 @@ class getMarkings(models.TransientModel):
             results = cursor.fetchall()
             code_employees = []
             markings = []
+            
             for row in results:
                 code_emp = row[5]
                 date = row[1]

@@ -66,6 +66,37 @@ class markingRealEmployees(models.Model):
                 }
                 attendance_obj.create(vals)
                 mark.state = 'finalized'
+            elif lines_qty == 5:
+                count = 1
+                for line in mark.marking_ids:
+                    if count % 2 == 0:
+                        vals.update({
+                            'out_device_id': line.clock_id.id
+                        })
+                        if vals.get('check_in') > line.date:
+                            vals.update({'check_in': line.date, 'check_out': vals.get('check_in')})
+                        else:
+                            vals.update({'check_out': line.date})
+                        attendance_obj.create(vals)
+                    else:
+                        if count != 5:
+                            vals = {
+                                'employee_id': mark.employee_id.id,
+                                'in_device_id': line.clock_id.id,
+                                'in_mode': 'attendance_system',
+                                'check_in': line.date
+                            }
+                        else:
+                            vals = {
+                                'employee_id': mark.employee_id.id,
+                                'in_device_id': line.clock_id.id,
+                                'check_in': line.date,
+                                'in_mode': 'attendance_system'
+                            }
+                            attendance_obj.create(vals)
+
+                    count += 1
+                mark.state = 'finalized'
             elif lines_qty == 1:
                 vals = {
                     'employee_id': mark.employee_id.id,
