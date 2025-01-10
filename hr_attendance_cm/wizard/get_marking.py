@@ -18,6 +18,9 @@ class getMarkings(models.TransientModel):
         password = "youStrong(@)Password"
         _logger = logging.getLogger(__name__)
         _logger.info("####################Intentando conexion######################")
+        year = self.date.year
+        month = self.date.month
+        day = self.date.day
         try:
             # Crear la conexión
             conn = pymssql.connect(
@@ -39,8 +42,8 @@ class getMarkings(models.TransientModel):
                         FROM CHECKINOUT as checking
                         INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
                         INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                        WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59'
-                    """%(self.date.month,self.date.day,self.date.month,self.date.day)
+                        WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
+                    """%(year,month,day,year,month,day)
             else:
                 query_sql = """SELECT usertable.NAME as employee,
                             checking.CHECKTIME as date,
@@ -51,8 +54,8 @@ class getMarkings(models.TransientModel):
                         FROM CHECKINOUT as checking
                         INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
                         INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                        WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59' AND usertable.SSN = '%s'
-                    """%(self.date.month,self.date.day,self.date.month,self.date.day, self.employee_id.barcode)
+                        WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59' AND usertable.SSN = '%s'
+                    """%(year,month,day,year,month,day, self.employee_id.barcode)
             
             # Ejecutar una consulta de ejemplo
             cursor = conn.cursor()

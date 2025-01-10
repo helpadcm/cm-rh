@@ -1,6 +1,8 @@
 from odoo import fields, models
 from odoo.exceptions import ValidationError
-
+from datetime import datetime
+from collections import defaultdict
+import pytz
 
 class Contract(models.Model):
     _inherit = 'hr.contract'
@@ -58,6 +60,15 @@ class Contract(models.Model):
                         amount = ded.monthly_amount
         return amount
 
+    def get_transport_bonus(self, payslip):
+        domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',self.employee_id.id)]
+        mark_ids = self.env['hr.employee.attendance.record'].search(domain)
+        amount = 0
+        if mark_ids:
+            amount = sum(mark_ids.mapped('tb_pay'))
+        return amount
+
+
     def calculate_dt_dc(self, code, payslip):
         return self.temporal_amount
 
@@ -85,3 +96,41 @@ class Contract(models.Model):
             'target': 'current',
             'context': dict(self.env.context, search_default_name_group=1)
         }
+
+    def _get_work_hours(self, date_from, date_to, domain=None):
+        assert isinstance(date_from, datetime)
+        assert isinstance(date_to, datetime)
+
+        # First, found work entry that didn't exceed interval.
+        work_entries = self.env['hr.work.entry']._read_group(
+            self._get_work_hours_domain(date_from, date_to, domain=domain, inside=True),
+            ['work_entry_type_id'],
+            ['duration:sum']
+        )
+        work_data = defaultdict(int)
+        work_data.update({work_entry_type.id: duration_sum for work_entry_type, duration_sum in work_entries if not work_entry_type.hide_in_payslip})
+        self._preprocess_work_hours_data(work_data, date_from, date_to)
+
+        # Second, find work entry that exceeds interval and compute right duration.
+        work_entries = self.env['hr.work.entry'].search(self._get_work_hours_domain(date_from, date_to, domain=domain, inside=False))
+
+        for work_entry in work_entries:
+            date_start = max(date_from, work_entry.date_start)
+            date_stop = min(date_to, work_entry.date_stop)
+            if work_entry.work_entry_type_id.is_leave:
+                contract = work_entry.contract_id
+                calendar = contract.resource_calendar_id
+                employee = contract.employee_id
+                contract_data = employee._get_work_days_data_batch(
+                    date_start, date_stop, compute_leaves=False, calendar=calendar
+                )[employee.id]
+
+                work_data[work_entry.work_entry_type_id.id] += contract_data.get('hours', 0)
+            else:
+                work_data[work_entry.work_entry_type_id.id] += work_entry._get_work_duration(date_start, date_stop)  # Number of hours
+        return work_data
+
+class workEntryTypeInh(models.Model):
+    _inherit = 'hr.work.entry.type'
+
+    hide_in_payslip = fields.Boolean(string="No mostrar en recibo de nomina")

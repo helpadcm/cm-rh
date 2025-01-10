@@ -1,7 +1,11 @@
 import dateutil
+import pytz
 
-from odoo import models, fields
-
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from dateutil.relativedelta import relativedelta
+from collections import defaultdict, Counter
+from datetime import datetime, time
 
 class HrPayslipBonus(models.Model):
     _inherit = 'hr.payslip'
@@ -157,3 +161,48 @@ class HrPayslipBonus(models.Model):
                 "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
                 }
             self.env["hr.payslip.input"].create(input_line_values)
+
+
+    @api.depends('employee_id', 'contract_id', 'struct_id', 'date_from', 'date_to')
+    def _compute_worked_days_line_ids(self):
+        res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
+        for payslip in self:
+            domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id)]
+            mark_id = self.env['hr.employee.attendance.record'].search(domain)
+            if mark_id:
+                hours = 0
+                if mark_id.real_eh_pay > 0:
+                    hours = mark_id.real_eh_pay
+                elif mark_id.eh_pay > 0:
+                    hours = mark_id.eh_pay
+
+                if hours > 0:
+                    entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
+                    if not entry_work_id:
+                        raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
+                    
+                    self.env['hr.payslip.worked_days'].create({
+                        'payslip_id': payslip.id,
+                        'work_entry_type_id': entry_work_id.id,
+                        'number_of_hours': hours
+                    })
+        return res
+
+class workedDaysInh(models.Model):
+    _inherit = 'hr.payslip.worked_days'
+
+    @api.depends('is_paid', 'is_credit_time', 'number_of_hours', 'payslip_id', 'contract_id.wage', 'payslip_id.sum_worked_hours')
+    def _compute_amount(self):
+        for worked_days in self:
+            if worked_days.payslip_id.edited or worked_days.payslip_id.state not in ['draft', 'verify']:
+                continue
+            if not worked_days.contract_id or worked_days.code == 'OUT' or worked_days.is_credit_time:
+                worked_days.amount = 0
+                continue
+            if worked_days.payslip_id.wage_type == "hourly":
+                worked_days.amount = worked_days.payslip_id.contract_id.hourly_wage * worked_days.number_of_hours if worked_days.is_paid else 0
+            else:
+                #worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0
+                wage = worked_days.payslip_id.contract_id.contract_wage * 2
+                hours_amount = (wage / 30 / 8) * 1.25
+                worked_days.amount = hours_amount * worked_days.number_of_hours

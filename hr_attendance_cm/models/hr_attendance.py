@@ -48,6 +48,9 @@ class HrAttendance(models.Model):
         last_date = (datetime.now() - timedelta(days=1)).date()
         _logger = logging.getLogger(__name__)
         _logger.info("####################Intentando conexion######################")
+        year = last_date.year
+        month = last_date.month
+        day = last_date.day
         try:
             # Crear la conexión
             conn = pymssql.connect(
@@ -68,8 +71,8 @@ class HrAttendance(models.Model):
                     FROM CHECKINOUT as checking
                     INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
                     INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                    WHERE checking.CHECKTIME BETWEEN '2024-%s-%s 00:00:00' AND '2024-%s-%s 23:59:59'
-                """%(last_date.month,last_date.day,last_date.month,last_date.day)
+                    WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
+                """%(year,month,day,year,month,day)
 
             # Ejecutar una consulta de ejemplo
             cursor = conn.cursor()
@@ -112,7 +115,7 @@ class HrAttendance(models.Model):
                         'employee_id': employee_id.id,
                         'date': mark.get('date')
                     })
-                    for line in mark.get('lines'):
+                    for line in sorted(mark.get('lines'), key=lambda x: x['date']):
                         clock_id = self.env['hr.attendance.device'].search([('device_id','=',line.get('code_clock'))])
                         if clock_id:
                             self.env['list.marking.employees'].create({
