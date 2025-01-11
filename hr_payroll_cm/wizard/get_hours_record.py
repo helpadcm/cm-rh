@@ -72,6 +72,7 @@ class getRecordHours(models.TransientModel):
                 'name': 'Registro de Asistencia %s %s'%(header_data.get('employee'), header_data.get('start_date')),
                 'period': 'Periodo %s - %s'%(header_data.get('start_date').strftime("%d/%m/%Y"), header_data.get('end_date').strftime("%d/%m/%Y")),
                 'employee_id': header_data.get('employee_id'),
+                'department_id': contract_id.employee_id.department_id.id,
                 'code': header_data.get('employee_no'),
                 'start_date': header_data.get('start_date'),
                 'end_date': header_data.get('end_date'),

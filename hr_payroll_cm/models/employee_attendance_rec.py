@@ -39,6 +39,11 @@ class employeeAttendanceRecords(models.Model):
     state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft')
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
+    department_id = fields.Many2one('hr.department',string="Departamento")
+
+    def get_department(self):
+        contract_id = self.env['hr.contract'].search([('employee_id','=',self.employee_id.id)])
+        self.department_id = contract_id.employee_id.department_id.id
 
     def change_state(self):
         next_state = self.env.context.get('next_stage')
