@@ -8,7 +8,8 @@ actions = [
     ('vac', 'Vacaciones'),
     ('wh', 'Feriado Trabajado'),
     ('cap', 'Capacitacion'),
-    ('coe', 'Cubrir en otra estación')
+    ('coe', 'Cubrir en otra estación'),
+    ('na', 'Sin Registro'),
 ]
 
 class employeeAttendanceRecords(models.Model):

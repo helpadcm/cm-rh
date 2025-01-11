@@ -61,7 +61,7 @@ class Contract(models.Model):
         return amount
 
     def get_transport_bonus(self, payslip):
-        domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',self.employee_id.id)]
+        domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         amount = 0
         if mark_ids:

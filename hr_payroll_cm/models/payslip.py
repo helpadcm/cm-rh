@@ -167,7 +167,7 @@ class HrPayslipBonus(models.Model):
     def _compute_worked_days_line_ids(self):
         res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
         for payslip in self:
-            domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id)]
+            domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id:
                 hours = 0
