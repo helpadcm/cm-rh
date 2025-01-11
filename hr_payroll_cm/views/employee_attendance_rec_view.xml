@@ -82,7 +82,7 @@
                                             <field name="bonus" sum="Total Bono" readonly="1"/>
                                             <field name="observations" readonly="1" force_save="1"/>
                                             <field name="special_hours" invisible="personal_action in [False, 'free']"/>
-                                            <field name="notes" invisible="personal_action in [False, 'free']" required="personal_action not in ['free', False,'vac','inc']"/>
+                                            <field name="notes" invisible="personal_action in [False, 'free', 'holiday']" required="personal_action not in ['free', False,'vac','inc','holiday']"/>
                                         </group>
                                         <group>
                                             <field name="day" readonly="1"/>
