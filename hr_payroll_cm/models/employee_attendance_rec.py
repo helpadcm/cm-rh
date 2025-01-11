@@ -31,6 +31,7 @@ class employeeAttendanceRecords(models.Model):
     diff_hours = fields.Float(string="Dif. Horas",compute='compute_eh_totals',help="Diferencia Total de horas - Horas esperadas")
     eh_pay = fields.Float(string="Pagar HE",compute='compute_eh_totals',help="Horas Extras a pagar ")
     real_eh_pay = fields.Float(string="Pagar HE Real",help="Horas Extras reales a pagar ")
+    pay_extra_hours = fields.Float(string="HE Real",help="Horas Extras reales",compute="get_eh_real")
     aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
@@ -40,6 +41,16 @@ class employeeAttendanceRecords(models.Model):
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
     department_id = fields.Many2one('hr.department',string="Departamento")
+
+    @api.depends('eh_pay','real_eh_pay')
+    def get_eh_real(self):
+        for rec in self:
+            if rec.eh_pay > 0 and rec.real_eh_pay == 0:
+                rec.pay_extra_hours = rec.eh_pay
+            elif rec.real_eh_pay > 0:
+                rec.pay_extra_hours = rec.real_eh_pay
+            else:
+                rec.pay_extra_hours = 0
 
     def get_department(self):
         contract_id = self.env['hr.contract'].search([('employee_id','=',self.employee_id.id)])
@@ -83,7 +94,10 @@ class employeeAttendanceRecords(models.Model):
                 rec.total_hours = hours_total + eh_total
                 rec.diff_hours = rec.total_hours - rec.esperated_hours
                 if rec.diff_hours <= rec.eh_limit:
-                    rec.eh_pay = rec.diff_hours
+                    if rec.diff_hours > 0:
+                        rec.eh_pay = rec.diff_hours
+                    else:
+                        rec.eh_pay = 0
                     rec.aditional_he = 0
                 elif rec.diff_hours > rec.eh_limit:
                     rec.eh_pay = rec.eh_limit
