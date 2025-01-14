@@ -17,6 +17,9 @@
                         class="btn-primary"
                         help="Calcula y aplica el bono de transporte del empleado según las reglas definidas en su contrato."/>
             </header>
+            <field name="wage_type" position="after">
+                <field name="esperated_hours"/>
+            </field>
         </field>
     </record>
 

@@ -1,8 +1,17 @@
-from odoo import models
+from odoo import models, api
 
+months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
+
+    @api.onchange('date_start')
+    def get_payslip_name(self):
+        if self.date_start:
+            if self.date_start.day == 1:
+                self.name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+            if self.date_start.day == 16:
+                self.name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
 
     def action_load_nomina_from_excel_wizard(self):
         """

@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time
+import calendar
 
 class HrPayslipBonus(models.Model):
     _inherit = 'hr.payslip'
@@ -15,6 +16,27 @@ class HrPayslipBonus(models.Model):
         string="Close Date",
         help="The date on which the payment is made to the employee."
         )
+
+    esperated_hours = fields.Integer(string="Horas Esperadas", compute="get_esperated_hours")
+
+    @api.depends('date_from','date_to')
+    def get_esperated_hours(self):
+        for rec in self:
+            if rec.date_from and rec.date_to:
+                total_days = calendar.monthrange(rec.date_from.year, rec.date_from.month)[1]
+                if rec.date_from.day == 1:
+                    if total_days == 31:
+                        rec.esperated_hours = 104
+                    elif total_days == 30:
+                        rec.esperated_hours = 96
+                    elif total_days == 28:
+                        rec.esperated_hours = 80
+                    elif total_days == 29:
+                        rec.esperated_hours = 88
+                elif rec.date_from.day == 16:
+                    rec.esperated_hours = 96
+                else:
+                    rec.esperated_hours = 0
 
     def _compute_paid_date(self):
         for payslip in self:

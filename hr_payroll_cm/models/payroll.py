@@ -4,7 +4,6 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models
 
-
 class HrSalaryAttachment(models.Model):
     _inherit = 'hr.salary.attachment'
 
@@ -12,6 +11,7 @@ class HrSalaryAttachment(models.Model):
         'Fecha de inicio de pago',
         compute='_compute_first_date_payment',
         help='Fecha de comienzo de pagos', )
+
 
     @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'first_date_payment')
     def _compute_estimated_end(self):

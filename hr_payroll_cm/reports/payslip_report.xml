@@ -15,7 +15,7 @@
                         <td><span t-field="o.employee_id.barcode">John Smith</span></td>
                         <td><span t-field="o.employee_id">Married</span></td>
                         <td><span t-field="o.employee_id.identification_id"></span></td>
-                        <td><span t-field="o.date_from"/> al <span t-field="o.date_to"/></td>
+                        <td><span t-field="o.payslip_run_id"/></td>
                     </tr>
                 </table>
 
@@ -45,13 +45,24 @@
                         <tbody>
                             <t id="incomes_lines">
                                 <span t-foreach="o.worked_days_line_ids" t-as="line">
-                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                        <td id="payslip_line_name"><span t-esc="'{0:,.2f}'.format(line.number_of_hours)"/></td>
-                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
-                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                                t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
-                                    </tr>
+                                    <t t-if="line.code != 'WORK100'">
+                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                            <td id="payslip_line_name"><span t-esc="'{0:,.2f}'.format(line.number_of_hours)"/></td>
+                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
+                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                                    t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="line.code == 'WORK100'">
+                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                            <td id="payslip_line_name"><span t-field="o.esperated_hours"/></td>
+                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
+                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                                    t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
+                                        </tr>
+                                    </t>
                                     <t t-set="entry_total" t-value="entry_total + line.amount"/>
                                 </span>
                             </t>
@@ -80,7 +91,7 @@
                                     </tr>
                                     <t t-set="alw_total" t-value="alw_total + line.total"/>
                                 </span>
-                                <t t-if="alw_total == 0">
+                                <t t-if="alw_total == 0 and entry_total == 0">
                                     <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
                                         <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
                                             <td id="payslip_line_name"><span t-field="line.name"/></td>

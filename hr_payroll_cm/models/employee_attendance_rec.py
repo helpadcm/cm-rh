@@ -127,7 +127,7 @@ class lineAttendanceRecords(models.Model):
     check_in_3 = fields.Char(string="Turno 3(Entrada)")
     check_out_3 = fields.Char(string="Turno 3(Salida)")
     total_hours = fields.Float(string="Trabajadas")
-    ordinary_hours = fields.Integer(string="HO")
+    ordinary_hours = fields.Float(string="HO")
     extra_hours = fields.Float(string="HE")
     observations = fields.Char(string="Observaciones")
     bonus = fields.Float(string="BT")
