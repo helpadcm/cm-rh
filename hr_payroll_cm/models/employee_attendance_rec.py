@@ -10,7 +10,8 @@ actions = [
     ('cap', 'Capacitacion'),
     ('coe', 'Cubrir en otra estación'),
     ('na', 'Sin Registro'),
-    ('holiday', 'Feriado')
+    ('holiday', 'Feriado'),
+    ('comp', 'Compensatorio')
 ]
 
 class employeeAttendanceRecords(models.Model):
@@ -111,6 +112,7 @@ class employeeAttendanceRecords(models.Model):
         res = super(employeeAttendanceRecords, self).unlink()
         return res
                 
+    
 
 class lineAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.line'
