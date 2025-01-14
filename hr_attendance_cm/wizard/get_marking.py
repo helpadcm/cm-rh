@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pymssql
 import logging
 
+
 class getMarkings(models.TransientModel):
     _name = 'hr.get.markings'
     _description = "Validador de turnos"
@@ -94,16 +95,19 @@ class getMarkings(models.TransientModel):
             employee_id = self.env['hr.employee'].search([('barcode','=',mark.get('code_employee'))])
             if employee_id:
                 if len(mark.get('lines')) > 0:
-                    real_marking_id = self.env['real.marking.employees'].create({
-                        'name': '%s %s'%(employee_id.name, mark.get('date').date()),
-                        'employee_id': employee_id.id,
-                        'date': mark.get('date')
-                    })
-                    for line in sorted(mark.get('lines'), key=lambda x: x['date']):
-                        clock_id = self.env['hr.attendance.device'].search([('device_id','=',line.get('code_clock'))])
-                        if clock_id:
-                            self.env['list.marking.employees'].create({
-                                'marking_id': real_marking_id.id,
-                                'clock_id': clock_id.id,
-                                'date': line.get('date') + timedelta(hours=6)
-                            })
+                    real_marking_obj = self.env['real.marking.employees']
+                    exist_marking_id = real_marking_obj.search([('employee_id','=',employee_id.id),('date','=',mark.get('date'))])
+                    if not exist_marking_id:
+                        real_marking_id = real_marking_obj.create({
+                            'name': '%s %s'%(employee_id.name, mark.get('date').date()),
+                            'employee_id': employee_id.id,
+                            'date': mark.get('date')
+                        })
+                        for line in sorted(mark.get('lines'), key=lambda x: x['date']):
+                            clock_id = self.env['hr.attendance.device'].search([('device_id','=',line.get('code_clock'))])
+                            if clock_id:
+                                self.env['list.marking.employees'].create({
+                                    'marking_id': real_marking_id.id,
+                                    'clock_id': clock_id.id,
+                                    'date': line.get('date') + timedelta(hours=6)
+                                })
