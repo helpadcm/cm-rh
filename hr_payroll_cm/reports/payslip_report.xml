@@ -1,151 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<template id="report_payslip_cm">
-    <t t-call="web.external_layout">
-        <div class="page">
-            <h2 id="payslip_name">Comprobante de pago de planilla</h2>
-            <table name="employee-infos" id="employee_info_table_1" class="table table-sm table-bordered" style="border: 1px solid #566573">
-                <tr id="employee_info_line_1">
-                    <td class="w-25"><strong>Codigo de empleado</strong></td>
-                    <td class="w-25"><strong>Empleado</strong></td>
-                    <td class="w-25"><strong>Identificación</strong></td>
-                    <td class="w-25"><strong>Periodo</strong></td>
-                </tr>
-                <tr id="employee_info_line_2">
-                    <td><span t-field="o.employee_id.barcode">John Smith</span></td>
-                    <td><span t-field="o.employee_id">Married</span></td>
-                    <td><span t-field="o.employee_id.identification_id"></span></td>
-                    <td>
-                        Del <span t-field="o.date_from"/> al <span t-field="o.date_to"/> 
-                    </td>
-                </tr>
-            </table>
-
-            <table class="table table-sm" t-if="not o.struct_id.hide_basic_on_pdf" style="border: 1px solid #566573">
-                <tr>
-                    <td class="w-25"><strong>Salario Ordinario (Mensual)</strong></td>
-                    <td style="color:#875A7B" class="w-25"><span t-field="o.contract_id.x_studio_monthly_wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"></span>
-                    </td>
-                    <td class="w-25"><strong>Salario Ordinario (Quincenal)</strong></td>
-                    <td style="color:#875A7B" class="w-25"><span t-field="o.contract_id.wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
-                </tr>
-            </table>
-
-            <div id="total">
-                <t t-set="entry_total" t-value="0"/>
-                <table t-if="o.worked_days_line_ids" class="table table-sm" style="border: 1px solid #566573">
-                    <thead class="o_black_border">
-                        <tr>
-                            <th colspan="3" id="line_header_name">INGRESOS</th>
-                        </tr>
-                        <tr>
-                            <th id="line_header_name">Nombre</th>
-                            <th id="line_header_name">Horas</th>
-                            <th id="line_header_amount" class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t id="incomes_lines">
-                            <span t-foreach="o.worked_days_line_ids" t-as="line">
-                                <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                    <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                    <td id="payslip_line_name"><span t-esc="'{0:,.2f}'.format(line.number_of_hours)"/></td>
-                                    <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
-                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                            t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
-                                </tr>
-                                <t t-set="entry_total" t-value="entry_total + line.amount"/>
-                            </span>
-                        </t>
-                    </tbody>
+    <template id="report_payslip_cm">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2 id="payslip_name">Comprobante de pago de planilla</h2>
+                <table name="employee-infos" id="employee_info_table_1" class="table table-sm table-bordered" style="border: 1px solid #566573">
+                    <tr id="employee_info_line_1">
+                        <td class="w-25"><strong>Codigo de empleado</strong></td>
+                        <td class="w-25"><strong>Empleado</strong></td>
+                        <td class="w-25"><strong>Identificación</strong></td>
+                        <td class="w-25"><strong>Periodo</strong></td>
+                    </tr>
+                    <tr id="employee_info_line_2">
+                        <td><span t-field="o.employee_id.barcode">John Smith</span></td>
+                        <td><span t-field="o.employee_id">Married</span></td>
+                        <td><span t-field="o.employee_id.identification_id"></span></td>
+                        <td><span t-field="o.date_from"/> al <span t-field="o.date_to"/></td>
+                    </tr>
                 </table>
 
-                <t t-set="alw_total" t-value="0"/>
-                <table class="table table-sm" style="border: 1px solid #566573">
-                    <thead class="o_black_border">
-                        <tr>
-                            <th id="line_header_name">Nombre</th>
-                            <th id="line_header_amount" class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t id="incomes_lines">
-                            <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ALW')" t-as="line">
-                                <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                    <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                    <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                </tr>
-                                <t t-set="alw_total" t-value="alw_total + line.total"/>
-                            </span>
+                <table class="table table-sm" t-if="not o.struct_id.hide_basic_on_pdf" style="border: 1px solid #566573">
+                    <tr>
+                        <td class="w-25"><strong>Salario Ordinario (Mensual)</strong></td>
+                        <td style="color:#875A7B" class="w-25"><span t-field="o.contract_id.x_studio_monthly_wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"></span>
+                        </td>
+                        <td class="w-25"><strong>Salario Ordinario (Quincenal)</strong></td>
+                        <td style="color:#875A7B" class="w-25"><span t-field="o.contract_id.wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                    </tr>
+                </table>
+
+                <div id="total">
+                    <t t-set="entry_total" t-value="0"/>
+                    <table t-if="o.worked_days_line_ids" class="table table-sm" style="border: 1px solid #566573">
+                        <thead class="o_black_border">
                             <tr>
-                                <td id="payslip_line_name"><strong>TOTAL INGRESOS</strong></td>
-                                <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(alw_total + entry_total)"
+                                <th colspan="3" id="line_header_name">INGRESOS</th>
+                            </tr>
+                            <tr>
+                                <th id="line_header_name">Nombre</th>
+                                <th id="line_header_name">Horas</th>
+                                <th id="line_header_amount" class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t id="incomes_lines">
+                                <span t-foreach="o.worked_days_line_ids" t-as="line">
+                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                        <td id="payslip_line_name"><span t-esc="'{0:,.2f}'.format(line.number_of_hours)"/></td>
+                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
+                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                                t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
+                                    </tr>
+                                    <t t-set="entry_total" t-value="entry_total + line.amount"/>
+                                </span>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <t t-set="alw_total" t-value="0"/>
+                    <t t-set="basic_total" t-value="0"/>
+                    <table class="table table-sm" style="border: 1px solid #566573">
+                        <thead class="o_black_border">
+                            <tr t-if="not o.worked_days_line_ids">
+                                <th colspan="2" id="line_header_name">INGRESOS</th>
+                            </tr>
+                            <tr>
+                                <th style="width:50%" id="line_header_name">Nombre</th>
+                                <th style="width:50%" id="line_header_amount" class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t id="incomes_lines">
+                                <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ALW')" t-as="line">
+                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                    </tr>
+                                    <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                </span>
+                                <t t-if="alw_total == 0">
+                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
+                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        </tr>
+                                        <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                    </span>
+                                </t>
+                                <tr>
+                                    <td id="payslip_line_name"><strong>TOTAL INGRESOS</strong></td>
+                                    <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(alw_total + entry_total)"
+                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                        t-att-style="'color:#875A7B;'"/></strong></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <t t-set="ded_total" t-value="0"/>
+                    <table class="table table-sm" style="border: 1px solid #566573">
+                        <thead class="o_black_border">
+                            <tr>
+                                <th colspan="2" id="line_header_name">DEDUCCIONES</th>
+                            </tr>
+                            <tr>
+                                <th style="width:50%" id="line_header_name">Nombre</th>
+                                <th style="width:50%" id="line_header_amount" class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t id="deduction_lines">
+                                <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'DED')" t-as="line">
+                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                    </tr>
+                                    <t t-set="ded_total" t-value="ded_total + line.total"/>
+                                </span>
+                                <tr>
+                                    <td id="payslip_line_name"><strong>TOTAL DEDUCCIONES</strong></td>
+                                    <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(ded_total)"
+                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                        t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/></strong></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <table class="table table-sm" style="border: 1px solid #566573">
+                        <tbody>
+                            <tr>
+                                <td id="payslip_line_name"><strong>NETO A PAGAR</strong></td>
+                                <td id="payslip_line_total" class="text-end"><strong><span t-esc="alw_total + entry_total - abs(ded_total)"
                                     t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
                                     t-att-style="'color:#875A7B;'"/></strong></td>
                             </tr>
-                        </t>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
 
-                <t t-set="ded_total" t-value="0"/>
-                <table class="table table-sm" style="border: 1px solid #566573">
-                    <thead class="o_black_border">
-                        <tr>
-                            <th colspan="2" id="line_header_name">DEDUCCIONES</th>
-                        </tr>
-                        <tr>
-                            <th id="line_header_name">Nombre</th>
-                            <th id="line_header_amount" class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t id="deduction_lines">
-                            <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'DED')" t-as="line">
-                                <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                    <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                    <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                </tr>
-                                <t t-set="ded_total" t-value="ded_total + line.total"/>
-                            </span>
-                            <tr>
-                                <td id="payslip_line_name"><strong>TOTAL DEDUCCIONES</strong></td>
-                                <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(ded_total)"
-                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                    t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/></strong></td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
+                    <div id="signature" style="text-align:center;margin-top:8%">
+                        <span>_______________________________________________</span>
+                        <br/>
+                        <a>Recibi Conforme</a>
+                        <br/>
+                        <span t-field="o.employee_id"/>
+                    </div>
+                    <div class="oe_structure"></div>
+                </div>
 
-                <table class="table table-sm" style="border: 1px solid #566573">
-                    <tbody>
-                        <tr>
-                            <td id="payslip_line_name"><strong>NETO A PAGAR</strong></td>
-                            <td id="payslip_line_total" class="text-end"><strong><span t-esc="alw_total + entry_total - abs(ded_total)"
-                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                t-att-style="'color:#875A7B;'"/></strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="oe_structure"></div>
             </div>
-            <!-- <div id="to_pay">
-                <p t-if="o.net_wage &gt;= 0">To pay on <b><span t-field="o.employee_id.bank_account_id">39560123456</span></b> of <i><span t-field="o.employee_id">John Smith</span></i>: <span t-field="o.net_wage">$100</span></p>
-                <p t-if="o.net_wage &lt; 0">The net amount will be recovered from the first positive remuneration established after this.</p>
-            </div> -->
-        </div>
-    </t>
-</template>
-
-<template id="payslip_receipt_cm">
-    <t t-call="web.html_container">
-        <t t-foreach="docs" t-as="o">
-            <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
-            <t t-call="hr_payroll_cm.report_payslip_cm" t-lang="o.env.lang"/>
         </t>
-    </t>
-</template>
+    </template>
+
+    <template id="payslip_receipt_cm">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+                <t t-call="hr_payroll_cm.report_payslip_cm" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
 </odoo>
