@@ -31,7 +31,7 @@
 
                 <div id="total">
                     <t t-set="entry_total" t-value="0"/>
-                    <table t-if="o.worked_days_line_ids" class="table table-sm" style="border: 1px solid #566573">
+                    <table t-if="o.worked_days_line_ids and o.struct_id.use_worked_day_lines" class="table table-sm" style="border: 1px solid #566573">
                         <thead class="o_black_border">
                             <tr>
                                 <th colspan="3" id="line_header_name">INGRESOS</th>
@@ -73,7 +73,7 @@
                     <t t-set="basic_total" t-value="0"/>
                     <table class="table table-sm" style="border: 1px solid #566573">
                         <thead class="o_black_border">
-                            <tr t-if="not o.worked_days_line_ids">
+                            <tr t-if="not o.worked_days_line_ids or not o.struct_id.use_worked_day_lines">
                                 <th colspan="2" id="line_header_name">INGRESOS</th>
                             </tr>
                             <tr>

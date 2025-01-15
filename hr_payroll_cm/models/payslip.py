@@ -192,11 +192,7 @@ class HrPayslipBonus(models.Model):
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id:
-                hours = 0
-                if mark_id.real_eh_pay > 0:
-                    hours = mark_id.real_eh_pay
-                elif mark_id.eh_pay > 0:
-                    hours = mark_id.eh_pay
+                hours = mark_id.pay_extra_hours + mark_id.eh_holiday
 
                 if hours > 0:
                     entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
@@ -224,7 +220,11 @@ class workedDaysInh(models.Model):
             if worked_days.payslip_id.wage_type == "hourly":
                 worked_days.amount = worked_days.payslip_id.contract_id.hourly_wage * worked_days.number_of_hours if worked_days.is_paid else 0
             else:
-                #worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0
-                wage = worked_days.payslip_id.contract_id.contract_wage * 2
-                hours_amount = (wage / 30 / 8) * 1.25
-                worked_days.amount = hours_amount * worked_days.number_of_hours
+                if worked_days.work_entry_type_id.code == 'OVERTIME':
+                    wage = worked_days.payslip_id.contract_id.contract_wage * 2
+                    hours_amount = (wage / 30 / 8) * 1.25
+                    worked_days.amount = hours_amount * worked_days.number_of_hours
+                elif worked_days.work_entry_type_id.code == 'WORK100':
+                    worked_days.amount = worked_days.payslip_id.contract_id.contract_wage
+                else:
+                    worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0
