@@ -68,6 +68,13 @@ class Contract(models.Model):
             amount = sum(mark_ids.mapped('tb_pay'))
         return amount
 
+    def calculate_basic(self,payslip):
+        amount = self.wage
+        for worked in payslip.worked_days_line_ids:
+            if worked.work_entry_type_id.code != 'WORK100':
+                amount += worked.amount
+        return amount
+
 
     def calculate_dt_dc(self, code, payslip):
         return self.temporal_amount
