@@ -50,8 +50,8 @@ class Contract(models.Model):
 
     def calculate_deductions(self, code):
         amount = 0
-        if code == 'RAP':
-            amount = self.calculate_rap()
+        if code in ['RAP','SSH']:
+            amount = self.calculate_rap(code)
         else:
             deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open')])
             if deduction_ids:
@@ -72,15 +72,18 @@ class Contract(models.Model):
     def calculate_dt_dc(self, code, payslip):
         return self.temporal_amount
 
-    def calculate_rap(self):
+    def calculate_rap(self, code):
         rap_id = self.env['hr.settings.rap'].search([])
         if len(rap_id) == 0:
             raise ValidationError("Debe crear las configuraciones de RAP antes")
-        
-        percentage = (rap_id.percentage) / 100
-        total_salary = self.wage * 2
+        if code == 'RAP':
+            percentage = (rap_id.percentage) / 100
+            total_salary = self.wage * 2
 
-        amount = ((total_salary - rap_id.min_salary) * percentage) / 2
+            amount = ((total_salary - rap_id.min_salary) * percentage) / 2
+        elif code == 'SSH':
+            amount = rap_id.ihss_amount / 2
+
         return amount * -1
 
     def show_historical(self):
