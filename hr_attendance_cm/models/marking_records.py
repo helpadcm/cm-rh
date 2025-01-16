@@ -12,12 +12,15 @@ class markingRealEmployees(models.Model):
     employee_code = fields.Char(string="Codigo de empleado")
     state = fields.Selection([('draft','Borrador'),('finalized','Finalizado')],string="Estado",default="draft")
     marking_ids = fields.One2many('list.marking.employees','marking_id',string="Listado de Marcajes")
+    lost_marking = fields.Boolean(string="Marcajes perdidos")
 
     def create_attendance(self):
         marking_record_ids = self.search([('state','=','draft')])
         marking_data = []
         attendance_obj = self.env['hr.attendance']
         for mark in marking_record_ids:
+            if mark.lost_marking:
+                self.delete_attendances(mark)
             lines_qty = len(mark.marking_ids)
             if lines_qty in [2,4,6]:
                 count = 1
@@ -110,6 +113,12 @@ class markingRealEmployees(models.Model):
                 }
                 attendance_obj.create(vals)
                 mark.state = 'finalized'
+
+    def delete_attendances(self,mark):
+        attendance_ids = self.env['hr.attendance'].search([('check_in','<=',mark.date),('check_out','>=',mark.date),('employee_id','=',mark.employee_id.id)])
+        if attendance_ids:
+            attendance_ids.unlink()
+        mark.lost_marking = False
 
 class listMarkingEmployees(models.Model):
     _name = 'list.marking.employees'
