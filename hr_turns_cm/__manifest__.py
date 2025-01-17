@@ -12,6 +12,7 @@
     'depends': ['hr_payroll','mail'],
     'data': [
         'data/cron.xml',
+        'data/action_server.xml',
         'data/email_templates.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',

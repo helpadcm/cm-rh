@@ -37,8 +37,8 @@ class createFutureTurn(models.TransientModel):
         created_turn = []
         for member in self.line_ids:
             count_days = 1
+            turn_date = self.start_date
             for day in range(7):
-                turn_date = self.start_date
                 line_temp_id = self.get_template_line(member.turn_id, day)
                 fortnight_id = self.get_fortnight(turn_date)
                 oh = 0
@@ -75,6 +75,7 @@ class createFutureTurn(models.TransientModel):
                 }
                 turn_id = self.env['hr.turn.registration'].create(vals)
                 created_turn.append(turn_id.id)
+                turn_date = self.start_date + timedelta(days=count_days)
                 count_days += 1
         return {
             'type': 'ir.actions.client',
