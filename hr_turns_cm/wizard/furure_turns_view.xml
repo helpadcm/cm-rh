@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_create_turn_future" model="ir.ui.view">
+        <field name="name">future.turn.form</field>
+        <field name="model">hr.future.turns</field>
+        <field name="arch" type="xml">
+            <form string="Turnaje manual">
+                <group>
+                    <group >
+                        <field name="user_id" readonly="1"/>
+                        <field name="start_date" required="1"/>
+                    </group>                
+                    <group >
+                        <field name="team_id" required="1" options="{'no_create': True}" domain="['|',('leader_id.user_id','=',user_id),('responsible_id.user_id','=',user_id)]"/>
+                        <field name="end_date" required="1"/>
+                    </group>                    
+                </group>
+                <notebook>
+                    <page string="Miembros de equipo">
+                        <field name="line_ids">
+                            <tree editable="bottom" create="false" delete="false">
+                                <field name="team_id" column_invisible="1"/>
+                                <field name="employee_id" force_save="1" readonly="1"/>
+                                <field name="turn_id" domain="[('team_id','=',team_id)]"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+                <footer>
+                    <button string="Crear" name="create_turns" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_create_turns" model="ir.actions.act_window">
+        <field name="name">Turnaje manual</field>
+        <field name="res_model">hr.future.turns</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_create_turn_future"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

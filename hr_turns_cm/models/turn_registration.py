@@ -100,55 +100,72 @@ class turnRegistration(models.Model):
         
         first_date = actual_date + timedelta(days=1)
         ult_date = actual_date + timedelta(days=7)
-        
         actual_name = 'Semana %s al %s'%(first_date, ult_date)
         
         team_ids = self.env['hr.work.teams'].search([])
         for team in team_ids:
-            created_turn = []
-            for member in team.member_employees_ids:
-                count_days = 1
-                for day in range(7):
-                    turn_date = actual_date + timedelta(days=count_days)
-                    line_temp_id = self.get_template_line(member.template_id, day)
-                    fortnight_id = self.get_fortnight(turn_date)
-                    oh = 0
-                    aditional_time = 0
-                    try:
-                        amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
-                        amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
-                        oh = abs((amount1 + amount2) / 100)
-                        day = turn_date.weekday()
-                        if day == 5:
-                            aditional_time = oh - 4
-                        elif day == 6:
-                            aditional_time = 0
-                        else:
-                            aditional_time = oh - 8
-                    except:
+            validation = self.validate_dates(team, first_date, ult_date)
+            if validation:
+                created_turn = []
+                for member in team.member_employees_ids:
+                    count_days = 1
+                    for day in range(7):
+                        turn_date = actual_date + timedelta(days=count_days)
+                        line_temp_id = self.get_template_line(member.template_id, day)
+                        fortnight_id = self.get_fortnight(turn_date)
                         oh = 0
-                    vals = {
-                        'employee_id': member.employee_id.id,
-                        'date': turn_date,
-                        'leader_id': team.leader_id.id,
-                        'responsible_id': team.responsible_id.id,
-                        'team_id': team.id,
-                        'name': actual_name,
-                        'schedule1_in_id': line_temp_id.schedule1_in_id.id,
-                        'schedule1_out_id': line_temp_id.schedule1_out_id.id,
-                        'schedule2_in_id': line_temp_id.schedule2_in_id.id,
-                        'schedule2_out_id': line_temp_id.schedule2_out_id.id,
-                        'turn_type_a': line_temp_id.turn_type_a.id,
-                        'turn_type_b': line_temp_id.turn_type_b.id,
-                        'ordinary_hours': oh,
-                        'aditional_hours': aditional_time,
-                        'fortnight_line_id': fortnight_id.id
-                    }
-                    turn_id = self.create(vals)
-                    created_turn.append(turn_id.id)
-                    count_days += 1
-            if len(created_turn) > 0:
-                self.send_mail(team, created_turn)
+                        aditional_time = 0
+                        try:
+                            amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
+                            amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
+                            oh = abs((amount1 + amount2) / 100)
+                            day = turn_date.weekday()
+                            if day == 5:
+                                aditional_time = oh - 4
+                            elif day == 6:
+                                aditional_time = 0
+                            else:
+                                aditional_time = oh - 8
+                        except:
+                            oh = 0
+                        vals = {
+                            'employee_id': member.employee_id.id,
+                            'date': turn_date,
+                            'leader_id': team.leader_id.id,
+                            'responsible_id': team.responsible_id.id,
+                            'team_id': team.id,
+                            'name': actual_name,
+                            'schedule1_in_id': line_temp_id.schedule1_in_id.id,
+                            'schedule1_out_id': line_temp_id.schedule1_out_id.id,
+                            'schedule2_in_id': line_temp_id.schedule2_in_id.id,
+                            'schedule2_out_id': line_temp_id.schedule2_out_id.id,
+                            'turn_type_a': line_temp_id.turn_type_a.id,
+                            'turn_type_b': line_temp_id.turn_type_b.id,
+                            'ordinary_hours': oh,
+                            'aditional_hours': aditional_time,
+                            'fortnight_line_id': fortnight_id.id
+                        }
+                        turn_id = self.create(vals)
+                        created_turn.append(turn_id.id)
+                        count_days += 1
+                if len(created_turn) > 0:
+                    self.send_mail(team, created_turn)
+
+    def validate_dates(self, team, start_date, end_date):
+        date_ranges = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+        tuns_rec_obj =  self.env['hr.turn.registration']
+        rec_ids = tuns_rec_obj.search(['|',('leader_id','=',team.leader_id.id),('responsible_id','=',team.responsible_id.id),('team_id','=',team.id)])
+        dates = set(rec_ids.mapped('date'))
+        for date in date_ranges:
+            if date in dates:
+                mail = self.env['mail.mail'].create({
+                    'subject': "Error al crear turno",
+                    'body_html': "<p>No se pudieron crear los turnos para el equipo %s por fechas ya existentes</p>"%(team.name),
+                    'email_to': "oavilez@cmairlines.com",
+                })
+                mail.send()
+                return False
+        return True
 
     def get_fortnight(self, date):
         id_fortnight = self.env['hr.fortnights'].search([('actual','=',True)])

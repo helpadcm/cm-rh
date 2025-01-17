@@ -22,12 +22,21 @@
         sequence="1"/>
 
     <menuitem
+        id="manual_turn_menuitem"
+        name="Turnos Manuales"
+        action="hr_turns_cm.action_create_turns"
+        parent="turn_registration_menuitem"
+        groups="hr_turns_cm.user_turn_cm,hr_turns_cm.manager_turn_cm"
+        sequence="2"/>
+
+    <menuitem
         id="validate_turns_menuitem"
         name="Validar Turnos"
         action="hr_turns_cm.action_validate_turns"
         parent="turn_registration_menuitem"
         groups="hr_turns_cm.user_turn_cm"
-        sequence="2"/>
+        sequence="3"/>
+
     
     <menuitem
         id="work_teams_menuitem"
