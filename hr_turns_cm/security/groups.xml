@@ -56,5 +56,25 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+        <record id="templates_turn_user_rule" model="ir.rule">
+            <field name="name">Regla usuario plantilla de turnos</field>
+            <field name="model_id" ref="hr_turns_cm.model_hr_templates_turn"/>
+            <field name="domain_force">['|',('leader_id.user_id', '=', user.id),('responsible_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.user_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="templates_turn_admin_rule" model="ir.rule">
+            <field name="name">Regla manager plantilla de turnos</field>
+            <field name="model_id" ref="hr_turns_cm.model_hr_templates_turn"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.manager_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
     </data>
 </odoo>

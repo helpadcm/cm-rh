@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_planificafion_format" model="ir.ui.view">
+        <field name="name">planification.format.form</field>
+        <field name="model">hr.planification.format</field>
+        <field name="arch" type="xml">
+            <form string="Imprimir Formato de Planificacion">
+                <group>
+                    <group >
+                        <field name="user_id" readonly="1"/>
+                        <field name="team_id" required="1" options="{'no_create': True}" domain="['|',('leader_id.user_id','=',user_id),('responsible_id.user_id','=',user_id)]"/>
+                    </group>                
+                    <group >
+                        <field name="turn" required="1"/>
+                    </group>                    
+                </group>
+                <footer>
+                    <button string="Imprimir" name="printFormat" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_print_planification" model="ir.actions.act_window">
+        <field name="name">Imprimir Planificacion</field>
+        <field name="res_model">hr.planification.format</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_planificafion_format"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

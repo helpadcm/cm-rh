@@ -112,46 +112,47 @@ class turnRegistration(models.Model):
             if validation:
                 created_turn = []
                 for member in team.member_employees_ids:
-                    count_days = 1
-                    for day in range(7):
-                        turn_date = actual_date + timedelta(days=count_days)
-                        line_temp_id = self.get_template_line(member.template_id, day)
-                        fortnight_id = self.get_fortnight(turn_date)
-                        oh = 0
-                        aditional_time = 0
-                        try:
-                            amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
-                            amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
-                            oh = abs((amount1 + amount2) / 100)
-                            day = turn_date.weekday()
-                            if day == 5:
-                                aditional_time = oh - 4
-                            elif day == 6:
-                                aditional_time = 0
-                            else:
-                                aditional_time = oh - 8
-                        except:
+                    if member.template_id:
+                        count_days = 1
+                        for day in range(7):
+                            turn_date = actual_date + timedelta(days=count_days)
+                            line_temp_id = self.get_template_line(member.template_id, day)
+                            fortnight_id = self.get_fortnight(turn_date)
                             oh = 0
-                        vals = {
-                            'employee_id': member.employee_id.id,
-                            'date': turn_date,
-                            'leader_id': team.leader_id.id,
-                            'responsible_id': team.responsible_id.id,
-                            'team_id': team.id,
-                            'name': actual_name,
-                            'schedule1_in_id': line_temp_id.schedule1_in_id.id,
-                            'schedule1_out_id': line_temp_id.schedule1_out_id.id,
-                            'schedule2_in_id': line_temp_id.schedule2_in_id.id,
-                            'schedule2_out_id': line_temp_id.schedule2_out_id.id,
-                            'turn_type_a': line_temp_id.turn_type_a.id,
-                            'turn_type_b': line_temp_id.turn_type_b.id,
-                            'ordinary_hours': oh,
-                            'aditional_hours': aditional_time,
-                            'fortnight_line_id': fortnight_id.id
-                        }
-                        turn_id = self.create(vals)
-                        created_turn.append(turn_id.id)
-                        count_days += 1
+                            aditional_time = 0
+                            try:
+                                amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
+                                amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
+                                oh = abs((amount1 + amount2) / 100)
+                                day = turn_date.weekday()
+                                if day == 5:
+                                    aditional_time = oh - 4
+                                elif day == 6:
+                                    aditional_time = 0
+                                else:
+                                    aditional_time = oh - 8
+                            except:
+                                oh = 0
+                            vals = {
+                                'employee_id': member.employee_id.id,
+                                'date': turn_date,
+                                'leader_id': team.leader_id.id,
+                                'responsible_id': team.responsible_id.id,
+                                'team_id': team.id,
+                                'name': actual_name,
+                                'schedule1_in_id': line_temp_id.schedule1_in_id.id,
+                                'schedule1_out_id': line_temp_id.schedule1_out_id.id,
+                                'schedule2_in_id': line_temp_id.schedule2_in_id.id,
+                                'schedule2_out_id': line_temp_id.schedule2_out_id.id,
+                                'turn_type_a': line_temp_id.turn_type_a.id,
+                                'turn_type_b': line_temp_id.turn_type_b.id,
+                                'ordinary_hours': oh,
+                                'aditional_hours': aditional_time,
+                                'fortnight_line_id': fortnight_id.id
+                            }
+                            turn_id = self.create(vals)
+                            created_turn.append(turn_id.id)
+                            count_days += 1
                 if len(created_turn) > 0:
                     self.send_mail(team, created_turn)
 
