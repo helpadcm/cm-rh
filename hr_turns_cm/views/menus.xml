@@ -104,4 +104,12 @@
         groups="hr_turns_cm.manager_turn_cm"
         sequence="4"/>
 
+    <menuitem
+        id="notif_email_turns_menuitem"
+        name="Correos para Notificaciones"
+        action="hr_turns_cm.action_notification_email"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="5"/>
+
 </odoo>

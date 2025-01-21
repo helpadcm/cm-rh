@@ -2,6 +2,8 @@ from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
 import json
+import base64
+import logging
 
 week_days = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo']
 
@@ -154,7 +156,111 @@ class turnRegistration(models.Model):
                             created_turn.append(turn_id.id)
                             count_days += 1
                 if len(created_turn) > 0:
+                    if team.send_email:
+                        self.generate_and_send_report(team, actual_name)
                     self.send_mail(team, created_turn)
+
+    @api.model
+    def generate_and_send_report(self, team, turn):
+        user_id = team.leader_id.user_id.id
+        team_id = team
+        turn = turn
+        email_to = 'oavilez@cmairlines.com'
+
+        notify_id = self.env['turn.email.notifications'].search([])
+        emails = notify_id.line_ids.mapped('email')
+        cc_email = ', '.join([noti.email for noti in notify_id.line_ids if noti.email])
+
+        if not team_id:
+            raise ValidationError("No se encontró un equipo para generar el reporte.")
+
+        # Generar el PDF del reporte
+        report_ref = 'hr_turns_cm.action_planification_format'  # Referencia del reporte
+        report_action = self.env.ref(report_ref)
+        pdf_content, _ = report_action._render_qweb_pdf(
+            report_ref=report_ref,
+            data={
+            'user_id': user_id,
+            'team_id': team_id.id,
+            'turn': turn,
+        })
+
+        pdf_base64 = base64.b64encode(pdf_content)
+
+        # Crear adjunto con el contenido del PDF
+        pdf_name = f"Reporte_Planificacion_{fields.Date.today()}.pdf"
+        attachment = self.env['ir.attachment'].create({
+            'name': pdf_name,
+            'type': 'binary',
+            'datas': pdf_base64,
+            'mimetype': 'application/pdf',
+            'res_model': 'hr.turn.registration',
+            'res_id': self.id,
+        })
+
+        body = """
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="middle">
+                                                        <span style="font-size: 10px;">Equipo</span><br/>
+                                                        {team_name}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            A continuacion se adjunta la planificacion para la {turn_name}
+                                                            <br/>Saludos<br/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+        """.format(team_name=team.name, turn_name=turn)
+
+        # Crear y enviar correo
+        mail = self.env['mail.mail'].create({
+            'subject': f'Reporte de Planificación - {team.name} - {fields.Date.today()}',
+            'body_html': body,
+            'email_to': team.leader_id.work_email,
+            'email_cc': cc_email,
+            'attachment_ids': [(4, attachment.id)],
+        })
+        mail.send()
+
+        _logger = logging.getLogger(__name__)
+        _logger.info("####################Correo enviado con exito######################")
 
     def validate_dates(self, team, start_date, end_date):
         date_ranges = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]

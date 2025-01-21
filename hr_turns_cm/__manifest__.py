@@ -26,6 +26,7 @@
         'views/employee_inh_view.xml',
         'views/turn_templates_view.xml',
         'views/fortnights.xml',
+        'views/email_notifications_view.xml',
         'views/menus.xml',
         'reports/planification_format.xml',
         'reports/report_reports.xml',

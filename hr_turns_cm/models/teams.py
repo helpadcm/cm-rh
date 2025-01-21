@@ -12,6 +12,7 @@ class workTeams(models.Model):
     leader_id = fields.Many2one('hr.employee',string="Lider de Equipo",tracking=True)
     responsible_id = fields.Many2one('hr.employee',string="Responsable de Equipo",tracking=True)
     active = fields.Boolean(string="Activo", default=True,tracking=True)
+    send_email = fields.Boolean(string="Enviar notificacion")
     member_employees_ids = fields.One2many('hr.employees.members','team_id',string="Miembros de equipo")
 
 class membersEmployee(models.Model):
@@ -115,3 +116,23 @@ class fortnightsLines(models.Model):
     start_date = fields.Date(string="Fecha inicio")
     end_date = fields.Date(string="Fecha fin")
     fortnight_id = fields.Many2one('hr.fortnights',string="Quincena")
+
+class notificationEmails(models.Model):
+    _name = 'turn.email.notifications'
+    _description = 'Listado de correos notificacion de turnos'
+
+    name = fields.Char(string="Nombre")
+    line_ids = fields.One2many('email.notifications.line','notification_id',string="Lineas")
+
+class emailLines(models.Model):
+    _name = 'email.notifications.line'
+    _description = 'Lineas de correos para notificacion'
+
+    employee_id = fields.Many2one('hr.employee',string="Empleado")
+    email = fields.Char(string="Correo")
+    notification_id = fields.Many2one('turn.email.notifications',string="Notificacion")
+
+    @api.onchange('employee_id')
+    def get_email(self):
+        if self.employee_id:
+            self.email = self.employee_id.work_email
