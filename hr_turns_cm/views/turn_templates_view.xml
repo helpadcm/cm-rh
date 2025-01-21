@@ -23,12 +23,12 @@
                             <field name="template_line_ids">
                                 <tree editable="bottom">
                                     <field name="day_opt" required="1"/>
+                                    <field name="turn_type_a" options="{'no_create': True}" required="1"/>
                                     <field name="schedule1_in_id" options="{'no_create': True}" required="1"/>
                                     <field name="schedule1_out_id" options="{'no_create': True}" required="1"/>
-                                    <field name="turn_type_a" options="{'no_create': True}" required="1"/>
+                                    <field name="turn_type_b" options="{'no_create': True}" required="1"/>
                                     <field name="schedule2_in_id" options="{'no_create': True}" required="1"/>
                                     <field name="schedule2_out_id" options="{'no_create': True}" required="1"/>
-                                    <field name="turn_type_b" options="{'no_create': True}" required="1"/>
                                 </tree>
                             </field>
                         </page> 

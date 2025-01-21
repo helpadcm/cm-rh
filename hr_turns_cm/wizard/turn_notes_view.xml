@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_note_turns" model="ir.ui.view">
+        <field name="name">note.turns.form</field>
+        <field name="model">turn.notes</field>
+        <field name="arch" type="xml">
+            <form string="Notas">
+                <field name="note" readonly="state != 'draft'"/>
+                <field name="state" invisible="1"/>
+                <footer>
+                    <button string="Guardar" name="add_notes" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_note_turns" model="ir.actions.act_window">
+        <field name="name">Agregar nota</field>
+        <field name="res_model">turn.notes</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_note_turns"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

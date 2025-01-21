@@ -35,6 +35,7 @@ class turnRegistration(models.Model):
     editable_a = fields.Boolean(string="Editable A",default=True)
     editable_b = fields.Boolean(string="Editable B",default=True)
     fortnight_line_id = fields.Many2one('hr.fortnights.line',string="Quincena")
+    note = fields.Text(string="Notas")
 
     def validate_day(self):
         for rec in self:

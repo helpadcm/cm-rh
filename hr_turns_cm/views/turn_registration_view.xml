@@ -20,6 +20,7 @@
                 <field name="ordinary_hours" readonly="1" force_save="1" sum="HO Laboradas"/>
                 <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>
                 <field name="state" readonly="1" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'validated'"/>
+                <button name="%(hr_turns_cm.action_note_turns)d" string="Notas" type="action"/>
             </tree>
         </field>
     </record>

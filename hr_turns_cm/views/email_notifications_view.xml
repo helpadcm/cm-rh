@@ -35,7 +35,7 @@
     </record>
 
     <record id="action_notification_email" model="ir.actions.act_window">
-        <field name="name">Plantilla de turnos</field>
+        <field name="name">Correos para notificaciones</field>
         <field name="res_model">turn.email.notifications</field>
         <field name="view_mode">tree,form</field>
     </record>

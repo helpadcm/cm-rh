@@ -2,8 +2,8 @@ from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 
 opt_days = [
-    ('0', 'Dia 1'),('1', 'Dia 2'),('2', 'Dia 3'),('3', 'Dia 4'),
-    ('4', 'Dia 5'),('5', 'Dia 6'),('6', 'Dia 7')
+    ('0', '1Lun'),('1', '2Mar'),('2', '3Mier'),('3', '4Jue'),
+    ('4', '5Vie'),('5', '6Sab'),('6', '7Dom')
 ]
 
 class turnTemplates(models.Model):
@@ -22,7 +22,12 @@ class turnTemplates(models.Model):
     responsible_id = fields.Many2one('hr.employee',string="Responsable de Equipo",tracking=True)
     active = fields.Boolean(string="Activo", default=True,tracking=True)
     team_id = fields.Many2one('hr.work.teams',string="Equipo")
-    template_line_ids = fields.One2many('hr.templates.turn.lines','template_id',string="Lineas de plantilla")
+    template_line_ids = fields.One2many('hr.templates.turn.lines','template_id',string="Lineas de plantilla",copy=True)
+
+    @api.onchange('team_id')
+    def change_team(self):
+        if self.team_id:
+            self.responsible_id = self.team_id.responsible_id.id
 
 class turnTemplatesLines(models.Model):
     _name = 'hr.templates.turn.lines'

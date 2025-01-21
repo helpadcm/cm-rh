@@ -20,6 +20,7 @@
         'wizard/validate_turns_view.xml',
         'wizard/furure_turns_view.xml',
         'wizard/planitication_format.xml',
+        'wizard/turn_notes_view.xml',
         'views/teams_view.xml',
         'views/schedules_view.xml',
         'views/turn_registration_view.xml',
