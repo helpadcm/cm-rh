@@ -33,11 +33,14 @@
                 <field name="name"/>
                 <field name="fortnight_line_id"/>
                 <filter string="Borrador" name="group_draft_state" domain="[('state','=','draft')]"/>
+                <filter string="Validado" name="group_validated_state" domain="[('state','=','validated')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Nombre" name="group_name" context="{'group_by':'name'}"/>
                     <filter string="Fecha" name="date" context="{'group_by':'date'}"/>
                     <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
                     <filter string="Quincena" name="fortnight_group" context="{'group_by':'fortnight_line_id'}"/>
+                    <filter string="Equipo" name="group_team" context="{'group_by':'team_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
                 </group>
             </search>
         </field>

@@ -41,3 +41,34 @@ class turnTemplatesLines(models.Model):
     schedule2_in_id = fields.Many2one('hr.options.schedules',string="Entrada 2")
     schedule2_out_id = fields.Many2one('hr.options.schedules',string="Salida 2")
     turn_type_b = fields.Many2one('hr.turn.types',string="Tipo Turno B")
+    editable_a = fields.Boolean(string="Editable A",default=True)
+    editable_b = fields.Boolean(string="Editable B",default=True)
+
+    @api.onchange('turn_type_a')
+    def send_values_a_turn(self):
+        turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
+        domain = [('alphabetical','=',False)]
+        if self.turn_type_a.opt_turn == '0':
+            domain = [('alphabetical','=',True)]
+            self.schedule1_in_id = turn_na_id.id
+            self.schedule1_out_id = turn_na_id.id
+            self.editable_a = False
+        else:
+            self.schedule1_in_id = False
+            self.schedule1_out_id = False
+            self.editable_a = True
+        return {'domain': {'schedule1_in_id': domain, 'schedule1_out_id': domain}}
+
+    @api.onchange('turn_type_b')
+    def send_values_b_turn(self):
+        turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
+        domain = [('alphabetical','=',False)]
+        if self.turn_type_b.opt_turn == '0':
+            self.schedule2_in_id = turn_na_id.id
+            self.schedule2_out_id = turn_na_id.id
+            self.editable_b = False
+        else:
+            self.schedule2_in_id = False
+            self.schedule2_out_id = False
+            self.editable_b = True
+        return {'domain': {'schedule2_in_id': domain, 'schedule2_out_id': domain}}

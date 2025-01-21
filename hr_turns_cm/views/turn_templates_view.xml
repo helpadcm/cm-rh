@@ -24,11 +24,13 @@
                                 <tree editable="bottom">
                                     <field name="day_opt" required="1"/>
                                     <field name="turn_type_a" options="{'no_create': True}" required="1"/>
-                                    <field name="schedule1_in_id" options="{'no_create': True}" required="1"/>
-                                    <field name="schedule1_out_id" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule1_in_id" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule1_out_id" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
                                     <field name="turn_type_b" options="{'no_create': True}" required="1"/>
-                                    <field name="schedule2_in_id" options="{'no_create': True}" required="1"/>
-                                    <field name="schedule2_out_id" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule2_in_id" readonly="editable_b == False" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule2_out_id" readonly="editable_b == False" options="{'no_create': True}" required="1"/>
+                                    <field name="editable_a" column_invisible="1"/>
+                                    <field name="editable_b" column_invisible="1"/>
                                 </tree>
                             </field>
                         </page> 
@@ -50,6 +52,10 @@
             <search string="Busqueda Plantillas">
                 <field name="name"/>
                 <filter string="Inactivo" name="active_filter" domain="[('active','=',False)]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Equipo" name="group_team" context="{'group_by':'team_id'}"/>
+                    <filter string="Lider" name="group_leader" context="{'group_by':'leader_id'}"/>
+                </group>
             </search>
         </field>
     </record>
