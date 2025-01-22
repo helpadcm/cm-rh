@@ -14,6 +14,8 @@ class Contract(models.Model):
         default=44.0
         )
 
+    check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
+
     def get_historical(self, code):
         for rec in self:
             if code != 'ALL':

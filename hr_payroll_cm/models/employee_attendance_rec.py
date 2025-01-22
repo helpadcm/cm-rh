@@ -136,6 +136,13 @@ class lineAttendanceRecords(models.Model):
     special_hours = fields.Float(string="Horas Especiales")
     notes =fields.Char(string="Nota")
 
+    schedule1_in_date = fields.Datetime(string="Entrada 1")
+    schedule1_out_date = fields.Datetime(string="Salida 1")
+    turn_type_a = fields.Many2one('hr.turn.types',string="Tipo Turno A")
+    schedule2_in_date = fields.Datetime(string="Entrada 2")
+    schedule2_out_date = fields.Datetime(string="Salida 2")
+    turn_type_b = fields.Many2one('hr.turn.types',string="Tipo Turno B")
+
     @api.onchange('personal_action')
     def personal_action_change(self):
         if self.personal_action:

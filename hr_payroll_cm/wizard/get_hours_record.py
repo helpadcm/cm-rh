@@ -86,7 +86,7 @@ class getRecordHours(models.TransientModel):
             })
 
             for row in rows_data:
-                self.env['hr.employee.attendance.line'].create({
+                vals = {
                     'attendance_rec_id': rec_id.id,
                     'date': row.get('date'),
                     'day': format_date(row.get("date"), "EEEE", locale="es"),
@@ -101,5 +101,16 @@ class getRecordHours(models.TransientModel):
                     'extra_hours': row.get('extra_hours'),
                     'observations': row.get('observation'),
                     'bonus': row.get('transport_bonus'),
-                })
+                }
+                turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
+                if turn_line_id:
+                    print ("////////////////////////")
+                    entry_date_1 = self.convert_format(turn_line_id.schedule1_in_id)
+                self.env['hr.employee.attendance.line'].create(vals)
+        return True
+
+    def convert_format(self, schedule_id):
+        if not schedule_id.alphabetical:
+            print (schedule_id.name)
+            print (a)
         return True

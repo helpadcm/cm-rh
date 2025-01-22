@@ -16,6 +16,9 @@
                     </div>
                 </button>
             </button>
+            <field name="country_code" position="after">
+                <field name="check_type" help="Campo utilizado para revision en nomina"/>
+            </field>
         </field>
     </record>
 </odoo>
