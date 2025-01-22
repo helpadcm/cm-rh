@@ -31,7 +31,6 @@ class createFutureTurn(models.TransientModel):
             self.line_ids = [(0,0,vals)]
 
     def create_turns(self):
-        validate = self.validate_dates()
         
         actual_name = 'Semana %s al %s'%(self.start_date, self.end_date)
         created_turn = []
@@ -39,6 +38,7 @@ class createFutureTurn(models.TransientModel):
             count_days = 1
             turn_date = self.start_date
             if member.turn_id:
+                validate = self.validate_dates(member.employee_id)
                 for day in range(7):
                     line_temp_id = self.get_template_line(member.turn_id, day)
                     fortnight_id = self.get_fortnight(turn_date)
@@ -101,7 +101,7 @@ class createFutureTurn(models.TransientModel):
         line_id = id_fortnight.line_ids.filtered(lambda line_f: line_f.start_date <= date and line_f.end_date >= date)
         return line_id
 
-    def validate_dates(self):
+    def validate_dates(self, employee_id):
         diff_days = (self.end_date - self.start_date).days + 1
         if self.start_date > self.end_date:
             raise ValidationError('La fecha de inicio no puede ser mayor que la final.')
@@ -111,7 +111,7 @@ class createFutureTurn(models.TransientModel):
 
         date_ranges = [self.start_date + timedelta(days=i) for i in range((self.end_date - self.start_date).days + 1)]
         tuns_rec_obj =  self.env['hr.turn.registration']
-        rec_ids = tuns_rec_obj.search(['|',('leader_id.user_id','=',self.user_id.id),('responsible_id.user_id','=',self.user_id.id),('team_id','=',self.team_id.id)])
+        rec_ids = tuns_rec_obj.search(['|',('leader_id.user_id','=',self.user_id.id),('responsible_id.user_id','=',self.user_id.id),('team_id','=',self.team_id.id),('employee_id','=',employee_id.id)])
         dates = set(rec_ids.mapped('date'))
         for date in date_ranges:
             if date in dates:
