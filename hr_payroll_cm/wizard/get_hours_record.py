@@ -1,6 +1,7 @@
 from odoo import models, fields, _, api
 from babel.dates import format_date
 import calendar
+from datetime import datetime, timedelta
 
 class getRecordHours(models.TransientModel):
     _name = "hr.hours.employees"
@@ -105,12 +106,31 @@ class getRecordHours(models.TransientModel):
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 if turn_line_id:
                     print ("////////////////////////")
-                    entry_date_1 = self.convert_format(turn_line_id.schedule1_in_id)
+                    entry_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_in_id)
+                    out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
+                    entry_date_2 = self.convert_format(row.get('date'), turn_line_id.schedule2_in_id)
+                    out_date_2 = self.convert_format(row.get('date'), turn_line_id.schedule2_out_id)
+                    vals.update({
+                        'schedule1_in_date': entry_date_1,
+                        'schedule1_out_date': out_date_1,
+                        'turn_type_a': turn_line_id.turn_type_a.id,
+                        'schedule2_in_date': entry_date_2,
+                        'schedule2_out_date': out_date_2,
+                        'turn_type_b': turn_line_id.turn_type_b.id
+                    })
+
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
 
-    def convert_format(self, schedule_id):
+    def convert_format(self, date, schedule_id):
         if not schedule_id.alphabetical:
-            print (schedule_id.name)
-            print (a)
-        return True
+            date = datetime.combine(date, datetime.min.time())
+            print (date)
+            hours = int(schedule_id.name) // 100
+            minutes = int(schedule_id.name) % 100
+            if minutes == 50:
+                minutes = 30
+            elif minutes == 25:
+                minutes = 15
+            new_date = date + timedelta(hours=hours, minutes=minutes)
+            return new_date

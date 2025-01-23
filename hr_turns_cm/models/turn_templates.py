@@ -29,6 +29,13 @@ class turnTemplates(models.Model):
         if self.team_id:
             self.responsible_id = self.team_id.responsible_id.id
 
+    def recalculate_lid(self):
+        for line in self.template_line_ids:
+            if line.turn_type_a.code == 'LID':
+                line.send_values_a_turn()
+            if line.turn_type_b.code == 'LID':
+                line.send_values_b_turn()
+
 class turnTemplatesLines(models.Model):
     _name = 'hr.templates.turn.lines'
     _description = 'Lineas Plantillas: Lineas para plantillas'

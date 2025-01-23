@@ -72,6 +72,18 @@
                                     <field name="bonus" sum="Total Bono"/>
                                 </tree>
                                 <form>
+                                    <group string="Planificacion">
+                                        <group>
+                                            <field name="turn_type_a" readonly="1"/>
+                                            <field name="schedule1_in_date" readonly="1"/>
+                                            <field name="schedule1_out_date" readonly="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="turn_type_b" readonly="1"/>
+                                            <field name="schedule2_in_date" readonly="1"/>
+                                            <field name="schedule2_out_date" readonly="1"/>
+                                        </group>
+                                    </group>
                                     <group>
                                         <group>
                                             <field name="date" readonly="1"/>
