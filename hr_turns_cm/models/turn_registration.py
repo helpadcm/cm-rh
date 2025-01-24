@@ -84,21 +84,25 @@ class turnRegistration(models.Model):
         for rec in self:
             amount1 = 0
             amount2 = 0
+            aditional1 = 4
+            aditional2 = 4
             day = rec.date.weekday()
             try:
                 amount1 = float(rec.schedule1_out_id.name) - float(rec.schedule1_in_id.name)
             except:
                 amount1 = 0
+                aditional1 = 0
 
             try:
                 amount2 = float(rec.schedule2_out_id.name) - float(rec.schedule2_in_id.name)
             except:
                 amount2 = 0
+                aditional1 = 0
 
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
                 rec.oh = 8
-            rec.aditional_hours = rec.ordinary_hours - 8
+            rec.aditional_hours = rec.ordinary_hours - (aditional1 + aditional2)
 
     def get_turn_registration(self):
         actual_date = datetime.now().date()
