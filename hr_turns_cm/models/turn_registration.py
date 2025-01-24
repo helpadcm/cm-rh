@@ -29,7 +29,8 @@ class turnRegistration(models.Model):
     schedule2_in_id = fields.Many2one('hr.options.schedules',string="Entrada 2")
     schedule2_out_id = fields.Many2one('hr.options.schedules',string="Salida 2")
     turn_type_b = fields.Many2one('hr.turn.types',string="Tipo Turno B", default=_get_default_type)
-    ordinary_hours = fields.Float(string="HO Laboradas")
+    ordinary_hours = fields.Float(string="Horas Totales")
+    oh = fields.Float(string="HO")
     aditional_hours = fields.Float(string="Tiempo adicional")
     state = fields.Selection([('draft','Borrador'),('validated','Validado')],string="Estado",default='draft')
     editable_a = fields.Boolean(string="Editable A",default=True)
@@ -95,12 +96,9 @@ class turnRegistration(models.Model):
                 amount2 = 0
 
             rec.ordinary_hours = (amount1 + amount2) / 100
-            if day == 5:
-                rec.aditional_hours = rec.ordinary_hours - 4
-            elif day == 6:
-                rec.aditional_hours = 0
-            else:
-                rec.aditional_hours = rec.ordinary_hours - 8
+            if rec.ordinary_hours > 0:
+                rec.oh = 8
+            rec.aditional_hours = rec.ordinary_hours - 8
 
     def get_turn_registration(self):
         actual_date = datetime.now().date()
