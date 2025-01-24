@@ -102,7 +102,9 @@ class turnRegistration(models.Model):
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
                 rec.oh = 8
-            rec.aditional_hours = rec.ordinary_hours - (aditional1 + aditional2)
+                rec.aditional_hours = rec.ordinary_hours - rec.oh
+            elif rec.ordinary_hours == 0:
+                rec.aditional_hours = 0
 
     def get_turn_registration(self):
         actual_date = datetime.now().date()
