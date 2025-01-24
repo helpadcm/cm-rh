@@ -97,7 +97,7 @@ class turnRegistration(models.Model):
                 amount2 = float(rec.schedule2_out_id.name) - float(rec.schedule2_in_id.name)
             except:
                 amount2 = 0
-                aditional1 = 0
+                aditional2 = 0
 
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
