@@ -108,8 +108,8 @@ class getRecordHours(models.TransientModel):
                 }
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 if turn_line_id:
-                    # if turn_line_id.state == 'draft':
-                    #     raise ValidationError('La fecha %s del equipo %s no ha sido validada'%(turn_line_id.date, turn_line_id.team_id.name))
+                    if turn_line_id.state == 'draft':
+                        raise ValidationError('La fecha %s del equipo %s no ha sido validada'%(turn_line_id.date, turn_line_id.team_id.name))
 
                     entry_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_in_id)
                     out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
