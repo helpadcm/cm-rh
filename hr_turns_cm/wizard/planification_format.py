@@ -17,7 +17,7 @@ class planificationFormatWizard(models.TransientModel):
 
     def get_options(self):
         user = self.env.user.id
-        turns = self.env['hr.turn.registration'].search(['|',('leader_id.user_id','=',user),('responsible_id.user_id','=',user),('state','=','draft')])
+        turns = self.env['hr.turn.registration'].search(['|',('leader_id.user_id','=',user),('responsible_id.user_id','=',user)])
         options_name = set(turns.mapped('name'))
         return [(opt, opt) for opt in options_name]
 

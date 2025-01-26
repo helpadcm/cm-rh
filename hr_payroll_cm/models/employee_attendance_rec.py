@@ -1,5 +1,6 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
+from datetime import datetime, timedelta
 
 actions = [
     ('free', 'Libre'),
@@ -38,7 +39,8 @@ class employeeAttendanceRecords(models.Model):
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
     tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals')
-    eh_holiday = fields.Float(string="HE Feriado",compute='compute_eh_totals')
+    eh_holiday = fields.Float(string="Horas Feriado",compute='compute_eh_totals')
+    eh_holiday_extra = fields.Float(string="HE Feriado",compute='compute_eh_totals')
     state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft')
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
@@ -70,13 +72,15 @@ class employeeAttendanceRecords(models.Model):
                 hours_total = 0
                 eh_total = 0
                 holiday_hours = 0
+                e_holiday_hours = 0
                 pay_bt = 0
                 for line in rec.record_line_ids:
                     hours_total += line.ordinary_hours
                     eh_total += line.extra_hours
                     pay_bt += line.bonus
                     if line.personal_action == 'wh':
-                        holiday_hours += line.extra_hours
+                        holiday_hours += line.holiday_hours
+                        e_holiday_hours += line.holiday_extra_hours
 
                     if line.personal_action == 'cap':
                         eh_total -= line.extra_hours
@@ -93,6 +97,7 @@ class employeeAttendanceRecords(models.Model):
 
                 rec.tb_pay = pay_bt
                 rec.eh_holiday = holiday_hours
+                rec.eh_holiday_extra = e_holiday_hours
                 rec.total_hours = hours_total + eh_total
                 rec.diff_hours = rec.total_hours - rec.esperated_hours
                 if rec.diff_hours <= rec.eh_limit:
@@ -129,6 +134,8 @@ class lineAttendanceRecords(models.Model):
     total_hours = fields.Float(string="Trabajadas")
     ordinary_hours = fields.Float(string="HO")
     extra_hours = fields.Float(string="HE")
+    holiday_hours = fields.Float(string="FO")
+    holiday_extra_hours = fields.Float(string="FE")
     observations = fields.Char(string="Observaciones")
     bonus = fields.Float(string="BT")
     attendance_rec_id = fields.Many2one('hr.employee.attendance.record',string="Registro de asistencia")
@@ -136,12 +143,14 @@ class lineAttendanceRecords(models.Model):
     special_hours = fields.Float(string="Horas Especiales")
     notes =fields.Char(string="Nota")
 
-    schedule1_in_date = fields.Datetime(string="Entrada 1")
-    schedule1_out_date = fields.Datetime(string="Salida 1")
+    schedule1_in_date = fields.Char(string="Entrada 1")
+    schedule1_out_date = fields.Char(string="Salida 1")
     turn_type_a = fields.Many2one('hr.turn.types',string="Tipo Turno A")
-    schedule2_in_date = fields.Datetime(string="Entrada 2")
-    schedule2_out_date = fields.Datetime(string="Salida 2")
+    schedule2_in_date = fields.Char(string="Entrada 2")
+    schedule2_out_date = fields.Char(string="Salida 2")
     turn_type_b = fields.Many2one('hr.turn.types',string="Tipo Turno B")
+    turn_note = fields.Text(string="Notas de turno")
+    check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Revisar segun")
 
     @api.onchange('personal_action')
     def personal_action_change(self):
@@ -151,3 +160,60 @@ class lineAttendanceRecords(models.Model):
                 self.ordinary_hours = 0
             elif self.personal_action == 'holiday':
                 self.ordinary_hours = 8
+
+    @api.onchange('check_type')
+    def calculate_data(self):
+        for rec in self:
+            amount1 = 0
+            amount2 = 0
+            amount3 = 0
+            if rec.check_type == 'turn':
+                try:
+                    hour_1 = self.convert_timedelta(rec.schedule1_in_date)
+                    hour_2 = self.convert_timedelta(rec.schedule1_out_date)
+                    diff = hour_2 - hour_1
+                    amount1 = diff.total_seconds()/3600
+                except:
+                    amount1 = 0
+
+                try:
+                    hour_1 = self.convert_timedelta(rec.schedule2_in_date)
+                    hour_2 = self.convert_timedelta(rec.schedule2_out_date)
+                    diff = hour_2 - hour_1
+                    amount2 = diff.total_seconds()/3600
+                except:
+                    amount2 = 0
+            else:
+                try:
+                    hour_1 = self.convert_timedelta(rec.check_in_1)
+                    hour_2 = self.convert_timedelta(rec.check_out_1)
+                    diff = hour_2 - hour_1
+                    amount1 = diff.total_seconds()/3600
+                except:
+                    amount1 = 0
+
+                try:
+                    hour_1 = self.convert_timedelta(rec.check_in_2)
+                    hour_2 = self.convert_timedelta(rec.check_out_2)
+                    diff = hour_2 - hour_1
+                    amount2 = diff.total_seconds()/3600
+                except:
+                    amount2 = 0
+
+                try:
+                    hour_1 = self.convert_timedelta(rec.check_in_3)
+                    hour_2 = self.convert_timedelta(rec.check_out_3)
+                    diff = hour_2 - hour_1
+                    amount3 = diff.total_seconds()/3600
+                except:
+                    amount3 = 0
+            rec.total_hours = amount1 + amount2 + amount3
+            if rec.total_hours > 0:
+                rec.ordinary_hours = 8
+                rec.extra_hours = rec.total_hours - rec.ordinary_hours
+            elif rec.total_hours == 0:
+                rec.extra_hours = 0
+
+    def convert_timedelta(self, hour):
+        h, m, s = map(int, hour.split(":"))
+        return timedelta(hours=h, minutes=m, seconds=s)

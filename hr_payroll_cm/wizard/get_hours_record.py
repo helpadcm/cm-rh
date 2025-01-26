@@ -2,6 +2,7 @@ from odoo import models, fields, _, api
 from babel.dates import format_date
 import calendar
 from datetime import datetime, timedelta
+from odoo.exceptions import ValidationError
 
 class getRecordHours(models.TransientModel):
     _name = "hr.hours.employees"
@@ -61,14 +62,15 @@ class getRecordHours(models.TransientModel):
                 'date_to': self.date_to,
             })
 
+            contract_id = self.env['hr.contract'].search([('employee_id','=',id_employee)])
             # Utilizar los métodos del modelo abstracto para obtener y procesar los datos
             employee_attendances = employee_report.get_attendance()
             employee_attendance_data = employee_report.process_employee_attendance()
+
             emp_data = []
             header_data = employee_attendance_data['header']
             rows_data = employee_attendance_data['rows']
 
-            contract_id = self.env['hr.contract'].search([('employee_id','=',id_employee)])
             rec_id = self.env['hr.employee.attendance.record'].create({
                 'name': 'Registro de Asistencia %s %s'%(header_data.get('employee'), header_data.get('start_date')),
                 'period': 'Periodo %s - %s'%(header_data.get('start_date').strftime("%d/%m/%Y"), header_data.get('end_date').strftime("%d/%m/%Y")),
@@ -102,10 +104,13 @@ class getRecordHours(models.TransientModel):
                     'extra_hours': row.get('extra_hours'),
                     'observations': row.get('observation'),
                     'bonus': row.get('transport_bonus'),
+                    'check_type': contract_id.check_type
                 }
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 if turn_line_id:
-                    print ("////////////////////////")
+                    # if turn_line_id.state == 'draft':
+                    #     raise ValidationError('La fecha %s del equipo %s no ha sido validada'%(turn_line_id.date, turn_line_id.team_id.name))
+
                     entry_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_in_id)
                     out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
                     entry_date_2 = self.convert_format(row.get('date'), turn_line_id.schedule2_in_id)
@@ -116,8 +121,32 @@ class getRecordHours(models.TransientModel):
                         'turn_type_a': turn_line_id.turn_type_a.id,
                         'schedule2_in_date': entry_date_2,
                         'schedule2_out_date': out_date_2,
-                        'turn_type_b': turn_line_id.turn_type_b.id
+                        'turn_type_b': turn_line_id.turn_type_b.id,
+                        'turn_note': turn_line_id.note
                     })
+
+                    if contract_id.check_type == 'turn':
+                        bonus = row.get('transport_bonus')
+                        if not turn_line_id.schedule1_in_id.alphabetical:
+                            entry_hours = float(turn_line_id.schedule1_in_id.name) // 100
+                            if entry_hours < contract_id.early_checkin_bonus_time:
+                                bonus = contract_id.value_bonus
+
+                        if not turn_line_id.schedule2_in_id.alphabetical:
+                            exit_hours = float(turn_line_id.schedule2_in_id.name) // 100
+                            if exit_hours > contract_id.late_checkout_bonus_time:
+                                bonus = contract_id.value_bonus
+                        
+                        
+                        vals.update({
+                            'bonus': bonus
+                        })
+
+                        vals.update({
+                            'total_hours': turn_line_id.ordinary_hours,
+                            'ordinary_hours': turn_line_id.oh,
+                            'extra_hours': turn_line_id.aditional_hours,
+                        })
 
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
@@ -125,12 +154,13 @@ class getRecordHours(models.TransientModel):
     def convert_format(self, date, schedule_id):
         if not schedule_id.alphabetical:
             date = datetime.combine(date, datetime.min.time())
-            print (date)
-            hours = int(schedule_id.name) // 100
-            minutes = int(schedule_id.name) % 100
+            hours = float(schedule_id.name) // 100
+            minutes = float(schedule_id.name) % 100
             if minutes == 50:
                 minutes = 30
             elif minutes == 25:
                 minutes = 15
             new_date = date + timedelta(hours=hours, minutes=minutes)
-            return new_date
+            return new_date.strftime("%H:%M:%S")
+        else:
+            return False
