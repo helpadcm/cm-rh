@@ -11,12 +11,12 @@
                 <field name="employee_id" column_invisible="1" readonly="1" widget="many2one_avatar_user"/>
                 <field name="date" readonly="1"/>
                 <field name="name_day" readonly="1"/>
-                <field name="turn_type_a" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
-                <field name="schedule1_in_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True}" required="1"/>
-                <field name="schedule1_out_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True}" required="1"/>
-                <field name="turn_type_b" readonly="state != 'draft'" options="{'no_create': True}" required="1"/>
-                <field name="schedule2_in_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True}" required="1"/>
-                <field name="schedule2_out_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True}" required="1"/>
+                <field name="turn_type_a" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule1_in_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule1_out_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="turn_type_b" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule2_in_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule2_out_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
                 <field name="ordinary_hours" string="Horas Totales" readonly="1" force_save="1" sum="Horas Totales"/>
                 <field name="oh" readonly="1" force_save="1" sum="HO"/>
                 <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>

@@ -46,10 +46,10 @@
                             text-align: center;
                         }
                         th {
-                            background-color: #f2f2f2;
+                            background-color: #C0C0C0;
                         }
                         .yellow {
-                            background-color: #FFFF00;
+                            background-color: #C0C0C0;
                         }
                     </style>
 
@@ -82,7 +82,7 @@
                         <table style="margin-top:1%">
                             <tr>
                                 <th rowspan="2">#</th>
-                                <th rowspan="2">Nombre</th>
+                                <th style="vertical-align:middle" rowspan="2">Nombre</th>
                                 <t t-foreach="docs.get('days')" t-as="d">
                                     <th colspan="4"><span t-esc="d"/></th>
                                 </t>
@@ -122,13 +122,23 @@
                                         <t t-set="total_oh" t-value="0"/>
                                         <t t-set="total_ah" t-value="0"/>
                                         <t t-foreach="emp.get('turns')" t-as="day">
-                                            <td><span t-esc="day.get('entry1')"/></td>
-                                            <td><span t-esc="day.get('out1')"/></td>
-                                            <td><span t-esc="day.get('entry2')"/></td>
-                                            <td><span t-esc="day.get('out2')"/></td>
+                                            <td t-att-style="'background-color: %s;' % day.get('entry_color')"><span t-esc="day.get('entry1')"/></td>
+                                            <td t-att-style="'background-color: %s;' % day.get('entry_color')"><span t-esc="day.get('out1')"/></td>
+                                            <td t-att-style="'background-color: %s;' % day.get('exit_color')"><span t-esc="day.get('entry2')"/></td>
+                                            <td t-att-style="'background-color: %s;' % day.get('exit_color')"><span t-esc="day.get('out2')"/></td>
                                         </t>
                                     </tr>
                                     <t t-set="cont" t-value="cont + 1"/>
+                                </t>
+                            </t>
+                        </table>
+                        <table t-if="docs.get('colors')" style="margin-top:1%;width:13%">
+                            <t t-foreach="docs.get('colors')" t-as="color">
+                                <t t-foreach="color.get('names')" t-as="color_name">
+                                    <tr>
+                                        <td style="width:90%;text-align:left"><span t-esc="color_name"/></td>
+                                        <td t-att-style="'background-color: %s;' % color.get('color')"><br></br></td>
+                                    </tr>
                                 </t>
                             </t>
                         </table>

@@ -23,10 +23,37 @@ class planificationReport(models.AbstractModel):
             job_ids = []
             employee_ids = []
             employee_list = []
+            colors = []
+            colors_list = []
+            names_types = []
             team_name = ''
             for rec in rec_turn_ids:
+                if rec.turn_type_a.color in colors:
+                    if rec.turn_type_a.name not in names_types:
+                        colors_list[colors.index(rec.turn_type_a.color)]['names'].append(rec.turn_type_a.name)
+                else:
+                    colors.append(rec.turn_type_a.color)
+                    names_types.append(rec.turn_type_a.name)
+                    colors_list.append({
+                        'color': rec.turn_type_a.color,
+                        'names': [rec.turn_type_a.name]
+                    })
+
+                if rec.turn_type_b.color in colors:
+                    if rec.turn_type_a.name not in names_types:
+                        colors_list[colors.index(rec.turn_type_b.color)]['names'].append(rec.turn_type_b.name)
+                else:
+                    colors.append(rec.turn_type_b.color)
+                    names_types.append(rec.turn_type_a.name)
+                    colors_list.append({
+                        'color': rec.turn_type_b.color,
+                        'names': [rec.turn_type_b.name]
+                    })
+
                 team_name = rec.team_id.name
                 vals = {
+                    'entry_color': rec.turn_type_a.color,
+                    'exit_color': rec.turn_type_b.color,
                     'day': rec.date.day,
                     'entry1': rec.schedule1_in_id.name,
                     'out1': rec.schedule1_out_id.name,
@@ -65,7 +92,8 @@ class planificationReport(models.AbstractModel):
                 'team_name': team_name,
                 'turn': turn,
                 'days': days_array,
-                'jobs': jobs_list
+                'jobs': jobs_list,
+                'colors': colors_list
             }
             return values
         else:

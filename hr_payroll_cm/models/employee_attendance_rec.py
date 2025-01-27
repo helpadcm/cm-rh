@@ -168,12 +168,16 @@ class lineAttendanceRecords(models.Model):
             amount2 = 0
             amount3 = 0
             bonus = 0
+            min_hours = []
+            max_hours = []
             if rec.check_type == 'turn':
                 try:
                     hour_1 = self.convert_timedelta(rec.schedule1_in_date)
                     hour_2 = self.convert_timedelta(rec.schedule1_out_date)
                     diff = hour_2 - hour_1
                     amount1 = diff.total_seconds()/3600
+                    min_hours.append(hour_1.total_seconds()/3600)
+                    max_hours.append(hour_2.total_seconds()/3600)
                 except:
                     amount1 = 0
 
@@ -182,16 +186,20 @@ class lineAttendanceRecords(models.Model):
                     hour_2 = self.convert_timedelta(rec.schedule2_out_date)
                     diff = hour_2 - hour_1
                     amount2 = diff.total_seconds()/3600
+                    min_hours.append(hour_1.total_seconds()/3600)
+                    max_hours.append(hour_2.total_seconds()/3600)
                 except:
                     amount2 = 0
 
-                bonus =  self.calculate_bonus(rec.schedule1_in_date, rec.schedule2_out_date)
+                bonus =  self.calculate_bonus(min(min_hours), max(max_hours))
             else:
                 try:
                     hour_1 = self.convert_timedelta(rec.check_in_1)
                     hour_2 = self.convert_timedelta(rec.check_out_1)
                     diff = hour_2 - hour_1
                     amount1 = diff.total_seconds()/3600
+                    min_hours.append(hour_1.total_seconds()/3600)
+                    max_hours.append(hour_2.total_seconds()/3600)
                 except:
                     amount1 = 0
 
@@ -200,6 +208,8 @@ class lineAttendanceRecords(models.Model):
                     hour_2 = self.convert_timedelta(rec.check_out_2)
                     diff = hour_2 - hour_1
                     amount2 = diff.total_seconds()/3600
+                    min_hours.append(hour_1.total_seconds()/3600)
+                    max_hours.append(hour_2.total_seconds()/3600)
                 except:
                     amount2 = 0
 
@@ -208,10 +218,12 @@ class lineAttendanceRecords(models.Model):
                     hour_2 = self.convert_timedelta(rec.check_out_3)
                     diff = hour_2 - hour_1
                     amount3 = diff.total_seconds()/3600
+                    min_hours.append(hour_1.total_seconds()/3600)
+                    max_hours.append(hour_2.total_seconds()/3600)
                 except:
                     amount3 = 0
 
-                bonus =  self.calculate_bonus(rec.check_in_1, rec.check_out_2)
+                bonus =  self.calculate_bonus(min(min_hours), max(max_hours))
 
             rec.bonus = bonus
             rec.total_hours = amount1 + amount2 + amount3
@@ -229,13 +241,9 @@ class lineAttendanceRecords(models.Model):
         contract_id = self.attendance_rec_id.employee_id.contract_id
         bonus = 0
         if check1:
-            entry_hour = self.convert_timedelta(check1)
-            entry_total_sec = entry_hour.total_seconds()/3600
-            if entry_total_sec  < contract_id.early_checkin_bonus_time:
+            if check1 < contract_id.early_checkin_bonus_time:
                 bonus += contract_id.value_bonus
         if check2:
-            exit_hour = self.convert_timedelta(check2)
-            exit_total_sec = exit_hour.total_seconds()/3600
-            if exit_total_sec > contract_id.late_checkout_bonus_time:
+            if check2 > contract_id.late_checkout_bonus_time:
                 bonus += contract_id.value_bonus
         return bonus

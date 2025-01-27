@@ -20,6 +20,7 @@
                 <field name="opt_turn"/>
                 <field name="code"/>
                 <field name="default_turn"/>
+                <field name="color"/>
             </tree>
         </field>
     </record>
