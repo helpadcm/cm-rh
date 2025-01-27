@@ -191,7 +191,7 @@ class lineAttendanceRecords(models.Model):
                 except:
                     amount2 = 0
 
-                bonus =  self.calculate_bonus(min(min_hours), max(max_hours))
+                bonus =  self.calculate_bonus(min_hours, max_hours)
             else:
                 try:
                     hour_1 = self.convert_timedelta(rec.check_in_1)
@@ -223,7 +223,7 @@ class lineAttendanceRecords(models.Model):
                 except:
                     amount3 = 0
 
-                bonus =  self.calculate_bonus(min(min_hours), max(max_hours))
+                bonus =  self.calculate_bonus(min_hours, max_hours)
 
             rec.bonus = bonus
             rec.total_hours = amount1 + amount2 + amount3
@@ -241,9 +241,9 @@ class lineAttendanceRecords(models.Model):
         contract_id = self.attendance_rec_id.employee_id.contract_id
         bonus = 0
         if check1:
-            if check1 < contract_id.early_checkin_bonus_time:
+            if min(check1) < contract_id.early_checkin_bonus_time:
                 bonus += contract_id.value_bonus
         if check2:
-            if check2 > contract_id.late_checkout_bonus_time:
+            if max(check2) > contract_id.late_checkout_bonus_time:
                 bonus += contract_id.value_bonus
         return bonus

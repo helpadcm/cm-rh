@@ -132,19 +132,42 @@ class getRecordHours(models.TransientModel):
                         'extra_hours': turn_line_id.aditional_hours,
                     })
 
+                min_hours = []
+                max_hours = []
                 if contract_id.check_type == 'mark':
                     bonus = 0
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
                         entry_total_sec = entry_hour.total_seconds()/3600
-                        if entry_total_sec < contract_id.early_checkin_bonus_time:
-                            bonus += contract_id.value_bonus
+                        min_hours.append(entry_total_sec)
+                    
+                    if vals.get('check_in_2'):
+                        entry_hour = self.convert_timedelta(vals.get('check_in_2'))
+                        entry_total_sec = entry_hour.total_seconds()/3600
+                        min_hours.append(entry_total_sec)
+
+                    if vals.get('check_in_3'):
+                        entry_hour = self.convert_timedelta(vals.get('check_in_3'))
+                        entry_total_sec = entry_hour.total_seconds()/3600
+                        min_hours.append(entry_total_sec)
+                    
+                    if vals.get('check_out_1'):
+                        exit_hour = self.convert_timedelta(vals.get('check_out_1'))
+                        exit_total_sec = exit_hour.total_seconds()/3600
+                        max_hours.append(exit_total_sec)
 
                     if vals.get('check_out_2'):
                         exit_hour = self.convert_timedelta(vals.get('check_out_2'))
                         exit_total_sec = exit_hour.total_seconds()/3600
-                        if exit_total_sec > contract_id.late_checkout_bonus_time:
-                            bonus += contract_id.value_bonus
+                        max_hours.append(exit_total_sec)
+
+                    if vals.get('check_out_3'):
+                        exit_hour = self.convert_timedelta(vals.get('check_out_3'))
+                        exit_total_sec = exit_hour.total_seconds()/3600
+                        max_hours.append(exit_total_sec)
+
+                    bonus = self.calculate_bonus(min_hours, max_hours, contract_id)
+
 
                     vals.update({
                         'bonus': bonus
@@ -152,6 +175,16 @@ class getRecordHours(models.TransientModel):
 
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
+
+    def calculate_bonus(self, check1, check2, contract_id):
+        bonus = 0
+        if check1:
+            if min(check1) < contract_id.early_checkin_bonus_time:
+                bonus += contract_id.value_bonus
+        if check2:
+            if max(check2) > contract_id.late_checkout_bonus_time:
+                bonus += contract_id.value_bonus
+        return bonus
 
     def convert_timedelta(self, hour):
         h, m, s = map(int, hour.split(":"))
