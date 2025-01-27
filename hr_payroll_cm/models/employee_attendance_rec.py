@@ -167,6 +167,7 @@ class lineAttendanceRecords(models.Model):
             amount1 = 0
             amount2 = 0
             amount3 = 0
+            bonus = 0
             if rec.check_type == 'turn':
                 try:
                     hour_1 = self.convert_timedelta(rec.schedule1_in_date)
@@ -183,6 +184,8 @@ class lineAttendanceRecords(models.Model):
                     amount2 = diff.total_seconds()/3600
                 except:
                     amount2 = 0
+
+                bonus =  self.calculate_bonus(rec.schedule1_in_date, rec.schedule2_out_date)
             else:
                 try:
                     hour_1 = self.convert_timedelta(rec.check_in_1)
@@ -207,6 +210,10 @@ class lineAttendanceRecords(models.Model):
                     amount3 = diff.total_seconds()/3600
                 except:
                     amount3 = 0
+
+                bonus =  self.calculate_bonus(rec.check_in_1, rec.check_out_2)
+
+            rec.bonus = bonus
             rec.total_hours = amount1 + amount2 + amount3
             if rec.total_hours > 0:
                 rec.ordinary_hours = 8
@@ -217,3 +224,18 @@ class lineAttendanceRecords(models.Model):
     def convert_timedelta(self, hour):
         h, m, s = map(int, hour.split(":"))
         return timedelta(hours=h, minutes=m, seconds=s)
+
+    def calculate_bonus(self, check1, check2):
+        contract_id = self.attendance_rec_id.employee_id.contract_id
+        bonus = 0
+        if check1:
+            entry_hour = self.convert_timedelta(check1)
+            entry_total_sec = entry_hour.total_seconds()/3600
+            if entry_total_sec  < contract_id.early_checkin_bonus_time:
+                bonus += contract_id.value_bonus
+        if check2:
+            exit_hour = self.convert_timedelta(check2)
+            exit_total_sec = exit_hour.total_seconds()/3600
+            if exit_total_sec > contract_id.late_checkout_bonus_time:
+                bonus += contract_id.value_bonus
+        return bonus

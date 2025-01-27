@@ -125,31 +125,37 @@ class getRecordHours(models.TransientModel):
                         'turn_note': turn_line_id.note
                     })
 
-                    if contract_id.check_type == 'turn':
-                        bonus = row.get('transport_bonus')
-                        if not turn_line_id.schedule1_in_id.alphabetical:
-                            entry_hours = float(turn_line_id.schedule1_in_id.name) // 100
-                            if entry_hours < contract_id.early_checkin_bonus_time:
-                                bonus = contract_id.value_bonus
 
-                        if not turn_line_id.schedule2_in_id.alphabetical:
-                            exit_hours = float(turn_line_id.schedule2_in_id.name) // 100
-                            if exit_hours > contract_id.late_checkout_bonus_time:
-                                bonus = contract_id.value_bonus
-                        
-                        
-                        vals.update({
-                            'bonus': bonus
-                        })
+                    vals.update({
+                        'total_hours': turn_line_id.ordinary_hours,
+                        'ordinary_hours': turn_line_id.oh,
+                        'extra_hours': turn_line_id.aditional_hours,
+                    })
 
-                        vals.update({
-                            'total_hours': turn_line_id.ordinary_hours,
-                            'ordinary_hours': turn_line_id.oh,
-                            'extra_hours': turn_line_id.aditional_hours,
-                        })
+                if contract_id.check_type == 'mark':
+                    bonus = 0
+                    if vals.get('check_in_1'):
+                        entry_hour = self.convert_timedelta(vals.get('check_in_1'))
+                        entry_total_sec = entry_hour.total_seconds()/3600
+                        if entry_total_sec < contract_id.early_checkin_bonus_time:
+                            bonus += contract_id.value_bonus
+
+                    if vals.get('check_out_2'):
+                        exit_hour = self.convert_timedelta(vals.get('check_out_2'))
+                        exit_total_sec = exit_hour.total_seconds()/3600
+                        if exit_total_sec > contract_id.late_checkout_bonus_time:
+                            bonus += contract_id.value_bonus
+
+                    vals.update({
+                        'bonus': bonus
+                    })
 
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
+
+    def convert_timedelta(self, hour):
+        h, m, s = map(int, hour.split(":"))
+        return timedelta(hours=h, minutes=m, seconds=s)
 
     def convert_format(self, date, schedule_id):
         if not schedule_id.alphabetical:

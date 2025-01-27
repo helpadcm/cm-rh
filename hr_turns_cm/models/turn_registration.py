@@ -101,7 +101,11 @@ class turnRegistration(models.Model):
 
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
-                rec.oh = 8
+                contract_id = rec.employee_id.contract_id
+                if rec.date.weekday() in [5,6]:
+                    rec.oh = rec.employee_id.contract_id.weekend_hours
+                else:
+                    rec.oh = 8
                 rec.aditional_hours = rec.ordinary_hours - rec.oh
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
