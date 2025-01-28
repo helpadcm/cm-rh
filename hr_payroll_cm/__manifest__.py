@@ -27,6 +27,7 @@
         'wizard/get_hours_record_view.xml',
         'views/menus.xml',
         'reports/payslip_report.xml',
+        'reports/markings_format.xml',
         'reports/report_reports.xml'
         ],
     'assets': {

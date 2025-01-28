@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="marking_format_cm">
+        <t t-call="web.html_container">
+            <template>
+                <t t-foreach="docs" t-as="o">
+                    <div class="page" style="page-break-before: always;">
+                        <style>
+                            .td-style{
+                                padding: 5px;
+                                border: 1px solid black;
+                                font-size: 12px
+                            }
+                        </style>
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:35%;">
+                                    <table style="width:100%;border-collapse:collapse">
+                                        <tr>
+                                            <td class="td-style">Nombre</td>
+                                            <td style="background-color:#FFC300" class="td-style"><strong><span t-field="o.employee_id.name"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Fecha Inicial</td>
+                                            <td class="td-style" style="text-align:center"><span t-field="o.start_date"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Fecha Final</td>
+                                            <td class="td-style" style="text-align:center"><span t-field="o.end_date"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Depto.</td>
+                                            <td class="td-style" style="text-align:center;background-color:#FFC300"><span t-field="o.department_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">HE Limite</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.eh_limit)"/></td>
+                                        </tr>
+                                    </table>    
+                                </td>
+                                <td style="width:5%;"><br></br></td>
+                                <td style="width:35%;">
+                                    <table style="width:100%;border-collapse:collapse">
+                                        <tr>
+                                            <td class="td-style">Horas Totales</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.total_hours)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Horas Esperadas</td>
+                                            <td class="td-style" style="text-align:center"><span t-field="o.esperated_hours"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Dif. Horas</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.diff_hours)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Pagar HE</td>
+                                            <td class="td-style" style="text-align:center;background-color:#008000"><span t-esc="'{0:,.2f}'.format(o.pay_extra_hours)"/></td>
+                                        </tr>
+                                    </table>    
+                                </td>
+                                <td style="width:5%;"><br></br></td>
+                                <td style="width:20%;">
+                                    <table style="width:100%;border-collapse:collapse">
+                                        <tr>
+                                            <td class="td-style">BT Maximo</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.tb_max)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Valor de Bono</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.tb_bonus)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">BT Limite</td>
+                                            <td class="td-style" style="text-align:center"><span t-esc="'{0:,.2f}'.format(o.tb_limit)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">Pagar BT</td>
+                                            <td class="td-style" style="text-align:center;background-color:#008000"><span t-esc="'{0:,.2f}'.format(o.tb_pay)"/></td>
+                                        </tr>
+                                    </table>    
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table style="width:100%;margin-top:1%;border-collapse:collapse">
+                            <tr>
+                                <td colspan="10"></td>
+                                <td class="td-style" style="text-align:center;background-color:#FFC300" colspan="4">Autorizado</td>
+                            </tr>
+                            <tr>
+                                <td class="td-style" style="width:7%;text-align:center">Fecha</td>
+                                <td class="td-style" style="width:7%;text-align:center">Dia</td>
+                                <td class="td-style" style="width:7%;text-align:center">Revisado por</td>
+                                <td class="td-style" style="width:7%;text-align:center">Entrada 1</td>
+                                <td class="td-style" style="width:7%;text-align:center">Salida 1</td>
+                                <td class="td-style" style="width:7%;text-align:center">Entrada 2</td>
+                                <td class="td-style" style="width:7%;text-align:center">Salida 2</td>
+                                <td class="td-style" style="width:7%;text-align:center">Entrada 3</td>
+                                <td class="td-style" style="width:7%;text-align:center">Salida 3</td>
+                                <td class="td-style" style="width:7%;text-align:center">Trabajadas</td>
+                                <td class="td-style" style="width:5%;text-align:center;background-color:#FFC300">HO</td>
+                                <td class="td-style" style="width:5%;text-align:center;background-color:#FFC300">HE</td>
+                                <td class="td-style" style="width:20%;text-align:center;background-color:#FFC300">Observaciones</td>
+                                <td class="td-style" style="width:5%;text-align:center;background-color:#FFC300">BT</td>
+                            </tr>
+                            <t t-foreach="o.record_line_ids" t-as="line">
+                                <tr>
+                                    <td class="td-style"><span t-field="line.date"/></td>
+                                    <t t-if="line.date.weekday() == 0">
+                                        <td class="td-style">Lunes</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 1">
+                                        <td class="td-style">Martes</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 2">
+                                        <td class="td-style">Miercoles</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 3">
+                                        <td class="td-style">Jueves</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 4">
+                                        <td class="td-style">Viernes</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 5">
+                                        <td class="td-style">Sabado</td>
+                                    </t>
+                                    <t t-if="line.date.weekday() == 6">
+                                        <td class="td-style">Domingo</td>
+                                    </t>
+                                    <t t-if="line.check_type == 'turn'">
+                                        <td class="td-style">Planificacion</td>
+                                    </t>
+                                    <t t-if="line.check_type == 'mark'">
+                                        <td class="td-style">Marcaje</td>
+                                    </t>
+                                    <t t-if="line.check_type == 'mark'">
+                                        <td class="td-style"><span t-field="line.check_in_1"/></td>
+                                        <td class="td-style"><span t-field="line.check_out_1"/></td>
+                                        <td class="td-style"><span t-field="line.check_in_2"/></td>
+                                        <td class="td-style"><span t-field="line.check_out_2"/></td>
+                                        <td class="td-style"><span t-field="line.check_in_3"/></td>
+                                        <td class="td-style"><span t-field="line.check_out_3"/></td>
+                                    </t>
+                                    <t t-if="line.check_type == 'turn'">
+                                        <td class="td-style"><span t-field="line.schedule1_in_date"/></td>
+                                        <td class="td-style"><span t-field="line.schedule1_out_date"/></td>
+                                        <td class="td-style"><span t-field="line.schedule2_in_date"/></td>
+                                        <td class="td-style"><span t-field="line.schedule2_out_date"/></td>
+                                        <td class="td-style"><br></br></td>
+                                        <td class="td-style"><br></br></td>
+                                    </t>
+                                    <td class="td-style"><span t-esc="'{0:,.2f}'.format(line.total_hours)"/></td>
+                                    <td class="td-style"><span t-esc="'{0:,.2f}'.format(line.ordinary_hours)"/></td>
+                                    <td class="td-style"><span t-esc="'{0:,.2f}'.format(line.extra_hours)"/></td>
+                                    <t t-if="line.turn_note">
+                                        <td class="td-style"><span t-field="line.personal_action"/>, <span t-field="line.turn_note"/></td>
+                                    </t>
+                                    <t t-if="not line.turn_note">
+                                        <td class="td-style"><span t-field="line.personal_action"/></td>
+                                    </t>
+                                    <td class="td-style"><span t-esc="'{0:,.2f}'.format(line.bonus)"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+            </template>
+        </t>
+    </template>
+</odoo>
