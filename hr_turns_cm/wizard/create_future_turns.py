@@ -11,11 +11,17 @@ class createFutureTurn(models.TransientModel):
     def _get_user_default(self):
         return self.env.user.id
 
+    @api.model
+    def _validate_admin(self):
+        is_admin = self.env.user.has_group('hr_turns_cm.manager_turn_cm')
+        return is_admin
+
     start_date = fields.Date(string="Fecha de Inicio")
     end_date = fields.Date(string="Fecha Final")
     user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
     team_id = fields.Many2one('hr.work.teams',string="Equipo")
     line_ids = fields.One2many('hr.future.turns.lines','future_turn_id',string="Lineas")
+    is_manager = fields.Boolean(string="Es admin", default=_validate_admin)
 
     @api.onchange('team_id')
     def get_members(self):

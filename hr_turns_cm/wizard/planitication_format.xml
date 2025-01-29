@@ -7,11 +7,12 @@
             <form string="Imprimir Formato de Planificacion">
                 <group>
                     <group >
-                        <field name="user_id" readonly="1"/>
+                        <field name="user_id" options="{'no_create': True, 'no_open': True}" readonly="is_manager == False"/>
                         <field name="team_id" required="1" options="{'no_create': True}" domain="['|',('leader_id.user_id','=',user_id),('responsible_id.user_id','=',user_id)]"/>
                     </group>                
                     <group >
                         <field name="turn" required="1"/>
+                        <field name="is_manager" invisible="1"/>
                     </group>                    
                 </group>
                 <footer>

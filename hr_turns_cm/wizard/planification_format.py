@@ -11,13 +11,24 @@ class planificationFormatWizard(models.TransientModel):
     def _get_user_default(self):
         return self.env.user.id
 
+    @api.model
+    def _validate_admin(self):
+        is_admin = self.env.user.has_group('hr_turns_cm.manager_turn_cm')
+        return is_admin
+
     user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
     team_id = fields.Many2one('hr.work.teams',string="Equipo")
     turn = fields.Selection(string="Turno", selection=lambda self: self.get_options())
+    is_manager = fields.Boolean(string="Es admin", default=_validate_admin)
 
     def get_options(self):
         user = self.env.user.id
-        turns = self.env['hr.turn.registration'].search(['|',('leader_id.user_id','=',user),('responsible_id.user_id','=',user)])
+        is_admin = self.env.user.has_group('hr_turns_cm.manager_turn_cm')
+        if is_admin:
+            turns = self.env['hr.turn.registration'].search([])
+        else:
+            turns = self.env['hr.turn.registration'].search(['|',('leader_id.user_id','=',user),('responsible_id.user_id','=',user)])
+
         options_name = set(turns.mapped('name'))
         return [(opt, opt) for opt in options_name]
 

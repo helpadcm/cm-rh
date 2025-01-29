@@ -132,7 +132,7 @@
                                 </t>
                             </t>
                         </table>
-                        <table t-if="docs.get('colors')" style="margin-top:1%;width:13%">
+                        <table t-if="docs.get('colors')" style="margin-top:1%;width:20%">
                             <t t-foreach="docs.get('colors')" t-as="color">
                                 <t t-foreach="color.get('names')" t-as="color_name">
                                     <tr>
