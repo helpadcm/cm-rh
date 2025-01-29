@@ -18,6 +18,8 @@ class HrEmployeePublic(models.Model):
         compute_sudo=True
         )
 
+    birthday_month = fields.Integer(string="Mes de nacimiento")
+
     def _get_employee_no(self):
         for employee_public in self:
             employee_public.employee_no = employee_public.employee_id.employee_no

@@ -30,7 +30,7 @@
                         domain="[('birthday', 'like', context_today().strftime('-%m-%'))]"/>
                 <filter string="Cumpleaños del Próximo Mes"
                         name="next_month_birthdays"
-                        domain="[('birthday', 'like', (context_today() + relativedelta(months=1)).strftime('-%m-%'))]"/>
+                        domain="[('birthday','!=',False),('birthday_month', '=', context_today().month + 1)]"/>
             </xpath>
         </field>
     </record>
@@ -52,6 +52,7 @@
             </xpath>
             <xpath expr="//field[@name='birthday']" position="after">
                 <field name="next_birthday"/>
+                <field name="birthday_month" invisible="1"/>
             </xpath>
 
             <!-- CIUDADANÍA -->

@@ -21,6 +21,9 @@ class HrEmployee(models.Model):
         string="Sucursal",
         help="Sucursal a la que pertenece el empleado."
         )
+
+    birthday_month = fields.Integer(string="Mes de nacimiento")
+
     certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering')])
 
     format_identification_id = fields.Char(
@@ -28,6 +31,11 @@ class HrEmployee(models.Model):
         help='This is the value of the "ID Number" field formatted with hyphens.',
         compute="_format_identification_with_dashes"
         )
+
+    @api.onchange('birthday')
+    def calculate_month(self):
+        if self.birthday:
+            self.birthday_month = self.birthday.month
 
     def get_employee_no(self):
         for employee in self:
