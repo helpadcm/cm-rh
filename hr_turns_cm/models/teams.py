@@ -48,6 +48,7 @@ class turnTypes(models.Model):
     opt_turn = fields.Selection([('1','Suma'),('0','Nulo')],string="Accion",default="1")
     default_turn = fields.Boolean(string="Tipo por defecto")
     color = fields.Char(string="Color")
+    active = fields.Boolean(string="Activo",default=True)
 
 class fortnights(models.Model):
     _name = 'hr.fortnights'
