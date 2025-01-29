@@ -101,9 +101,9 @@ class turnRegistration(models.Model):
 
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
-                contract_id = rec.employee_id.contract_id
+                contract_id = rec.employee_id.sudo().contract_id
                 if rec.date.weekday() in [5,6]:
-                    rec.oh = rec.employee_id.contract_id.weekend_hours
+                    rec.oh = rec.employee_id.contract_id.sudo().weekend_hours
                 else:
                     rec.oh = 8
                 rec.aditional_hours = rec.ordinary_hours - rec.oh
@@ -113,9 +113,9 @@ class turnRegistration(models.Model):
     def get_turn_registration(self):
         actual_date = datetime.now().date()
         
-        first_date = actual_date + timedelta(days=1)
-        ult_date = actual_date + timedelta(days=7)
-        actual_name = 'Semana %s al %s'%(first_date, ult_date)
+        first_date = actual_date
+        ult_date = actual_date + timedelta(days=6)
+        actual_name = 'Semana %s al %s'%(first_date.strftime('%d/%m/%Y'), ult_date.strftime('%d/%m/%Y'))
         
         team_ids = self.env['hr.work.teams'].search([])
         for team in team_ids:
@@ -124,13 +124,15 @@ class turnRegistration(models.Model):
                 created_turn = []
                 for member in team.member_employees_ids:
                     if member.template_id:
-                        count_days = 1
+                        count_days = 0
                         for day in range(7):
                             turn_date = actual_date + timedelta(days=count_days)
                             line_temp_id = self.get_template_line(member.template_id, day)
                             fortnight_id = self.get_fortnight(turn_date)
                             oh = 0
+                            oh_value = 0
                             aditional_time = 0
+                            contract_id = member.employee_id.sudo().contract_id
                             try:
                                 amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
                                 amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
@@ -138,12 +140,16 @@ class turnRegistration(models.Model):
                                 day = turn_date.weekday()
                                 if day == 5:
                                     aditional_time = oh - 4
+                                    oh_value = contract_id.sudo().weekend_hours
                                 elif day == 6:
                                     aditional_time = 0
+                                    oh_value = contract_id.sudo().weekend_hours
                                 else:
                                     aditional_time = oh - 8
+                                    oh_value = 8
                             except:
                                 oh = 0
+
                             vals = {
                                 'employee_id': member.employee_id.id,
                                 'date': turn_date,
@@ -159,6 +165,7 @@ class turnRegistration(models.Model):
                                 'turn_type_b': line_temp_id.turn_type_b.id,
                                 'ordinary_hours': oh,
                                 'aditional_hours': aditional_time,
+                                'oh': oh_value,
                                 'fortnight_line_id': fortnight_id.id
                             }
                             turn_id = self.create(vals)

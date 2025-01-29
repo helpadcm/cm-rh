@@ -32,7 +32,7 @@ class createFutureTurn(models.TransientModel):
 
     def create_turns(self):
         
-        actual_name = 'Semana %s al %s'%(self.start_date, self.end_date)
+        actual_name = 'Semana %s al %s'%(self.start_date.strftime('%d/%m/%Y'), self.end_date.strftime('%d/%m/%Y'))
         created_turn = []
         for member in self.line_ids:
             count_days = 1
@@ -43,20 +43,26 @@ class createFutureTurn(models.TransientModel):
                     line_temp_id = self.get_template_line(member.turn_id, day)
                     fortnight_id = self.get_fortnight(turn_date)
                     oh = 0
+                    oh_value = 0
                     aditional_time = 0
+                    contract_id = member.employee_id.contract_id
+                    day = turn_date.weekday()
                     try:
                         amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
                         amount2 = float(line_temp_id.schedule2_in_id.name) - float(line_temp_id.schedule2_out_id.name)
                         oh = abs((amount1 + amount2) / 100)
-                        day = turn_date.weekday()
                         if day == 5:
                             aditional_time = oh - 4
+                            oh_value = contract_id.sudo().weekend_hours
                         elif day == 6:
                             aditional_time = 0
+                            oh_value = contract_id.sudo().weekend_hours
                         else:
                             aditional_time = oh - 8
+                            oh_value = 8
                     except:
                         oh = 0
+
                     vals = {
                         'employee_id': member.employee_id.id,
                         'date': turn_date,
@@ -72,6 +78,7 @@ class createFutureTurn(models.TransientModel):
                         'turn_type_b': line_temp_id.turn_type_b.id,
                         'ordinary_hours': oh,
                         'aditional_hours': aditional_time,
+                        'oh': oh_value,
                         'fortnight_line_id': fortnight_id.id
                     }
                     turn_id = self.env['hr.turn.registration'].create(vals)
