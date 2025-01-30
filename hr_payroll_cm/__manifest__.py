@@ -12,6 +12,7 @@
     'depends': ['hr_employee_cm', 'hr_payroll', 'hr_contract_cm','hr_work_entry_contract_enterprise','hr_attendance_reports_cm','mail','hr_turns_cm'],
     'data': [
         'data/paperformat.xml',
+        'data/cron.xml',
         'security/ir.model.access.csv',
         'security/groups.xml',
         'views/hr_payroll_views.xml',
@@ -21,6 +22,7 @@
         'views/rap_view.xml',
         'views/historical_deductions_view.xml',
         'views/hr_contract_views.xml',
+        'views/other_incomes_view.xml',
         'reports/hr_payroll_employee_report_view.xml',
         'wizard/load_catorceavo_from_excel_wizard_views.xml',
         'wizard/load_nomina_from_excel_wizard_views.xml',

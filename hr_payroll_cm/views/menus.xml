@@ -33,4 +33,14 @@
         sequence="81"
         action="action_rap_settings"/>
 
+<!-- ############################################################################################ -->
+
+    <menuitem
+        id="other_incomes_menuitem"
+        name="Otros Ingresos"
+        parent="hr_payroll.menu_hr_payroll_employees_root"
+        sequence="40"
+        action="action_other_incomes"/>
+
+
 </odoo>

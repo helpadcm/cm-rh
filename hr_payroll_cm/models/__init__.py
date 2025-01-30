@@ -7,3 +7,4 @@ from . import payslip_run
 from . import employee_attendance_rec
 from . import rap
 from . import historical_deductions
+from . import other_incomes

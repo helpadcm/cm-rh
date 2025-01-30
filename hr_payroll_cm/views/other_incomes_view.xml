@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_other_incomes_form" model="ir.ui.view">
+        <field name="name">other_incomes.form</field>
+        <field name="model">hr.other.incomes</field>
+        <field name="arch" type="xml">
+            <form string="Otros ingresos">
+                <header>
+                    <button string="En progreso" name="change_state" invisible="state != 'draft'" type="object" class="oe_highlight"/>
+                    <button string="Regresar a Borrador" name="send_draft" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet>
+                    <h1><field name="name" readonly="state != 'draft'" required="1" placeholder="Nombre del ingreso"/></h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'" required="1" options="{'no_create': True}" widget="many2one_avatar_employee"/>
+                            <field name="start_date" readonly="state != 'draft'" required="1"/>
+                            <field name="end_date" readonly="state != 'draft'" required="1"/>
+                        </group>
+                        <group>
+                            <field name="input_type_id" readonly="state != 'draft'" required="1" options="{'no_create': True}"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_other_incomes_tree" model="ir.ui.view">
+        <field name="name">other.incomes.tree</field>
+        <field name="model">hr.other.incomes</field>
+        <field name="arch" type="xml">
+            <tree string="Otros ingresos">
+                <field name="employee_id"/>
+                <field name="name"/>
+                <field name="input_type_id"/>
+                <field name="amount" sum="Total"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_other_incomes_search" model="ir.ui.view">
+        <field name="name">other.incomes.search</field>
+        <field name="model">hr.other.incomes</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda otros ingresos">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
+                    <filter string="Tipo de Ingreso" name="input_type_group" context="{'group_by':'input_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_other_incomes" model="ir.actions.act_window">
+        <field name="name">Otros ingresos</field>
+        <field name="res_model">hr.other.incomes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
