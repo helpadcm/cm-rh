@@ -59,35 +59,22 @@ class HrAttendance(models.Model):
             )
             _logger.info("Conexión exitosa a SQL Server.")
             for cday in reversed(range(4)):
-                check_date = self.date - timedelta(days=cday)
+                check_date = datetime.now().date() - timedelta(days=cday)
                 year = check_date.year
                 month = check_date.month
                 day = check_date.day
 
-                if not self.employee_id:
-                    query_sql = """SELECT usertable.NAME as employee,
-                                checking.CHECKTIME as date,
-                                DATENAME(WEEKDAY,checking.CHECKTIME) as day,
-                                machine.MachineAlias as clock,
-                                machine.MachineNumber as CODCLOCK,
-                                usertable.SSN as codemployee
-                            FROM CHECKINOUT as checking
-                            INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
-                            INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                            WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
-                        """%(year,month,day,year,month,day)
-                else:
-                    query_sql = """SELECT usertable.NAME as employee,
-                                checking.CHECKTIME as date,
-                                DATENAME(WEEKDAY,checking.CHECKTIME) as day,
-                                machine.MachineAlias as clock,
-                                machine.MachineNumber as CODCLOCK,
-                                usertable.SSN as codemployee
-                            FROM CHECKINOUT as checking
-                            INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
-                            INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                            WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59' AND usertable.SSN = '%s'
-                        """%(year,month,day,year,month,day, self.employee_id.barcode)
+                query_sql = """SELECT usertable.NAME as employee,
+                            checking.CHECKTIME as date,
+                            DATENAME(WEEKDAY,checking.CHECKTIME) as day,
+                            machine.MachineAlias as clock,
+                            machine.MachineNumber as CODCLOCK,
+                            usertable.SSN as codemployee
+                        FROM CHECKINOUT as checking
+                        INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
+                        INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
+                        WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
+                    """%(year,month,day,year,month,day)
                 
                 # Ejecutar una consulta de ejemplo
                 cursor = conn.cursor()
