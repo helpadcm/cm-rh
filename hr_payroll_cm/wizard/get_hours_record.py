@@ -19,7 +19,7 @@ class getRecordHours(models.TransientModel):
     payslip_date_from = fields.Date(_('Start Date Pasylip'))
     payslip_date_to = fields.Date(_('End Date Payslip'))
 
-    @api.onchange('date_from')
+    @api.onchange('date_from','department_id')
     def get_payslips_date(self):
         if self.date_from:
             year = self.date_from.year
@@ -35,6 +35,11 @@ class getRecordHours(models.TransientModel):
                 _, num_days = calendar.monthrange(year, month)
                 date_from_payslip = "%s-%s-%s"%(year, month, 16)
                 date_to_payslip = "%s-%s-%s"%(year, month, num_days)
+                if self.department_id:
+                    if self.department_id.calculate_hours == 'one':
+                        date_from_payslip = "%s-%s-%s"%(year, month+1, '01')
+                        date_to_payslip = "%s-%s-%s"%(year, month+1, 15)
+                        
             self.payslip_date_from = date_from_payslip
             self.payslip_date_to = date_to_payslip
 
