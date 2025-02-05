@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="team_hours_tree_view" model="ir.ui.view">
+        <field name="name">team.hour.record.tree</field>
+        <field name="model">team.hour.record</field>
+        <field name="arch" type="xml">
+            <tree string="Horarios" editable="bottom" create="false">
+                <field name="name" column_invisible="1"/>
+                <field name="editable_a" column_invisible="1"/>
+                <field name="editable_b" column_invisible="1"/>
+                <field name="employee_id" column_invisible="1" readonly="1" widget="many2one_avatar_employee"/>
+                <field name="date" readonly="1"/>
+                <field name="name_day" readonly="1"/>
+                <field name="turn_type_a" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule1_in_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule1_out_id" readonly="state != 'draft' or editable_a == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="turn_type_b" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule2_in_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="schedule2_out_id" readonly="state != 'draft' or editable_b == False" force_save="1" options="{'no_create': True, 'no_open': True}" required="1"/>
+                <field name="ordinary_hours" string="Horas Totales" readonly="1" force_save="1" sum="Horas Totales"/>
+                <field name="oh" readonly="1" force_save="1" sum="HO"/>
+                <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>
+                <field name="state" readonly="1" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'validated'"/>
+                <!-- <button name="%(hr_turns_cm.action_note_turns)d" string="Notas" type="action"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_team_hours_search" model="ir.ui.view">
+        <field name="name">team.hour.record.search</field>
+        <field name="model">team.hour.record</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda horas empleado">
+                <field name="name"/>
+                <filter string="Borrador" name="group_draft_state" domain="[('state','=','draft')]"/>
+                <filter string="Validado" name="group_validated_state" domain="[('state','=','validated')]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Nombre" name="group_name" context="{'group_by':'name'}"/>
+                    <filter string="Fecha" name="date" context="{'group_by':'date'}"/>
+                    <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
+                    <filter string="Equipo" name="group_team" context="{'group_by':'team_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_team_hours" model="ir.actions.act_window">
+        <field name="name">Horas de equipo</field>
+        <field name="res_model">team.hour.record</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{"search_default_group_name": 1, "search_default_employee_group":1, "search_default_group_draft_state":1}</field>
+    </record>
+</odoo>

@@ -1,0 +1,213 @@
+<odoo>
+    <template id="portal_hours_record_team" name="Ingreso de Horas">
+        <t t-call="portal.portal_layout">
+            <div class="container">
+                <h2 class="text-center">Ingreso de horas reales</h2>
+                <p class="text-center">Desde esta página podrá ingresar los horarios laborados en la semana. Por favor ingrese los datos reales.</p>
+
+                <form action="/hours_day_record/submit" method="POST" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                        <!-- Primera columna -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha</label>
+                                <input class="form-control" type="date" name="date_record" id="date_record" required="required"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">HT</label>
+                                <input type="text" class="form-control" id="hours_worked" readonly="readonly"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">HE</label>
+                                <input type="text" class="form-control" id="extra_hours" readonly="readonly"/>
+                            </div>
+                        </div>
+
+                        <!-- Segunda columna -->
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+                                <label class="form-label">Tipo Turno A</label>
+                                <select class="form-control" name="selection_turn_type_a" id="turn_tipo_a">
+                                    <t t-foreach="records" t-as="types">
+                                        <option t-att-value="types.id"><t t-esc="types.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Entrada 1</label>
+                                <select class="form-control" name="rec_entry_1" id="entry_1">
+                                    <t t-foreach="schedules" t-as="schedule">
+                                        <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Salida 1</label>
+                                <select class="form-control" name="rec_out_1" id="out_1">
+                                    <t t-foreach="schedules" t-as="schedule">
+                                        <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tercera columna -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo Turno B</label>
+                                <select class="form-control" name="selection_turn_type_b" id="turn_tipo_b">
+                                    <t t-foreach="records" t-as="types">
+                                        <option t-att-value="types.id"><t t-esc="types.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Entrada 2</label>
+                                <select class="form-control" name="rec_entry_2" id="entry_2">
+                                    <t t-foreach="schedules" t-as="schedule">
+                                        <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Salida 2</label>
+                                <select class="form-control" name="rec_out_2" id="out_2">
+                                    <t t-foreach="schedules" t-as="schedule">
+                                        <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary mt-3">Registrar</button>
+                        </div>
+                    </div>
+                </form>
+
+                <h4 class="text-center mt-4">Horas Ingresadas</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Dia</th>
+                                <th>Turno A</th>
+                                <th>Entrada 1</th>
+                                <th>Salida 1</th>
+                                <th>Turno B</th>
+                                <th>Entrada 2</th>
+                                <th>Salida 2</th>
+                                <th>HT</th>
+                                <th>HO</th>
+                                <th>HE</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="draft_hours" t-as="days">
+                                <tr>
+                                    <td><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                    <td><t t-esc="days.name_day"/></td>
+                                    <td><t t-esc="days.turn_type_a.name"/></td>
+                                    <td><t t-esc="days.schedule1_in_id.name"/></td>
+                                    <td><t t-esc="days.schedule1_out_id.name"/></td>
+                                    <td><t t-esc="days.turn_type_b.name"/></td>
+                                    <td><t t-esc="days.schedule2_in_id.name"/></td>
+                                    <td><t t-esc="days.schedule2_out_id.name"/></td>
+                                    <td><t t-esc="days.ordinary_hours"/></td>
+                                    <td><t t-esc="days.oh"/></td>
+                                    <td><t t-esc="days.aditional_hours"/></td>
+                                    <td t-if="days.state == 'draft'">BORRADOR</td>
+                                    <td t-if="days.state == 'validated'">VALIDADO</td>
+                                    <td>
+                                        <form t-att-action="'/delete_record/' + str(days.id)" method="POST">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    function calculateHours() {
+
+                        let entry_1 = document.getElementById("entry_1").options[document.getElementById("entry_1").selectedIndex].text;
+                        let out_1 = document.getElementById("out_1").options[document.getElementById("out_1").selectedIndex].text;
+
+                        let entry_2 = document.getElementById("entry_1").options[document.getElementById("entry_2").selectedIndex].text;
+                        let out_2 = document.getElementById("out_1").options[document.getElementById("out_2").selectedIndex].text;
+
+                        let entryTime_1 = parseFloat(entry_1)/100;
+                        let outTime_1 = parseFloat(out_1)/100;
+
+                        let entryTime_2 = parseFloat(entry_2)/100;
+                        let outTime_2 = parseFloat(out_2)/100;
+                        
+                        let diff_1 = outTime_1 - entryTime_1;
+                        let diff_2 = outTime_2 - entryTime_2;
+
+                        document.getElementById("hours_worked").value = diff_1 + diff_2;
+                        document.getElementById("extra_hours").value = (diff_1 + diff_2) - 8;
+                    }
+
+                    document.getElementById("entry_1")?.addEventListener("change", calculateHours);
+                    document.getElementById("out_1")?.addEventListener("change", calculateHours);
+                    document.getElementById("entry_2")?.addEventListener("change", calculateHours);
+                    document.getElementById("out_2")?.addEventListener("change", calculateHours);
+                });
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>
