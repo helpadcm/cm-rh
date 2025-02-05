@@ -40,12 +40,19 @@
 <!-- ########################################################################## -->
     
     <menuitem
-        id="work_teams_menuitem"
+        id="work_teams_root"
         name="Equipos de trabajo"
-        action="hr_turns_cm.action_hr_turn_work_teams"
         parent="turns_menu_root"
         groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
         sequence="2"/>
+
+    <menuitem
+        id="work_teams_menuitem"
+        name="Equipos"
+        action="hr_turns_cm.action_hr_turn_work_teams"
+        parent="work_teams_root"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="1"/>
 
 <!-- ########################################################################## -->
 
