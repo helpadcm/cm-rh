@@ -12,6 +12,7 @@
     'depends': ['portal','hr_turns_cm'],
     'data': [
         'data/action_server.xml',
+        'security/groups.xml',
         'security/ir.model.access.csv',
         'wizard/turn_notes_view.xml',
         'views/portal_my_home.xml',
