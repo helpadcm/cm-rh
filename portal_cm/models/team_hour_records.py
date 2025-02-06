@@ -91,3 +91,23 @@ class teamHourRecord(models.Model):
                 rec.aditional_hours = rec.ordinary_hours - rec.oh
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
+
+    def validate_day(self):
+        for rec in self:
+            rec_real_id = self.env['hr.turn.registration'].search([('date','=',rec.date),('employee_id','=',rec.employee_id.id),('state','=','draft')])
+            if rec_real_id:
+                update_vals = {
+                    'turn_type_a':rec.turn_type_a.id, 
+                    'schedule1_in_id': rec.schedule1_in_id.id, 
+                    'schedule1_out_id': rec.schedule1_out_id.id,
+                    'turn_type_b': rec.turn_type_b.id,
+                    'schedule2_in_id': rec.schedule2_in_id.id,
+                    'schedule2_out_id': rec.schedule2_out_id.id,
+                    'note': rec.note,
+                    'state': 'validated'
+                }
+                rec_real_id.write(update_vals)
+                rec_real_id.calculate_data()
+            else:
+                raise ValidationError('No hay registro planificado para la fecha %s del empleado %s'%(rec.date.strftime('%d/%m/%Y'), rec.employee_id.name))
+            rec.state = 'validated'

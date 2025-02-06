@@ -21,7 +21,7 @@
                 <field name="oh" readonly="1" force_save="1" sum="HO"/>
                 <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>
                 <field name="state" readonly="1" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'validated'"/>
-                <!-- <button name="%(hr_turns_cm.action_note_turns)d" string="Notas" type="action"/> -->
+                <button name="%(portal_cm.action_note_turns_team)d" string="Notas" type="action"/>
             </tree>
         </field>
     </record>

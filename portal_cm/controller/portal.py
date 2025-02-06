@@ -11,7 +11,8 @@ class CustomPortal(http.Controller):
         types_turn_ids = request.env['hr.turn.types'].sudo().search([])
         schedule_ids = request.env['hr.options.schedules'].sudo().search([('alphabetical','=',False)])
         draft_record_ids = request.env['team.hour.record'].sudo().search([('employee_id','=',employee_id.id)], order="date desc")
-        return request.render("portal_cm.portal_hours_record_team", {"records": types_turn_ids, "schedules": schedule_ids, 'draft_hours': draft_record_ids})
+        validate_record_ids = request.env['hr.turn.registration'].sudo().search([('employee_id','=',employee_id.id),('state','=','validated')], order="date desc")
+        return request.render("portal_cm.portal_hours_record_team", {"records": types_turn_ids, "schedules": schedule_ids, 'draft_hours': draft_record_ids, 'validate_records': validate_record_ids})
 
     @http.route('/clear_flash_message', type='http', auth="user", methods=["POST"], website=True)
     def clear_flash_message(self):
@@ -40,6 +41,8 @@ class CustomPortal(http.Controller):
             entry_2_value = post.get("rec_entry_2")
             out_2_value = post.get("rec_out_2")
 
+            notes = post.get('record_notes') or ''
+
             if all([date, type_a_value, entry_1_value, out_1_value, type_b_value, entry_2_value, out_2_value]):
                 entry_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_1_value)])
                 out_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_1_value)])
@@ -62,7 +65,8 @@ class CustomPortal(http.Controller):
                     'turn_type_a': type_turn_a_id.id,
                     'schedule2_in_id': entry_2_id.id,
                     'schedule2_out_id': out_2_id.id,
-                    'turn_type_b': type_turn_b_id.id
+                    'turn_type_b': type_turn_b_id.id,
+                    'note': notes
                 }
                 rec_id = request.env['team.hour.record'].sudo().create(vals)
                 rec_id.sudo().send_values_a_turn()
