@@ -31,16 +31,6 @@
                                     <label class="form-label">Fecha</label>
                                     <input class="form-control" type="date" name="date_record" id="date_record" required="required"/>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">HT</label>
-                                    <input type="text" class="form-control" id="hours_worked" readonly="readonly"/>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">HE</label>
-                                    <input type="text" class="form-control" id="extra_hours" readonly="readonly"/>
-                                </div>
                             </div>
 
                             <!-- Segunda columna -->
@@ -246,34 +236,6 @@
                             popup.style.display = "none";
                         }, 5000); // 5000ms = 5 segundos
                     }
-                });
-
-                document.addEventListener("DOMContentLoaded", function () {
-                    function calculateHours() {
-
-                        let entry_1 = document.getElementById("entry_1").options[document.getElementById("entry_1").selectedIndex].text;
-                        let out_1 = document.getElementById("out_1").options[document.getElementById("out_1").selectedIndex].text;
-
-                        let entry_2 = document.getElementById("entry_1").options[document.getElementById("entry_2").selectedIndex].text;
-                        let out_2 = document.getElementById("out_1").options[document.getElementById("out_2").selectedIndex].text;
-
-                        let entryTime_1 = parseFloat(entry_1)/100;
-                        let outTime_1 = parseFloat(out_1)/100;
-
-                        let entryTime_2 = parseFloat(entry_2)/100;
-                        let outTime_2 = parseFloat(out_2)/100;
-                        
-                        let diff_1 = outTime_1 - entryTime_1;
-                        let diff_2 = outTime_2 - entryTime_2;
-
-                        document.getElementById("hours_worked").value = diff_1 + diff_2;
-                        document.getElementById("extra_hours").value = (diff_1 + diff_2) - 8;
-                    }
-
-                    document.getElementById("entry_1")?.addEventListener("change", calculateHours);
-                    document.getElementById("out_1")?.addEventListener("change", calculateHours);
-                    document.getElementById("entry_2")?.addEventListener("change", calculateHours);
-                    document.getElementById("out_2")?.addEventListener("change", calculateHours);
                 });
 
             </script>

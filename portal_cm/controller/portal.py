@@ -53,29 +53,32 @@ class CustomPortal(http.Controller):
                 type_turn_a_id = request.env['hr.turn.types'].sudo().search([('id','=',type_a_value)])
                 type_turn_b_id = request.env['hr.turn.types'].sudo().search([('id','=',type_b_value)])
 
-                vals = {
-                    'name': name_week,
-                    'employee_id': employee_id.id,
-                    'team_id': member_team_id.team_id.id,
-                    'leader_id': member_team_id.team_id.leader_id.id,
-                    'responsible_id': member_team_id.team_id.responsible_id.id,
-                    'date': date,
-                    'schedule1_in_id': entry_1_id.id,
-                    'schedule1_out_id': out_1_id.id,
-                    'turn_type_a': type_turn_a_id.id,
-                    'schedule2_in_id': entry_2_id.id,
-                    'schedule2_out_id': out_2_id.id,
-                    'turn_type_b': type_turn_b_id.id,
-                    'note': notes
-                }
-                rec_id = request.env['team.hour.record'].sudo().create(vals)
-                rec_id.sudo().send_values_a_turn()
-                rec_id.sudo().send_values_b_turn()
-                rec_id.sudo().calculate_data()
+                validator = self.validate_hours(entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name)
 
-                request.session['flash_message'] = '¡Horas registradas correctamente!'
-                request.session['flash_message_type'] = 'alert-success'
-                request.session.modified = True
+                if validator:
+                    vals = {
+                        'name': name_week,
+                        'employee_id': employee_id.id,
+                        'team_id': member_team_id.team_id.id,
+                        'leader_id': member_team_id.team_id.leader_id.id,
+                        'responsible_id': member_team_id.team_id.responsible_id.id,
+                        'date': date,
+                        'schedule1_in_id': entry_1_id.id,
+                        'schedule1_out_id': out_1_id.id,
+                        'turn_type_a': type_turn_a_id.id,
+                        'schedule2_in_id': entry_2_id.id,
+                        'schedule2_out_id': out_2_id.id,
+                        'turn_type_b': type_turn_b_id.id,
+                        'note': notes
+                    }
+                    rec_id = request.env['team.hour.record'].sudo().create(vals)
+                    rec_id.sudo().send_values_a_turn()
+                    rec_id.sudo().send_values_b_turn()
+                    rec_id.sudo().calculate_data()
+
+                    request.session['flash_message'] = '¡Horas registradas correctamente!'
+                    request.session['flash_message_type'] = 'alert-success'
+                    request.session.modified = True
             else:
                 request.session['flash_message'] = 'Hubo un error al registrar las horas, por favor revise los datos.'
                 request.session['flash_message_type'] = 'alert-danger'
@@ -102,3 +105,26 @@ class CustomPortal(http.Controller):
         end_date = initial_date + timedelta(days=6)
         week_name = 'Semana %s al %s'%(initial_date.strftime('%d/%m/%Y'), end_date.strftime('%d/%m/%Y'))
         return week_name
+
+    def validate_hours(self, entry1, out1, entry2, out2):
+        entry1_value = float(entry1)
+        out1_value = float(out1)
+        entry2_value = float(entry2)
+        out2_value = float(out2)
+        if entry1_value < out1_value < entry2_value < out2_value:
+            return True
+        else:
+            messages = []
+            if not entry1_value < out1_value:
+                messages.append("Error: La salida 1 no puede ser menor que la entrada 1")
+            if not out1_value < entry2_value:
+                messages.append("Error: La entrada 2 no puede ser menor que la salida 1")
+            if not entry2_value < out2_value:
+                messages.append("Error: La salida 2 no puede ser menor que la entrada 2")
+            if not out2_value > max(entry1_value, out1_value, entry2_value):
+                messages.append("Error: La salida 2 debe ser mayor que todos.")
+
+            request.session['flash_message'] = "\n".join(messages)
+            request.session['flash_message_type'] = 'alert-danger'
+            request.session.modified = True
+            return False
