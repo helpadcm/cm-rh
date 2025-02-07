@@ -12,6 +12,10 @@
 
             <div class="tab-content">
                 <div class="container tab-pane fade show active" id="tab1">
+                    
+                    <input type="text" class="d-none" name="turn_na" id="id_turn_na" t-att-value="turn_na_id"/>
+
+
                     <h2 class="text-center">Ingreso de horas reales</h2>
                     <p class="text-center">Desde esta página podrá ingresar los horarios laborados en la semana. Por favor ingrese los datos reales.</p>
 
@@ -38,16 +42,16 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Tipo Turno A</label>
-                                    <select class="form-control" name="selection_turn_type_a" id="turn_tipo_a">
+                                    <select class="form-control" name="selection_turn_type_a" id="turn_tipo_a" required="required">
                                         <t t-foreach="records" t-as="types">
-                                            <option t-att-value="types.id"><t t-esc="types.name"/></option>
+                                            <option t-att-value="types.id" t-att-data-opt-turna="types.opt_turn"><t t-esc="types.name"/></option>
                                         </t>
                                     </select>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Entrada 1</label>
-                                    <select class="form-control" name="rec_entry_1" id="entry_1">
+                                    <select class="form-control" name="rec_entry_1" id="entry_1" required="required">
                                         <t t-foreach="schedules" t-as="schedule">
                                             <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
                                         </t>
@@ -56,7 +60,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Salida 1</label>
-                                    <select class="form-control" name="rec_out_1" id="out_1">
+                                    <select class="form-control" name="rec_out_1" id="out_1" required="required">
                                         <t t-foreach="schedules" t-as="schedule">
                                             <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
                                         </t>
@@ -68,16 +72,16 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label class="form-label">Tipo Turno B</label>
-                                    <select class="form-control" name="selection_turn_type_b" id="turn_tipo_b">
+                                    <select class="form-control" name="selection_turn_type_b" id="turn_tipo_b" required="required">
                                         <t t-foreach="records" t-as="types">
-                                            <option t-att-value="types.id"><t t-esc="types.name"/></option>
+                                            <option t-att-value="types.id" t-att-data-opt-turnb="types.opt_turn"><t t-esc="types.name"/></option>
                                         </t>
                                     </select>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Entrada 2</label>
-                                    <select class="form-control" name="rec_entry_2" id="entry_2">
+                                    <select class="form-control" name="rec_entry_2" id="entry_2" required="required">
                                         <t t-foreach="schedules" t-as="schedule">
                                             <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
                                         </t>
@@ -86,7 +90,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Salida 2</label>
-                                    <select class="form-control" name="rec_out_2" id="out_2">
+                                    <select class="form-control" name="rec_out_2" id="out_2" required="required">
                                         <t t-foreach="schedules" t-as="schedule">
                                             <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
                                         </t>
@@ -236,6 +240,57 @@
                             popup.style.display = "none";
                         }, 5000); // 5000ms = 5 segundos
                     }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    var turnTypeA = document.getElementById("turn_tipo_a");
+                    var entry1 = document.getElementById("entry_1");
+                    var out1 = document.getElementById("out_1");
+
+                    var turnTypeB = document.getElementById("turn_tipo_b");
+                    var entry2 = document.getElementById("entry_2");
+                    var out2 = document.getElementById("out_2");
+
+                    var na_id = document.getElementById("id_turn_na");
+
+                    function setDefaultValues() {
+                        var selectedOption = turnTypeA.options[turnTypeA.selectedIndex];
+                        var optTurnA = selectedOption.getAttribute("data-opt-turna"); // Obtener el valor de opt_turn
+
+                        var selectedOption = turnTypeB.options[turnTypeB.selectedIndex];
+                        var optTurnB = selectedOption.getAttribute("data-opt-turnb"); // Obtener el valor de opt_turn
+
+                        if (optTurnA === "0") {
+                            entry1.value = na_id.value;
+                            out1.value = na_id.value;
+                            entry1.setAttribute("disabled", true);
+                            out1.setAttribute("disabled", true);
+                        }else{
+                            entry1.value = false;
+                            out1.value = false;
+                            entry1.removeAttribute("disabled");
+                            out1.removeAttribute("disabled");
+                        }
+
+                        if (optTurnB === "0") {
+                            entry2.value = na_id.value;
+                            out2.value = na_id.value;
+                            entry2.setAttribute("disabled", true);
+                            out2.setAttribute("disabled", true);
+                        }else{
+                            entry2.value = false;
+                            out2.value = false;
+                            entry2.removeAttribute("disabled");
+                            out2.removeAttribute("disabled");
+                        }
+                    }
+
+                    // Asignar valores al cargar la página
+                    setDefaultValues();
+
+                    // Asignar valores cuando cambie el turno
+                    turnTypeA.addEventListener("change", setDefaultValues);
+                    turnTypeB.addEventListener("change", setDefaultValues);
                 });
 
             </script>
