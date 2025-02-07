@@ -80,6 +80,13 @@ class CustomPortal(http.Controller):
                     'schedule2_in_id': turn_na_id.id,
                     'schedule2_out_id': turn_na_id.id,
                 })
+            elif type_turn_a_id.opt_turn == '0' and type_turn_b_id.opt_turn == '0':
+                vals.update({
+                    'schedule1_in_id': turn_na_id.id,
+                    'schedule1_out_id': turn_na_id.id,
+                    'schedule2_in_id': turn_na_id.id,
+                    'schedule2_out_id': turn_na_id.id,
+                })
             else:    
                 entry_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_1_value)])
                 out_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_1_value)])
@@ -102,9 +109,6 @@ class CustomPortal(http.Controller):
                 request.session['flash_message'] = '¡Horas registradas correctamente!'
                 request.session['flash_message_type'] = 'alert-success'
                 request.session.modified = True
-            # request.session['flash_message'] = 'Hubo un error al registrar las horas, por favor revise los datos.'
-            # request.session['flash_message_type'] = 'alert-danger'
-            # request.session.modified = True
         else:
             date_format = datetime.strptime(date, '%Y-%m-%d')
             request.session['flash_message'] = 'Ya existen registros para la fecha %s.'%(date_format.strftime("%d/%m/%Y"))
@@ -152,7 +156,7 @@ class CustomPortal(http.Controller):
                 request.session.modified = True
                 return False
 
-        if not entry1 and not out1:
+        elif not entry1 and not out1:
             entry2_value = float(entry2)
             out2_value = float(out2)
             if entry2_value < out2_value:
@@ -167,7 +171,7 @@ class CustomPortal(http.Controller):
                 request.session.modified = True
                 return False
 
-        if not entry2 and not out2:
+        elif not entry2 and not out2:
             entry1_value = float(entry1)
             out1_value = float(out1)
             if entry1_value < out1_value:
