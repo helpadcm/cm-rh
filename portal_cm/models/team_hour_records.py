@@ -8,6 +8,7 @@ week_days = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo']
 class teamHourRecord(models.Model):
     _name = 'team.hour.record'
     _description = 'Registro de Horas: Horas reales ingresadas por empleado'
+    _order = "date asc"
 
     @api.model
     def _get_default_type(self):
@@ -111,7 +112,14 @@ class teamHourRecord(models.Model):
             rec.state = 'validated'
 
     def delete_records(self):
-        actual_day = (datetime.now() - timedelta(hours=6)).day
-        rec_ids = self.env['team.hour.record'].search([])
-        if actual_day in [7,22]:
-            rec_ids.unlink()
+        actual_date = (datetime.now() - timedelta(hours=6))
+        delete_date = False
+        if actual_date.day == 26:
+            delete_date = actual_date.replace(day=25).date()
+        if actual_date.day == 11:
+            delete_date = actual_date.replace(day=10).date()
+
+        if delete_date:
+            rec_ids = self.env['team.hour.record'].search([('date','<=',delete_date)])
+            if rec_ids:
+                rec_ids.unlink()

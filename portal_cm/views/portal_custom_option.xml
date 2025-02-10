@@ -6,7 +6,10 @@
                     <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Ingreso de Horas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">Quincena Actual</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab3">Ult. Quincena</a>
                 </li>
             </ul>
 
@@ -111,22 +114,22 @@
 
                     <h4 class="text-center mt-4">Horas Ingresadas</h4>
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped historical_table">
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Dia</th>
-                                    <th>Turno A</th>
-                                    <th>Entrada 1</th>
-                                    <th>Salida 1</th>
-                                    <th>Turno B</th>
-                                    <th>Entrada 2</th>
-                                    <th>Salida 2</th>
-                                    <th>HT</th>
-                                    <th>HO</th>
-                                    <th>HE</th>
-                                    <th>Estado</th>
-                                    <th>Acción</th>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">HO</th>
+                                    <th class="header_historical">HE</th>
+                                    <th class="header_historical">Estado</th>
+                                    <th class="header_historical">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,17 +138,17 @@
                                 <t t-set="total_eh" t-value="0"/>
                                 <t t-foreach="draft_hours" t-as="days">
                                     <tr>
-                                        <td><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="days.name_day"/></td>
-                                        <td><t t-esc="days.turn_type_a.name"/></td>
-                                        <td><t t-esc="days.schedule1_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule1_out_id.name"/></td>
-                                        <td><t t-esc="days.turn_type_b.name"/></td>
-                                        <td><t t-esc="days.schedule2_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <td><t t-esc="days.ordinary_hours"/></td>
-                                        <td><t t-esc="days.oh"/></td>
-                                        <td><t t-esc="days.aditional_hours"/></td>
+                                        <td ><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td ><t t-esc="days.name_day"/></td>
+                                        <td ><t t-esc="days.turn_type_a.name"/></td>
+                                        <td ><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td ><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td ><t t-esc="days.turn_type_b.name"/></td>
+                                        <td ><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td ><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <td ><t t-esc="days.ordinary_hours"/></td>
+                                        <td ><t t-esc="days.oh"/></td>
+                                        <td ><t t-esc="days.aditional_hours"/></td>
                                         <td t-if="days.state == 'draft'">BORRADOR</td>
                                         <td t-if="days.state == 'validated'">VALIDADO</td>
                                         <td t-if="days.state == 'draft'">
@@ -176,20 +179,70 @@
                 </div>
                 <div id="tab2" class="tab-pane fade">
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped historical_table" >
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Dia</th>
-                                    <th>Turno A</th>
-                                    <th>Entrada 1</th>
-                                    <th>Salida 1</th>
-                                    <th>Turno B</th>
-                                    <th>Entrada 2</th>
-                                    <th>Salida 2</th>
-                                    <th>HT</th>
-                                    <th>HO</th>
-                                    <th>HE</th>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">HO</th>
+                                    <th class="header_historical">HE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_wt" t-value="0"/>
+                                <t t-set="total_oh" t-value="0"/>
+                                <t t-set="total_eh" t-value="0"/>
+                                <t t-foreach="actual_record_ids" t-as="days">
+                                    <tr>
+                                        <td><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td><t t-esc="days.name_day"/></td>
+                                        <td><t t-esc="days.turn_type_a.name"/></td>
+                                        <td><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td><t t-esc="days.turn_type_b.name"/></td>
+                                        <td><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <td><t t-esc="days.ordinary_hours"/></td>
+                                        <td><t t-esc="days.oh"/></td>
+                                        <td><t t-esc="days.aditional_hours"/></td>
+                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <t t-set="total_oh" t-value="total_oh + days.oh"/>
+                                        <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="8"><strong>TOTAL</strong></td>
+                                    <td><strong><t t-esc="total_wt"/></strong></td>
+                                    <td><strong><t t-esc="total_oh"/></strong></td>
+                                    <td><strong><t t-esc="total_eh"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="tab3" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-striped historical_table" >
+                            <thead>
+                                <tr>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">HO</th>
+                                    <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -312,6 +365,17 @@
 
                 .popup .alert {
                     margin: 0;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
                 }
             </style>
         </t>

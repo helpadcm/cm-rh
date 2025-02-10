@@ -1,6 +1,7 @@
 from odoo import http
 from odoo.http import request
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 class CustomPortal(http.Controller):
 
@@ -11,9 +12,32 @@ class CustomPortal(http.Controller):
         types_turn_ids = request.env['hr.turn.types'].sudo().search([])
         schedule_ids = request.env['hr.options.schedules'].sudo().search([('alphabetical','=',False)])
         draft_record_ids = request.env['team.hour.record'].sudo().search([('employee_id','=',employee_id.id)], order="date desc")
-        validate_record_ids = request.env['hr.turn.registration'].sudo().search([('employee_id','=',employee_id.id),('state','=','validated')], order="date desc")
         turn_na_id = request.env['hr.options.schedules'].sudo().search([('name','=','NA')])
-        return request.render("portal_cm.portal_hours_record_team", {"records": types_turn_ids, "schedules": schedule_ids, 'draft_hours': draft_record_ids, 'validate_records': validate_record_ids, 'turn_na_id': turn_na_id.id})
+
+        actual_date = datetime.now() - timedelta(hours=6)
+        
+        domain = [('employee_id','=',employee_id.id),('state','=','validated')]
+        actual_domain = [('employee_id','=',employee_id.id),('state','=','validated')]
+        if actual_date.day <= 15:
+            min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
+            max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
+            domain.extend([('date','>=',min_date),('date','<=',max_date)])
+
+            actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
+            actual_max_date = actual_date.replace(day=10).date()
+            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
+        else:
+            min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
+            max_date = actual_date.replace(day=10).date()
+            domain.extend([('date','>=',min_date),('date','<=',max_date)])
+
+            actual_min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
+            actual_max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
+            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
+        
+        validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
+        actual_record_ids = request.env['hr.turn.registration'].sudo().search(actual_domain, order="date desc")
+        return request.render("portal_cm.portal_hours_record_team", {"records": types_turn_ids, "schedules": schedule_ids, 'draft_hours': draft_record_ids, 'validate_records': validate_record_ids, 'turn_na_id': turn_na_id.id, 'actual_record_ids': actual_record_ids})
 
     @http.route('/clear_flash_message', type='http', auth="user", methods=["POST"], website=True)
     def clear_flash_message(self):

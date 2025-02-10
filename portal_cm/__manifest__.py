@@ -24,6 +24,7 @@
     'assets': {
         'web.assets_frontend': [
             'portal_cm/static/src/js/portal_calculates.js',
+            'portal_cm/static/src/css/custom_styles.css',
         ],
     },
     'installable': True,
