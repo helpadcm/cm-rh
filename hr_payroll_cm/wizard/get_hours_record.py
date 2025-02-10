@@ -141,6 +141,9 @@ class getRecordHours(models.TransientModel):
                 max_hours = []
                 if contract_id.check_type == 'mark':
                     bonus = 0
+                    amount1 = 0
+                    amount2 = 0
+                    amount3 = 0
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
                         entry_total_sec = entry_hour.total_seconds()/3600
@@ -171,11 +174,47 @@ class getRecordHours(models.TransientModel):
                         exit_total_sec = exit_hour.total_seconds()/3600
                         max_hours.append(exit_total_sec)
 
+                    try:
+                        hour_1 = self.convert_timedelta(vals.get('check_in_1'))
+                        hour_2 = self.convert_timedelta(vals.get('check_out_1'))
+                        diff = hour_2 - hour_1
+                        amount1 = diff.total_seconds()/3600
+                    except:
+                        amount1 = 0
+
+                    try:
+                        hour_1 = self.convert_timedelta(vals.get('check_in_2'))
+                        hour_2 = self.convert_timedelta(vals.get('check_out_2'))
+                        diff = hour_2 - hour_1
+                        amount2 = diff.total_seconds()/3600
+                    except:
+                        amount2 = 0
+
+                    try:
+                        hour_1 = self.convert_timedelta(vals.get('check_in_3'))
+                        hour_2 = self.convert_timedelta(vals.get('check_out_3'))
+                        diff = hour_2 - hour_1
+                        amount3 = diff.total_seconds()/3600
+                    except:
+                        amount3 = 0
+
                     bonus = self.calculate_bonus(min_hours, max_hours, contract_id)
 
+                    total_h = amount1 + amount2 + amount3
+                    if row.get('date').weekday() in [5,6]:
+                        vals.update({
+                            'ordinary_hours': contract_id.weekend_hours,
+                            'extra_hours': total_h - contract_id.weekend_hours
+                        })
+                    else:
+                        vals.update({
+                            'ordinary_hours': 8,
+                            'extra_hours': total_h - 8
+                        })
 
                     vals.update({
-                        'bonus': bonus
+                        'bonus': bonus,
+                        'total_hours': total_h
                     })
 
                 self.env['hr.employee.attendance.line'].create(vals)
@@ -196,7 +235,7 @@ class getRecordHours(models.TransientModel):
         return timedelta(hours=h, minutes=m, seconds=s)
 
     def convert_format(self, date, schedule_id):
-        if not schedule_id.alphabetical:
+        if not schedule_id.alphabetical and schedule_id.name != 'NA':
             date = datetime.combine(date, datetime.min.time())
             hours = float(schedule_id.name) // 100
             minutes = float(schedule_id.name) % 100
