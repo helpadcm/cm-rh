@@ -55,7 +55,7 @@
                                         </tr>
                                         <tr>
                                             <td class="td-style" style="">Pagar HE</td>
-                                            <td class="td-style" style="text-align:center;background-color:#008000"><span t-esc="'{0:,.2f}'.format(o.pay_extra_hours)"/></td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71"><span t-esc="'{0:,.2f}'.format(o.pay_extra_hours)"/></td>
                                         </tr>
                                     </table>    
                                 </td>
@@ -76,7 +76,7 @@
                                         </tr>
                                         <tr>
                                             <td class="td-style" style="">Pagar BT</td>
-                                            <td class="td-style" style="text-align:center;background-color:#008000"><span t-esc="'{0:,.2f}'.format(o.tb_pay)"/></td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71"><span t-esc="'{0:,.2f}'.format(o.tb_pay)"/></td>
                                         </tr>
                                     </table>    
                                 </td>
