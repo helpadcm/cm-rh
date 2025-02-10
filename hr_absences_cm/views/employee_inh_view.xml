@@ -10,7 +10,8 @@
                         <group col="3">
                             <group>
                                 <field name="compensatory_hours" />
-                                <field name="compensatory_day" />
+                                <field name="compensatory_day_string" />
+                                <field name="compensatory_day" invisible="1"/>
                             </group>
                             <group>
                                 <field name="vacations_day" />
