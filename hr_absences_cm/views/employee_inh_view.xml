@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="hr_absences_man_form" model="ir.ui.view">
+            <field name="name">hr.absences.man.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page name="personal_time" string="Tiempo Personal">
+                        <group col="3">
+                            <group>
+                                <field name="compensatory_hours" />
+                                <field name="compensatory_day" />
+                            </group>
+                            <group>
+                                <field name="vacations_day" />
+                            </group>
+                            <group>
+                                <field name="program_to_fly" />
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>
