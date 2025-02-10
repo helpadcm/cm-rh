@@ -62,7 +62,13 @@ class employeeAttendanceRecords(models.Model):
 
     def change_state(self):
         next_state = self.env.context.get('next_stage')
+        if next_state == 'finalized':
+            self.employee_id.compensatory_hours += self.aditional_he
         self.state = next_state
+
+    def add_aditional_hours(self):
+        if self.state == 'finalized':
+            self.employee_id.compensatory_hours += self.aditional_he
 
 
     @api.depends('record_line_ids')
