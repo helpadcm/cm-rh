@@ -50,7 +50,6 @@ class teamHourRecord(models.Model):
             self.schedule1_in_id = turn_na_id.id
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
-        return True
 
     @api.onchange('turn_type_b')
     def send_values_b_turn(self):
@@ -59,7 +58,6 @@ class teamHourRecord(models.Model):
             self.schedule2_in_id = turn_na_id.id
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
-        return True
 
     @api.onchange('schedule1_in_id','schedule1_out_id','schedule2_in_id','schedule2_out_id')
     def calculate_data(self):
