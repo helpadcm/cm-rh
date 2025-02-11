@@ -109,3 +109,9 @@ class teamHourRecord(models.Model):
             else:
                 raise ValidationError('No hay registro planificado para la fecha %s del empleado %s'%(rec.date.strftime('%d/%m/%Y'), rec.employee_id.name))
             rec.state = 'validated'
+
+    def delete_records(self):
+        actual_day = (datetime.now() - timedelta(hours=6)).day
+        rec_ids = self.env['team.hour.record'].search([])
+        if actual_day in [7,22]:
+            rec_ids.unlink()

@@ -11,6 +11,7 @@
         """,
     'depends': ['portal','hr_turns_cm'],
     'data': [
+        'data/cron.xml',
         'data/action_server.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',

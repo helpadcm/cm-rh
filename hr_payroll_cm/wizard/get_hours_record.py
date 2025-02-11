@@ -201,15 +201,25 @@ class getRecordHours(models.TransientModel):
                     bonus = self.calculate_bonus(min_hours, max_hours, contract_id)
 
                     total_h = amount1 + amount2 + amount3
+                    extra_hours = 0
+                    oh = 0
                     if row.get('date').weekday() in [5,6]:
+                        if total_h > 0:
+                            oh = contract_id.weekend_hours
+                            extra_hours = total_h - contract_id.weekend_hours
+
                         vals.update({
-                            'ordinary_hours': contract_id.weekend_hours,
-                            'extra_hours': total_h - contract_id.weekend_hours
+                            'ordinary_hours': oh,
+                            'extra_hours': extra_hours
                         })
                     else:
+                        if total_h > 0:
+                            oh = 8
+                            extra_hours = total_h - 8
+
                         vals.update({
-                            'ordinary_hours': 8,
-                            'extra_hours': total_h - 8
+                            'ordinary_hours': oh,
+                            'extra_hours': extra_hours
                         })
 
                     vals.update({
