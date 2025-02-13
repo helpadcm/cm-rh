@@ -207,12 +207,13 @@ class HrPayslipBonus(models.Model):
         return res
 
     def compute_sheet(self):
-        self.get_other_incomes()
+        for rec in self:
+            rec.get_other_incomes()
         res = super(HrPayslipBonus, self).compute_sheet()
         return res
 
     def get_other_incomes(self):
-        income_ids = self.env['hr.other.incomes'].search([('employee_id','=',self.employee_id.id),('start_date','<=',self.date_from),('end_date','>=',self.date_to),('state','=','in_progress')])
+        income_ids = self.env['hr.other.incomes'].search([('employee_id','=',self.employee_id.id),('start_date','>=',self.date_from),('end_date','<=',self.date_to),('state','=','in_progress')])
         if income_ids:
             if self.input_line_ids:
                 incomes = income_ids.mapped('input_type_id').ids
