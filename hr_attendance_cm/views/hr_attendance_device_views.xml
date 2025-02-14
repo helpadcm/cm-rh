@@ -7,17 +7,27 @@
             <form string="Attendance Device">
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="device_id"/>
-                        <field name="ip_address"/>
-                        <field name="port"/>
-                        <field name="company_id"/>
-                        <field name="branch_id"/>
-                        <field name="city_id"/>
-                        <field name="employee_ids" widget="many2many_tags"/>
-                        <field name="latitude"/>
-                        <field name="longitude"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="device_id"/>
+                            <field name="ip_address"/>
+                            <field name="port"/>
+                            <field name="company_id"/>
+                            <field name="branch_id"/>
+                        </group>
+                        <group>
+                            <field name="city_id"/>
+                            <field name="employee_ids" widget="many2many_tags"/>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                            <field name="device_active"/>
+                        </group>
                     </group>
+                    <button name="action_test_connection"
+                            type="object" class="btn btn-secondary">
+                        <i class="fa fa-fw o_button_icon fa-television"/>
+                        Probar Conexion
+                    </button>
                 </sheet>
             </form>
         </field>
