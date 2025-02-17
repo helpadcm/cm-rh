@@ -23,6 +23,15 @@
         groups="hr_payroll_cm.responsible_accounting_rrhh_cm"
         sequence="21"
         action="action_hr_attendance_emp_revised"/>
+<!-- ############################################################################################ -->
+
+    <menuitem
+        id="employee_payslip_menuitem"
+        name="Resumen Nominas de Empleado"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="80"
+        action="payslip_resumen_employee_action"/>
+
 
 <!-- ############################################################################################ -->
 

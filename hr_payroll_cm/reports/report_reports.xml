@@ -43,4 +43,13 @@
         <field name="report_file">hr_payroll_cm.lot_format_cm_xlsx</field>
         <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
     </record>
+
+    <record id="action_employee_payslip_xlsx" model="ir.actions.report">
+        <field name="name">Resumen Nominas Empleado XLSX</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_payroll_cm.employee_payslip_xlsx</field>
+        <field name="report_file">hr_payroll_cm.employee_payslip_xlsx</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+    </record>
 </odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_employee_payslip" model="ir.ui.view">
+        <field name="name">hr.resume.payslip.employee.form</field>
+        <field name="model">hr.employee.payslip.resume</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Nomina por empleado">
+                <sheet>
+                    <group cols="4">
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="employee_id" required="1" options="{'no_create': True}"/>
+                        </group>
+                        <group >    
+                            <field name="end_date" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Imprimir" type="object" name="print_report" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="payslip_resumen_employee_action" model="ir.actions.act_window">
+        <field name="name">Resumen Nominas por empleado</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.employee.payslip.resume</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
