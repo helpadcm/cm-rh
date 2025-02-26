@@ -1,0 +1,210 @@
+<odoo>
+    <template id="portal_employee_absences" name="Ingreso de Horas">
+        <t t-call="portal.portal_layout">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Solicitar Ausencia</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial Ausencias</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="container tab-pane fade show active" id="tab1">
+
+                    <h2 class="text-center">Solicitud de ausencia</h2>
+                    <p class="text-center">Desde esta página podrá ingresar sus solicitudes para los distintos tipos de ausencias.</p>
+
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_absences/submit" method="POST" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                    <!-- Todos los campos ocupan el 100% del ancho -->
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Ausencia</label>
+                                            <select class="form-control" name="selection_absence_type" id="absence_type" required="required">
+                                                <t t-foreach="types_absences_ids" t-as="type">
+                                                    <option t-att-value="type.id" t-att-data-opt-code="type.code"><t t-esc="type.name"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12" id="vac_div_id">
+                                        <div class="mb-3">
+                                            <label class="form-label">Vacaciones Disp.</label>
+                                            <input type="text" disabled="disabled" class="form-control" name="record_vacations" id="vacations_id" t-att-value="vacations"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12" id="hcomp_div_id">
+                                        <div class="mb-3">
+                                            <label class="form-label">Compensatorios Disp.</label>
+                                            <input type="text" disabled="disabled" class="form-control" name="record_comp_days" id="comp_days_id" t-att-value="comp_days"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12" id="fly_div_id">
+                                        <div class="mb-3">
+                                            <label class="form-label">Programa a Volar</label>
+                                            <input type="text" disabled="disabled" class="form-control" name="record_program_to_fly" id="program_to_fly_id" t-att-value="program_to_fly"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha Inicial</label>
+                                            <input class="form-control" type="date" name="initial_date" id="initial_date_id" required="required"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha Final</label>
+                                            <input class="form-control" type="date" name="final_date" id="final_date_id" required="required"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Notas</label>
+                                            <input type="text" name="record_notes" class="form-control" id="notes"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-center">
+                                        <button type="submit" class="btn btn-primary mt-3">Registrar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab2" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-striped historical_table" >
+                            <thead>
+                                <tr>
+                                    <th class="header_historical">Tipo de Ausencia</th>
+                                    <th class="header_historical">Descripcion</th>
+                                    <th class="header_historical">Fecha de Inicio</th>
+                                    <th class="header_historical">Fecha de Finalizacion</th>
+                                    <th class="header_historical">Duracion</th>
+                                    <th class="header_historical">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="history_absences_ids" t-as="absences">
+                                    <tr>
+                                        <td><t t-esc="absences.holiday_status_id.name"/></td>
+                                        <td><t t-esc="absences.name"/></td>
+                                        <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')"/></td>
+                                        <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')"/></td>
+                                        <td><t t-esc="absences.duration_display"/></td>
+                                        <td t-if="absences.state == 'draft'">A enviar</td>
+                                        <td t-if="absences.state == 'confirm'">A aprobar</td>
+                                        <td t-if="absences.state == 'refuse'">Rechazado</td>
+                                        <td t-if="absences.state == 'validate1'">Segunda aprobacion</td>
+                                        <td t-if="absences.state == 'validate'">Aprobado</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    var absence_type = document.getElementById("absence_type");
+                    var vacDiv = document.getElementById("vac_div_id");
+                    var hcompDiv = document.getElementById("hcomp_div_id");
+                    var flyDiv = document.getElementById("fly_div_id");
+
+                    function setDefaultValues() {
+                        var selectedOption = absence_type.options[absence_type.selectedIndex];
+                        var type_code = selectedOption.getAttribute("data-opt-code");
+
+                        if (type_code === "VAC") {
+                            vacDiv.style.display = "block";
+                        } else {
+                            vacDiv.style.display = "none";
+                        }
+
+                        if (type_code === "HCOMP") {
+                            hcompDiv.style.display = "block";
+                        } else {
+                            hcompDiv.style.display = "none";
+                        }
+
+                        if (type_code === "PFLY") {
+                            flyDiv.style.display = "block";
+                        } else {
+                            flyDiv.style.display = "none";
+                        }
+                    }
+
+                    setDefaultValues();
+                    absence_type.addEventListener("change", setDefaultValues);
+                });
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

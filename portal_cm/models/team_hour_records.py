@@ -114,9 +114,9 @@ class teamHourRecord(models.Model):
     def delete_records(self):
         actual_date = (datetime.now() - timedelta(hours=6))
         delete_date = False
-        if actual_date.day == 26:
+        if actual_date.day == 27:
             delete_date = actual_date.replace(day=25).date()
-        if actual_date.day == 11:
+        if actual_date.day == 12:
             delete_date = actual_date.replace(day=10).date()
 
         if delete_date:

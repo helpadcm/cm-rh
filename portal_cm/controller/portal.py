@@ -3,6 +3,9 @@ from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+second = [26,27,28,29,30,31,1,2,3,4,5,6,7,8,9,10]
+first = [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+
 class CustomPortal(http.Controller):
 
     @http.route('/turns/record_hours_team', type='http', auth="user", website=True)
@@ -18,7 +21,8 @@ class CustomPortal(http.Controller):
         
         domain = [('employee_id','=',employee_id.id),('state','=','validated')]
         actual_domain = [('employee_id','=',employee_id.id),('state','=','validated')]
-        if actual_date.day <= 15:
+
+        if actual_date.day in first:
             min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
             max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
             domain.extend([('date','>=',min_date),('date','<=',max_date)])
@@ -26,13 +30,14 @@ class CustomPortal(http.Controller):
             actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
             actual_max_date = actual_date.replace(day=10).date()
             actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
-        else:
+
+        elif actual_date.day in second:
             min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
             max_date = actual_date.replace(day=10).date()
             domain.extend([('date','>=',min_date),('date','<=',max_date)])
 
-            actual_min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
-            actual_max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
+            actual_min_date = actual_date.replace(day=11).date()
+            actual_max_date = actual_date.replace(day=25).date()
             actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
         
         validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
