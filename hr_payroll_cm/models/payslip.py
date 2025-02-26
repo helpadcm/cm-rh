@@ -5,7 +5,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import calendar
 
 class HrPayslipBonus(models.Model):
@@ -24,17 +24,17 @@ class HrPayslipBonus(models.Model):
         for rec in self:
             if rec.date_from and rec.date_to:
                 total_days = calendar.monthrange(rec.date_from.year, rec.date_from.month)[1]
+                date = rec.date_from
                 if rec.date_from.day == 1:
-                    if total_days == 31:
-                        rec.esperated_hours = 104
-                    elif total_days == 30:
-                        rec.esperated_hours = 96
-                    elif total_days == 28:
-                        rec.esperated_hours = 80
-                    elif total_days == 29:
-                        rec.esperated_hours = 88
+                    min_date = (date - relativedelta(months=1)).replace(day=25)
+                    max_date = date.replace(day=10)
+                    diff = (max_date - min_date)
+                    rec.esperated_hours = (diff.days - 3) * 8
                 elif rec.date_from.day == 16:
-                    rec.esperated_hours = 96
+                    min_date = date.replace(day=10)
+                    max_date = date.replace(day=25)
+                    diff = (max_date - min_date)
+                    rec.esperated_hours = (diff.days - 3) * 8
                 else:
                     rec.esperated_hours = 0
 
