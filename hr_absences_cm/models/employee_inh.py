@@ -7,8 +7,8 @@ class HrEmployeeInh(models.Model):
     compensatory_hours = fields.Float(string="Horas compensatorios Disp.")
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
-    vacations_day = fields.Integer(string="Vacaciones Disp.",compute="get_available_vacations")
-    early_vacations = fields.Integer(string="Vacaciones Adelantadas")
+    vacations_day = fields.Float(string="Vacaciones Disp.",compute="get_available_vacations")
+    early_vacations = fields.Float(string="Vacaciones Adelantadas")
     program_to_fly = fields.Integer(string="Programa a Volar Disp.")
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
@@ -138,5 +138,5 @@ class vacationsDetail(models.Model):
 
     name = fields.Char(string="Tiempo")
     assigned_days = fields.Integer(string="Dias Asignados")
-    pending_days = fields.Integer(string="Dias Pendientes")
+    pending_days = fields.Float(string="Dias Pendientes")
     employee_id = fields.Many2one('hr.employee',string="Empleado")
