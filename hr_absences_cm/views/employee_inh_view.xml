@@ -9,17 +9,31 @@
                     <page name="personal_time" string="Tiempo Personal">
                         <group col="3">
                             <group>
-                                <field name="compensatory_hours" />
+                                <field name="compensatory_hours" readonly="1"/>
                                 <field name="compensatory_day_string" />
                                 <field name="compensatory_day" invisible="1"/>
                             </group>
                             <group>
-                                <field name="vacations_day" />
+                                <field name="vacations_day" readonly="1"/>
+                                <field name="early_vacations" readonly="1"/>
                             </group>
                             <group>
-                                <field name="program_to_fly" />
+                                <field name="program_to_fly" readonly="1"/>
+                                <field name="first_year" invisible="1"/>
+                                <field name="second_year" invisible="1"/>
                             </group>
                         </group>
+                        <notebook>
+                            <page string="Detalle de vacaciones">
+                                <field name="vacation_details_ids">
+                                    <tree create="false" delete="false">
+                                        <field name="name" />
+                                        <field name="assigned_days" />
+                                        <field name="pending_days" />
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </page>
                 </notebook>
             </field>

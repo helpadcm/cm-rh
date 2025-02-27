@@ -9,8 +9,10 @@
         This module provides the necessary functionality for CM Airlines.
         - Administration of the different absences that may occur in the company.
         """,
-    'depends': ['hr', 'hr_payroll', 'hr_contract','mail','hr_holidays'],
+    'depends': ['hr', 'hr_payroll', 'hr_contract','mail','hr_holidays','hr_contract_cm'],
     'data': [
+        'security/ir.model.access.csv',
+        'data/cron.xml',
         'views/employee_inh_view.xml',
         ],
     'installable': True,
