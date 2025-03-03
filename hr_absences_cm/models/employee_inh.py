@@ -116,9 +116,11 @@ class employeePublicHRInh(models.Model):
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
     vacations_day = fields.Integer(string="Vacaciones Disp.")
+    early_vacations = fields.Float(string="Vacaciones Adelantadas")
     program_to_fly = fields.Integer(string="Programa a Volar Disp.")
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
+    vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
 
     @api.depends('compensatory_hours')
     def calculate_days(self):
