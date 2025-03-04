@@ -21,8 +21,8 @@
                     <notebook>
                         <page string="Lineas">
                             <field name="template_line_ids">
-                                <tree editable="bottom">
-                                    <field name="day_opt" required="1"/>
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="day_opt" readonly="1" force_save="1"/>
                                     <field name="turn_type_a" options="{'no_create': True}" required="1"/>
                                     <field name="schedule1_in_id" force_save="1" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
                                     <field name="schedule1_out_id" force_save="1" readonly="editable_a == False" options="{'no_create': True}" required="1"/>

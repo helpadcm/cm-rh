@@ -24,6 +24,21 @@ class turnTemplates(models.Model):
     team_id = fields.Many2one('hr.work.teams',string="Equipo")
     template_line_ids = fields.One2many('hr.templates.turn.lines','template_id',string="Lineas de plantilla",copy=True)
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super(turnTemplates, self).default_get(fields_list)
+        vals = [
+            (0, 0, {'day_opt': '0'}),
+            (0, 0, {'day_opt': '1'}),
+            (0, 0, {'day_opt': '2'}),
+            (0, 0, {'day_opt': '3'}),
+            (0, 0, {'day_opt': '4'}),
+            (0, 0, {'day_opt': '5'}),
+            (0, 0, {'day_opt': '6'}),
+        ]
+        res.update({'template_line_ids': vals})
+        return res
+
     @api.onchange('team_id')
     def change_team(self):
         if self.team_id:
@@ -35,6 +50,12 @@ class turnTemplates(models.Model):
                 line.send_values_a_turn()
             if line.turn_type_b.code == 'LID':
                 line.send_values_b_turn()
+
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {},
+                       name=_("%s (copia)", self.name))
+        return super().copy(default=default)
 
 class turnTemplatesLines(models.Model):
     _name = 'hr.templates.turn.lines'
