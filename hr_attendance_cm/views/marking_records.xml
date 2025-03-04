@@ -36,6 +36,7 @@
             <tree string="Marcajes Reales">
                 <field name="employee_id"/>
                 <field name="date"/>
+                <field name="qty_marks"/>
                 <field name="state"/>
             </tree>
         </field>

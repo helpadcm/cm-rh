@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 from datetime import datetime, timedelta
 
 
@@ -13,6 +13,12 @@ class markingRealEmployees(models.Model):
     state = fields.Selection([('draft','Borrador'),('finalized','Finalizado')],string="Estado",default="draft")
     marking_ids = fields.One2many('list.marking.employees','marking_id',string="Listado de Marcajes")
     lost_marking = fields.Boolean(string="Marcajes perdidos")
+    qty_marks = fields.Integer(string="Cant. Lineas",compute="_calculate_lines_qty")
+
+    @api.depends('marking_ids')
+    def _calculate_lines_qty(self):
+        for rec in self:
+            rec.qty_marks = len(rec.marking_ids)
 
     def create_attendance(self):
         marking_record_ids = self.search([('state','=','draft')])
@@ -123,6 +129,7 @@ class markingRealEmployees(models.Model):
 class listMarkingEmployees(models.Model):
     _name = 'list.marking.employees'
     _description = 'Lista de Marcajes reales de empleados'
+    _order = 'date asc'
 
     date =  fields.Datetime(string="Fecha y Hora Marcaje")
     clock_id = fields.Many2one('hr.attendance.device',string="Reloj Marcador")

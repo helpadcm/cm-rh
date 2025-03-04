@@ -81,7 +81,7 @@ class HrAttendanceDevice(models.Model):
     def action_test_connection(self):
         """Checking the connection status"""
         zk = ZK(self.ip_address, port=self.port, timeout=30,
-                password=False, ommit_ping=False)
+                password=False, ommit_ping=True)
         try:
             if zk.connect():
                 return {
