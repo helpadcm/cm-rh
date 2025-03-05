@@ -39,6 +39,12 @@ class turnTemplates(models.Model):
         res.update({'template_line_ids': vals})
         return res
 
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {},
+                       name=_("%s (copia)", self.name))
+        return super().copy(default=default)
+        
     @api.onchange('team_id')
     def change_team(self):
         if self.team_id:
@@ -51,11 +57,6 @@ class turnTemplates(models.Model):
             if line.turn_type_b.code == 'LID':
                 line.send_values_b_turn()
 
-    @api.returns('self', lambda value: value.id)
-    def copy(self, default=None):
-        default = dict(default or {},
-                       name=_("%s (copia)", self.name))
-        return super().copy(default=default)
 
 class turnTemplatesLines(models.Model):
     _name = 'hr.templates.turn.lines'
