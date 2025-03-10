@@ -62,23 +62,25 @@ class getMarkings(models.TransientModel):
                         utc_dt = utc_dt.strftime("%Y-%m-%d %H:%M:%S")
                         atten_time = datetime.strptime(utc_dt, "%Y-%m-%d %H:%M:%S")
                         atten_time = fields.Datetime.to_string(atten_time)
-                        for uid in user:
-                            if uid.user_id == each.user_id:
-                                get_user_id = self.env['hr.employee'].search([('pin', '=', each.user_id)])
-                                if get_user_id:
-                                    vals = {
-                                        'date': each.timestamp,
-                                        'code_clock': machine.device_id
-                                    }
-                                    if get_user_id.id in code_employees:
-                                        markings[code_employees.index(get_user_id.id)]['lines'].append(vals)
-                                    else:
-                                        code_employees.append(get_user_id.id)
-                                        markings.append({
-                                            'code_employee': get_user_id.pin,
-                                            'date': self.date,
-                                            'lines': [vals]
-                                        })
+                        if user:
+                            for uid in user:
+                                if uid:
+                                    if uid.user_id == each.user_id:
+                                        get_user_id = self.env['hr.employee'].search([('pin', '=', each.user_id)])
+                                        if get_user_id:
+                                            vals = {
+                                                'date': each.timestamp,
+                                                'code_clock': machine.device_id
+                                            }
+                                            if get_user_id.id in code_employees:
+                                                markings[code_employees.index(get_user_id.id)]['lines'].append(vals)
+                                            else:
+                                                code_employees.append(get_user_id.id)
+                                                markings.append({
+                                                    'code_employee': get_user_id.pin,
+                                                    'date': self.date,
+                                                    'lines': [vals]
+                                                })
             self.create_real_marking(markings, self.option_form)
 
     def connect_sql_server(self):
