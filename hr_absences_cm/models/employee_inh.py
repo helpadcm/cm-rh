@@ -1,6 +1,12 @@
 from odoo import fields, models, api
 from datetime import datetime
 
+relationship_list = [
+    ('mother', 'Madre'), ('father','Padre'),
+    ('children','Hijo(a)'), ('siblings','Hermano(a)'),
+    ('couple','Pareja'),('other','Otro'), ('employee','Empleado')
+]
+
 class HrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
 
@@ -9,10 +15,11 @@ class HrEmployeeInh(models.Model):
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
     vacations_day = fields.Float(string="Vacaciones Disp.",compute="get_available_vacations")
     early_vacations = fields.Float(string="Vacaciones Adelantadas")
-    program_to_fly = fields.Integer(string="Programa a Volar Disp.")
+    program_to_fly = fields.Float(string="Programa a Volar Disp.")
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
+    beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
 
     @api.depends('vacation_details_ids','early_vacations')
     def get_available_vacations(self):
@@ -71,12 +78,18 @@ class HrEmployeeInh(models.Model):
                 'name': 'Vacaciones %s año(s)'%(years),
                 'employee_id': employee_id.id,
                 'assigned_days': days_qty,
-                'pending_days': days_qty
+                'pending_days': days_qty,
+                'year': years
             }
-            if len(employee_id.vacation_details_ids) in [0,1]:
-                employee_id.env['vacations.detail.list'].create(vals)
-            elif len(employee_id.vacation_details_ids) == 2:
-                employee_id.vacation_details_ids[0].unlink()
+            if len(employee_id.vacation_details_ids) > 0:
+                line_id = employee_id.vacation_details_ids.filtered(lambda line: line.year == years)
+                if not line_id:
+                    if len(employee_id.vacation_details_ids) in [0,1]:
+                        employee_id.env['vacations.detail.list'].create(vals)
+                    elif len(employee_id.vacation_details_ids) == 2:
+                        employee_id.vacation_details_ids[0].unlink()
+                        employee_id.env['vacations.detail.list'].create(vals)
+            else:
                 employee_id.env['vacations.detail.list'].create(vals)
 
     def assign_vacations(self):
@@ -99,15 +112,21 @@ class HrEmployeeInh(models.Model):
                     'name': 'Vacaciones %s año(s)'%(year),
                     'employee_id': self.id,
                     'assigned_days': days_qty,
-                    'pending_days': days_qty
+                    'pending_days': days_qty,
+                    'year': year
                 }
-                if year in [1,2]:
-                    if len(self.vacation_details_ids) in [0,1]:
-                        self.env['vacations.detail.list'].create(vals)
-                elif year >= 3:
-                    if len(self.vacation_details_ids) == 2:
-                        self.vacation_details_ids[0].unlink()
-                        self.env['vacations.detail.list'].create(vals)
+                if len(self.vacation_details_ids) > 0:
+                    line_id = self.vacation_details_ids.filtered(lambda line: line.year == year)
+                    if not line_id:
+                        if year in [1,2]:
+                            if len(self.vacation_details_ids) in [0,1]:
+                                self.env['vacations.detail.list'].create(vals)
+                        elif year >= 3:
+                            if len(self.vacation_details_ids) == 2:
+                                self.vacation_details_ids[0].unlink()
+                                self.env['vacations.detail.list'].create(vals)
+                else:
+                    self.env['vacations.detail.list'].create(vals)
 
 class employeePublicHRInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -115,12 +134,13 @@ class employeePublicHRInh(models.Model):
     compensatory_hours = fields.Float(string="Dias compensatorios Disp.")
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
-    vacations_day = fields.Integer(string="Vacaciones Disp.")
+    vacations_day = fields.Float(string="Vacaciones Disp.")
     early_vacations = fields.Float(string="Vacaciones Adelantadas")
-    program_to_fly = fields.Integer(string="Programa a Volar Disp.")
+    program_to_fly = fields.Float(string="Programa a Volar Disp.")
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
+    beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
 
     @api.depends('compensatory_hours')
     def calculate_days(self):
@@ -142,3 +162,15 @@ class vacationsDetail(models.Model):
     assigned_days = fields.Integer(string="Dias Asignados")
     pending_days = fields.Float(string="Dias Pendientes")
     employee_id = fields.Many2one('hr.employee',string="Empleado")
+    year = fields.Integer(string="Año")
+
+class vacationsDetail(models.Model):
+    _name = 'beneficiaries.detail.list'
+    _description = 'Beneficiarios programa a volar'
+
+    employee_id = fields.Many2one('hr.employee',string="Empleado")
+    name = fields.Char(string="Nombre")
+    identity = fields.Char(string="Identidad")
+    relationship = fields.Selection(relationship_list ,string="Parentesto")
+    observation = fields.Char(string="Observaciones")
+    is_employee = fields.Boolean(string="Es empleado")  

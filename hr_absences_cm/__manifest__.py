@@ -14,6 +14,8 @@
         'security/ir.model.access.csv',
         'data/cron.xml',
         'views/employee_inh_view.xml',
+        'views/flight_routes_view.xml',
+        'views/menu.xml',
         ],
     'installable': True,
     'application': False,

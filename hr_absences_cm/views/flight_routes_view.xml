@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="flight_routes_tree" model="ir.ui.view">
+        <field name="name">flight.routes.tree</field>
+        <field name="model">flight.routes</field>
+        <field name="arch" type="xml">
+            <tree string="Rutas" editable="bottom">
+                <field name="origin"/>
+                <field name="destination"/>
+                <field name="name" readonly="1" force_save="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_flight_routes" model="ir.actions.act_window">
+        <field name="name">Rutas de Vuelo</field>
+        <field name="res_model">flight.routes</field>
+        <field name="view_mode">tree</field>
+    </record>
+</odoo>
