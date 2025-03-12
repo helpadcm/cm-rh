@@ -164,6 +164,17 @@
                             </t>
                         </table>
                     </div>
+
+                    <t t-if="o.message_ids">
+                        <h4>Notas Registradas</h4>
+                        <ul>
+                            <t t-foreach="o.message_ids.filtered(lambda m: m.message_type == 'comment')" t-as="note">
+                                <li style="font-size: 12px">
+                                    <t t-esc="note.body" />
+                                </li>
+                            </t>
+                        </ul>
+                    </t>
                 </t>
             </template>
         </t>
