@@ -173,4 +173,4 @@ class vacationsDetail(models.Model):
     identity = fields.Char(string="Identidad")
     relationship = fields.Selection(relationship_list ,string="Parentesto")
     observation = fields.Char(string="Observaciones")
-    is_employee = fields.Boolean(string="Es empleado")  
+    is_employee = fields.Boolean(string="Es empleado")
