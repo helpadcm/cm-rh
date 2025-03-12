@@ -54,12 +54,24 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-12" id="fly_div_id">
-                                        <div class="mb-3">
-                                            <label class="form-label">Programa a Volar</label>
-                                            <input type="text" disabled="disabled" class="form-control" name="record_program_to_fly" id="program_to_fly_id" t-att-value="program_to_fly"/>
+                                    <div class="row">
+                                        <div class="col-md-6" id="middle_day_div_id">
+                                            <div class="mb-3">
+                                                <label class="form-label">Medio Día</label>
+                                                <input type="checkbox" class="form-check-input" name="record_middle_day" id="middle_day"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3" id="period_div_id">
+                                                <label class="form-label">Periodo</label>
+                                                <select class="form-control" name="selection_period" id="period_time">
+                                                    <option t-att-value="am">Mañana</option>
+                                                    <option t-att-value="pm">Tarde</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
+                                    
 
                                     <div class="col-12">
                                         <div class="mb-3">
@@ -69,11 +81,12 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <div class="mb-3">
+                                        <div class="mb-3" id="final_date_div">
                                             <label class="form-label">Fecha Final</label>
                                             <input class="form-control" type="date" name="final_date" id="final_date_id" required="required"/>
                                         </div>
                                     </div>
+
 
                                     <div class="col-12">
                                         <div class="mb-3">
@@ -99,7 +112,7 @@
                                     <th class="header_historical">Descripcion</th>
                                     <th class="header_historical">Fecha de Inicio</th>
                                     <th class="header_historical">Fecha de Finalizacion</th>
-                                    <th class="header_historical">Duracion</th>
+                                    <th class="header_historical">Solicitado</th>
                                     <th class="header_historical">Estado</th>
                                 </tr>
                             </thead>
@@ -108,9 +121,10 @@
                                     <tr>
                                         <td><t t-esc="absences.holiday_status_id.name"/></td>
                                         <td><t t-esc="absences.name"/></td>
-                                        <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')"/></td>
-                                        <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%Y-%m-%d %H:%M:%S')"/></td>
-                                        <td><t t-esc="absences.duration_display"/></td>
+                                        <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td t-if="absences.holiday_status_id.code == 'PFLY'"><t t-esc="int(absences.tickets_request)"/> Boleto(s)</td>
+                                        <td t-if="absences.holiday_status_id.code != 'PFLY'"><t t-esc="absences.duration_display"/></td>
                                         <td t-if="absences.state == 'draft'">A enviar</td>
                                         <td t-if="absences.state == 'confirm'">A aprobar</td>
                                         <td t-if="absences.state == 'refuse'">Rechazado</td>
@@ -144,7 +158,11 @@
                     var absence_type = document.getElementById("absence_type");
                     var vacDiv = document.getElementById("vac_div_id");
                     var hcompDiv = document.getElementById("hcomp_div_id");
-                    var flyDiv = document.getElementById("fly_div_id");
+                    var middleDayDiv = document.getElementById("middle_day_div_id");
+                    var periodDiv = document.getElementById("period_div_id");
+                    var middleDay = document.getElementById("middle_day");
+                    var finalDateDiv = document.getElementById("final_date_div");
+                    var finalDate = document.getElementById("final_date_id");
 
                     function setDefaultValues() {
                         var selectedOption = absence_type.options[absence_type.selectedIndex];
@@ -162,15 +180,20 @@
                             hcompDiv.style.display = "none";
                         }
 
-                        if (type_code === "PFLY") {
-                            flyDiv.style.display = "block";
-                        } else {
-                            flyDiv.style.display = "none";
+                        if(middleDay.checked){
+                            periodDiv.style.display = "block";
+                            finalDateDiv.style.display = "none";
+                            final_date_id.required = false;
+                        }else{
+                            periodDiv.style.display = "none";
+                            finalDateDiv.style.display = "block";
+                            final_date_id.required = true;
                         }
                     }
 
                     setDefaultValues();
                     absence_type.addEventListener("change", setDefaultValues);
+                    middleDay.addEventListener("change", setDefaultValues);
                 });
 
             </script>

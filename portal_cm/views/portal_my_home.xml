@@ -10,13 +10,25 @@
                 <t t-set="config_card" t-value="True"/>
             </t>
 
-            <!-- <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/portal_cm/static/src/img/absent.png'"/>
-                <t t-set="title">Ausencias</t>
-                <t t-set="text">Solicitar y ver mis ausencias</t>
-                <t t-set="url" t-value="'/absences/record_absences_employee'"/>
-                <t t-set="config_card" t-value="True"/>
-            </t> -->
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_absences_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/absent.png'"/>
+                    <t t-set="title">Ausencias</t>
+                    <t t-set="text">Solicitar y ver mis ausencias</t>
+                    <t t-set="url" t-value="'/absences/record_absences_employee'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).program_to_fly &gt; 0 and request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
+                    <t t-set="title">Programa a Volar</t>
+                    <t t-set="text">Solicitar beneficio programa a volar</t>
+                    <t t-set="url" t-value="'/absences/record_program_fly'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
         </xpath>
     </template>
 </odoo>

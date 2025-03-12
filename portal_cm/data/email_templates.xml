@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+        <record id="rrhh_notification_pv_template" model="mail.template">
+            <field name="name">Aprobacion Programa a Volar</field>
+            <field name="model_id" ref="hr_holidays.model_hr_leave"/>
+            <field name="subject">Aprobacion Programa a Volar</field>
+            <!-- <field name="email_from">{{object.employee_id.user_id.login}}</field> -->
+            <field name="email_to">conectividad@cmairlines.com</field>
+            <!-- <field name="email_cc">{{object.email_cc}}</field> -->
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="middle">
+                                                        <span style="font-size: 10px;">Solicitud</span><br/>
+                                                        <span style="font-size: 20px; font-weight: bold;" t-out="object.employee_id.name or ''"/> Programa a volar
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            Se ha aprobado el uso de <t t-out="object.tickets_request or ''"/> Boleto(s) de tipo <t t-if="object.exit_only">Ida</t><t t-if="not object.exit_only">Ida / Vuelta</t>,<br/><br/>
+                                                            Con ruta de salida <t t-out="object.exit_route_id.name or ''"/>.<br/><br/>
+                                                            <t t-if="not object.exit_only">Con ruta de Regreso <t t-out="object.return_route_id.name or ''"/>.<br/><br/></t>
+                                                            Con fecha(s) <t t-out="object.request_date_from or ''"/><t t-if="not object.exit_only"> - <t t-out="object.request_date_to or ''"/></t>.<br/><br/>
+                                                            <t t-if="object.tickets_request &gt; 0">Beneficiario 1: <t t-out="object.beneficiary1.name or ''"/>, Identidad: <t t-out="object.beneficiary1.identity or ''"/>.<br/><br/></t>
+                                                            <t t-if="object.tickets_request &gt; 1">Beneficiario 2: <t t-out="object.beneficiary2.name or ''"/>, Identidad: <t t-out="object.beneficiary2.identity or ''"/>.<br/><br/></t>
+                                                            <t t-if="object.tickets_request &gt; 2">Beneficiario 3: <t t-out="object.beneficiary3.name or ''"/>, Identidad: <t t-out="object.beneficiary3.identity or ''"/>.<br/><br/></t>
+                                                            <t t-if="object.tickets_request &gt; 3">Beneficiario 4: <t t-out="object.beneficiary4.name or ''"/>, Identidad: <t t-out="object.beneficiary4.identity or ''"/>.<br/><br/></t>
+                                                            <t t-if="object.name">Descripcion: <t t-out="object.name"/>.<br/><br/></t>
+                                                            <br/>Saludos.<br/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </field>
+        </record>
+
+   </data>
+</odoo>

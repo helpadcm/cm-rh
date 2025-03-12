@@ -10,4 +10,37 @@
         </field>
     </record>
 
+    <record id="hr_leave_portal_form" model="ir.ui.view">
+        <field name="name">hr.leave.portal.inh</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form_manager"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="code" invisible="1"/>
+            </field>
+            <field name="name" position="before">
+                <field name="tickets_request" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
+                <field name="exit_only" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
+                <field name="exit_route_id" options="{'no_create': True}" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
+                <field name="return_route_id" options="{'no_create': True}" invisible="code != 'PFLY' or exit_only == True" readonly="state not in ['draft','confirm']"/>
+                <field name="beneficiary1" options="{'no_create': True}" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']"/>
+                <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']"/>
+                <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']"/>
+                <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_employee_portal_form" model="ir.ui.view">
+        <field name="name">hr.employee.portal.inh</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group name="active_group" position="inside">
+                <field name="show_absences_menu"/>
+                <field name="show_pfly_menu"/>
+            </group>
+        </field>
+    </record>
+
 </odoo>
