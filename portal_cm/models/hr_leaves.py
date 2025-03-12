@@ -4,7 +4,7 @@ from odoo.http import request
 class HrLeavesType(models.Model):
     _inherit = 'hr.leave.type'
 
-    code = fields.Char(string="Codigo", tracking=True)
+    code = fields.Char(string="Codigo")
 
 class HrLeavesInh(models.Model):
     _inherit = 'hr.leave'
