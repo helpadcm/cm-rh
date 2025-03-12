@@ -4,6 +4,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class planificationReport(models.AbstractModel):
     _name = 'report.hr_turns_cm.planification_format_cm'
+    _description = "Formato de planificacion de turnos"
  
     @api.model
     def _get_report_values(self, docids, data=None):

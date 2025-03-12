@@ -5,6 +5,7 @@ import io
 class employeePayslipXlsx(models.AbstractModel):
     _name = 'report.hr_payroll_cm.employee_payslip_xlsx'
     _inherit = 'report.report_xlsx.abstract'
+    _description = "Resumen de nominas de empleado"
 
     def generate_xlsx_report(self, workbook, data, docids):
         info = self.get_data(data.get('start_date'),data.get('end_date'),data.get('employee_id'))

@@ -5,6 +5,7 @@ import io
 class lotFormatXlsx(models.AbstractModel):
     _name = 'report.hr_payroll_cm.lot_format_cm_xlsx'
     _inherit = 'report.report_xlsx.abstract'
+    _description = "Formato de nomina XLS"
 
     def generate_xlsx_report(self, workbook, data, docids):
         info = self.get_data(docids.ids)
