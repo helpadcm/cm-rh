@@ -7,12 +7,12 @@ import pytz
 class Contract(models.Model):
     _inherit = 'hr.contract'
 
-    hours_per_week = fields.Float(
-        string='Horas por Semana',
-        help='Horas de trabajo por semana',
-        tracking=True,
-        default=44.0
-        )
+    # hours_per_week = fields.Float(
+    #     string='Horas por Semana',
+    #     help='Horas de trabajo por semana',
+    #     tracking=True,
+    #     default=44.0
+    #     )
 
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
 
