@@ -36,9 +36,12 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <group name="active_group" position="inside">
-                <field name="show_absences_menu"/>
-                <field name="show_pfly_menu"/>
+            <group name="identification_group" position="after">
+                <group string="Permisos de Portal">
+                    <field name="show_absences_menu"/>
+                    <field name="show_pfly_menu"/>
+                    <field name="show_reserve_room_menu"/>
+                </group>
             </group>
         </field>
     </record>

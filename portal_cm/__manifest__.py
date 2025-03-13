@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Portal CM Airlines',
-    'version': '1.1',
+    'version': '1.2',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
     'summary': 'Portal for CM Airlines',
@@ -21,6 +21,7 @@
         'views/portal_custom_option.xml',
         'views/portal_absences.xml',
         'views/portal_program_fly.xml',
+        'views/portal_reserver_room.xml',
         'views/team_hour_rec_view.xml',
         'views/leave_view_inh.xml',
         'views/menus.xml',

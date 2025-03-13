@@ -1,0 +1,211 @@
+<odoo>
+    <template id="reserve_room_portal" name="Reservar Sala">
+        <t t-call="portal.portal_layout">
+            <h2 class="text-center">Reserva de sala</h2>
+            <p class="text-center">Desde aqui podra realizar su reservacion en la sala de oficina principa.<br></br>
+            Antes de intentar realizar su reserva consulte en que horarios se encuentra ya reservada. Para ello seleccione la fecha y de en consultar
+            </p>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Consultar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">Reservar</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="container tab-pane fade show active" id="tab1">
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_reserve/submit" method="POST" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="row g-2 p-2 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                    <h2 class="text-center">Consultar Sala</h2>
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Fecha a Consultar</label>
+                                        <input class="form-control" type="date" name="consult_date" id="consult_date_id" required="required"/>
+                                    </div>
+
+                                    <div class="col-12 col-md-6 text-center">
+                                        <button type="submit" class="btn btn-primary mt-3">Consultar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <t t-if="reserve_ids">
+                        <div class="table-responsive">
+                            <table class="table table-striped historical_reserve" >
+                                <thead>
+                                    <tr>
+                                        <th class="header_historical">Nombre</th>
+                                        <th class="header_historical">Fecha y Hora de Inicio</th>
+                                        <th class="header_historical">Fecha y Hora de Finalizacion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="reserve_ids" t-as="reserve">
+                                        <tr>
+                                            <td><t t-esc="reserve.name"/></td>
+                                            <td><t t-esc="(reserve.start_datetime - datetime.timedelta(hours=6)).strftime('%d/%m/%Y %H:%M')"/></td>
+                                            <td><t t-esc="(reserve.stop_datetime - datetime.timedelta(hours=6)).strftime('%d/%m/%Y %H:%M')"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <tr>
+                            <td colspan="3" style="font-size:18px" class="text-center"><strong>No hay reservas en esta fecha.</strong></td>
+                        </tr>
+                    </t>
+                </div>
+                <div id="tab2" class="tab-pane fade">
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_create_reserve/submit" method="POST" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha Inicial</label>
+                                            <input class="form-control" type="datetime-local" name="initial_date" id="initial_date_id" required="required"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="mb-3" id="final_date_div">
+                                            <label class="form-label">Fecha Final</label>
+                                            <input class="form-control" type="datetime-local" name="final_date" id="final_date_id" required="required"/>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nombre de Reserva</label>
+                                            <input type="text" name="record_reserve_name" class="form-control" id="notes" required="required"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-center">
+                                        <button type="submit" class="btn btn-primary mt-3">Reservar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                <!-- document.addEventListener("DOMContentLoaded", function () {
+                    var absence_type = document.getElementById("absence_type");
+                    var vacDiv = document.getElementById("vac_div_id");
+                    var hcompDiv = document.getElementById("hcomp_div_id");
+                    var middleDayDiv = document.getElementById("middle_day_div_id");
+                    var periodDiv = document.getElementById("period_div_id");
+                    var middleDay = document.getElementById("middle_day");
+                    var finalDateDiv = document.getElementById("final_date_div");
+                    var finalDate = document.getElementById("final_date_id");
+
+                    function setDefaultValues() {
+                        var selectedOption = absence_type.options[absence_type.selectedIndex];
+                        var type_code = selectedOption.getAttribute("data-opt-code");
+
+                        if (type_code === "VAC") {
+                            vacDiv.style.display = "block";
+                        } else {
+                            vacDiv.style.display = "none";
+                        }
+
+                        if (type_code === "HCOMP") {
+                            hcompDiv.style.display = "block";
+                        } else {
+                            hcompDiv.style.display = "none";
+                        }
+
+                        if(middleDay.checked){
+                            periodDiv.style.display = "block";
+                            finalDateDiv.style.display = "none";
+                            final_date_id.required = false;
+                        }else{
+                            periodDiv.style.display = "none";
+                            finalDateDiv.style.display = "block";
+                            final_date_id.required = true;
+                        }
+                    }
+
+                    setDefaultValues();
+                    absence_type.addEventListener("change", setDefaultValues);
+                    middleDay.addEventListener("change", setDefaultValues);
+                }); -->
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

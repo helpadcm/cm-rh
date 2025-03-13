@@ -67,9 +67,11 @@ class hrEmployeeInh(models.Model):
 
     show_absences_menu = fields.Boolean(string="Mostrar menu de ausencias en portal")
     show_pfly_menu = fields.Boolean(string="Mostrar menu de PV en portal")
+    show_reserve_room_menu = fields.Boolean(string="Mostrar menu reservar sala en portal")
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
 
     show_absences_menu = fields.Boolean(string="Mostrar menu de ausencias en portal")
     show_pfly_menu = fields.Boolean(string="Mostrar menu de PV en portal")
+    show_reserve_room_menu = fields.Boolean(string="Mostrar menu reservar sala en portal")
