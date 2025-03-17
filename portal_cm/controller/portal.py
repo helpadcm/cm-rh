@@ -17,6 +17,11 @@ class CustomPortal(http.Controller):
         draft_record_ids = request.env['team.hour.record'].sudo().search([('employee_id','=',employee_id.id)], order="date desc")
         turn_na_id = request.env['hr.options.schedules'].sudo().search([('name','=','NA')])
 
+        turn_initial_a_id = request.env['hr.options.schedules'].sudo().search([('name','=','800')])
+        turn_final_a_id = request.env['hr.options.schedules'].sudo().search([('name','=','1200')])
+        turn_initial_b_id = request.env['hr.options.schedules'].sudo().search([('name','=','1300')])
+        turn_final_b_id = request.env['hr.options.schedules'].sudo().search([('name','=','1700')])
+
         actual_date = datetime.now() - timedelta(hours=6)
         
         domain = [('employee_id','=',employee_id.id),('state','=','validated')]
@@ -42,7 +47,19 @@ class CustomPortal(http.Controller):
         
         validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
         actual_record_ids = request.env['hr.turn.registration'].sudo().search(actual_domain, order="date desc")
-        return request.render("portal_cm.portal_hours_record_team", {"records": types_turn_ids, "schedules": schedule_ids, 'draft_hours': draft_record_ids, 'validate_records': validate_record_ids, 'turn_na_id': turn_na_id.id, 'actual_record_ids': actual_record_ids})
+        values = {
+            "records": types_turn_ids, 
+            "schedules": schedule_ids, 
+            'draft_hours': draft_record_ids, 
+            'validate_records': validate_record_ids, 
+            'turn_na_id': turn_na_id.id, 
+            'turn_initial_a_id' : turn_initial_a_id.id,
+            'turn_final_a_id' : turn_final_a_id.id,
+            'turn_initial_b_id' : turn_initial_b_id.id,
+            'turn_final_b_id' : turn_final_b_id.id,
+            'actual_record_ids': actual_record_ids
+        }
+        return request.render("portal_cm.portal_hours_record_team", values)
 
     @http.route('/clear_flash_message', type='http', auth="user", methods=["POST"], website=True)
     def clear_flash_message(self):
@@ -55,6 +72,10 @@ class CustomPortal(http.Controller):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         turn_na_id = request.env['hr.options.schedules'].sudo().search([('name','=','NA')])
+        turn_initial_a_id = request.env['hr.options.schedules'].sudo().search([('name','=','800')])
+        turn_final_a_id = request.env['hr.options.schedules'].sudo().search([('name','=','1200')])
+        turn_initial_b_id = request.env['hr.options.schedules'].sudo().search([('name','=','1300')])
+        turn_final_b_id = request.env['hr.options.schedules'].sudo().search([('name','=','1700')])
 
         member_team_id = request.env['hr.employees.members'].sudo().search([('employee_id','=',employee_id.id)])
 
@@ -71,6 +92,11 @@ class CustomPortal(http.Controller):
             type_b_value = post.get("selection_turn_type_b")
             entry_2_value = post.get("rec_entry_2")
             out_2_value = post.get("rec_out_2")
+
+            def_entry_1_value = post.get("initial_turn_a")
+            def_out_1_value = post.get("final_turn_a")
+            def_entry_2_value = post.get("initial_turn_b")
+            def_out_2_value = post.get("final_turn_b")
 
             notes = post.get('record_notes') or ''
 
@@ -91,7 +117,7 @@ class CustomPortal(http.Controller):
             if type_turn_a_id.opt_turn == '0' and type_turn_b_id.opt_turn == '1':
                 entry_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_2_value)])
                 out_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_2_value)])
-                validator = self.validate_hours(None, None, entry_2_id.name, out_2_id.name)    
+                validator = self.validate_hours(None, None, entry_2_id.name, out_2_id.name, type_turn_a_id.code, type_turn_b_id.code)    
                 vals.update({
                     'schedule1_in_id': turn_na_id.id,
                     'schedule1_out_id': turn_na_id.id,
@@ -102,7 +128,7 @@ class CustomPortal(http.Controller):
             elif type_turn_a_id.opt_turn == '1' and type_turn_b_id.opt_turn == '0':
                 entry_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_1_value)])
                 out_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_1_value)])
-                validator = self.validate_hours(entry_1_id.name, out_1_id.name, None, None)
+                validator = self.validate_hours(entry_1_id.name, out_1_id.name, None, None, type_turn_a_id.code, type_turn_b_id.code)
                 vals.update({
                     'schedule1_in_id': entry_1_id.id,
                     'schedule1_out_id': out_1_id.id,
@@ -116,12 +142,14 @@ class CustomPortal(http.Controller):
                     'schedule2_in_id': turn_na_id.id,
                     'schedule2_out_id': turn_na_id.id,
                 })
-            else:    
+            else:
                 entry_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_1_value)])
                 out_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_1_value)])
                 entry_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_2_value)])
                 out_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_2_value)])
-                validator = self.validate_hours(entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name)
+                print ("################################")
+                print (entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name, type_turn_a_id.code, type_turn_b_id.code)
+                validator = self.validate_hours(entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name, type_turn_a_id.code, type_turn_b_id.code)
                 vals.update({
                     'schedule1_in_id': entry_1_id.id,
                     'schedule1_out_id': out_1_id.id,
@@ -161,7 +189,9 @@ class CustomPortal(http.Controller):
         week_name = 'Semana %s al %s'%(initial_date.strftime('%d/%m/%Y'), end_date.strftime('%d/%m/%Y'))
         return week_name
 
-    def validate_hours(self, entry1, out1, entry2, out2):
+    def validate_hours(self, entry1, out1, entry2, out2, code_a, code_b):
+        print ("/////////////////////////")
+        print (code_a, code_b)
         if all([entry1, out1, entry2, out2]):
             entry1_value = float(entry1)
             out1_value = float(out1)
@@ -188,6 +218,7 @@ class CustomPortal(http.Controller):
         elif not entry1 and not out1:
             entry2_value = float(entry2)
             out2_value = float(out2)
+            print (entry2_value, out2_value)
             if entry2_value < out2_value:
                 return True
             else:

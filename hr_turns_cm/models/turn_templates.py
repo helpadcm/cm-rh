@@ -76,28 +76,39 @@ class turnTemplatesLines(models.Model):
     @api.onchange('turn_type_a')
     def send_values_a_turn(self):
         turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
-        domain = [('alphabetical','=',False)]
+        turn_initial_a_id = self.env['hr.options.schedules'].search([('name','=','800')])
+        turn_final_a_id = self.env['hr.options.schedules'].search([('name','=','1200')])
         if self.turn_type_a.opt_turn == '0':
-            domain = [('alphabetical','=',True)]
             self.schedule1_in_id = turn_na_id.id
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
         else:
-            self.schedule1_in_id = False
-            self.schedule1_out_id = False
-            self.editable_a = True
-        return {'domain': {'schedule1_in_id': domain, 'schedule1_out_id': domain}}
+            if self.turn_type_a.code == 'VAC':
+                self.schedule1_in_id = turn_initial_a_id.id
+                self.schedule1_out_id = turn_final_a_id.id
+                self.editable_a = False
+            else:
+                self.schedule1_in_id = False
+                self.schedule1_out_id = False
+                self.editable_a = True
+        
+
 
     @api.onchange('turn_type_b')
     def send_values_b_turn(self):
         turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
-        domain = [('alphabetical','=',False)]
+        turn_initial_b_id = self.env['hr.options.schedules'].search([('name','=','1300')])
+        turn_final_b_id = self.env['hr.options.schedules'].search([('name','=','1700')])
         if self.turn_type_b.opt_turn == '0':
             self.schedule2_in_id = turn_na_id.id
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
         else:
-            self.schedule2_in_id = False
-            self.schedule2_out_id = False
-            self.editable_b = True
-        return {'domain': {'schedule2_in_id': domain, 'schedule2_out_id': domain}}
+            if self.turn_type_b.code == 'VAC':
+                self.schedule2_in_id = turn_initial_b_id.id
+                self.schedule2_out_id = turn_final_b_id.id
+                self.editable_b =  False
+            else:
+                self.schedule2_in_id = False
+                self.schedule2_out_id = False
+                self.editable_b = True

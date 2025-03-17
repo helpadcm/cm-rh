@@ -261,5 +261,3 @@ class getMarkings(models.TransientModel):
                                             'clock_id': clock_id.id,
                                             'date': new_mark_date
                                         })
-
-

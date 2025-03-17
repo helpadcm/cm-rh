@@ -53,31 +53,43 @@ class turnRegistration(models.Model):
     @api.onchange('turn_type_a')
     def send_values_a_turn(self):
         turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
-        domain = [('alphabetical','=',False)]
+        turn_initial_a_id = self.env['hr.options.schedules'].search([('name','=','800')])
+        turn_final_a_id = self.env['hr.options.schedules'].search([('name','=','1200')])
         if self.turn_type_a.opt_turn == '0':
-            domain = [('alphabetical','=',True)]
             self.schedule1_in_id = turn_na_id.id
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
         else:
-            self.schedule1_in_id = False
-            self.schedule1_out_id = False
-            self.editable_a = True
-        return {'domain': {'schedule1_in_id': domain, 'schedule1_out_id': domain}}
+            if self.turn_type_a.code == 'VAC':
+                self.schedule1_in_id = turn_initial_a_id.id
+                self.schedule1_out_id = turn_final_a_id.id
+                self.editable_a = False
+            else:
+                self.schedule1_in_id = False
+                self.schedule1_out_id = False
+                self.editable_a = True
+        
+
 
     @api.onchange('turn_type_b')
     def send_values_b_turn(self):
         turn_na_id = self.env['hr.options.schedules'].search([('name','=','NA')])
-        domain = [('alphabetical','=',False)]
+        turn_initial_b_id = self.env['hr.options.schedules'].search([('name','=','1300')])
+        turn_final_b_id = self.env['hr.options.schedules'].search([('name','=','1700')])
         if self.turn_type_b.opt_turn == '0':
             self.schedule2_in_id = turn_na_id.id
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
         else:
-            self.schedule2_in_id = False
-            self.schedule2_out_id = False
-            self.editable_b = True
-        return {'domain': {'schedule2_in_id': domain, 'schedule2_out_id': domain}}
+            if self.turn_type_b.code == 'VAC':
+                self.schedule2_in_id = turn_initial_b_id.id
+                self.schedule2_out_id = turn_final_b_id.id
+                self.editable_b =  False
+            else:
+                self.schedule2_in_id = False
+                self.schedule2_out_id = False
+                self.editable_b = True
+
 
     @api.onchange('schedule1_in_id','schedule1_out_id','schedule2_in_id','schedule2_out_id')
     def calculate_data(self):
@@ -99,6 +111,7 @@ class turnRegistration(models.Model):
                 amount2 = 0
                 aditional2 = 0
 
+
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
                 contract_id = rec.employee_id.sudo().contract_id
@@ -106,9 +119,16 @@ class turnRegistration(models.Model):
                     rec.oh = rec.employee_id.contract_id.sudo().weekend_hours
                 else:
                     rec.oh = 8
+
+                if rec.turn_type_a.code == 'VAC' and rec.turn_type_b.code == 'LID':
+                    rec.oh = amount1 / 100
+                elif rec.turn_type_b.code == 'VAC' and rec.turn_type_a.code == 'LID':
+                    rec.oh = amount2 / 100
+
                 rec.aditional_hours = rec.ordinary_hours - rec.oh
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
+                rec.oh = 0
 
     def get_turn_registration(self):
         actual_date = datetime.now().date()

@@ -18,6 +18,11 @@
                     
                     <input type="text" class="d-none" name="turn_na" id="id_turn_na" t-att-value="turn_na_id"/>
 
+                    <input type="text" class="d-none" name="initial_turn_a" id="id_initial_turn_a" t-att-value="turn_initial_a_id"/>
+                    <input type="text" class="d-none" name="final_turn_a" id="id_final_turn_a" t-att-value="turn_final_a_id"/>
+                    <input type="text" class="d-none" name="initial_turn_b" id="id_initial_turn_b" t-att-value="turn_initial_b_id"/>
+                    <input type="text" class="d-none" name="final_turn_b" id="id_final_turn_b" t-att-value="turn_final_b_id"/>
+
 
                     <h2 class="text-center">Ingreso de horas reales</h2>
                     <p class="text-center">Desde esta página podrá ingresar los horarios laborados en la semana. Por favor ingrese los datos reales.</p>
@@ -47,7 +52,7 @@
                                     <label class="form-label">Tipo Turno A</label>
                                     <select class="form-control" name="selection_turn_type_a" id="turn_tipo_a" required="required">
                                         <t t-foreach="records" t-as="types">
-                                            <option t-att-value="types.id" t-att-data-opt-turna="types.opt_turn"><t t-esc="types.name"/></option>
+                                            <option t-att-value="types.id" t-att-data-opt-turna="types.opt_turn" t-att-data-opt-turnacode="types.code"><t t-esc="types.name"/></option>
                                         </t>
                                     </select>
                                 </div>
@@ -77,7 +82,7 @@
                                     <label class="form-label">Tipo Turno B</label>
                                     <select class="form-control" name="selection_turn_type_b" id="turn_tipo_b" required="required">
                                         <t t-foreach="records" t-as="types">
-                                            <option t-att-value="types.id" t-att-data-opt-turnb="types.opt_turn"><t t-esc="types.name"/></option>
+                                            <option t-att-value="types.id" t-att-data-opt-turnb="types.opt_turn" t-att-data-opt-turnbcode="types.code"><t t-esc="types.name"/></option>
                                         </t>
                                     </select>
                                 </div>
@@ -126,7 +131,6 @@
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
                                     <th class="header_historical">HT</th>
-                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                     <th class="header_historical">Estado</th>
                                     <th class="header_historical">Acción</th>
@@ -147,7 +151,6 @@
                                         <td ><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td ><t t-esc="days.schedule2_out_id.name"/></td>
                                         <td ><t t-esc="days.ordinary_hours"/></td>
-                                        <td ><t t-esc="days.oh"/></td>
                                         <td ><t t-esc="days.aditional_hours"/></td>
                                         <td t-if="days.state == 'draft'">BORRADOR</td>
                                         <td t-if="days.state == 'validated'">VALIDADO</td>
@@ -163,14 +166,12 @@
                                             <i class="fa fa-check"></i>
                                         </td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
-                                        <t t-set="total_oh" t-value="total_oh + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
                                     <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <td><strong><t t-esc="total_oh"/></strong></td>
                                     <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
@@ -191,7 +192,6 @@
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
                                     <th class="header_historical">HT</th>
-                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
@@ -210,17 +210,14 @@
                                         <td><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td><t t-esc="days.schedule2_out_id.name"/></td>
                                         <td><t t-esc="days.ordinary_hours"/></td>
-                                        <td><t t-esc="days.oh"/></td>
                                         <td><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
-                                        <t t-set="total_oh" t-value="total_oh + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
                                     <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <td><strong><t t-esc="total_oh"/></strong></td>
                                     <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
@@ -241,7 +238,6 @@
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
                                     <th class="header_historical">HT</th>
-                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
@@ -260,17 +256,14 @@
                                         <td><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td><t t-esc="days.schedule2_out_id.name"/></td>
                                         <td><t t-esc="days.ordinary_hours"/></td>
-                                        <td><t t-esc="days.oh"/></td>
                                         <td><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
-                                        <t t-set="total_oh" t-value="total_oh + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
                                     <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <td><strong><t t-esc="total_oh"/></strong></td>
                                     <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
@@ -305,13 +298,20 @@
                     var out2 = document.getElementById("out_2");
 
                     var na_id = document.getElementById("id_turn_na");
+                    var start_turn_a_id = document.getElementById("id_initial_turn_a");
+                    var end_turn_a_id = document.getElementById("id_final_turn_a");
+                    var start_turn_b_id = document.getElementById("id_initial_turn_b");
+                    var end_turn_b_id = document.getElementById("id_final_turn_b");
+
 
                     function setDefaultValues() {
                         var selectedOption = turnTypeA.options[turnTypeA.selectedIndex];
-                        var optTurnA = selectedOption.getAttribute("data-opt-turna"); // Obtener el valor de opt_turn
+                        var optTurnA = selectedOption.getAttribute("data-opt-turna");
+                        var optTurnACode = selectedOption.getAttribute("data-opt-turnacode");
 
                         var selectedOption = turnTypeB.options[turnTypeB.selectedIndex];
-                        var optTurnB = selectedOption.getAttribute("data-opt-turnb"); // Obtener el valor de opt_turn
+                        var optTurnB = selectedOption.getAttribute("data-opt-turnb");
+                        var optTurnBCode = selectedOption.getAttribute("data-opt-turnbcode");
 
                         if (optTurnA === "0") {
                             entry1.value = na_id.value;
@@ -319,10 +319,17 @@
                             entry1.setAttribute("disabled", true);
                             out1.setAttribute("disabled", true);
                         }else{
-                            entry1.value = false;
-                            out1.value = false;
-                            entry1.removeAttribute("disabled");
-                            out1.removeAttribute("disabled");
+                            if (optTurnACode === "VAC") {
+                                entry1.value = start_turn_a_id.value;
+                                out1.value = end_turn_a_id.value;
+                                <!-- entry1.setAttribute("disabled", true);
+                                out1.setAttribute("disabled", true); -->
+                            }else{
+                                entry1.value = false;
+                                out1.value = false;
+                                entry1.removeAttribute("disabled");
+                                out1.removeAttribute("disabled");
+                            }
                         }
 
                         if (optTurnB === "0") {
@@ -331,11 +338,20 @@
                             entry2.setAttribute("disabled", true);
                             out2.setAttribute("disabled", true);
                         }else{
-                            entry2.value = false;
-                            out2.value = false;
-                            entry2.removeAttribute("disabled");
-                            out2.removeAttribute("disabled");
+                            if (optTurnBCode === "VAC") {
+                                entry2.value = start_turn_b_id.value;
+                                out2.value = end_turn_b_id.value;
+                                <!-- entry2.setAttribute("disabled", true);
+                                out2.setAttribute("disabled", true); -->
+                            }else{
+                                entry2.value = false;
+                                out2.value = false;
+                                entry2.removeAttribute("disabled");
+                                out2.removeAttribute("disabled");
+                            }
                         }
+
+
                     }
 
                     // Asignar valores al cargar la página
