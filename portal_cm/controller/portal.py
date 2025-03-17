@@ -147,8 +147,6 @@ class CustomPortal(http.Controller):
                 out_1_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_1_value)])
                 entry_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',entry_2_value)])
                 out_2_id = request.env['hr.options.schedules'].sudo().search([('id','=',out_2_value)])
-                print ("################################")
-                print (entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name, type_turn_a_id.code, type_turn_b_id.code)
                 validator = self.validate_hours(entry_1_id.name, out_1_id.name, entry_2_id.name, out_2_id.name, type_turn_a_id.code, type_turn_b_id.code)
                 vals.update({
                     'schedule1_in_id': entry_1_id.id,
@@ -190,8 +188,6 @@ class CustomPortal(http.Controller):
         return week_name
 
     def validate_hours(self, entry1, out1, entry2, out2, code_a, code_b):
-        print ("/////////////////////////")
-        print (code_a, code_b)
         if all([entry1, out1, entry2, out2]):
             entry1_value = float(entry1)
             out1_value = float(out1)
