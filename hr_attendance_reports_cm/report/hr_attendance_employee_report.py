@@ -96,8 +96,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
     def _get_domain(self):
         return [
-            ('check_in', '>=', self.date_from),
-            ('check_in', '<=', self.date_to),
+            ('attendance_date', '>=', self.date_from),
+            ('attendance_date', '<=', self.date_to),
             ('employee_id', '=', self.employee_id.id),
             ]
 
