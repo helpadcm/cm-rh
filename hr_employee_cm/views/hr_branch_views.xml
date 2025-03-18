@@ -7,14 +7,19 @@
             <form string="Branch">
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="code"/>
-                        <field name="company_id"/>
-                        <field name="city_id"/>
-                        <field name="parent_id"/>
-                        <field name="manager_id"/>
-                        <field name="active"/>
-                        <field name="color"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="company_id"/>
+                            <field name="city_id"/>
+                            <field name="exact_address"/>
+                        </group>
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="manager_id"/>
+                            <field name="active"/>
+                            <field name="color"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Child Branches">
