@@ -10,7 +10,7 @@
                 <field name="in_branch_id" invisible="1"/>
                 <field name="out_device_id"/>
                 <field name="out_branch_id" invisible="1"/>
-                <field name="attendance_date"/>
+                <field name="attendance_date" invisible="1"/>
             </xpath>
         </field>
     </record>
