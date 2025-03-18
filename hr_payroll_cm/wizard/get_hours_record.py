@@ -46,7 +46,7 @@ class getRecordHours(models.TransientModel):
     def get_records(self):
         employees = self.employee_ids
         if not self.employee_ids:
-            attendances_ids = self.env['hr.attendance'].search([('check_in', '>=', self.date_from),('check_in', '<=', self.date_to)])
+            attendances_ids = self.env['hr.attendance'].search([('attendance_date', '>=', self.date_from),('attendance_date', '<=', self.date_to)])
             employees = attendances_ids.mapped('employee_id')
         else:
             employees = self.employee_ids.ids
@@ -114,7 +114,7 @@ class getRecordHours(models.TransientModel):
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 if turn_line_id:
                     if turn_line_id.state == 'draft':
-                        raise ValidationError('La fecha %s del equipo %s no ha sido validada'%(turn_line_id.date, turn_line_id.team_id.name))
+                        raise ValidationError('La fecha %s del empleado %s en el equipo %s no ha sido validada'%(turn_line_id.date, contract_id.employee_id.name, turn_line_id.team_id.name))
 
                     entry_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_in_id)
                     out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
