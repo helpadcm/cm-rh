@@ -6,6 +6,9 @@
         <field name="arch" type="xml">
             <form string="Attendance Device">
                 <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button string="Asistencias" name="show_absences" type="object" class="oe_stat_button" icon="fa-calendar"/>
+                    </div>
                     <group>
                         <group>
                             <field name="employee_id" readonly="1"/>

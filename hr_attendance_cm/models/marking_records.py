@@ -1,5 +1,5 @@
 from odoo import fields, models, api
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 
 class markingRealEmployees(models.Model):
@@ -45,6 +45,7 @@ class markingRealEmployees(models.Model):
                             'employee_id': mark.employee_id.id,
                             'in_device_id': line.clock_id.id,
                             'in_mode': 'attendance_system',
+                            'attendance_date': mark.date,
                             'check_in': line.date
                         }
                     count += 1
@@ -67,6 +68,7 @@ class markingRealEmployees(models.Model):
                     'employee_id': mark.employee_id.id,
                     'in_device_id': clock_in_id.id,
                     'check_in': min_date,
+                    'attendance_date': mark.date,
                     'out_device_id': clock_out_id.id,
                     'check_out': max_date,
                     'in_mode': 'attendance_system'
@@ -91,6 +93,7 @@ class markingRealEmployees(models.Model):
                                 'employee_id': mark.employee_id.id,
                                 'in_device_id': line.clock_id.id,
                                 'in_mode': 'attendance_system',
+                                'attendance_date': mark.date,
                                 'check_in': line.date
                             }
                         else:
@@ -100,6 +103,7 @@ class markingRealEmployees(models.Model):
                                 'check_in': line.date,
                                 'out_device_id': line.clock_id.id,
                                 'check_out': line.date,
+                                'attendance_date': mark.date,
                                 'in_mode': 'attendance_system',
                                 'observations': 'En uno de los turnos se realizo una sola marca'
                             }
@@ -114,6 +118,7 @@ class markingRealEmployees(models.Model):
                     'check_in': mark.marking_ids[0].date,
                     'out_device_id': mark.marking_ids[0].clock_id.id,
                     'check_out': mark.marking_ids[0].date,
+                    'attendance_date': mark.date,
                     'in_mode': 'attendance_system',
                     'observations': 'En uno de los turnos se realizo una sola marca'
                 }
@@ -121,10 +126,28 @@ class markingRealEmployees(models.Model):
                 mark.state = 'finalized'
 
     def delete_attendances(self,mark):
-        attendance_ids = self.env['hr.attendance'].search([('check_in','<=',mark.date),('check_out','>=',mark.date),('employee_id','=',mark.employee_id.id)])
+        attendance_ids = self.env['hr.attendance'].search([('attendance_date','=',mark.date),('employee_id','=',mark.employee_id.id)])
         if attendance_ids:
             attendance_ids.unlink()
         mark.lost_marking = False
+
+    def show_absences(self):
+        consult_initial_date = datetime.combine(self.date, datetime.min.time())
+        consult_final_date = datetime.combine(self.date, time(23,59))
+        attendance_ids = self.env['hr.attendance'].search([('attendance_date','=',consult_initial_date),('employee_id','=',self.employee_id.id)])
+        if attendance_ids:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Listado de Asistencias',
+                'view_mode': 'tree',
+                'res_model': 'hr.attendance',
+                'views': [(self.env.ref('hr_attendance.view_attendance_tree').id, 'tree')],
+                'domain': [('id','=',attendance_ids.ids)],
+                'target': 'current',
+                'context': self.env.context
+            }
+        else:
+            return True
 
 class listMarkingEmployees(models.Model):
     _name = 'list.marking.employees'

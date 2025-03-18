@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 import pymssql
 from datetime import datetime, timedelta
 import logging
@@ -39,6 +39,11 @@ class HrAttendance(models.Model):
         selection_add=[('attendance_system', 'Attendance System')], )
 
     observations = fields.Char(string="Observaciones")
+
+    attendance_date = fields.Date(string="Fecha de asistencia")
+
+    def get_attendance_date(self):
+        self.attendance_date = (self.check_in - timedelta(hours=6)).date()
 
     def connect_sql_server(self):
         server = '10.1.4.56'

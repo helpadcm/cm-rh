@@ -206,6 +206,9 @@ class getMarkings(models.TransientModel):
             conn = zk.connect()
             return conn
         except Exception:
+            _logger = logging.getLogger(__name__)
+            _logger.info("#################### Error de conexion ######################")
+            _logger.info(zk)
             return False
 
     def create_real_marking(self, markings, form):
