@@ -93,11 +93,6 @@ class CustomPortal(http.Controller):
             entry_2_value = post.get("rec_entry_2")
             out_2_value = post.get("rec_out_2")
 
-            def_entry_1_value = post.get("initial_turn_a")
-            def_out_1_value = post.get("final_turn_a")
-            def_entry_2_value = post.get("initial_turn_b")
-            def_out_2_value = post.get("final_turn_b")
-
             notes = post.get('record_notes') or ''
 
             type_turn_a_id = request.env['hr.turn.types'].sudo().search([('id','=',type_a_value)])
@@ -214,7 +209,6 @@ class CustomPortal(http.Controller):
         elif not entry1 and not out1:
             entry2_value = float(entry2)
             out2_value = float(out2)
-            print (entry2_value, out2_value)
             if entry2_value < out2_value:
                 return True
             else:
