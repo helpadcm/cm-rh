@@ -48,8 +48,8 @@ class digitalSignaturePortal(http.Controller):
     @http.route('/signaturePortal/download/<int:config_id>', type='http', auth='user', website=False)
     def download_signature(self, config_id, **kwargs):
         """Genera la firma y la devuelve como un archivo descargable."""
-        config = request.env['digital.sign.creator'].browse(config_id)
-        conf_id = request.env['digital.sign.conf'].search([])
+        config = request.env['digital.sign.creator'].sudo().browse(config_id)
+        conf_id = request.env['digital.sign.conf'].sudo().search([])
         if not conf_id:
             raise ValidationError("No existe plantilla para firma")
 
