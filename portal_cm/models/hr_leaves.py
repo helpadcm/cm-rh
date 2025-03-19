@@ -65,13 +65,15 @@ class HrLeavesInh(models.Model):
 class hrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
 
-    show_absences_menu = fields.Boolean(string="Mostrar menu de ausencias en portal")
-    show_pfly_menu = fields.Boolean(string="Mostrar menu de PV en portal")
-    show_reserve_room_menu = fields.Boolean(string="Mostrar menu reservar sala en portal")
+    show_absences_menu = fields.Boolean(string="Ausencias")
+    show_pfly_menu = fields.Boolean(string="Programa a Volar")
+    show_reserve_room_menu = fields.Boolean(string="Reservar sala")
+    show_download_signature_menu = fields.Boolean(string="Descargar Firma")
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
 
-    show_absences_menu = fields.Boolean(string="Mostrar menu de ausencias en portal")
-    show_pfly_menu = fields.Boolean(string="Mostrar menu de PV en portal")
-    show_reserve_room_menu = fields.Boolean(string="Mostrar menu reservar sala en portal")
+    show_absences_menu = fields.Boolean(string="Ausencias")
+    show_pfly_menu = fields.Boolean(string="Programa a Volar")
+    show_reserve_room_menu = fields.Boolean(string="Reservar sala")
+    show_download_signature_menu = fields.Boolean(string="Descargar Firma")

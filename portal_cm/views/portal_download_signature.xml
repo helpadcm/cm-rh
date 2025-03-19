@@ -1,0 +1,91 @@
+<odoo>
+    <template id="portal_download_signature" name="Descargar Firma">
+        <t t-call="portal.portal_layout">
+            <div class="container tab-pane fade show active" id="tab1">
+
+                <h2 class="text-center">Descargar Firma Digital</h2>
+                <p class="text-center">Desde esta página podrá descargar su firma digital.</p>
+
+                <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                    <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                        <t t-esc="request.session.pop('flash_message')"/>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-8 col-lg-6">
+                        <form action="/download_signature/submit" method="POST" class="mt-2" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" name="employee_name" id="employee_name_id" t-att-value="employee_name"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Puesto de Trabajo</label>
+                                        <input type="text" disabled="disabled" class="form-control" name="record_job" id="job_id" t-att-value="job"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Dirección</label>
+                                        <input type="text" disabled="disabled" class="form-control" name="record_address" id="address_id" t-att-value="address"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Telefono</label>
+                                        <input type="text" disabled="disabled" class="form-control" name="record_mobile" id="mobile_id" t-att-value="mobile"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary mt-3">Descargar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

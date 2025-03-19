@@ -81,7 +81,8 @@ class getMarkings(models.TransientModel):
                                                     'date': self.date,
                                                     'lines': [vals]
                                                 })
-            self.create_real_marking(markings, self.option_form)
+            if len(markings) > 0:
+                self.create_real_marking(markings, self.option_form)
 
     def connect_sql_server(self):
         server = '10.1.4.56'
@@ -251,7 +252,7 @@ class getMarkings(models.TransientModel):
                                         'clock_id': clock_id.id,
                                         'date': line.get('date') + timedelta(hours=6)
                                     })
-                        elif actual_marks > consult_marks:
+                        elif actual_marks >= consult_marks:
                             for new_mark in mark.get('lines'):
                                 new_mark_date = new_mark.get('date') + timedelta(hours=6)
                                 mark_exist = exist_marking_id.marking_ids.filtered(lambda list_date: list_date.date == new_mark_date)

@@ -9,7 +9,7 @@
         This module provides the necessary functionality for CM Airlines.
         - Portal actions.
         """,
-    'depends': ['portal','hr_turns_cm','hr_holidays', 'hr_absences_cm'],
+    'depends': ['portal','hr_turns_cm','hr_holidays', 'hr_absences_cm', 'hr_employee_cm'],
     'data': [
         'data/cron.xml',
         'data/email_templates.xml',
@@ -22,6 +22,7 @@
         'views/portal_absences.xml',
         'views/portal_program_fly.xml',
         'views/portal_reserver_room.xml',
+        'views/portal_download_signature.xml',
         'views/team_hour_rec_view.xml',
         'views/leave_view_inh.xml',
         'views/menus.xml',

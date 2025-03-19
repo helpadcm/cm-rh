@@ -39,6 +39,16 @@
                     <t t-set="config_card" t-value="True"/>
                 </t>
             </t>
+
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_download_signature_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/digital_signature.png'"/>
+                    <t t-set="title">Descargar Firma</t>
+                    <t t-set="text">Descargar Firma Digital</t>
+                    <t t-set="url" t-value="'/digitalSignature/downloadSignature'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
         </xpath>
     </template>
 </odoo>
