@@ -2,6 +2,7 @@ from odoo import models, fields, _, api
 from babel.dates import format_date
 import calendar
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
 
 class getRecordHours(models.TransientModel):
@@ -75,6 +76,7 @@ class getRecordHours(models.TransientModel):
             emp_data = []
             header_data = employee_attendance_data['header']
             rows_data = employee_attendance_data['rows']
+            esperated_hours = self.get_esperated_hours(self.payslip_date_from, self.payslip_date_to)
 
             rec_id = self.env['hr.employee.attendance.record'].create({
                 'name': 'Registro de Asistencia %s %s'%(header_data.get('employee'), header_data.get('start_date')),
@@ -84,7 +86,7 @@ class getRecordHours(models.TransientModel):
                 'code': header_data.get('employee_no'),
                 'start_date': header_data.get('start_date'),
                 'end_date': header_data.get('end_date'),
-                'esperated_hours': header_data.get('expected_hours'),
+                'esperated_hours': esperated_hours,
                 'eh_limit': contract_id.max_extra_hours,
                 'tb_max': contract_id.max_transportation_bonus,
                 'tb_bonus': contract_id.value_bonus,
@@ -257,3 +259,20 @@ class getRecordHours(models.TransientModel):
             return new_date.strftime("%H:%M:%S")
         else:
             return False
+
+    def get_esperated_hours(self, date_from, date_to):
+        date = date_from
+        esperated_hours = 0
+        if date_from.day == 1:
+            min_date = (date - relativedelta(months=1)).replace(day=25)
+            max_date = date.replace(day=10)
+            diff = (max_date - min_date)
+            esperated_hours = (diff.days - 3) * 8
+        elif date_from.day == 16:
+            min_date = date.replace(day=10)
+            max_date = date.replace(day=25)
+            diff = (max_date - min_date)
+            esperated_hours = (diff.days - 3) * 8
+        else:
+            esperated_hours = 0
+        return esperated_hours

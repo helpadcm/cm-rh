@@ -156,9 +156,11 @@
                 <field name="employee_id"/>
                 <field name="department_id"/>
                 <field name="period"/>
+                <filter string="Borrador" name="draft_filter" domain="[('state','=','draft')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Periodo" name="period_group" context="{'group_by':'period'}"/>
                     <filter string="Departamento" name="department_group" context="{'group_by':'department_id'}"/>
+                    <filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
                 </group>
             </search>
         </field>
