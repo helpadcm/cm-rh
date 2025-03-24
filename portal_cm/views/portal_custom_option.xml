@@ -130,7 +130,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">Horas Trabajadas</th>
                                     <th class="header_historical">HE</th>
                                     <th class="header_historical">Estado</th>
                                     <th class="header_historical">Acción</th>
@@ -191,7 +191,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">Horas Trabajadas</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
@@ -237,7 +237,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">HT</th>
+                                    <th class="header_historical">Horas Trabajadas</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>

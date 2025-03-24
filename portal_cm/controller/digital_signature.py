@@ -68,6 +68,11 @@ class digitalSignaturePortal(http.Controller):
         y_mobile_position = conf_id.y_mobile_position
         mobile_font_size = conf_id.mobile_font_size
 
+        ###################  company phone configuration  ##############################
+        x_phone_comp_position = conf_id.x_phone_comp_position
+        y_phone_comp_position = conf_id.y_phone_comp_position
+        phone_comp_font_size = conf_id.phone_comp_font_size
+
         ###################  address configuration  ##############################
         x_address_position = conf_id.x_address_position
         y_address_position = conf_id.y_address_position
@@ -89,16 +94,19 @@ class digitalSignaturePortal(http.Controller):
             name_font = ImageFont.truetype(name_font_path, name_font_size)
             job_font = ImageFont.truetype(job_font_path, job_font_size)
             address_font = ImageFont.truetype(job_font_path, address_font_size)
+            company_font = ImageFont.truetype(job_font_path, address_font_size)
         except IOError:
             name_font = ImageFont.load_default()
             job_font = ImageFont.load_default()
             address_font = ImageFont.load_default()
+            company_font = ImageFont.load_default()
 
         # Dibujar el texto en la posición predefinida
         name_text_position = (x_name_position, y_name_position)
         job_text_position = (x_job_position, y_job_position)
         address_text_position = (x_address_position, y_address_position)
         mobile_text_position = (x_mobile_position, y_mobile_position)
+        company_text_position = (x_phone_comp_position, y_phone_comp_position)
         color_hex = "#1B371F"
         name_color_rgb = self.hex_to_rgb(color_hex)
 
@@ -106,6 +114,7 @@ class digitalSignaturePortal(http.Controller):
         draw.text(job_text_position, config.employee_id.job_id.name or '', fill=name_color_rgb, font=job_font)
         draw.text(address_text_position, config.employee_id.work_location_id.name or '', fill="white", font=address_font)
         draw.text(mobile_text_position, config.employee_id.mobile_phone or '', fill="white", font=address_font)
+        draw.text(company_text_position, config.employee_id.company_id.phone or '', fill="white", font=company_font)
 
         # Guardar la imagen en memoria
         output = BytesIO()
