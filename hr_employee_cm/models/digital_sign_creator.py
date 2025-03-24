@@ -52,21 +52,26 @@ class digitalSignConf(models.Model):
     sign_template = fields.Binary(string="Plantilla Firma", attachment=True)
     
     ###################  name configuration  ##############################
-    x_name_position = fields.Integer(string="Posicion X (Nombre)", default=720)
-    y_name_position = fields.Integer(string="Posicion Y (Nombre)", default=130)
-    name_font_size = fields.Integer(string="Tamaño de letra (Nombre) ", default=70)
+    x_name_position = fields.Integer(string="Posicion X (Nombre)", default=865)
+    y_name_position = fields.Integer(string="Posicion Y (Nombre)", default=155)
+    name_font_size = fields.Integer(string="Tamaño de letra (Nombre) ", default=75)
 
     ###################  job configuration  ##############################
-    x_job_position = fields.Integer(string="Posicion X (Puesto)", default=720)
-    y_job_position = fields.Integer(string="Posicion Y (Puesto)", default=210)
-    job_font_size = fields.Integer(string="Tamaño de letra (Puesto) ", default=27)
+    x_job_position = fields.Integer(string="Posicion X (Puesto)", default=865)
+    y_job_position = fields.Integer(string="Posicion Y (Puesto)", default=250)
+    job_font_size = fields.Integer(string="Tamaño de letra (Puesto) ", default=30)
 
     ###################  mobile configuration  ##############################
-    x_mobile_position = fields.Integer(string="Posicion X (Telefono)", default=178)
-    y_mobile_position = fields.Integer(string="Posicion Y (Telefono)", default=467)
-    mobile_font_size = fields.Integer(string="Tamaño de letra (Telefono) ", default=27)
+    x_mobile_position = fields.Integer(string="Posicion X (Telefono)", default=120)
+    y_mobile_position = fields.Integer(string="Posicion Y (Telefono)", default=577)
+    mobile_font_size = fields.Integer(string="Tamaño de letra (Telefono) ", default=30)
+
+    ###################  company phone configuration  ##############################
+    x_phone_comp_position = fields.Integer(string="Posicion X (Empresa)", default=480)
+    y_phone_comp_position = fields.Integer(string="Posicion Y (Empresa)", default=577)
+    phone_comp_font_size = fields.Integer(string="Tamaño de letra (Empresa) ", default=30)
 
     ###################  address configuration  ##############################
-    x_address_position = fields.Integer(string="Posicion X (Direccion)", default=965)
-    y_address_position = fields.Integer(string="Posicion Y (Direccion)", default=467)
-    address_font_size = fields.Integer(string="Tamaño de letra (Direccion) ", default=27)
+    x_address_position = fields.Integer(string="Posicion X (Direccion)", default=1160)
+    y_address_position = fields.Integer(string="Posicion Y (Direccion)", default=577)
+    address_font_size = fields.Integer(string="Tamaño de letra (Direccion) ", default=30)

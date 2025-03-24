@@ -23,6 +23,11 @@
                             <field name="y_mobile_position" string="Pos. Vertical"/>
                             <field name="mobile_font_size" string="Tamaño Letra"/>
                         </group>
+                        <group string="Conf. Telefono Empresa">
+                            <field name="x_phone_comp_position" string="Pos. Horizontal"/>
+                            <field name="y_phone_comp_position" string="Pos. Vertical"/>
+                            <field name="phone_comp_font_size" string="Tamaño Letra"/>
+                        </group>
                         <group string="Conf. Direccion">
                             <field name="x_address_position" string="Pos. Horizontal"/>
                             <field name="y_address_position" string="Pos. Vertical"/>
