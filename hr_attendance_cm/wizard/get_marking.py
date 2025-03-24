@@ -240,28 +240,15 @@ class getMarkings(models.TransientModel):
                     else:
                         actual_marks = len(exist_marking_id.marking_ids)
                         consult_marks = len(mark.get('lines'))
-                        if actual_marks < consult_marks:
-                            exist_marking_id.write({'state':'draft'})
-                            exist_marking_id.write({'lost_marking':True})
-                            exist_marking_id.marking_ids.unlink()
-                            for line in sorted(mark.get('lines'), key=lambda x: x['date']):
-                                clock_id = self.env['hr.attendance.device'].search([('device_id','=',line.get('code_clock'))])
+                        for new_mark in mark.get('lines'):
+                            new_mark_date = new_mark.get('date') + timedelta(hours=6)
+                            mark_exist = exist_marking_id.marking_ids.filtered(lambda list_date: list_date.date == new_mark_date)
+                            if len(mark_exist) == 0:
+                                exist_marking_id.write({'state':'draft', 'lost_marking':True})
+                                clock_id = self.env['hr.attendance.device'].search([('device_id','=',new_mark.get('code_clock'))])
                                 if clock_id:
                                     self.env['list.marking.employees'].create({
                                         'marking_id': exist_marking_id.id,
                                         'clock_id': clock_id.id,
-                                        'date': line.get('date') + timedelta(hours=6)
+                                        'date': new_mark_date
                                     })
-                        elif actual_marks >= consult_marks:
-                            for new_mark in mark.get('lines'):
-                                new_mark_date = new_mark.get('date') + timedelta(hours=6)
-                                mark_exist = exist_marking_id.marking_ids.filtered(lambda list_date: list_date.date == new_mark_date)
-                                if len(mark_exist) == 0:
-                                    exist_marking_id.write({'state':'draft', 'lost_marking':True})
-                                    clock_id = self.env['hr.attendance.device'].search([('device_id','=',new_mark.get('code_clock'))])
-                                    if clock_id:
-                                        self.env['list.marking.employees'].create({
-                                            'marking_id': exist_marking_id.id,
-                                            'clock_id': clock_id.id,
-                                            'date': new_mark_date
-                                        })
