@@ -1,0 +1,13 @@
+<odoo>
+    <record id="project_view_form_inherit" model="ir.ui.view">
+        <field name="name">project.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <field name="tag_ids" position="after">
+                <field name="is_private"/>
+                <field name="follower_ids" widget="many2many_tags" options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+</odoo>
