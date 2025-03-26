@@ -32,7 +32,7 @@ class digitalSignCreator(models.TransientModel):
     @api.onchange("employee_id")
     def get_employee_data(self):
         if self.employee_id:
-            self.job = self.employee_id.job_id.name
+            self.job = self.employee_id.job_title
             self.address = self.employee_id.work_location_id.name
             self.mobile = self.employee_id.mobile_phone
 
