@@ -9,13 +9,13 @@ from odoo.tools.misc import file_path
 class digitalSignaturePortal(http.Controller):
 
     @http.route('/digitalSignature/downloadSignature', type='http', auth="user", website=True)
-    def program_to_fly_portal(self, **kwargs):
+    def download_signature_portal(self, **kwargs):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
 
         values = {
             'employee_name': employee_id.name,
-            'job': employee_id.job_id.name,
+            'job': employee_id.job_title,
             'address': employee_id.work_location_id.name,
             'mobile': employee_id.mobile_phone
         }
@@ -23,7 +23,7 @@ class digitalSignaturePortal(http.Controller):
 
 
     @http.route('/download_signature/submit', type='http', auth="user", methods=["POST"], website=True)
-    def create_beneficiary_submit(self, **post):
+    def download_signature_submit(self, **post):
         user = request.env.user
         company_id = request.env.user.company_id
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
@@ -111,7 +111,7 @@ class digitalSignaturePortal(http.Controller):
         name_color_rgb = self.hex_to_rgb(color_hex)
 
         draw.text(name_text_position, config.name, fill=name_color_rgb, font=name_font)
-        draw.text(job_text_position, config.employee_id.job_id.name or '', fill=name_color_rgb, font=job_font)
+        draw.text(job_text_position, config.employee_id.job_title or '', fill=name_color_rgb, font=job_font)
         draw.text(address_text_position, config.employee_id.work_location_id.name or '', fill="white", font=address_font)
         draw.text(mobile_text_position, config.employee_id.mobile_phone or '', fill="white", font=address_font)
         draw.text(company_text_position, config.employee_id.company_id.phone or '', fill="white", font=company_font)
