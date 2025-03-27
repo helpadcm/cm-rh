@@ -128,7 +128,7 @@
                                             <field name="observations" readonly="1" force_save="1"/>
                                         </group>
                                         <group>
-                                            <field name="notes" invisible="personal_action in [False, 'free', 'holiday', 'wh', 'comp']" required="personal_action not in ['free', False,'vac','inc','holiday','wh','comp']"/>
+                                            <field name="notes" invisible="personal_action in [False, 'free', 'holiday', 'wh', 'comp', 'homeoffice']" required="personal_action not in ['free', False,'vac','inc','holiday','wh','comp','homeoffice']"/>
                                         </group>
                                     </group>
                                 </form>

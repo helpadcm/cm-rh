@@ -12,7 +12,8 @@ actions = [
     ('coe', 'Cubrir en otra estación'),
     ('na', 'Sin Registro'),
     ('holiday', 'Feriado'),
-    ('comp', 'Compensatorio')
+    ('comp', 'Compensatorio'),
+    ('homeoffice', 'Home Office'),
 ]
 
 class employeeAttendanceRecords(models.Model):
@@ -165,7 +166,7 @@ class lineAttendanceRecords(models.Model):
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
             if self.personal_action == 'free':
                 self.ordinary_hours = 0
-            elif self.personal_action in ['holiday','inc','special','comp','vac']:
+            elif self.personal_action in ['holiday','inc','special','comp','vac','cap']:
                 self.ordinary_hours = 8
 
     @api.onchange('check_type')
