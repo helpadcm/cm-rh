@@ -32,23 +32,25 @@ class HrSalaryAttachment(models.Model):
     @api.depends('date_start')
     def _compute_first_date_payment(self):
         for record in self:
-            if record.date_start.day > 15:
+            if record.date_start.day > 16:
                 record.first_date_payment = record.date_start + relativedelta(months=1, day=1)
             elif record.date_start.day == 1:
                 record.first_date_payment = record.date_start
             else:
-                record.first_date_payment = record.date_start + relativedelta(day=15)
+                record.first_date_payment = record.date_start + relativedelta(day=16)
 
     def _compute_date_estimated_end(self, number_of_payments):
         for record in self:
-            num_moths = int((number_of_payments - 1) // 2)
-            num_days = int(((number_of_payments - 1) % 2) * 15)
+            first_date = record.first_date_payment
+            current_date = first_date
 
-            if record.first_date_payment.day == 15 and num_days == 15:
-                num_moths += 1
-                num_days = 1
-
-            record.date_estimated_end = record.first_date_payment + relativedelta(
-                months=num_moths, day=num_days or record.first_date_payment.day
-            )
+            for _ in range(number_of_payments - 1):  # Iteramos hasta el último pago
+                if current_date.day <= 15:  
+                    # Si está en la primera quincena (1-15), ir al día 16
+                    current_date = current_date + relativedelta(day=16)
+                else:  
+                    # Si está en la segunda quincena (16-fin de mes), ir al día 1 del próximo mes
+                    current_date = current_date + relativedelta(months=1, day=1)
+            
+            record.date_estimated_end = current_date
 
