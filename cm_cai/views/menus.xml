@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="management_cai_menu" 
+        parent="account.menu_finance_configuration" 
+        name="CAI"  
+        sequence="10" 
+    />
+
+    <menuitem id="cai_menuitem" 
+        parent="management_cai_menu" 
+        name="CAI"  
+        sequence="1" 
+        groups="account.group_account_manager"
+        action="action_management_cai"
+    />
+
+</odoo>
