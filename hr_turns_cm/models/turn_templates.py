@@ -83,7 +83,7 @@ class turnTemplatesLines(models.Model):
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
         else:
-            if self.turn_type_a.code == 'VAC':
+            if self.turn_type_a.code in ['VAC','F']:
                 self.schedule1_in_id = turn_initial_a_id.id
                 self.schedule1_out_id = turn_final_a_id.id
                 self.editable_a = False
@@ -104,7 +104,7 @@ class turnTemplatesLines(models.Model):
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
         else:
-            if self.turn_type_b.code == 'VAC':
+            if self.turn_type_b.code in ['VAC','F']:
                 self.schedule2_in_id = turn_initial_b_id.id
                 self.schedule2_out_id = turn_final_b_id.id
                 self.editable_b =  False

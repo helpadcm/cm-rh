@@ -37,10 +37,12 @@ class turnRegistration(models.Model):
     editable_b = fields.Boolean(string="Editable B",default=True)
     fortnight_line_id = fields.Many2one('hr.fortnights.line',string="Quincena")
     note = fields.Text(string="Notas")
+    validated_by_id = fields.Many2one('res.users',string="Validado por")
 
     def validate_day(self):
         for rec in self:
             rec.state = 'validated'
+            rec.validated_by_id = self.env.user.id
 
     @api.depends('date')
     def get_day_name(self):
@@ -60,7 +62,7 @@ class turnRegistration(models.Model):
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
         else:
-            if self.turn_type_a.code == 'VAC':
+            if self.turn_type_a.code in ['VAC','F']:
                 self.schedule1_in_id = turn_initial_a_id.id
                 self.schedule1_out_id = turn_final_a_id.id
                 self.editable_a = False
@@ -81,7 +83,7 @@ class turnRegistration(models.Model):
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
         else:
-            if self.turn_type_b.code == 'VAC':
+            if self.turn_type_b.code in ['VAC','F']:
                 self.schedule2_in_id = turn_initial_b_id.id
                 self.schedule2_out_id = turn_final_b_id.id
                 self.editable_b =  False
