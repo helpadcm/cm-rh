@@ -7,4 +7,9 @@
         parent="hr_turns_cm.work_teams_root"
         groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
         sequence="2"/>
+
+    <menuitem
+        id="hr_turns_cm.turns_menu_root"
+        name="Turnos de trabajo"
+        action="portal_cm.action_team_hours"/>
 </odoo>

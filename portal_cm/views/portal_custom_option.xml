@@ -319,7 +319,7 @@
                             entry1.setAttribute("disabled", true);
                             out1.setAttribute("disabled", true);
                         }else{
-                            if (optTurnACode === "VAC") {
+                            if (optTurnACode === "VAC" || optTurnACode === "F") {
                                 entry1.value = start_turn_a_id.value;
                                 out1.value = end_turn_a_id.value;
                                 <!-- entry1.setAttribute("disabled", true);
@@ -338,7 +338,7 @@
                             entry2.setAttribute("disabled", true);
                             out2.setAttribute("disabled", true);
                         }else{
-                            if (optTurnBCode === "VAC") {
+                            if (optTurnBCode === "VAC" || optTurnBCode === "F") {
                                 entry2.value = start_turn_b_id.value;
                                 out2.value = end_turn_b_id.value;
                                 <!-- entry2.setAttribute("disabled", true);

@@ -54,7 +54,7 @@ class teamHourRecord(models.Model):
             self.schedule1_out_id = turn_na_id.id
             self.editable_a = False
         else:
-            if self.turn_type_a.code == 'VAC':
+            if self.turn_type_a.code in ['VAC','F']:
                 self.schedule1_in_id = turn_initial_a_id.id
                 self.schedule1_out_id = turn_final_a_id.id
                 self.editable_a = False
@@ -73,7 +73,7 @@ class teamHourRecord(models.Model):
             self.schedule2_out_id = turn_na_id.id
             self.editable_b = False
         else:
-            if self.turn_type_b.code == 'VAC':
+            if self.turn_type_b.code in ['VAC','F']:
                 self.schedule2_in_id = turn_initial_b_id.id
                 self.schedule2_out_id = turn_final_b_id.id
                 self.editable_b =  False
@@ -123,6 +123,7 @@ class teamHourRecord(models.Model):
             rec_real_id = self.env['hr.turn.registration'].search([('date','=',rec.date),('employee_id','=',rec.employee_id.id),('state','=','draft')])
             if rec_real_id:
                 update_vals = {
+                    'validated_by_id': self.env.user.id,
                     'turn_type_a':rec.turn_type_a.id, 
                     'schedule1_in_id': rec.schedule1_in_id.id, 
                     'schedule1_out_id': rec.schedule1_out_id.id,
@@ -135,7 +136,7 @@ class teamHourRecord(models.Model):
                 rec_real_id.write(update_vals)
                 rec_real_id.calculate_data()
             else:
-                raise ValidationError('No hay registro planificado para la fecha %s del empleado %s'%(rec.date.strftime('%d/%m/%Y'), rec.employee_id.name))
+                raise ValidationError('No hay registro planificado para la fecha %s del empleado %s o ya esta validado en la planificacion.'%(rec.date.strftime('%d/%m/%Y'), rec.employee_id.name))
             rec.state = 'validated'
 
     def delete_records(self):
