@@ -12,6 +12,7 @@
     'depends': ['hr', 'hr_payroll', 'hr_contract','mail','hr_holidays','hr_contract_cm'],
     'data': [
         'security/ir.model.access.csv',
+        'security/groups.xml',
         'data/cron.xml',
         'views/employee_inh_view.xml',
         'views/flight_routes_view.xml',
