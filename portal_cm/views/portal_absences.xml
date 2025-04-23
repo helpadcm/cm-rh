@@ -8,6 +8,9 @@
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial Ausencias</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab3">Detalle de Vacaciones</a>
+                </li>
             </ul>
 
             <div class="tab-content">
@@ -112,7 +115,7 @@
                                     <th class="header_historical">Descripcion</th>
                                     <th class="header_historical">Fecha de Inicio</th>
                                     <th class="header_historical">Fecha de Finalizacion</th>
-                                    <th class="header_historical">Solicitado</th>
+                                    <!-- <th class="header_historical">Solicitado</th> -->
                                     <th class="header_historical">Estado</th>
                                 </tr>
                             </thead>
@@ -123,13 +126,35 @@
                                         <td><t t-esc="absences.name"/></td>
                                         <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
                                         <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <td t-if="absences.holiday_status_id.code == 'PFLY'"><t t-esc="int(absences.tickets_request)"/> Boleto(s)</td>
-                                        <td t-if="absences.holiday_status_id.code != 'PFLY'"><t t-esc="absences.duration_display"/></td>
+                                        <!-- <td t-if="absences.holiday_status_id.code == 'PFLY'"><t t-esc="int(absences.tickets_request)"/> Boleto(s)</td>
+                                        <td t-if="absences.holiday_status_id.code != 'PFLY'"><t t-esc="absences.duration_display"/></td> -->
                                         <td t-if="absences.state == 'draft'">A enviar</td>
                                         <td t-if="absences.state == 'confirm'">A aprobar</td>
                                         <td t-if="absences.state == 'refuse'">Rechazado</td>
                                         <td t-if="absences.state == 'validate1'">Segunda aprobacion</td>
                                         <td t-if="absences.state == 'validate'">Aprobado</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="tab3" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-striped historical_table" >
+                            <thead>
+                                <tr>
+                                    <th class="header_historical">Periodo</th>
+                                    <th class="header_historical">Dias Asignados</th>
+                                    <th class="header_historical">Dias Pendientes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="vacations_details" t-as="vac">
+                                    <tr>
+                                        <td><t t-esc="vac.name"/></td>
+                                        <td><t t-esc="vac.assigned_days"/></td>
+                                        <td><t t-esc="vac.pending_days"/></td>
                                     </tr>
                                 </t>
                             </tbody>

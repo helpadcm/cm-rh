@@ -21,6 +21,7 @@ class CustomPortalAbsences(http.Controller):
 
         values = {
             'types_absences_ids': types_absences_ids,
+            'vacations_details': employee_id.vacation_details_ids,
             'history_absences_ids': history_absences_ids,
             'comp_days': employee_id.compensatory_day_string,
             'vacations': vacations,
