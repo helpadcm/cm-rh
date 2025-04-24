@@ -20,7 +20,7 @@ class moveInh(models.Model):
     max_number_cai = fields.Char(string="Número Minímo",copy=False)
     internal_number = fields.Char(string="Numero interno",copy=False,default='Borrador')
 
-    cai_id = fields.Many2one('management.cai', string='Cai')
+    cai_id = fields.Many2one('management.cai', string='Numero de Cai')
 
     @api.constrains(lambda self: (self._sequence_field, self._sequence_date_field))
     def _constrains_date_sequence(self):

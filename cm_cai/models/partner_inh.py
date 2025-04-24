@@ -21,3 +21,8 @@ class accountTaxInh(models.Model):
     _inherit = "account.tax"
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
+
+class paymentTermInh(models.Model):
+    _inherit = "account.payment.term"
+
+    odoo10_id = fields.Integer(string="Id Odoo 10")

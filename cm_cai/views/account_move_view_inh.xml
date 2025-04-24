@@ -25,6 +25,10 @@
                     <field name="cai_id" domain="[('supplier_id','=',partner_id),('is_active','=',True)]" invisible="move_type not in ['in_invoice','in_refund','in_receipt']" options="{'no_create': True}"/>
                 </field>
 
+                <field name="name" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+
                 <field name="invoice_line_ids" position="after">
                     <label for="amount_in_words"/>
                     <field name="amount_in_words"/>
