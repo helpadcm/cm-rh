@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>		
+    <data>		
+        <record id="pos_sync_action_form" model="ir.actions.act_window">
+            <field name="name">pos.sync.action</field>
+            <field name="res_model">sync.host</field>
+		    <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create Host
+                </p>
+            </field>
+        </record>
+
+
+	    <record id="sync_host_tree" model="ir.ui.view">
+            <field name="name">sync.host.tree</field>
+            <field name="model">sync.host</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="wsdl"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="sync_host_form" model="ir.ui.view">
+            <field name="name">sync.host.form</field>
+            <field name="model">sync.host</field>
+            <field name="arch" type="xml">
+                <form >
+                <sheet>
+                    <h1> <field name="wsdl"/></h1>
+                    <group colspan="4">
+                        <group col="4" colspan="4">
+                            <field name="login"/>                    
+                        
+                            <field name="airlinevendorid"/>
+                            
+                            <!--button name="reconect" type="object" string="Reconect"/-->
+                        </group>
+                        <field name="password" password="1"/>
+                        <button name="test" type="object" string="Test"/>
+                    </group>
+                </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_res_company_form_inherit">
+            <field name="name">res.company.form.inherit</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form" />
+            <field name="priority" eval="20"/>
+
+            <field name="arch" type="xml">
+        
+                <notebook position="inside">
+                    <page string="Host Config">
+                        <group string="Host Sync">
+                            <field name="from_host_id" />
+                            <field name="journal_account_id" />
+                            <field name="ta_account_id" />
+                            <field name="yr_account_id" />
+                            <field name="yq_account_id" />
+                            <field name="td_account_id" />
+                            <field name="ti_account_id" />
+                            <field name="yz_account_id" />
+                            <field name="ti_analytic_id"/>
+                            <field name="td_analytic_id"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_journal_form_inherit">
+            <field name="name">account.journal.form.inherit</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form" />
+            <field name="priority" eval="20"/>
+
+            <field name="arch" type="xml">
+        
+                <notebook position="inside">
+                    <page string="Host Config">
+                        <group string="Host Sync">
+                            <field name="equivalence" />
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_res_partner_form_inherit_cm">
+            <field name="name">res.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form" />
+            <field name="priority" eval="21"/>
+            <field name="arch" type="xml">
+        
+                <notebook position="inside">
+                    <page string="Host Config">
+                        <group string="Host Sync">
+                            <field name="consumer"/>
+                            <field name="equivalence" />
+                        
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_account_tax_form_inherit">
+            <field name="name">account.tax.form.inherit</field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id" ref="account.view_tax_form" />
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Host Config">
+                        <group string="Host Sync">
+                            <field name="consumer"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>  
+</odoo>

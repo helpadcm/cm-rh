@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    	<record model="ir.ui.view" id="view_account_invoice_form_inherit">
+            <field name="name">account.invoice.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <field name="price_unit" position="after">
+                    <field name="external_tax"/>
+                </field>
+                <group name="sale_info_group" position="inside">
+                    <field name="pnr_code"/>
+                    <field name="origin"/>
+                </group>
+                <field name="ref" position="after">
+                    <field name="is_sync" invisible="move_type not in ['out_invoice']"/>
+                    <field name="partner_name" groups="account.group_account_manager" invisible="move_type not in ['out_invoice']"/>
+                    <field name="rtn_name"  groups="account.group_account_manager" invisible="move_type not in ['out_invoice']"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_invoice_search_inherit">
+            <field name="name">account.invoice.search.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter" />
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after" >
+                    <field name="name"/>
+                </field>
+                <group position="inside">
+                    <filter name="is_sync" string="External" domain="[('is_sync','=',True)]"/>
+                </group>
+
+                <!-- <filter name="late"  position="after">
+                    <filter string="Yesterday" domain="[('invoice_date', '&gt;=', (context_today()-datetime.timedelta(days=1)).strftime('%Y-%m-%d')),('invoice_date', '&lt;', (context_today()).strftime('%Y-%m-%d'))]"/>
+                    <filter string="Today" domain="[('invoice_date', '&gt;=', (context_today()).strftime('%Y-%m-%d')),('invoice_date', '&lt;=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                </filter> -->
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_account_invoice_tree_inherit2">
+            <field name="name">account.invoice.tree.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree" />
+            <field name="priority" eval="20"/>
+
+            <field name="arch" type="xml">
+                <field name="invoice_date" position="after" >
+                    <field name="pnr_code"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

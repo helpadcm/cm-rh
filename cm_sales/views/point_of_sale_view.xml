@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>		
+    <data>
+        <record id="action_pointofsale_odoo_object" model="ir.actions.act_window">
+            <field name="name">Point Of Sale</field>
+            <field name="res_model">sale.point_of_sale</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create Point Of Sale Odoo
+                </p>
+            </field>
+        </record>
+
+        <record id="pointofsale_odoo_form_view" model="ir.ui.view">
+            <field name="name">sale.point_of_sale.form.view</field>
+            <field name="model">sale.point_of_sale</field>
+            <field name="arch" type="xml">
+                <form string="Sale cashStatement Odoo">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="equivalence"/>
+                            <field name="company_id"/>
+                            <field name="journal_id" domain="[('type','=','sale')]"/>
+                            
+                            <field name="analytic_id" groups="analytic.group_analytic_accounting"/>
+                            
+                        </group>
+                    </sheet> 
+                    <div class="oe_chatter">
+                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                        </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="point_of_sale_odoo_tree_view" model="ir.ui.view">
+            <field name="name">sale.point_of_sale.tree.view</field>
+            <field name="model">sale.point_of_sale</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="equivalence"/>
+                    <field name="journal_id"/>
+                    <field name="company_id"/>
+                    <field name="analytic_id" groups="analytic.group_analytic_accounting"/>
+                </tree>
+            </field>
+        </record>
+    </data>  
+</odoo>
