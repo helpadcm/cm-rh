@@ -157,6 +157,8 @@
                 <field name="department_id"/>
                 <field name="period"/>
                 <filter string="Borrador" name="draft_filter" domain="[('state','=','draft')]"/>
+                <filter string="Revisado" name="revised_filter" domain="[('state','=','revised')]"/>
+                <filter string="Finalizado" name="finalized_filter" domain="[('state','=','finalized')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Periodo" name="period_group" context="{'group_by':'period'}"/>
                     <filter string="Departamento" name="department_group" context="{'group_by':'department_id'}"/>

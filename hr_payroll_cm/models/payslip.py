@@ -229,6 +229,35 @@ class HrPayslipBonus(models.Model):
                     'name': income.name
                 })
 
+        domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
+        mark_ids = self.env['hr.employee.attendance.record'].search(domain)
+        if mark_ids:
+            eh_amount = sum(mark_ids.mapped('eh_holiday'))
+            ehx_amount = sum(mark_ids.mapped('eh_holiday_extra'))
+            wage = self.contract_id.contract_wage * 2
+            if eh_amount > 0:
+                eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
+                if eh_type_id:
+                    hours_amount = (wage / 30 / 8)
+                    amount = hours_amount * eh_amount
+                    self.env['hr.payslip.input'].create({
+                        'payslip_id': self.id,
+                        'input_type_id': eh_type_id.id,
+                        'amount': amount,
+                        'name': "%s (%s horas)"%(eh_type_id.name, eh_amount)
+                    })
+
+            if ehx_amount > 0:
+                ehx_type_id = self.env['hr.payslip.input.type'].search([('code','=','HEF')])
+                if ehx_type_id:
+                    hours_amount = (wage / 30 / 8) * 1.25
+                    amount = hours_amount * ehx_amount
+                    self.env['hr.payslip.input'].create({
+                        'payslip_id': self.id,
+                        'input_type_id': ehx_type_id.id,
+                        'amount': amount,
+                        'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
+                    })
 
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'

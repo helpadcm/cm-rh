@@ -46,7 +46,7 @@ class HrSalaryAttachment(models.Model):
 
             for _ in range(number_of_payments - 1):  # Iteramos hasta el último pago
                 if current_date.day <= 15:  
-                    # Si está en la primera quincena (1-15), ir al día 16
+                    # Si está en la primera quincena (1-15), ir al día 16>
                     current_date = current_date + relativedelta(day=16)
                 else:  
                     # Si está en la segunda quincena (16-fin de mes), ir al día 1 del próximo mes

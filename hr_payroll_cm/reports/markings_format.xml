@@ -14,7 +14,7 @@
                         </style>
                         <table style="width:100%;">
                             <tr>
-                                <td style="width:35%;">
+                                <td style="width:30%;">
                                     <table style="width:100%;border-collapse:collapse">
                                         <tr>
                                             <td class="td-style">Nombre</td>
@@ -39,7 +39,7 @@
                                     </table>    
                                 </td>
                                 <td style="width:5%;"><br></br></td>
-                                <td style="width:35%;">
+                                <td style="width:20%;">
                                     <table style="width:100%;border-collapse:collapse">
                                         <tr>
                                             <td class="td-style">Horas Totales</td>
@@ -55,11 +55,11 @@
                                         </tr>
                                         <tr>
                                             <td class="td-style" style="">Pagar HE</td>
-                                            <td class="td-style" style="text-align:center;background-color:#2ECC71"><span t-esc="'{0:,.2f}'.format(o.pay_extra_hours)"/></td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71;color:#FFFFFF"><span t-esc="'{0:,.2f}'.format(o.pay_extra_hours)"/></td>
                                         </tr>
                                     </table>    
                                 </td>
-                                <td style="width:5%;"><br></br></td>
+                                <td style="width:2.5%;"><br></br></td>
                                 <td style="width:20%;">
                                     <table style="width:100%;border-collapse:collapse">
                                         <tr>
@@ -76,7 +76,20 @@
                                         </tr>
                                         <tr>
                                             <td class="td-style" style="">Pagar BT</td>
-                                            <td class="td-style" style="text-align:center;background-color:#2ECC71"><span t-esc="'{0:,.2f}'.format(o.tb_pay)"/></td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71;color:#FFFFFF"><span t-esc="'{0:,.2f}'.format(o.tb_pay)"/></td>
+                                        </tr>
+                                    </table>    
+                                </td>
+                                <td style="width:2.5%;"><br></br></td>
+                                <td style="width:20%;">
+                                    <table style="width:100%;border-collapse:collapse">
+                                        <tr>
+                                            <td class="td-style">Horas Feriado</td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71;color:#FFFFFF"><strong><span t-esc="'{0:,.2f}'.format(o.eh_holiday)"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="td-style" style="">HE Feriado</td>
+                                            <td class="td-style" style="text-align:center;background-color:#2ECC71;color:#FFFFFF"><strong><span t-esc="'{0:,.2f}'.format(o.eh_holiday_extra)"/></strong></td>
                                         </tr>
                                     </table>    
                                 </td>
