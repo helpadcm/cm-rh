@@ -20,6 +20,7 @@ class HrEmployeeInh(models.Model):
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
+    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
 
     @api.depends('vacation_details_ids','early_vacations')
     def get_available_vacations(self):
@@ -74,6 +75,9 @@ class HrEmployeeInh(models.Model):
             days_qty = 20
         
         if days_qty > 0:
+            if self.aeronatical_license:
+                days_qty = 30
+
             vals = {
                 'name': 'Vacaciones %s año(s)'%(years),
                 'employee_id': employee_id.id,
@@ -108,6 +112,10 @@ class HrEmployeeInh(models.Model):
                     days_qty = 15
                 elif year >= 4:
                     days_qty = 20
+
+                if self.aeronatical_license:
+                    days_qty = 30
+                    
                 vals = {
                     'name': 'Vacaciones %s año(s)'%(year),
                     'employee_id': self.id,
