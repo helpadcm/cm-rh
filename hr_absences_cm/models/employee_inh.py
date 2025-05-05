@@ -149,6 +149,7 @@ class employeePublicHRInh(models.Model):
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
+    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
 
     @api.depends('compensatory_hours')
     def calculate_days(self):
