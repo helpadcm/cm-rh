@@ -23,7 +23,28 @@ class HrLeavesInh(models.Model):
         res = super(HrLeavesInh, self).action_approve(check_state)
         if self.holiday_status_id.code == 'VAC':
             if len(self.employee_id.vacation_details_ids) > 0:
-                self.employee_id.vacation_details_ids[0].pending_days -= self.number_of_days
+                if len(self.employee_id.vacation_details_ids) == 1:
+                    pending_days_1 = self.employee_id.vacation_details_ids[0].pending_days
+                    difference_1 = pending_days_1 - self.number_of_days
+                    if difference_1 < 0:
+                        self.employee_id.vacation_details_ids[0].pending_days = 0
+                        self.employee_id.early_vacations += abs(difference_1)
+                    else:
+                        self.employee_id.vacation_details_ids[0].pending_days -= self.number_of_days
+                else:
+                    pending_days_1 = self.employee_id.vacation_details_ids[0].pending_days
+                    difference_1 = pending_days_1 - self.number_of_days
+                    if difference_1 < 0:
+                        self.employee_id.vacation_details_ids[0].pending_days = 0
+                        pending_days_2 = self.employee_id.vacation_details_ids[1].pending_days
+                        difference_2 = pending_days_2 - abs(difference_1)
+                        if difference_2 < 0:
+                            self.employee_id.vacation_details_ids[1].pending_days = 0
+                            self.employee_id.early_vacations += abs(difference_2)
+                        else:
+                            self.employee_id.vacation_details_ids[1].pending_days -= abs(difference_1)
+                    else:
+                        self.employee_id.vacation_details_ids[0].pending_days -= self.number_of_days
             else:
                 self.employee_id.early_vacations += self.number_of_days
         elif self.holiday_status_id.code == 'HCOMP':
