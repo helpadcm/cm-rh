@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="applicant_view_inh">
+            <field name="name">applicant.inh.form</field>
+            <field name="model">hr.applicant</field>
+            <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
+            <field name="arch" type="xml">
+                <field name="department_id" position="after">
+                    <field name="requirement_id" domain="[('new_position','=',job_id),('state','=','in_progress')]" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

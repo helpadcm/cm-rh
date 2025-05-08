@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_staff_requeriment_format" model="ir.actions.report">
+        <field name="name">Formato Solicitud de personal</field>
+        <field name="model">hr.staff.requirement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_recruitment_cm.staff_requirement_format_cm</field>
+        <field name="report_file">hr_recruitment_cm.staff_requirement_format_cm</field>
+        <field name="binding_model_id" ref="hr_recruitment_cm.model_hr_staff_requirement"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
