@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem 
+        name="Banco y Caja" 
+        id="bank_cash_id" 
+        parent="account_accountant.menu_accounting" 
+        sequence="3"
+    />
+
+    <menuitem 
+        action="cm_banks.debit_credit_action_form" 
+        id="debit_credit" 
+        name ="Debito y Credito"  
+        parent="bank_cash_id" 
+        sequence="20" 
+    />
+
+    <menuitem 
+        action="ir_sequence_type_action" 
+        name="Codigo de Secuencia" 
+        id="ir_sequence_type_menu_id" 
+        parent="base.next_id_5"
+    />
+
+    <menuitem 
+        action="mcheck_action_form_mcheck" id="mcheck_mcheck" 
+        parent="bank_cash_id" 
+        sequence="20" 
+        groups="cm_banks.group_check_manager"
+    />
+
+    <menuitem 
+        action="banks_template_action" 
+        id="banks_template_menu" 
+        parent="bank_cash_id" 
+        groups="cm_banks.group_check_manager"
+    />
+
+    <menuitem 
+        action="deposit_action_form" 
+        id="deposits"  
+        parent="bank_cash_id" 
+        sequence="20" 
+        groups="cm_banks.group_deposit"
+    />
+</odoo>

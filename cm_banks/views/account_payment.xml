@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+		<record model="ir.ui.view" id="view_account_payment_vendor_form">
+			<field name="name">account.payment.form.inherit.costumer</field>
+			<field name="model">account.payment</field>
+			<field name="inherit_id" ref="account.view_account_payment_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='journal_id']" position="after">
+					<field name="was_unreconcilied" invisible="1"/>
+				</xpath>
+
+				<xpath expr="//field[@name='journal_id']" position="after" string='Payment type'>
+					<field name="pay_method_type"  readonly="was_unreconcilied == True or state != 'draft'" invisible="partner_type == 'customer'"/>
+				</xpath>
+				
+			</field>
+		</record>
+    </data>
+</odoo>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+		<record model="ir.ui.view" id="view_pos_account_journal_form1">
+			<field name="name">account.journal.form.banks</field>
+			<field name="model">account.journal</field>
+			<field name="inherit_id" ref="account.view_account_journal_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='refund_sequence']" position="after">
+					<field name="city" />
+				</xpath>
+				<xpath expr="//page[@name='advanced_settings']/group" position="after" string='Debito y Credito'>
+					<group>
+						<field name="allow_creditdebit" invisible="type not in ['bank']"/>
+						<field name="allow_banks_transferences" invisible="type not in ['bank']"/>
+						<field name="checkmiscelaneous" invisible="type not in ['bank']"/>
+						<field name="allow_multi_sequence" />
+						<field name="comnsolidate_deposit" />
+					</group>
+				</xpath>
+				<xpath expr="//field[@name='currency_id']" position="before" >
+						<field name="commission_account" domain="[('account_type','!=','view')]"/>
+				</xpath>
+				
+				<xpath expr="//page[@name='advanced_settings']" position="after">
+					<page string="Sequences">	
+						<separator  string="Sequences"/>
+						<field name="sequence_ids" onchange="onchange_sequence_ids(sequence_ids)">
+							<tree>
+								<field name="name" />
+								<field name="prefix" />
+								<field name="suffix" />
+								<field name="number_next_actual" />
+								<field name="code" />
+								<field name="code2" />
+							</tree>
+						</field>
+					</page>
+					<page string="Cuentas Analiticas">
+						<label for='require_analytic_account'>Label</label>
+						<field name="require_analytic_account"/>
+						<field name="analytic_account_ids" options="{'no_quick_create':True,'no_create_edit':True,'no_open':True}"/>
+					</page>
+				</xpath>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="view_res_currency_form">
+			<field name="name">res.currency.inherit</field>
+			<field name="model">res.currency</field>
+			<field name="inherit_id" ref="base.view_currency_form"/>
+			<field name="arch" type="xml">
+				<field name="active" position="after">
+					<field name="base" widget="boolean_toggle"/>
+				</field>
+			</field>
+		</record>
+
+		<!-- <record model="ir.ui.view" id="view_pos_account_journal_form23">
+			<field name="name">account.journal.form.banks2</field>
+			<field name="model">account.journal</field>
+			<field name="inherit_id" ref="account_cancel.view_account_journal_form_inherit"/>
+			<field name="arch" type="xml">
+				<field name="update_posted" position="replace">
+					<field name="update_posted" groups="account.group_account_manager"/>
+				</field>
+			</field>
+		</record> -->
+    </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+	   <record id="decimal_precision_account" model="decimal.precision">
+           	  <field name="name">Account</field>
+          	  <field name="digits">2</field>
+       	   </record>
+			<record id="decimal_precision_internal_change" model="decimal.precision">
+           	  <field name="name">cambio_de_lempira_a_dolar</field>
+          	  <field name="digits">6</field>
+       	</record>
+    </data>
+</odoo>

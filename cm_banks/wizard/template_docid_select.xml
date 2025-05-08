@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+       <record model="ir.ui.view" id="banks_template_doc_id_select_wizard_form">
+            <field name="name">Document Select</field>
+            <field name="model">template_docid_select</field>
+            <field name="arch" type="xml">
+				<form string="Anullation Date">
+					<sheet>
+						<group> 
+							<group>
+								<field name="to_mcheck" />
+								<field name="to_debit_credit"/>
+							</group>
+							<group>
+								<field name="doc_id_mcheck" options="{'no_create': True}" invisible="to_debit_credit == True" />
+								<field name="doc_id_debit_credit" options="{'no_create': True}" invisible="to_mcheck == True"/>
+							</group>
+						</group>
+					</sheet>
+					<footer>
+						<button string="Aceptar" name="Select_Doc" type="object" class="oe_highlight"/>
+						<button string="Cancelar" class="oe_link" special="cancel"/>
+					</footer>
+			 	</form>
+            </field>
+        </record>
+
+
+		<record id="banks_doc_id_select_action" model="ir.actions.act_window">
+			<field name="name">Seleccionar Documento</field>
+			<field name="res_model">template_docid_select</field>
+			<field name="view_mode">form</field>
+			<field name="view_id" ref="banks_template_doc_id_select_wizard_form"/> 
+			<field name="target">new</field>		
+			<field name="context">{}</field>
+		</record>
+    </data>
+</odoo>
+	

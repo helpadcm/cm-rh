@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+		<record id="ir_sequence_form_view" model="ir.ui.view">
+            <field name="name">ir_sequence_form</field>
+            <field name="model">ir.sequence</field>
+	    	<field name="inherit_id" ref="base.sequence_view"/>
+            <field name="arch" type="xml">
+				<field name="implementation" position="attributes">
+					<attribute name="invisible">1</attribute>
+		    	</field>
+
+				<field name="code" position="after">
+					<field name="code2"/>
+		    	</field>  
+          </field>
+        </record>
+
+		<record id="sequence_type_view" model="ir.ui.view">
+            <field name="name">sequence type</field>
+            <field name="model">ir.sequence.type</field>
+            <field name="arch" type="xml">
+				<tree string="sequence types" editable="bottom">
+					<field name="name"/>
+					<field name="code"/>
+				</tree>			    
+          	</field>
+        </record>
+
+		<record model="ir.actions.act_window" id="ir_sequence_type_action">
+			<field name="name">Sequence Codes</field>
+			<field name="res_model">ir.sequence.type</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+    </data>
+</odoo>
