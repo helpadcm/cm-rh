@@ -77,10 +77,11 @@ class sequenceInh(models.Model):
 
     @api.depends('number_next_actual')
     def compute_percentage(self):
-        numerator = self.number_next_actual - self.min_value
-        denominator = self.max_value - self.min_value
-        if denominator > 0:
-            difference = (self.number_next_actual - self.min_value) / (self.max_value - self.min_value)
-            self.percentage = (difference * 100) - 1
-        else:
-            self.percentage = 0
+        for rec in self:
+            numerator = rec.number_next_actual - rec.min_value
+            denominator = rec.max_value - rec.min_value
+            if denominator > 0:
+                difference = (rec.number_next_actual - rec.min_value) / (rec.max_value - rec.min_value)
+                rec.percentage = (difference * 100) - 1
+            else:
+                rec.percentage = 0
