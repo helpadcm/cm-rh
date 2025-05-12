@@ -1,0 +1,27 @@
+<odoo>
+    <record id="equipment_maintenance_inh_form" model="ir.ui.view">
+        <field name="name">equipment.maintenance.view.inh</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/div" position="before">
+                <div class="oe_avatar">
+                    <field name="image_equipment" widget="image"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="equipment_maintenance_inh_kanba" model="ir.ui.view">
+        <field name="name">equipment.maintenance.kanba.inh</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//t[@t-name='kanban-box']/div/div[@class='oe_kanban_content']" position="before">
+                <div class="o_kanban_image me-1">
+                    <img t-att-src="kanban_image('maintenance.equipment', 'image_equipment', record.id.value)" alt="Producto" class="o_image_64_contain"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
