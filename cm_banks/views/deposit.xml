@@ -73,11 +73,11 @@
                             	<field name="deposits"  widget="many2many" context="{'set_editable':True}" domain="[('deposit_id','=',False),('payment_type','=','inbound'),('journal_id.comnsolidate_deposit','=',True),('partner_type','=','customer')]" >
 									<form>
 										<group col="4" colspan="4"> 
-											<field name="payment_date"/>
+											<field name="date"/>
 										</group> 
 									</form>	                               
 									<tree string="Clients Payment"  >
-										<field name="payment_date"/>
+										<field name="date"/>
 										<field name="partner_id" />
 										<field name="name" />
 										<field name="journal_id" />

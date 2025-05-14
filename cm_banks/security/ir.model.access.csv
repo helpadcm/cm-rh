@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 
+
 access_templates_checks,banks_mcheck_mcheck_template,model_banks_template,group_check_manager,1,1,1,1
 cm_banks.access_mcheck_mcheck,access_mcheck_mcheck,cm_banks.model_mcheck_mcheck,group_check_manager,1,1,1,1
 cm_banks.access_mcheck_mcheck_name,access_mcheck_mcheck_name,cm_banks.model_mcheck_mcheck_name,group_check_manager,1,1,1,1
@@ -12,6 +13,7 @@ access_banks_template,access_banks_template,model_banks_template,group_debit_cre
 access_templates_deposit,banks_deposit_template,model_banks_template,group_deposit,1,1,1,1
 
 access_templates_banks_trans,banks_banks_transactions_template,model_banks_template,group_banks_banks_transferences,1,1,1,1
+cm_banks.access_account_payment_writeoffline,access_account_payment_writeoffline,cm_banks.model_account_payment_writeoffline,group_banks_banks_transferences,1,1,1,1
 
 cm_banks.access_ir_sequence_type,access_ir_sequence_type,cm_banks.model_ir_sequence_type,base.group_user,1,1,1,1
 cm_banks.access_template_docid_select,access_template_docid_select,cm_banks.model_template_docid_select,base.group_user,1,1,1,1

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+		<record model="ir.ui.view" id="view_account_payment_invoices_form_inherit">
+			<field name="name">account.payment.invoices.inherit</field>
+			<field name="model">account.payment.register</field>
+			<field name="inherit_id" ref="account.view_account_payment_register_form"/>
+			<field name="arch" type="xml">
+				<field name="line_ids" position="replace">
+					<h1><field name="next_number" readonly="1" force_save="1"/></h1>
+				</field>
+
+				<xpath expr="//field[@name='payment_method_line_id']" position="replace">
+					<field name="pay_method_type" invisible="partner_type == 'customer'"/>
+				</xpath>
+
+				<group name="group3" position="replace">
+					<group name="group3" invisible="payment_difference == 0.0 or early_payment_discount_mode or not can_edit_wizard or can_group_payments and not group_payment">
+                            <label for="payment_difference"/>
+                            <div>
+                                <field name="payment_difference"/>
+                                <field name="payment_difference_handling" widget="radio" nolabel="1"/>
+                                <div invisible="hide_writeoff_section or payment_difference_handling == 'open'">
+                                    <label for="writeoff_account_id" invisible="1" string="Post Difference In" class="oe_edit_only"/>
+                                    <field name="writeoff_account_id"
+                                           string="Post Difference In"
+                                           options="{'no_create': True}"
+                                           invisible="1"/>
+                                    <label for="writeoff_label"
+                                           class="oe_edit_only"
+                                           string="Label"
+                                           invisible="1"/>
+                                    <field name="writeoff_label"
+                                           invisible="1"/>
+                                </div>
+                            </div>
+                        </group>
+				</group>
+
+				<xpath expr="//group" position="after">
+					<field name="partner_id" invisible="1"/>
+					<notebook>
+						<page string="Lineas de Pago">
+							<field name="line_ids">
+								<tree>
+									<field name="move_id" readonly="1"/>
+									<field name="account_id" readonly="1"/>
+									<field name="date" readonly="1"/>
+									<field name="date_maturity" readonly="1"/>	
+									<field name="amount_residual" readonly="1"/>
+									<field name="reconciled"/>
+								</tree>
+							</field>
+						</page>
+						<page string="Distribuir" invisible="payment_difference_handling != 'reconcile'">
+							<separator string="Diferencia" />
+							<field name="writeoff_amount" widget="monetary"/>
+							<separator string="Distribucion de cuentas"/>
+							<field name="write_off_lines">
+								<tree editable="bottom">
+									<field name="account_id" options="{'no_create': True}"/>
+									<field name="partner_id" options="{'no_create': True}"/>
+									<field name="analytic_account_id" options="{'no_create': True}"/>
+									<field name="description"/>
+									<field name="currency_id" column_invisible="1"/>
+									<field name="debit"/>
+									<field name="credit"/>
+								</tree>
+							</field>
+						</page>
+					</notebook>
+				</xpath>
+			</field>
+		</record>
+    </data>
+</odoo>

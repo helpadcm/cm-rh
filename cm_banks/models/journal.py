@@ -95,9 +95,7 @@ class banks_account_journal(models.Model):
 		bandera=True
 		ir_seq_pool = self.env['ir.sequence']
 
-		sequence_ids = self.sequence_ids 
-		print ('####################')
-		print (vals.get('sequence_ids'))
+		sequence_ids = self.sequence_ids
 		if vals.get('sequence_ids'):
 			seq_ops = vals['sequence_ids']
 			for op in seq_ops:
@@ -138,8 +136,6 @@ class banks_account_journal(models.Model):
 							sequence_ids = ir_seq_pool.browse(op[2])
 						elif isinstance(op, (list, tuple)) and len(op) == 3 and op[0] in (0,):
 							sequence_ids = ir_seq_pool.browse([])
-					print ('/////////////////////////////')
-					print (sequence_ids)
 					if sequence_ids:
 						res=self.existe_repeat(sequence_ids)
 						if res:

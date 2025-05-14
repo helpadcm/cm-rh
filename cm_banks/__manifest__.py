@@ -23,6 +23,7 @@
 		# 'data/account_type.xml',
 		'wizard/anulation_date_wizard.xml',
 		'wizard/template_docid_select.xml',
+		'wizard/register_payment_view_inh.xml',
 		# 'wizard/anulation_date_voucher_wizard.xml',
 		'views/account_payment.xml',
 		# 'views/account_account_view.xml',
