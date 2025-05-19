@@ -15,6 +15,7 @@ class Contract(models.Model):
     #     )
 
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
+    skip_rules_ids = fields.Many2many('hr.inc.ded.rules', string="Omitir reglas")
 
     def get_historical(self, code):
         for rec in self:
@@ -52,14 +53,15 @@ class Contract(models.Model):
 
     def calculate_deductions(self, code):
         amount = 0
-        if code in ['RAP','SSH']:
-            amount = self.calculate_rap(code)
-        else:
-            deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open')])
-            if deduction_ids:
-                for ded in deduction_ids:
-                    if ded.deduction_type_id.code == code:
-                        amount = ded.monthly_amount
+        if code not in self.skip_rules_ids.mapped('code'):
+            if code in ['RAP','SSH']:
+                amount = self.calculate_rap(code)
+            else:
+                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open')])
+                if deduction_ids:
+                    for ded in deduction_ids:
+                        if ded.deduction_type_id.code == code:
+                            amount = ded.monthly_amount
         return amount
 
     def get_transport_bonus(self, payslip):
@@ -82,16 +84,18 @@ class Contract(models.Model):
         return self.temporal_amount
 
     def calculate_rap(self, code):
-        rap_id = self.env['hr.settings.rap'].search([])
-        if len(rap_id) == 0:
-            raise ValidationError("Debe crear las configuraciones de RAP antes")
-        if code == 'RAP':
-            percentage = (rap_id.percentage) / 100
-            total_salary = self.wage * 2
+        amount = 0
+        if code not in self.skip_rules_ids.mapped('code'):
+            rap_id = self.env['hr.settings.rap'].search([])
+            if len(rap_id) == 0:
+                raise ValidationError("Debe crear las configuraciones de RAP antes")
+            if code == 'RAP':
+                percentage = (rap_id.percentage) / 100
+                total_salary = self.wage * 2
 
-            amount = ((total_salary - rap_id.min_salary) * percentage) / 2
-        elif code == 'SSH':
-            amount = rap_id.ihss_amount / 2
+                amount = ((total_salary - rap_id.min_salary) * percentage) / 2
+            elif code == 'SSH':
+                amount = rap_id.ihss_amount / 2
 
         return amount * -1
 

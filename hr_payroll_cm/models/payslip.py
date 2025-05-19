@@ -192,7 +192,7 @@ class HrPayslipBonus(models.Model):
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id:
-                hours = mark_id.pay_extra_hours + mark_id.eh_holiday
+                hours = mark_id.pay_extra_hours
 
                 if hours > 0:
                     entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])

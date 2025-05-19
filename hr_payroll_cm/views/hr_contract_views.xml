@@ -16,6 +16,11 @@
                     </div>
                 </button>
             </button>
+            <group name="contract_details_2" position="after">
+                <group>
+                    <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                </group>
+            </group>
             <field name="country_code" position="after">
                 <field name="check_type" help="Campo utilizado para revision en nomina"/>
             </field>

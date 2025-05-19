@@ -11,19 +11,31 @@ class summaryIncomesDeductions(models.TransientModel):
     start_date = fields.Date('Fecha Inicial')
     end_date = fields.Date('Fecha Final')
     employee_ids = fields.Many2many('hr.employee', string='Empleado')
-    incomes_rules = fields.Many2many('hr.salary.rule' ,string="Ingresos")
-    deductions_rules = fields.Selection(string="Deducciones", selection=lambda self: self.get_deductions_options())
-    print_rules = fields.Selection([('incomes','Solo Ingresos'),('deductions','Solo Deducciones'),('both','Ambos')],string="Reglas a imprimir", default="both")
+    show_details = fields.Boolean(string="Ver Detalles")
+    incomes_rules = fields.Many2many(
+        'hr.inc.ded.rules',
+        'incomes_summary_rel',       # nombre único para la tabla relacional
+        'summary_id', 'rule_id',
+        string="Ingresos"
+    )
+
+    deductions_rules = fields.Many2many(
+        'hr.inc.ded.rules',
+        'deductions_summary_rel',    # otro nombre único para esta relación
+        'summary_id', 'rule_id',
+        string="Deducciones"
+    )
 
     def print_report(self):
+        if not self.incomes_rules and not self.deductions_rules:
+            raise ValidationError("Debe seleccionar al menos un ingreso o una deduccion para imprimir")
+
         data = {
             'start_date': self.start_date,
             'end_date': self.end_date,
-            'employee_id': self.employee_id.id
+            'show_details': self.show_details,
+            'employee_ids': self.employee_ids.ids,
+            'incomes_rules': self.incomes_rules.mapped('code'),
+            'deductions_rules': self.deductions_rules.mapped('code'),
         }
-        return self.env.ref('hr_payroll_cm.action_employee_payslip_xlsx').report_action(self,data=data)
-
-    def get_deductions_options(self):
-        rule_ids = self.env['hr.salary.rule'].search([('category_id.code','=','DED')])
-        options_name = set(rule_ids.mapped('name'))
-        return [(opt, opt) for opt in options_name]
+        return self.env.ref('hr_payroll_cm.action_inc_ded_payslip_xlsx').report_action(self,data=data)

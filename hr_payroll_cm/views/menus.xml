@@ -32,12 +32,12 @@
         sequence="80"
         action="payslip_resumen_employee_action"/>
 
-    <!-- <menuitem
+    <menuitem
         id="income_deductions_summary_menuitem"
         name="Resumen Ingresos y Deducciones"
         parent="hr_payroll.menu_hr_payroll_report"
         sequence="81"
-        action="incomes_deductions_summary_action"/> -->
+        action="incomes_deductions_summary_action"/>
 
 
 <!-- ############################################################################################ -->
@@ -48,6 +48,13 @@
         parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
         sequence="81"
         action="action_rap_settings"/>
+
+    <menuitem
+        id="inc_ded_rules_menuitem"
+        name="Resumen Reglas Salariales"
+        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+        sequence="82"
+        action="action_inc_ded_rules"/>
 
 <!-- ############################################################################################ -->
 

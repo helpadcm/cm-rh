@@ -9,14 +9,16 @@
                     <group cols="4">
                         <group>
                             <field name="start_date" required="1"/>
-                            <field name="employee_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                            <field name="incomes_rules" domain="[('category_id.code', '=', 'ALW')]" widget="many2many_tags"/>
+                            <field name="show_details" widget="boolean_toggle"/>
                         </group>
                         <group >    
                             <field name="end_date" required="1"/>
-                            <field name="print_rules" required="1"/>
-                            <field name="deductions_rules"/>
                         </group>
+                    </group>
+                    <group>
+                        <field name="employee_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="deductions_rules" domain="[('category_id.code','=','DED')]" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="incomes_rules" domain="[('category_id.code','in',['ALW','BASIC','GROSS','NET'])]" options="{'no_create': True}" widget="many2many_tags"/>
                     </group>
                     <footer>
                         <button string="Imprimir" type="object" name="print_report" class="oe_highlight"/>
