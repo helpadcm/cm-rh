@@ -49,7 +49,7 @@ class SignatureController(http.Controller):
         draw = ImageDraw.Draw(template_img)
 
         # Ruta a la fuente personalizada dentro del módulo
-        name_font_path = file_path("addons/hr_employee_cm/static/fonts/GothamCondensed-Bold.otf")
+        name_font_path = file_path("addons/hr_employee_cm/static/fonts/Montserrat-Medium.otf")
         job_font_path = file_path('addons/hr_employee_cm/static/fonts/gotham-book.ttf')
 
         # Cargar la fuente (puede cambiar la ruta a una fuente TTF personalizada)
