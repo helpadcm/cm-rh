@@ -34,6 +34,7 @@
                             <field name="esperated_hours" readonly="1"/>
                             <field name="total_hours"/>
                             <field name="real_eh_pay" readonly="state != 'draft'"/>
+                            <field name="real_aditional_he" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="eh_limit" readonly="1"/>

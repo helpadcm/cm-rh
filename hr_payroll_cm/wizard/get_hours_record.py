@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
 
+months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
 class getRecordHours(models.TransientModel):
     _name = "hr.hours.employees"
     _description = "Hours Record employees"
@@ -77,10 +79,11 @@ class getRecordHours(models.TransientModel):
             header_data = employee_attendance_data['header']
             rows_data = employee_attendance_data['rows']
             esperated_hours = self.get_esperated_hours(self.payslip_date_from, self.payslip_date_to)
+            name_rec = self.get_name_rec(self.payslip_date_from)
 
             rec_id = self.env['hr.employee.attendance.record'].create({
                 'name': 'Registro de Asistencia %s %s'%(header_data.get('employee'), header_data.get('start_date')),
-                'period': 'Periodo %s - %s'%(header_data.get('start_date').strftime("%d/%m/%Y"), header_data.get('end_date').strftime("%d/%m/%Y")),
+                'period': name_rec,
                 'employee_id': header_data.get('employee_id'),
                 'department_id': contract_id.employee_id.department_id.id,
                 'code': header_data.get('employee_no'),
@@ -231,6 +234,15 @@ class getRecordHours(models.TransientModel):
 
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
+
+    def get_name_rec(self):
+        name = ''
+        if date_from.day == 1:
+            name = 'Primera Quincena %s %s'%(months[date_from.month - 1], date_from.year)
+        elif date_from.day == 16:
+            name = 'Segunda Quincena %s %s'%(months[date_from.month - 1], date_from.year)
+        return name
+
 
     def calculate_bonus(self, check1, check2, contract_id):
         bonus = 0

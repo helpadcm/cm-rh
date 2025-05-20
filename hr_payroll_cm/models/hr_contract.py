@@ -73,10 +73,12 @@ class Contract(models.Model):
         return amount
 
     def calculate_basic(self,payslip):
-        amount = self.wage
-        for worked in payslip.worked_days_line_ids:
-            if worked.work_entry_type_id.code != 'WORK100':
-                amount += worked.amount
+        if payslip.worked_days_line_ids:
+            work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
+            extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+            amount = work100_amount + extras_amount
+        else:
+            amount = self.wage
         return amount
 
 

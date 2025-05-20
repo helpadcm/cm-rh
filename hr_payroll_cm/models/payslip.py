@@ -278,6 +278,23 @@ class workedDaysInh(models.Model):
                     hours_amount = (wage / 30 / 8) * 1.25
                     worked_days.amount = hours_amount * worked_days.number_of_hours
                 elif worked_days.work_entry_type_id.code == 'WORK100':
-                    worked_days.amount = worked_days.payslip_id.contract_id.contract_wage
+                    contract_id = worked_days.payslip_id.contract_id
+                    before_diff = 0
+                    after_diff = 0
+                    if contract_id.date_start > worked_days.payslip_id.date_from:
+                        before_diff = (worked_days.payslip_id.date_to - contract_id.date_start).days + 1
+
+                    if contract_id.date_end and contract_id.date_end < worked_days.payslip_id.date_to:
+                        after_diff = (contract_id.date_end - worked_days.payslip_id.date_from).days + 1
+
+                    diff_total = before_diff + after_diff
+                    amount = contract_id.wage
+                    day_amount = contract_id.wage/15
+                    diff_days_amount = 0
+                    if diff_total > 0:
+                        diff_days_amount = day_amount * diff_total
+                        worked_days.amount = diff_days_amount
+                    else:
+                        worked_days.amount = worked_days.payslip_id.contract_id.contract_wage
                 else:
                     worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0

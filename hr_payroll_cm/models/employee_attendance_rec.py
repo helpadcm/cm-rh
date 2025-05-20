@@ -16,11 +16,13 @@ actions = [
     ('homeoffice', 'Home Office'),
 ]
 
+months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
 class employeeAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.record'
     _description = 'Registro de asistencia de empleados'
     _inherit = ['mail.thread','mail.activity.mixin']
-    _order = "start_date desc"
+    _order = "payslip_date_from desc"
 
     name = fields.Char('Name')
     period = fields.Char(string="Periodo")
@@ -38,6 +40,7 @@ class employeeAttendanceRecords(models.Model):
     real_eh_pay = fields.Float(string="Pagar HE Real",help="Horas Extras reales a pagar ")
     pay_extra_hours = fields.Float(string="HE Real",help="Horas Extras reales",compute="get_eh_real")
     aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
+    real_aditional_he = fields.Float(string="HE adicionales Reales", help="Horas extras restantes reales")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
     tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals')
@@ -47,6 +50,18 @@ class employeeAttendanceRecords(models.Model):
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
     department_id = fields.Many2one('hr.department',string="Departamento")
+
+    def update_name(self):
+        name = ''
+        if self.payslip_date_from.day == 1:
+            name = 'Primera Quincena %s %s'%(months[self.payslip_date_from.month - 1], self.payslip_date_from.year)
+        elif self.payslip_date_from.day == 16:
+            name = 'Segunda Quincena %s %s'%(months[self.payslip_date_from.month - 1], self.payslip_date_from.year)
+        self.period = name
+
+    @api.onchange('aditional_he')
+    def get_aditional_he(self):
+        self.real_aditional_he = self.aditional_he
 
     @api.depends('eh_pay','real_eh_pay')
     def get_eh_real(self):
