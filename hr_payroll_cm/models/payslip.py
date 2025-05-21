@@ -213,6 +213,11 @@ class HrPayslipBonus(models.Model):
         return res
 
     def get_other_incomes(self):
+        obj_payslip_input = self.env['hr.payslip.input']
+        vals = {
+            'payslip_id': self.id
+        }
+
         income_ids = self.env['hr.other.incomes'].search([('employee_id','=',self.employee_id.id),('start_date','>=',self.date_from),('end_date','<=',self.date_to),('state','=','in_progress')])
         if income_ids:
             if self.input_line_ids:
@@ -221,13 +226,13 @@ class HrPayslipBonus(models.Model):
                 if inc_line_ids:
                     inc_line_ids.unlink()
 
+            vals.update({
+                'input_type_id': income.input_type_id.id,
+                'amount': income.amount,
+                'name': income.name
+            })
             for income in income_ids:
-                self.env['hr.payslip.input'].create({
-                    'payslip_id': self.id,
-                    'input_type_id': income.input_type_id.id,
-                    'amount': income.amount,
-                    'name': income.name
-                })
+                obj_payslip_input.create(vals)
 
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
@@ -240,24 +245,38 @@ class HrPayslipBonus(models.Model):
                 if eh_type_id:
                     hours_amount = (wage / 30 / 8)
                     amount = hours_amount * eh_amount
-                    self.env['hr.payslip.input'].create({
-                        'payslip_id': self.id,
+                    vals.update({
                         'input_type_id': eh_type_id.id,
                         'amount': amount,
                         'name': "%s (%s horas)"%(eh_type_id.name, eh_amount)
                     })
+                    if self.input_line_ids:
+                        hf_line_id = self.input_line_ids.filtered(lambda line: line.input_type_id.id == eh_type_id.id)
+                        if hf_line_id:
+                            hf_line_id.amount = amount
+                        else:
+                            obj_payslip_input.create(vals)
+                    else:
+                        obj_payslip_input.create(vals)
 
             if ehx_amount > 0:
                 ehx_type_id = self.env['hr.payslip.input.type'].search([('code','=','HEF')])
                 if ehx_type_id:
                     hours_amount = (wage / 30 / 8) * 1.25
                     amount = hours_amount * ehx_amount
-                    self.env['hr.payslip.input'].create({
-                        'payslip_id': self.id,
+                    vals.update({
                         'input_type_id': ehx_type_id.id,
                         'amount': amount,
                         'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
                     })
+                    if self.input_line_ids:
+                        hef_line_id = self.input_line_ids.filtered(lambda line: line.input_type_id.id == ehx_type_id.id)
+                        if hef_line_id:
+                            hef_line_id.amount = amount
+                        else:
+                            obj_payslip_input.create(vals)
+                    else:
+                        obj_payslip_input.create(vals)
 
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'

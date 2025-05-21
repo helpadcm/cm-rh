@@ -39,8 +39,7 @@ class lotFormatXlsx(models.AbstractModel):
 
         # Columnas base
         headers = [
-            'No.', 'Fecha de ingreso', 'ID', 'No. de cuenta', 'Empleado', 'Puesto',
-            'Salario Mensual', 'Salario Quincenal'
+            'No.', 'Fecha de ingreso', 'ID', 'No. de cuenta', 'Empleado', 'Puesto'
         ]
 
         # Agregar reglas salariales dinámicamente
@@ -58,16 +57,16 @@ class lotFormatXlsx(models.AbstractModel):
 
         row = 7
         emp_count = 1
-        grand_totals = {name: 0 for name in headers[8:]}  # Acumulador para gran total
+        grand_totals = {name: 0 for name in headers[6:]}  # Acumulador para gran total
 
         # Iterar sobre departamentos y empleados agrupados
         for department_name, department_info in info.get('department_data').items():
-            dept_totals = {name: 0 for name in headers[8:]}  # Acumulador para cada departamento
+            dept_totals = {name: 0 for name in headers[6:]}  # Acumulador para cada departamento
 
             for employee in department_info.get('employees'):
                 salario_quincenal = employee.get('salary')
-                total_ingresos = sum(x['amount'] for x in employee.get('incomes'))
-                total_devengado = salario_quincenal + total_ingresos  # **CORREGIDO**
+                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT','SM'] )
+                total_devengado = total_ingresos  # **CORREGIDO**
                 total_deducciones = abs(sum(x['amount'] for x in employee.get('deductions')))
                 total_neto = total_devengado - total_deducciones
 
@@ -91,10 +90,10 @@ class lotFormatXlsx(models.AbstractModel):
                 sheet.write(row, 3, employee.get('bank_account') or '', money_format)
                 sheet.write(row, 4, employee.get('employee'), money_format)
                 sheet.write(row, 5, employee.get('job') or '', money_format)
-                sheet.write_number(row, 6, employee.get('monthly_salary'), money_format)
-                sheet.write_number(row, 7, salario_quincenal, money_format)
+                # sheet.write_number(row, 6, employee.get('monthly_salary'), money_format)
+                # sheet.write_number(row, 7, salario_quincenal, money_format)
 
-                col = 8
+                col = 6
                 for rule in info.get('incomes_name'):
                     amount = next((x['amount'] for x in employee.get('incomes') if x['rule_name'] == rule), 0)
                     if amount == 0:
@@ -122,10 +121,10 @@ class lotFormatXlsx(models.AbstractModel):
                 emp_count += 1
 
             # Escribir totales del departamento
-            sheet.merge_range('A%s:H%s'%(row+1,row+1), department_name, dept_name_format)
+            sheet.merge_range('A%s:F%s'%(row+1,row+1), department_name, dept_name_format)
             # sheet.write(row, 0, department_name, dept_format)
-            col = 8
-            for key in headers[8:]:
+            col = 6
+            for key in headers[6:]:
                 sheet.write_number(row, col, abs(dept_totals[key]), totals_format)
                 grand_totals[key] += dept_totals[key]  # Acumulamos en el gran total general
                 col += 1
@@ -133,9 +132,9 @@ class lotFormatXlsx(models.AbstractModel):
 
         # Gran total general en la última fila
         row+=3
-        sheet.merge_range('A%s:H%s'%(row+1,row+1), 'GRAN TOTAL GENERAL', dept_name_format)
-        col = 8
-        for key in headers[8:]:
+        sheet.merge_range('A%s:F%s'%(row+1,row+1), 'GRAN TOTAL GENERAL', dept_name_format)
+        col = 6
+        for key in headers[6:]:
             sheet.write_number(row, col, grand_totals[key], total_totals_format)
             col += 1
             
@@ -156,23 +155,38 @@ class lotFormatXlsx(models.AbstractModel):
             incomes = []
             payslip_name = payslip.payslip_run_id.name
 
+            if 'Salario Mensual' not in incomes_name:
+                incomes_name.append('Salario Mensual')
+
+            if 'Salario Quincenal' not in incomes_name:
+                incomes_name.append('Salario Quincenal')
+            incomes.append({'rule_name': 'Salario Quincenal', 'amount': payslip.contract_id.wage, 'code': 'SQ'})
+            incomes.append({'rule_name': 'Salario Mensual', 'amount': payslip.contract_id.wage * 2, 'code': 'SM'})
+            
             if payslip.worked_days_line_ids:
                 for entry in payslip.worked_days_line_ids:
                     if entry.work_entry_type_id.code != 'WORK100':
+                        if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' not in incomes_name:
+                            incomes_name.append('Horas Extra')
+                            incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
+                        elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' in incomes_name:
+                            incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
+
                         if entry.work_entry_type_id.name not in incomes_name:
                             incomes_name.append(entry.work_entry_type_id.name)
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount})
+                        
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
 
             for line in payslip.line_ids:
                 if line.category_id.code == 'ALW':
                     if line.salary_rule_id.name not in incomes_name:
                         incomes_name.append(line.salary_rule_id.name)
-                    incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total})
+                    incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
                 if line.category_id.code == 'DED':
                     if line.salary_rule_id.name not in deductions_name:
                         deductions_name.append(line.salary_rule_id.name)
-                    deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total})
+                    deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
             employee_vals = {
                 'entry_date': payslip.contract_id.date_start.strftime('%d/%m/%Y'),

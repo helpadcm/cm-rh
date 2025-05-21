@@ -80,7 +80,12 @@ class employeeAttendanceRecords(models.Model):
     def change_state(self):
         next_state = self.env.context.get('next_stage')
         if next_state == 'finalized':
-            self.employee_id.compensatory_hours += self.aditional_he
+            aditional_he_real = 0
+            if self.real_aditional_he > 0:
+                aditional_he_real = self.real_aditional_he
+            else:
+                aditional_he_real = self.aditional_he
+            self.employee_id.compensatory_hours += aditional_he_real
         self.state = next_state
 
     def add_aditional_hours(self):

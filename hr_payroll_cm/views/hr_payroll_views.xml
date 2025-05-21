@@ -7,6 +7,9 @@
             <xpath expr="//field[@name='date_start']" position="after">
                 <field name="first_date_payment" readonly="1" invisible="not first_date_payment"/>
             </xpath>
+            <field name="paid_amount" position="after">
+                <field name="remaining_amount"/>
+            </field>
         </field>
     </record>
 </odoo>
