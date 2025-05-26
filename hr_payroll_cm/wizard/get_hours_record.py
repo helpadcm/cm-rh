@@ -235,7 +235,7 @@ class getRecordHours(models.TransientModel):
                 self.env['hr.employee.attendance.line'].create(vals)
         return True
 
-    def get_name_rec(self):
+    def get_name_rec(self, date_from):
         name = ''
         if date_from.day == 1:
             name = 'Primera Quincena %s %s'%(months[date_from.month - 1], date_from.year)
