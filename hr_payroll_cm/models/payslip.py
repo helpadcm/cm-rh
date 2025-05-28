@@ -226,12 +226,12 @@ class HrPayslipBonus(models.Model):
                 if inc_line_ids:
                     inc_line_ids.unlink()
 
-            vals.update({
-                'input_type_id': income.input_type_id.id,
-                'amount': income.amount,
-                'name': income.name
-            })
             for income in income_ids:
+                vals.update({
+                    'input_type_id': income.input_type_id.id,
+                    'amount': income.amount,
+                    'name': income.name
+                })
                 obj_payslip_input.create(vals)
 
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
