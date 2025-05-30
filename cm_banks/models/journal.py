@@ -70,6 +70,68 @@ class banks_account_journal(models.Model):
 			return sequences				
 		else:	
 			return sequences
+
+	def create_sequences(self):
+		res={}
+		value = {}
+		sequences = []
+		actual_codes=[]
+
+		if self.allow_multi_sequence and not self.sequence_ids:
+			vals = {
+				'padding':5,
+				'number_next_actual':1,
+				'number_increment':1,
+				'implementation':'no_gap'
+			}
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_ch').id
+			if self.env["ir.sequence.type"].search([('code','=','check')]):
+				vals.update({'name':'CHEQUES %s'%(self.name),'prefix':'CH-#','code':'check','code2':record_id})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_other').id
+			if self.env["ir.sequence.type"].search([('code','=','other')]):
+				vals.update({'code':'other','code2':record_id,'name':'OTROS %s'%(self.name),'prefix':'OTH-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_ch_c').id
+			if self.env["ir.sequence.type"].search([('code','=','check_cancel')]):
+				vals.update({'code':'check_cancel','code2':record_id,'name':'CANCELACION CHEQUES %s'%(self.name),'prefix':'CH-NULL-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_dep').id
+			if self.env["ir.sequence.type"].search([('code','=','deposit')]):
+				vals.update({'code':'deposit','code2':record_id,'name':'DEPOSITOS %s'%(self.name),'prefix':'DEP-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_cre').id
+			if self.env["ir.sequence.type"].search([('code','=','credit')]):
+				vals.update({'code':'credit','code2':record_id,'name':'CREDITOS %s'%(self.name),'prefix':'CRD-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_deb').id
+			if self.env["ir.sequence.type"].search([('code','=','debit')]):
+				vals.update({'code':'debit','code2':record_id,'name':'DEBITOS %s'%(self.name),'prefix':'DEB-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_dep_bank_transfer').id
+			if self.env["ir.sequence.type"].search([('code','=','banks_transferences')]):
+				vals.update({'code':'banks_transferences','code2':record_id,'name':'TRANSFERENCIAS BANCARIAS %s'%(self.name),'prefix':'TRANS-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+			
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr_c').id
+			if self.env["ir.sequence.type"].search([('code','=','transference_cancel')]):
+				vals.update({'code':'transference_cancel','code2':record_id,'name':'TRANSFERENCIAS CANCELACION %s'%(self.name),'prefix':'DTRANS-NULL-#'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
+		return True
 			
 	def existe_repeat(self,sequence_ids_list):
 		if sequence_ids_list:
