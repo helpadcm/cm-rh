@@ -9,10 +9,21 @@ class account_payment_inherit_wizard(models.TransientModel):
     next_number = fields.Char(string='Siguiente Numero', help='El numero siguiente del cheque o transferencia', default="Borrador")
     writeoff_amount = fields.Float(string="Diferencia", compute='_compute_writeoff_amount')
     write_off_lines = fields.One2many('account.payment.writeoffline', 'register_id', string="Write off lines")
+    invoice_compute = fields.Many2many('account.move.line', string="move lines")	
     pay_method_type= fields.Selection([
                 ('check','Check'),
                 ('transference','Transference'),
                 ('otros','Otros')], string='Tipo de transaccion')
+
+    @api.model
+    def default_get(self, fields):
+        rec = super(account_payment_inherit_wizard, self).default_get(fields)
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids')
+        rec.update({
+            'invoice_compute': [(6, 0, active_ids)]
+        })
+        return rec
 
     @api.onchange('journal_id', 'pay_method_type')
     def onchange_journal(self):
@@ -41,13 +52,6 @@ class account_payment_inherit_wizard(models.TransientModel):
                 amount += wo_line.credit
             
             record.writeoff_amount = amount
-
-    # def action_create_payments(self):
-    #     if self.payment_difference_handling == 'multiple_account':
-    #         self._create_multi_payment()
-    #     else:
-    #         res = super(account_payment_inherit_wizard, self).action_create_payments()
-    #         return res
 
     def _create_payment_vals_from_wizard(self, batch_result):
         payment_vals = {
@@ -102,10 +106,10 @@ class account_payment_inherit_wizard(models.TransientModel):
 
                     if self.write_off_lines:
                         for line in self.write_off_lines:
-                            if line.credit > 0:
-                                amount = line.credit
-                            elif line.debit > 0:
+                            if self.payment_type == 'inbound':
                                 amount = line.debit
+                            else:
+                                amount = -line.credit
 
                             values = {
                                 'name': line.description,

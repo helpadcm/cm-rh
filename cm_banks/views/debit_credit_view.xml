@@ -10,21 +10,20 @@
                   	<header>
 						<button name="anulate_draft_voucher" string="Invalidar Voucher" type="object" invisible="state != 'draft'" groups="cm_banks.group_banks_banks_anullation" confirm="Esta seguro de querer invalidar este voucher?"/>
 						<button name="set_as_template" string="Usar como Plantilla" type="object" invisible="state != 'validated'"/>
-						<button name="unreconciliate_debit" string="Desconciliar" type="object" invisible="state != 'validated'" confirm="Are you sure you want to Unreconciliate this Document?"/>
+						<button name="unreconciliate_debit" string="Desconciliar" type="object" invisible="state != 'validated'" confirm="Esta seguro de querer desconciliar este documento?"/>
 						<button name="reset_to_draft" type="object" string="Cambiar a Borrador" invisible="state != 'anulated'" groups="cm_banks.group_banks_banks_reset"  class="oe_highlight"/>
 						<button name="action_validate" type="object" string="Validar" invisible="state != 'draft'" class="oe_highlight"/>	
 						<field name="state" widget="statusbar"/>
                   	</header>
 					<sheet>
-						<h1><field name="number_calc"  class="oe_inline" readonly='1'/></h1>
-						<h2><field name="msg" invisible="number_calc != False" class="oe_inline" readonly='1'/></h2>
+						<h1><field name="number"  class="oe_inline" readonly='1'/></h1>
 						<group>
 							<group> 
 								<field name="journal_id" domain="[('allow_creditdebit','=',True)]" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" readonly="state != 'draft' or was_unreconcilied == True" />
 								<field name="require_analytic_account" invisible="1"/>
 								<field name="date" readonly="state != 'draft'"/>
 								<field name="doc_type" readonly="state != 'draft'or was_unreconcilied == True" required="1"/>
-								<!-- <field name="template_id"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('doc_type','in',['credit','debit','deposit'])]"  attrs="{'invisible': [('state','!=','draft')],'readonly' : [('state','!=','draft')] }" /> -->
+								<field name="template_id"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('doc_type','in',['credit','debit','deposit'])]"  invisible="state != 'draft'" readonly="state != 'draft'" />
 							</group>
 							<group>    
 								<field name="total" readonly="state != 'draft'" />
@@ -55,9 +54,9 @@
 									</tree>
 								</field>
 							</page>
-                        	<page string="Journal Items" invisible="state not in ['validated','anulated']">
+                        	<page string="Apuntes Contables" invisible="state not in ['validated','anulated']">
 								<field name="move_ids" readonly="1">
-									<tree string="Journal Items">
+									<tree string="Apuntes Contables">
 										<field name="move_id"/>
 										<field name="date"/>
 										<field name="statement_id"/>
@@ -68,7 +67,7 @@
 									</tree>
 								</field>
 							</page>
-                       		<page string="Other Information" invisible="state not in ['validated']">
+                       		<page string="Otra Informacion" invisible="state not in ['validated']">
 								<group col="4" colspan="4"> 
 									<field name="move_id" string="Asiento Contable" readonly="1"/>
 									<!-- <field name="voucher_id" string="Voucher Reference" readonly="1"/>
@@ -97,7 +96,7 @@
             <field name="name">debit.credit.tree</field>
             <field name="model">debit.credit</field>
             <field name="arch" type="xml">
-                <tree string="Debitos y Creditos" create="true" default_order="state">  
+                <tree string="Debitos y Creditos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
 					<field name="number" />               
 					<field name="date" />
 					<field name="journal_id" widget="selection" />

@@ -23,7 +23,7 @@ class anullation_date_wizard(models.TransientModel):
 	to_mcheck = fields.Boolean(string='Cheque Miscelaneo o Transferencia', help=_("Usar como plantilla de Pago Miscelaneo o transferencia"), required=False )
 	to_debit_credit = fields.Boolean(string='Debito o Credito', help=_("Usar como plantilla de debito o credito"), required=False)
 	doc_id_mcheck = fields.Many2one('mcheck.mcheck', string='Documento', help=_("Documento a usar como plantilla"),required=False )
-	doc_id_debit_credit = fields.Many2one('debit.credit', string='Documento', help=_("Documento a usar como plantilla"),required=False )
+	doc_id_debit_credit = fields.Many2one('debit.credit', string='Documento Debido/Credito', help=_("Documento a usar como plantilla"),required=False )
 
 
 

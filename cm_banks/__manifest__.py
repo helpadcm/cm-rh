@@ -26,7 +26,7 @@
 		'wizard/register_payment_view_inh.xml',
 		# 'wizard/anulation_date_voucher_wizard.xml',
 		'views/account_payment.xml',
-		# 'views/account_account_view.xml',
+		'views/account_account_view.xml',
 		'views/config_journal_view.xml',
 		'views/debit_credit_view.xml',
 		# 'views/account_invoice_supplier.xml',

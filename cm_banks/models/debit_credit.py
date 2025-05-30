@@ -8,7 +8,7 @@ import locale
 import pytz
 from odoo.tools.translate import _
 import time
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 class debit_credit(models.Model):
 	_order = 'date desc'
@@ -29,28 +29,26 @@ class debit_credit(models.Model):
 	require_analytic_account=fields.Boolean(string="require analytic account")
 	name = fields.Text(string='Circular')
 	date = fields.Date(string='Fecha',  index=True, help="Fecha efectiva del asiento contable",default=lambda *a: time.strftime('%Y-%m-%d') )
-	amount = fields.Char(compute='_get_totald',string='Total')
+	amount = fields.Char(compute='_get_totald',string='Total Importe')
 	amountdebit = fields.Char(compute='_get_totaldebit',string='Total Debito')
 	amountcredit = fields.Char(compute='_get_totalcredit',string='Total Credito')
-	amounttext = fields.Char(compute='_get_totalt',string='Total')
+	amounttext = fields.Char(compute='_get_totalt',string='Total Letras')
 	total = fields.Float(string='Total',required=True,tracking=True)
-	# template_id = fields.Many2one('banks.template', string='Plantillas')
+	template_id = fields.Many2one('banks.template', string='Plantillas')
 	pay_comp_currency = fields.Boolean(string='Pagar en moneda de la empresa')
 	linked_voucher = fields.Boolean(string='Enlazar voucher')
 	voucher_id = fields.Many2one('account.payment', string='Documento', copy=False)
 	# mcheck_mcheck_id = fields.Many2one('mcheck.mcheck', string='Cheque', copy=False)
-	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Comp. Currency)')
+	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de la empresa)')
 	currency = fields.Float(compute='_get_currency', string='Moneda', digits=(12,6))
 	jour_company_id = fields.Integer(string='Empresa')
 	was_unreconcilied = fields.Boolean(string='Desconciliar')
 	doc_type = fields.Selection([('debit','Debito'),('credit','Credito')], string='Tipo',default='debit')
 	tax_amount = fields.Float(string='Impuesto', digits='Account')
-	rest_credit = fields.Float(string='Debit left',compute='_compute_rest_credit')
+	rest_credit = fields.Float(string='Debito Faltante',compute='_compute_rest_credit')
 	actual_comp_rate = fields.Float(string='Tasa de empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa en moneda secundaria') #date of the anulation of the check
-	number = fields.Char(string='Numero')
-	number_calc = fields.Char(compute='_calculate_number', string='Number Calc')
-	msg = fields.Char(default='Seleccione un tipo y un diario')
+	number = fields.Char(string='Numero', default="Borrador", copy=False)
 	obs=fields.Text(string='Obs')
 	type=fields.Selection([
 		('sale','Ventas'),
@@ -118,9 +116,9 @@ class debit_credit(models.Model):
 					if lines.type=='cr':
 						totalc+=lines.amount
 			if(mcheck.journal_id.currency_id):
-				a=self.env['mcheck.mcheck'].to_word(totald-totalc,mcheck.journal_id.currency_id.name)
+				a = self.env['mcheck.mcheck'].to_word(totald-totalc,mcheck.journal_id.currency_id.name)
 			else:
-				a=self.env['mcheck.mcheck'].to_word(totald-totalc,'HNL')
+				a = self.env['mcheck.mcheck'].to_word(totald-totalc,'HNL')
 			result[mcheck.id]=a
 		return result
 
@@ -157,12 +155,6 @@ class debit_credit(models.Model):
 				else:
 					comp_rate = dc.journal_id.currency_id.rate
 			dc.currency = comp_rate
-		return True
-
-	def _calculate_number(self):
-		result={}
-		for mcheck in self:
-			mcheck.number_calc=mcheck.number
 		return True
 
 	@api.depends('mcheck_ids.amount', 'total','doc_type' )
@@ -252,11 +244,15 @@ class debit_credit(models.Model):
 				totalc = 0
 				lines_array = []
 				name = "/"
+				if mcheck.number == 'Borrador':
+					mcheck.number = self.update_sequence(mcheck.journal_id, mcheck.doc_type) 
+						
 				if mcheck.number:
 					if self.existe_number(mcheck.number):
 						raise UserError(_("Este número pertenece a un cheque validado, no puede crear artículos de diario con el mismo número") )
 					else:
 						name = mcheck.number
+
 				amove_obj = self.env['account.move']
 				amovedata = {
 					'journal_id': mcheck.journal_id.id,
@@ -431,7 +427,10 @@ class debit_credit(models.Model):
 
 	def update_sequence(self,journal_id, doc_type):
 		sequence_id = journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == doc_type)
-		sequence_id.next_by_id()
+		if sequence_id:
+			return sequence_id.next_by_id()
+		else:
+			raise ValidationError('No existe una secuencia configurada para el tipo %s en el diario %s, configure una para poder validar'%(doc_type, journal_id.name))
 
 	def _get_sequence(self, journalid, doc_type):
 		journal_obj = self.env['account.journal']
@@ -465,17 +464,13 @@ class debit_credit(models.Model):
 			}
 
 	def unreconciliate_debit(self):
-		move_pool = self.env['account.move']
-		move_line_pool = self.env['account.move.line']
-		doc_type = self.doc_type
-		journal_id = self.journal_id.id
-		self.refresh()
 		if self.move_id:
-			move_pool.browse(self.move_id.id).button_cancel()
-			move_pool.browse(self.move_id.id).unlink()
+			self.move_id.button_cancel()
+			self.move_id.unlink()
+		
 		res = {
-		    'state':'draft',
-		    'move_id':False,
+		    'state': 'draft',
+		    'move_id': False,
 		    'was_unreconcilied': True ,
 		}
 		self.write(res)

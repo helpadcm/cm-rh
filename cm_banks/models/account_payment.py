@@ -2,6 +2,11 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
+class res_company(models.Model):
+	_inherit = 'res.company'
+
+	ilc_permit	= fields.Float(string="Diferencia Disponible",default=5)
+
 class ap_account_payment(models.Model):
 	_inherit='account.payment'
 
@@ -22,3 +27,272 @@ class ap_account_payment(models.Model):
 			if sequence_id:
 				self.name = sequence_id.next_by_id()
 		return res
+
+	def _get_shared_move_line_vals(self, debit, credit, amount_currency, move_id, invoice_id=False):
+		""" Returns values common to both move lines (except for debit, credit and amount_currency which are reversed)
+		"""
+		return {
+			'partner_id': self.partner_id.id or False,
+			'move_id': move_id,
+			'debit': debit,
+			'credit': credit,
+			'amount_currency': amount_currency or False,
+		}
+
+	def post_multi(self,keep_open = 0,write_off=0,move_ret=False,cant_ret=0,type_invoice='in_invoice'):
+		self.env.context = dict(self.env.context or {})
+		if self.existen_numeros_repetidos():
+			raise UserError(_("Ya hay un documento validado con este numero"))
+		else:
+			self.env.context.update({'no_update':False})
+
+		#post original
+		for rec in self:
+			voucher =  rec
+			seq_model = self.env.get('ir.sequence')
+			old_partner_id = voucher.partner_id.id
+			
+			# if voucher.partner_id_for_parents.parent_id.id:
+			# 	rec.write({'partner_id': voucher.partner_id_for_parents.parent_id.id})		
+			
+			if voucher.name != 'Draft Payment':
+				self.env.context.update({'no_update':True,'from_voucher':True})
+			
+			if rec.state != 'draft':
+				raise UserError(_("Only a draft payment can be posted. Trying to post a payment in state %s.") % rec.state)
+			
+			# if any(inv.state != 'open' for inv in rec.invoice_ids):
+			# 	raise ValidationError(_("The payment cannot be processed because the invoice is not open!"))
+			
+			if rec.partner_type == 'customer':
+				if rec.payment_type == 'inbound':
+					doc_type = 'deposit'
+			if rec.partner_type == 'supplier':
+				if rec.payment_type == 'outbound':
+					doc_type = rec.pay_method_type
+			
+			if rec.name == '/':
+				name = "/"
+				seq_id = False
+				if doc_type == 'otros':
+					if self.journal_id.sequence_id:
+						seq_id = self.journal_id.sequence_id.id
+				else:
+					if self.journal_id.sequence_ids:
+						seq_id = self.journal_id.sequence_ids.filtered(lambda line: line.code2.code == doc_type)
+				
+				if not seq_id:
+					raise UserError(_('Por favor active la secuencia para el diario seleccionado!'))
+
+				if self.journal_id.sequence_id:
+					if not self.journal_id.sequence_id.active:
+						raise UserError(_('Por favor active la secuencia para el diario seleccionado!'))
+					rec.name = seq_id.next_by_id()
+				else:
+					rec.name= None
+
+			# Create the journal entry
+			amount = rec.amount * (rec.payment_type in ('outbound', 'transfer') and 1 or -1)
+			if move_ret:
+				move = move_ret
+			else:
+				move = self.env['account.move'].create(self.with_context({'sequence':rec.name})._get_move_vals())
+			
+			
+			aml_obj = self.env['account.move.line'].with_context(check_move_validity=False)
+
+			invoice_currency = False
+			# if self.invoice_ids and all([x.currency_id == self.invoice_ids[0].currency_id for x in self.invoice_ids]):
+			# 	invoice_currency = self.invoice_ids[0].currency_id
+			
+			debit, credit, amount_currency, currency_id = aml_obj.with_context(date=self.date).compute_amount_fields(amount, self.currency_id, self.company_id.currency_id, invoice_currency)
+			
+			if not self.invoice_ids[0].type in ['in_invoice', 'out_refund']:
+				amount_currency = -amount_currency
+			
+			if not self.currency_id != self.company_id.currency_id:
+				amount_currency = 0
+			
+			if credit>0:
+				amount_currency=-amount_currency
+
+			liquidity_aml_dict = self._get_shared_move_line_vals(credit, debit, -amount_currency, move.id, False)
+			#cuenta analytica para diario
+			liquidity_aml_dict.update({'analytic_account_id':self.analytic_account_id.id})
+			#----------------------------
+			liquidity_aml_dict.update(self._get_liquidity_move_line_vals(-amount))
+			liquidity_aml_dict['amount_currency'] = -amount_currency
+			aml_obj.create(liquidity_aml_dict)
+			rc_rest = {}
+			for rc_line in rec.lines_cr:
+				rc_rest[rc_line.id] = rc_line.amount
+			for line in rec.payment_line_ids:
+				contrc = 0
+				for rc_line in rec.lines_cr:
+					if contrc < line.amount and rc_rest[rc_line.id]>0:
+						temp = rc_line.move_line_id.amount_residual 
+						if (line.amount - contrc) < rc_rest[rc_line.id]:
+							value = abs(line.amount - contrc)
+						else:
+							value = rc_rest[rc_line.id]
+						rc_line.move_line_id.write({'amount_residual':value})
+						line.move_line_id.invoice_id.assign_outstanding_credit([rc_line.move_line_id.id])
+						contrc += value
+						rc_rest[rc_line.id] -= value
+
+						rc_line.move_line_id.write({'amount_residual':temp-value})
+				if contrc < line.amount:
+					if (line.amount - contrc) > 0:
+						value = abs(line.amount - contrc)
+						rec._create_payment_entry_multi(value,move,line.move_line_id.invoice_id.id,line,cant_ret)
+
+						contrc += value
+				
+			debit = 0
+			credit = keep_open
+			if type_invoice == 'out_invoice':
+				debit = keep_open
+				credit = 0
+			if write_off>0:
+				for wo_line in rec.write_off_line:
+					val = 0
+					if wo_line.credit > 0:
+						val += wo_line.credit
+					else:
+						val -= wo_line.debit
+					writeoff_line = self._get_shared_move_line_vals(0, 0, 0, move.id, False)
+					debit,credit,amount_currency_wo,currency_id = aml_obj.with_context(date=self.payment_date).compute_amount_fields(-val, self.currency_id, self.company_id.currency_id, False)
+					
+					writeoff_line['debit'] = debit
+					writeoff_line['credit'] = credit
+					writeoff_line['analytic_account_id'] = wo_line.analytic_account_id.id
+					#writeoff_line['chqmanalitics'] = wo_line.chqmanalitics.id
+					#writeoff_line['analytic_tag_ids'] = [(6,0,wo_line.analytic_tag_ids.ids)]
+					#if type_invoice == 'in_invoice':
+					#	amount_currency_wo = -amount_currency_wo
+					#	writeoff_line['debit'] = credit
+					#	writeoff_line['credit'] = debit
+					writeoff_line['name'] = _(wo_line.description)
+					writeoff_line['account_id'] = wo_line.account_id.id
+					writeoff_line['partner_id'] = wo_line.partner_id.id
+					writeoff_line['amount_currency'] = amount_currency_wo
+					writeoff_line['currency_id'] = currency_id
+					writeoff_line = aml_obj.create(writeoff_line)
+
+					liquidity_aml_dict = self._get_shared_move_line_vals(credit,debit, -amount_currency_wo, move.id, False)
+									
+					liquidity_aml_dict.update(self._get_liquidity_move_line_vals(-val))
+				
+								#aml_obj.create(liquidity_aml_dict)
+			if round(keep_open,2)>0:
+				debit,credit,amount_currency_wo, currency_id = aml_obj.with_context(date=self.payment_date).compute_amount_fields(-keep_open, self.currency_id, self.company_id.currency_id, False)
+				
+				counterpart_aml_dict = self._get_shared_move_line_vals(debit, credit, amount_currency_wo, move.id, False)
+				counterpart_aml_dict.update(self._get_counterpart_move_line_vals(self.invoice_ids))
+				counterpart_aml_dict.update({'currency_id': currency_id})
+				counterpart_aml = aml_obj.create(counterpart_aml_dict)
+				liquidity_aml_dict = self._get_shared_move_line_vals(credit,debit, -amount_currency_wo, move.id, False)
+				liquidity_aml_dict.update(self._get_liquidity_move_line_vals(-keep_open))
+			if rec.payment_type == 'transfer':
+				transfer_credit_aml = move.line_ids.filtered(lambda r: r.account_id == rec.company_id.transfer_account_id)
+				transfer_debit_aml = rec._create_transfer_entry(amount)
+				
+				(transfer_credit_aml + transfer_debit_aml).reconcile()
+			rec.write({'state': 'posted', 'move_name': move.name,'was_unreconcilied':True})
+		#agregatte
+		self.update_state_draf()#added line
+		self.write({
+		        'number_doc': voucher.name,
+				'move_id':move.id,'partner_id': old_partner_id
+		    })
+		move.post()
+		#farrl
+		return move
+
+	def existen_numeros_repetidos(self):
+		for voucher in self:
+			doc_type = ""
+			if not voucher.was_unreconcilied:
+				doc_type = voucher.pay_method_type
+				if not doc_type:
+					doc_type = 'deposit'
+				number = False
+				voucher.number_doc = voucher.with_context({'return':False}).next_seq_number(voucher.journal_id, doc_type)
+				if voucher.number_doc:
+					number = voucher.number_doc
+			else:
+				number = voucher.name
+
+			res = self.env['account.payment'].search(['&','|','&',('state','!=','draft'),('name','=',number),'&',('state','=','draft'),'&',('name','=',number),('was_unreconcilied','=',True),('id','!=',voucher.id)])
+			if doc_type == 'deposit':
+				res2 = 	self.env['banks.deposit'].search(['|','&',('state','!=','draft'),('number','=',number),'&',('state','=','draft'),'&',('number','=',number),('was_unreconcilied','=',True)])	
+			else:			
+				res2 = 	self.env['mcheck.mcheck'].search(['|','&',('state','!=','draft'),('number','=',number),'&',('state','=','draft'),'&',('number','=',number),('was_unreconcilied','=',True)])	
+			if res or res2:
+				number = voucher.with_context({'return':True}).next_seq_number(voucher.journal_id, doc_type)
+				return self.with_context({'number':number}).existen_numeros_repetidos()
+			voucher.number_doc = number
+		return False
+
+	def next_seq_number(self, journalid, doc_type, context=None):
+		self.env.context = dict(self.env.context or {})
+		if journalid:
+			if doc_type == 'otros':
+				if journalid.sequence_id:
+					self.env.context.update({'no_update' : True})
+					name = journalid.sequence_id.next_by_id()
+					return name
+				else:
+					raise osv.except_osv(_('Por favor active la secuencia para el diario seleccionado!'))
+			
+			if self.partner_type == 'customer': 
+				doc_type ='deposit' 
+			else: 
+				doc_type = doc_type  
+		else: 
+			return None
+
+		if not journalid == False and doc_type != False:
+			if journalid.sequence_ids:
+				seq_id = journalid.sequence_ids.filtered(lambda line: line.code2.code == doc_type)
+				if not seq_id:
+					raise osv.except_osv(_('Por favor configure una secuencia del tipo de documento %s en el diario %s!'%(doc_type, journalid.name)))
+			else:
+				raise osv.except_osv(_('Por favor configure una secuencia del tipo de documento %s en el diario %s!'%(doc_type, journalid.name)))
+			
+			if journalid.sequence_id:
+				if not journalid.sequence_id.active:
+					raise osv.except_osv(_('Por favor active la secuencia para el diario seleccionado!'))
+				
+				if self.env.context.get('return'):
+					self.env.context.update({'no_update' : False})
+				else:
+					self.env.context.update({'no_update' : True})
+				
+				name = seq_id.next_by_id()
+				return  name
+			else:
+				return None
+		else:
+			return None
+
+	def _get_move_vals(self, journal=None):
+		""" Return dict to create the payment move
+		"""
+		seq_obj = self.env['ir.sequence']
+		journal = journal or self.journal_id
+		if not journal.sequence_id:
+			raise UserError(_('Error de Configuracion!'), _('El diario %s no tiene secuencia, por favor especifique una.') % journal.name)
+		if not journal.sequence_id.active:
+			raise UserError(_('Error de Configuracion!'), _('La secuencia del diario %s esta desactivada.') % journal.name)
+		if self._context.get('sequence',False):
+			name = self.name or self.env.context['sequence']
+		else:
+			name = self.name or journal.with_context(ir_sequence_date=self.date).sequence_id.next_by_id()
+		return {
+			'name': name,
+			'date': self.date,
+			'ref': self.ref or '',
+			'company_id': self.company_id.id,
+			'journal_id': journal.id,
+		}

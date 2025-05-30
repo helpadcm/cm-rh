@@ -28,7 +28,7 @@ class banks_deposits(models.Model):
 	amountdebit = fields.Float(compute='_get_totaldebit', string='Total Debito')
 	amountcredit = fields.Char(compute='_get_totalcredit',string='Total Credito')
 	amounttext = fields.Char(compute='_get_totalt', string='Total txt')
-	total = fields.Float(string='Total', required=True , tracking=True)
+	total = fields.Float(string='Monto Total', required=True , tracking=True)
 	currency = fields.Float(compute='_get_currency', string='Moneda')
 	jour_company_id = fields.Integer(string='Compañia')
 	was_unreconcilied = fields.Boolean(string='Desconciliado')

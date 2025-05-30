@@ -51,14 +51,14 @@
 								<field name="date" readonly="state != 'draft'"  on_change="onchange_date(journal_id,date,total)" />
 								<field name="doc_type" readonly="state != 'draft' or was_unreconcilied == True" required="1"/>
 								<field name="template_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"  domain="[( 'doc_type' ,'in', ['check','transference'])]" invisible="state != 'draft'" readonly="state != 'draft'"/>
-								<field name="anulation_date" invisible="state not in ('anulated')" readonly="state not in ('pre_anulated')"/>
+								<field name="anulation_date" invisible="state not in ('anulated')" readonly="1"/>
 							</group>
 							<group>
 								<field name="total"  widget = "monetary" readonly="state != 'draft'"/>
 								<field name="total_equivalent" readonly='1'/>
 								<field name="currency"   readonly="1" invisible="currency in [ False, None ,0.0 ]"/>
 								<field name="commission" widget="monetary" readonly="state != 'draft'" />
-								<field name="anulation_ref" invisible="state != 'anulated' or debit_credit_id != False" />
+								<field name="anulation_ref" invisible="state != 'anulated' or debit_credit_id != False" readonly="1"/>
 								<field name="debit_credit_id" readonly="state != 'draft'" invisible="state != 'anulated' or anulation_ref != False" />
 							</group>
 						</group>
@@ -129,7 +129,7 @@
             <field name="name">mcheck.mcheck.tree</field>
             <field name="model">mcheck.mcheck</field>
             <field name="arch" type="xml">
-                <tree string="Pagos Miscelaneos">  
+                <tree string="Pagos Miscelaneos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
 					<field name="number" invisible="context.get('is_for_template') in [True]"/>               
 					<field name="date" invisible="context.get('is_for_template') in [True]"/>
 					<field name="journal_id" widget="selection" invisible="context.get('is_for_template') in ['True']"/>

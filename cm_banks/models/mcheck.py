@@ -3,7 +3,7 @@ from odoo import models, fields, api, exceptions, _
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import time
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 UNIDADES = ('', 'UN ', 'DOS ', 'TRES ', 'CUATRO ', 'CINCO ', 'SEIS ', 'SIETE ', 'OCHO ', 'NUEVE ', 'DIEZ ', 'ONCE ', 'DOCE ',
             		'TRECE ', 'CATORCE ', 'QUINCE ', 'DIECISEIS ', 'DIECISIETE ', 'DIECIOCHO ', 'DIECINUEVE ', 'VEINTE ')
@@ -53,15 +53,15 @@ class mcheck(models.Model):
 	date = fields.Date(string='Fecha',  index=True, help="Effective date for accounting entries", required=True, default=lambda *a: time.strftime('%Y-%m-%d') )
 	amount = fields.Char(compute='_get_totald', string='Total')
 	debit_credit_id = fields.Many2one('debit.credit', string='Debito/Credito')#for cancelation with date
-	amountdebit = fields.Char(compute='_get_totaldebit', string='Total')
-	amountcredit = fields.Char(compute='_get_totalcredit', string='Total')
+	amountdebit = fields.Char(compute='_get_totaldebit', string='Total Debito')
+	amountcredit = fields.Char(compute='_get_totalcredit', string='Total Credito')
 	pay_comp_currency = fields.Boolean(string='Pagar en moneda de la empresa')
 	anulated_contrapartida = fields.Boolean(string='Anular Contrapartida')
 	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de empresa)')
-	amounttext = fields.Char(compute='_get_totalt', string='Total')
+	amounttext = fields.Char(compute='_get_totalt', string='Total Texto')
 	was_unreconcilied = fields.Boolean(string='Desconciliar', default=False)
-	has_been_unreconcilied = fields.Boolean(string='Desconciliar', default=False)#for showing invalidate draft buttons
-	total = fields.Float(string='Total',required=True, tracking=True)
+	has_been_unreconcilied = fields.Boolean(string='Ha sido Desconciliado', default=False)#for showing invalidate draft buttons
+	total = fields.Float(string='Total Monto',required=True, tracking=True)
 	currency = fields.Float(compute='_get_currency',string='Moneda')
 	jour_company_id = fields.Integer(string='Empresa')
 	
@@ -76,7 +76,7 @@ class mcheck(models.Model):
 	commission = fields.Float(string='Comision')
 	actual_comp_rate = fields.Float(string='Tasa de empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa real de moneda secundaria')
-	anulation_date = fields.Date(string='Fecha de Anulacion', help="Effective date for anulation") #date of the anulation of the check
+	anulation_date = fields.Date(string='Fecha de Anulacion', help="Fecha efectiva de anulacion") #date of the anulation of the check
 	number = fields.Char(string='Numero',default="Borrador")
 	obs = fields.Text(string='obs')
 	anulation_ref = fields.Many2one('account.move', string='Ref. Anulacion', copy=False)
@@ -343,17 +343,15 @@ class mcheck(models.Model):
 			mcheck.write(res)
 		return True
 
-	def _get_sequence(self,journalid,doc_type):
-		journal_obj = self.env['account.journal']
-		diario = journal_obj.search([('id','=',journalid)])
+	def _get_sequence(self,journalid, doc_type):
 		seq_id = None
-		have_multi=False
+		have_multi = False
 		if doc_type == 'mcheck':
-			seq_id = diario.sequence_id.id
-		for sq in diario.sequence_ids:
+			seq_id = journalid.sequence_id.id
+
+		if journalid.sequence_ids:
 			have_multi = True
-			if sq.code2.name == doc_type:
-				seq_id = sq.id
+			seq_id = journalid.sequence_ids.filtered(lambda seq: seq.code2.code == doc_type)
 		return {'result' : have_multi, 'seq_id' : seq_id}
 
 	def anulate_draft_voucher(self):
@@ -364,7 +362,10 @@ class mcheck(models.Model):
 
 	def update_sequence(self,journal_id, doc_type):
 		sequence_id = journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == doc_type)
-		return sequence_id.next_by_id()
+		if sequence_id:
+			return sequence_id.next_by_id()
+		else:
+			raise ValidationError('No existe una secuencia configurada para el tipo %s en el diario %s, configure una para poder validar'%(doc_type, journal_id.name))
 
 	def action_validate(self):
 		if self.state!="draft":
@@ -598,8 +599,8 @@ class mcheck(models.Model):
 					else:
 						jour_comp_id= self.env.get('res.user').browse(uid).company_id.id
 					
-					# if move_id:
-					# 	move_id.post()		
+					if move_id:
+						move_id.action_post()		
 
 					return self.write({'state':'validated','number':n,'move_id':move_id.id, 'actual_comp_rate': currency_rate,'actual_sec_curr_rate': select_journal_currency_rate, 'jour_company_id' : jour_comp_id})
 								
@@ -664,6 +665,128 @@ class mcheck(models.Model):
 		for line in self.mcheck_ids:
 			a = self.env['mcheck.mcheck_name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type })
 		return encabezado
+
+	def cancel_payment(self,anullation_date):
+		self.env.context = dict(self.env.context or {})
+		if self.env.context.get('active_id') and anullation_date:
+			selected_cancel_date = anullation_date#selected date in the wizard for tha cancelation 
+			chck_memo = ''
+			movec_id = None
+			for mcheck in self:
+				existe_seq = None 
+				if mcheck.doc_type == 'check':
+					existe_seq  = self._get_sequence(mcheck.journal_id,'check_cancel')
+				else:
+					existe_seq  = self._get_sequence(mcheck.journal_id,'transference_cancel')
+				
+				if existe_seq['seq_id'] == None:
+					raise UserError(_("Por favor crea una secuencia para cancelar el tipo de documento seleccionado!"))
+			
+				check_move_obj = mcheck.move_id
+				move_line = self.env['account.move.line']
+				move_l_obj = move_line.search([('move_id','=',check_move_obj.id )])
+				move_values = {}
+				#odoo10 account_period = self.env['account.period']
+				#odoo10 account_period_obj = account_period.search(['&','&',( 'date_start','<=', selected_cancel_date),('date_stop', '>=',selected_cancel_date),('special','<>',True),('company_id','=',mcheck.journal_id.company_id.id),('state', '=', 'draft')])
+				for obj in check_move_obj:
+					move_values['date'] = selected_cancel_date
+					move_values['journal_id'] = obj.journal_id.id
+					if mcheck.doc_type=='check':
+						move_values['name'] = self.journal_number(mcheck.journal_id, 'check_cancel')
+					else:
+						move_values['name'] = self.journal_number(mcheck.journal_id, 'transference_cancel')
+					move_values['ref'] = obj['ref']
+					move_values['narration'] = 'Anulacion de pago %s el %s'%(mcheck.number, mcheck.date)
+				
+				move_id = self.env['account.move'].create(move_values)
+				movec_id = move_id.id 
+				move_l_values = {}
+				move_l_values['date'] = selected_cancel_date
+				if self.env.context.get('only_one',False):
+					debit_credit = self.env["debit.credit"].browse(self.env.context.get('debit_credit_id',False))
+					debit_note_balance = 0
+					for line in debit_credit.move_ids:
+						if line.account_id.id ==  debit_credit.journal_id.default_account_id.id:
+							if line.debit > 0:
+								debit_note_balance += line.debit
+							else:
+								debit_note_balance += line.credit
+					debit_note_balance = debit_credit.total
+					if debit_note_balance != mcheck.total:
+						raise UserError(_("El monto del pago debe ser igual al total del cheque") )
+					self.env['debit.credit'].browse(debit_credit.id).write({'linked_voucher':True, 'mcheck_mcheck_id':mcheck.id})
+					return self.write({'state':'anulated','debit_credit_id':context.get('debit_credit_id',False),'anulation_date' : context.get('anullation_date',False)})
+					 
+
+				if not self.env.context.get('only_one',False):
+					for lines2 in move_l_obj:
+						move_l_values.update({
+							'name': lines2.name,
+							'account_id': lines2.account_id.id,
+							'mcheck_id': lines2.mcheck_id.id,
+							'move_id': move_id.id,
+							'currency_id': lines2.currency_id.id,
+							'amount_currency': lines2.amount_currency,
+						})
+			
+						if lines2.credit == 0:
+							move_l_values.update({
+								'debit': 0,
+								'credit': lines2.debit,
+								'amount_currency': lines2.amount_currency*(-1),
+							})
+			
+						else:
+							move_l_values.update({
+								'credit': 0,
+								'debit': lines2.credit	
+							})
+						move_l_values['amount_currency'] = lines2['amount_currency']*(-1)
+						move_line.with_context(check_move_validity=False).create(move_l_values)
+				
+				for lin in mcheck.mcheck_ids:
+					if lin.name:
+						new_name = 'Anulacion de cheque '+str(mcheck.number)
+					else:
+						new_name = 'Anulacion de cheque '+str(mcheck.number)
+					self.write({'mcheck_ids': [(1, lin.id, {'name':new_name})]})
+				if mcheck.name:
+					chck_memo = mcheck.name
+				else:
+					chck_memo = 'Anulacion de cheque '+ str(mcheck.number)
+				if mcheck.doc_type == 'check':
+					self.update_sequence(mcheck.journal_id,'check_cancel')
+				else:
+					self.update_sequence(mcheck.journal_id,'transference_cancel')
+				if move_id:
+					move_id.action_post()
+
+			return self.write({'state':'anulated', 'name':chck_memo, 'anulation_date' : anullation_date , 'anulation_ref' : movec_id, 'anulated_contrapartida':True})
+		else:
+			raise UserError(_("Operacion no finalizada, Intente de nuevo.") )
+
+	def journal_number(self,journalid,doc_type):
+		if not journalid == False and doc_type != False:
+			self.env.context = dict(self.env.context or {})
+			name = "/"
+			seq_id = False
+			fl = False
+
+			if journalid.sequence_ids:
+				seq_id = journalid.sequence_ids.filtered(lambda seq: seq.code2.code == doc_type)
+			else:
+				return None
+		
+			if journalid.sequence_id:
+				if not journalid.sequence_id.active:
+					raise UserError(_('Error de Configuracion !'),_('Por favor active la secuencia del diario seleccionado !'))			
+				self.env.context.update({'no_update' : True})
+				name = seq_id.next_by_id()
+				return  name
+			else:
+				return None
+		else:
+			return None
 
 class mcheck_name(models.Model):
 	_name = 'mcheck.mcheck_name'

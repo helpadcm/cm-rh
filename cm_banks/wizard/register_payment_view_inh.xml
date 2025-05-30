@@ -52,13 +52,13 @@
 								</tree>
 							</field>
 						</page>
-						<page string="Distribuir" invisible="payment_difference_handling != 'reconcile'">
+						<page string="Distribuir Saldo" invisible="payment_difference_handling != 'reconcile'">
 							<separator string="Diferencia" />
 							<field name="writeoff_amount" widget="monetary"/>
 							<separator string="Distribucion de cuentas"/>
 							<field name="write_off_lines">
 								<tree editable="bottom">
-									<field name="account_id" options="{'no_create': True}"/>
+									<field name="account_id" domain="[('deprecated','=',False)]" options="{'no_create': True}"/>
 									<field name="partner_id" options="{'no_create': True}"/>
 									<field name="analytic_account_id" options="{'no_create': True}"/>
 									<field name="description"/>

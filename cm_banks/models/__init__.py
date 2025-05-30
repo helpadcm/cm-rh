@@ -1,5 +1,5 @@
 from . import account_payment
-# import account_account
+from . import account_account
 from . import account_move_line
 from . import debit_credit
 from . import banks_templates

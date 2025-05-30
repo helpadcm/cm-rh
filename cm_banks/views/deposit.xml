@@ -114,7 +114,7 @@
             <field name="name">deposit.tree</field>
             <field name="model">banks.deposit</field>
             <field name="arch" type="xml">
-                <tree string="Depositos" default_order="state">  
+                <tree string="Depositos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
 					<field name="number" />               
 					<field name="date" />
 					<field name="journal_id"/>

@@ -19,12 +19,12 @@
 					</group>
 				</xpath>
 				<xpath expr="//field[@name='currency_id']" position="before" >
-						<field name="commission_account" domain="[('account_type','!=','view')]"/>
+						<field name="commission_account"/>
 				</xpath>
 				
 				<xpath expr="//page[@name='advanced_settings']" position="after">
-					<page string="Sequences">	
-						<separator  string="Sequences"/>
+					<page string="Secuencias">	
+						<separator  string="Secuencias"/>
 						<field name="sequence_ids" onchange="onchange_sequence_ids(sequence_ids)">
 							<tree>
 								<field name="name" />
