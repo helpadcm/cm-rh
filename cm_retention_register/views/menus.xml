@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem 
+        id="main_menu_retention" 
+        name="Retenciones" 
+        sequence="4" 
+        parent="account_accountant.menu_accounting"
+        
+    />
+    <menuitem 
+        id="action_retentions" 
+        name="Retenciones" 
+        sequence="1" 
+        parent="main_menu_retention" 
+        action="retentions_form_view_action" 
+        
+    />
+</odoo>

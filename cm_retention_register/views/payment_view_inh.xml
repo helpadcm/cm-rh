@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_account_payment_form_inherit_retention" model="ir.ui.view">
+            <field name="name">account.payment.form.inherit.retention</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="apply_retentions" invisible="1"/>
+                    <field name="retentions_applied" invisible="1"/>
+                </xpath>
+                <notebook position="inside">
+                    <page string="Lineas de retencion" invisible="apply_retentions != True">
+                        <field name="retention_line_ids" nolabel="1" readonly="1">
+                            <tree editable="bottom">
+                                <field name="account_id"/>
+                                <field name="percentage"/>
+                                <field name="amount" sum="Monto Total" readonly="1"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <field name="real_payment_amount" readonly="1" invisible="1"/>
+                            <field name="total_retention" readonly="1" invisible="1"/>
+                        </group>
+                    </page>
+                    <page string="Detalles de retenion" invisible="retentions_applied != True">
+						<field name="retention_lines_detail" edit="false" readonly="1">
+							<tree string="Retention">
+								<field name="date" />
+								<field name="description"/>
+								<field name="name"/>
+								<field name="doc_type"/>
+								<field name="state"/>
+							 </tree>
+						</field>
+					</page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>

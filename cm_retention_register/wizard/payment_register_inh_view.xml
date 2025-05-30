@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_account_payment_register_form_inherit_retention" model="ir.ui.view">
+            <field name="name">account.payment.register.form.inherit.retention</field>
+            <field name="model">account.payment.register</field>
+            <field name="inherit_id" ref="cm_banks.view_account_payment_invoices_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='pay_method_type']" position="after">
+					<field name="apply_retentions" />
+				</xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Lineas de retencion" invisible="apply_retentions != True">
+                        <field name="invoice_compute" invisible="1"/>
+                        <field name="retention_line_ids" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="invoice_line_id" options="{'no_create': True}" domain="[('id', 'in', parent.invoice_compute),('account_id.account_type','in',['asset_receivable','liability_payable'])]"/>
+                                <field name="account_id" options="{'no_create': True}" domain="[('use_4_retention', '=', True)]"/>
+                                <field name="percentage" column_invisible="1"/>
+                                <field name="amount" readonly="1"/>
+                                <field name="amount_currency" readonly="1" force_save="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
