@@ -93,9 +93,10 @@ class Contract(models.Model):
             basic_salary_line_id = slip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
             if basic_salary_line_id:
                 basic_amount += basic_salary_line_id.total
+
         contract_actual = (self.wage * 2)
         total = contract_actual + basic_amount - extras
-        return total / 12
+        return (total / 12)
 
     def calculate_rap(self, code):
         amount = 0
