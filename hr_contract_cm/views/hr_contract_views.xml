@@ -10,7 +10,7 @@
                         <field name="early_checkin_bonus_time"  widget="float_time"/>
                         <field name="late_checkout_bonus_time"  widget="float_time"/>
                         <field name="max_extra_hours"/>
-                        <field name="temporal_amount"/>
+                        <field name="temporal_amount" invisible="1"/>
                     </group>
                     <group name="group_bonus_values">
                         <field name="max_performance_bonus"/>
