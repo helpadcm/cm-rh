@@ -88,16 +88,13 @@ class Contract(models.Model):
         extras = 0
         for slip in payslip_ids:
             if slip.worked_days_line_ids:
-                for line in slip.worked_days_line_ids:
-                    if line.work_entry_type_id.code != 'WORK100':
-                        extras += line.amount
+                extras += sum(slip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
 
             basic_salary_line_id = slip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
             if basic_salary_line_id:
-                basic_amount += basic_salary_line_id.total - extras
-
+                basic_amount += basic_salary_line_id.total
         contract_actual = (self.wage * 2)
-        total = contract_actual + basic_amount
+        total = contract_actual + basic_amount - extras
         return total / 12
 
     def calculate_rap(self, code):
