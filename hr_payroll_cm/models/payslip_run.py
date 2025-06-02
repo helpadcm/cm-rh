@@ -1,17 +1,25 @@
-from odoo import models, api
+from odoo import models, api, fields
 
 months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
-    @api.onchange('date_start')
+    type_lot = fields.Selection([('normal','Normal'),('fourteenth','Decimo Cuarto Mes'),('thirteenth','Decimo Tercer Mes')], string="Tipo de lote", default="normal")
+
+    @api.onchange('date_start', 'type_lot')
     def get_payslip_name(self):
-        if self.date_start:
-            if self.date_start.day == 1:
-                self.name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
-            if self.date_start.day == 16:
-                self.name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+        if self.type_lot == 'normal':
+            if self.date_start:
+                if self.date_start.day == 1:
+                    self.name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+                if self.date_start.day == 16:
+                    self.name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+        else:
+            if self.type_lot == 'fourteenth':
+                self.name = 'Decimo Cuarto Mes año %s'%(self.date_end.year)
+            elif self.type_lot == 'thirteenth':
+                self.name = 'Decimo Tercer Mes año %s'%(self.date_start.year)
 
     def action_load_nomina_from_excel_wizard(self):
         """

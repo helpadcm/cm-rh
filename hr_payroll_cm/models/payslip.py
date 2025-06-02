@@ -18,6 +18,14 @@ class HrPayslipBonus(models.Model):
         )
 
     esperated_hours = fields.Integer(string="Horas Esperadas", compute="get_esperated_hours")
+    type_lot = fields.Selection([('normal','Normal'),('fourteenth','Decimo Cuarto Mes'),('thirteenth','Decimo Tercer Mes')], string="Tipo de lote", default="normal")
+
+    @api.model_create_multi
+    def create(self, vals):
+        res = super(HrPayslipBonus, self).create(vals)
+        for rec in res:
+            rec.type_lot = rec.payslip_run_id.type_lot
+        return res
 
     @api.depends('date_from','date_to')
     def get_esperated_hours(self):

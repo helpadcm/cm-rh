@@ -5,7 +5,7 @@
         <field name="model">hr.payslip.run</field>
         <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
+            <!-- <xpath expr="//header" position="inside">
                 <button name="action_load_nomina_from_excel_wizard"
                         string="Cargar nomina desde Excel"
                         type="object"
@@ -22,6 +22,9 @@
                         class="btn-primary"
                         invisible="state not in ['draft', 'verify']"/>
                 />
+            </xpath> -->
+            <xpath expr="//sheet/group/group[1]" position="inside">
+                <field name="type_lot" required="1"/>
             </xpath>
         </field>
     </record>

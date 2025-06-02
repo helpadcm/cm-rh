@@ -82,8 +82,23 @@ class Contract(models.Model):
         return amount
 
 
-    def calculate_dt_dc(self, code, payslip):
-        return self.temporal_amount
+    def calculate_dt_dc(self, payslip):
+        payslip_ids =  self.env['hr.payslip'].search([('date_to','>=',payslip.date_from),('date_to','<=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('type_lot','=','normal')])
+        basic_amount = 0
+        extras = 0
+        for slip in payslip_ids:
+            if slip.worked_days_line_ids:
+                for line in slip.worked_days_line_ids:
+                    if line.work_entry_type_id.code != 'WORK100':
+                        extras += line.amount
+
+            basic_salary_line_id = slip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
+            if basic_salary_line_id:
+                basic_amount += basic_salary_line_id.total - extras
+
+        contract_actual = (self.wage * 2)
+        total = contract_actual + basic_amount
+        return total / 12
 
     def calculate_rap(self, code):
         amount = 0
