@@ -10,32 +10,34 @@
                     <field name="apply_retentions" invisible="1"/>
                     <field name="retentions_applied" invisible="1"/>
                 </xpath>
-                <notebook position="inside">
-                    <page string="Lineas de retencion" invisible="apply_retentions != True">
-                        <field name="retention_line_ids" nolabel="1" readonly="1">
-                            <tree editable="bottom">
-                                <field name="account_id"/>
-                                <field name="percentage"/>
-                                <field name="amount" sum="Monto Total" readonly="1"/>
-                            </tree>
-                        </field>
-                        <group>
-                            <field name="real_payment_amount" readonly="1" invisible="1"/>
-                            <field name="total_retention" readonly="1" invisible="1"/>
-                        </group>
-                    </page>
-                    <page string="Detalles de retenion" invisible="retentions_applied != True">
-						<field name="retention_lines_detail" edit="false" readonly="1">
-							<tree string="Retention">
-								<field name="date" />
-								<field name="description"/>
-								<field name="name"/>
-								<field name="doc_type"/>
-								<field name="state"/>
-							 </tree>
-						</field>
-					</page>
-                </notebook>
+                <group name="main_group" position="after">
+                    <notebook>
+                        <page string="Lineas de retencion" invisible="apply_retentions != True">
+                            <field name="retention_line_ids" nolabel="1" readonly="1">
+                                <tree editable="bottom">
+                                    <field name="account_id"/>
+                                    <field name="percentage"/>
+                                    <field name="amount" sum="Monto Total" readonly="1"/>
+                                </tree>
+                            </field>
+                            <group>
+                                <field name="real_payment_amount" readonly="1" invisible="1"/>
+                                <field name="total_retention" readonly="1" invisible="1"/>
+                            </group>
+                        </page>
+                        <page string="Detalles de retenion" invisible="retentions_applied != True">
+                            <field name="retention_lines_detail" edit="false" readonly="1">
+                                <tree string="Retention">
+                                    <field name="date" />
+                                    <field name="description"/>
+                                    <field name="name"/>
+                                    <field name="doc_type"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </group>
             </field>
         </record>
     </data>
