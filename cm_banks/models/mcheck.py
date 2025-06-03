@@ -62,7 +62,7 @@ class mcheck(models.Model):
 	was_unreconcilied = fields.Boolean(string='Desconciliar', default=False)
 	has_been_unreconcilied = fields.Boolean(string='Ha sido Desconciliado', default=False)#for showing invalidate draft buttons
 	total = fields.Float(string='Total Monto',required=True, tracking=True)
-	currency = fields.Float(compute='_get_currency',string='Moneda')
+	currency = fields.Float(compute='_get_currency',string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Empresa')
 	
 	template_id = fields.Many2one('banks.template', string='Plantilla')
@@ -161,10 +161,16 @@ class mcheck(models.Model):
 			mcheck.amounttext = a
 
 	def _get_currency(self):
-		result={}
-		for mcheck in self:
-			journal_currency = mcheck.journal_id.currency_id.with_context(date=mcheck.date)
-			mcheck.currency = journal_currency.rate
+		comp_rate = False
+		for dc in self:
+			date1 = datetime.combine(dc.date, datetime.now().time())
+			if dc.journal_id.currency_id:
+				user_obj = self.env.user
+				if not dc.journal_id.currency_id.id == user_obj.company_id.id:
+					comp_rate = user_obj.company_id.currency_id.with_context(date=(date1 + relativedelta(hours=6))).rate
+				else:
+					comp_rate = 1/dc.journal_id.currency_id.rate
+			dc.currency = comp_rate
 		return True
 
 	@api.depends('mcheck_ids.amount', 'total')
@@ -198,10 +204,10 @@ class mcheck(models.Model):
 
 		if opt:
 			# Convertir de "from_currency" a "company_currency"
-			return company_currency._convert(amount, from_currency, self.env.company, date, True)
+			return from_currency._convert(amount, company_currency, self.env.company, date, True)
 		else:
 			# Convertir de "company_currency" a "from_currency"
-			return from_currency._convert(amount, company_currency, self.env.company, date, True)
+			return company_currency._convert(amount, from_currency, self.env.company, date, True)
 
 	def to_word(self, number, mi_moneda):
 		valor = number
@@ -392,7 +398,7 @@ class mcheck(models.Model):
 				flag=True
 				select_journal_currency_id = curr_rates['journal_curr_id']#the currency of the journal selected, if it dosent have it, it will see if the default account have a currency, in defect it will be the default company currency
 				if select_journal_currency_id:#if there is a secundary currency, brings the curency rate for this currency
-					select_journal_currency_rate = curr_rates['journal_curr_rate']#rate of the currently selected journal				
+					select_journal_currency_rate = 1/curr_rates['journal_curr_rate']#rate of the currently selected journal				
 					#select_journal_currency_name = curr_rates['company_curr_rate']
 				else: #if there was not a secundary currency, wi will use the ones that la compania usa
 					select_journal_currency_rate = currency_rate 

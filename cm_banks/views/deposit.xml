@@ -46,7 +46,7 @@
 								</group>
 								<field name="mcheck_ids" widget="one2many_list" readonly="state != 'draft'">
 									<tree editable="bottom">
-										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
+										<field name="account_id" domain="[('deprecated','=',False)]" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
 										<field name="name"/>
 										<field name="name2"/>
 										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>

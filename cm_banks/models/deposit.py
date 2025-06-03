@@ -3,6 +3,7 @@ from odoo import models, fields, api, exceptions, _
 import time
 from odoo.exceptions import UserError
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 class banks_deposits(models.Model):
 	_name = "banks.deposit"
@@ -29,7 +30,7 @@ class banks_deposits(models.Model):
 	amountcredit = fields.Char(compute='_get_totalcredit',string='Total Credito')
 	amounttext = fields.Char(compute='_get_totalt', string='Total txt')
 	total = fields.Float(string='Monto Total', required=True , tracking=True)
-	currency = fields.Float(compute='_get_currency', string='Moneda')
+	currency = fields.Float(compute='_get_currency', string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Compañia')
 	was_unreconcilied = fields.Boolean(string='Desconciliado')
 	is_customer_deposit = fields.Boolean(string='Es depósito de cliente')
@@ -107,9 +108,16 @@ class banks_deposits(models.Model):
 		return True
 
 	def _get_currency(self):
-		for mcheck in self:
-			journal_currency = mcheck.journal_id.currency_id.with_context(date=mcheck.date)
-			mcheck.currency = journal_currency.rate
+		comp_rate = False
+		for dc in self:
+			date1 = datetime.combine(dc.date, datetime.now().time())
+			if dc.journal_id.currency_id:
+				user_obj = self.env.user
+				if not dc.journal_id.currency_id.id == user_obj.company_id.id:
+					comp_rate = user_obj.company_id.currency_id.with_context(date=(date1 + relativedelta(hours=6))).rate
+				else:
+					comp_rate = 1/dc.journal_id.currency_id.rate
+			dc.currency = comp_rate
 		return True
 
 	@api.depends('mcheck_ids.amount', 'total', 'doc_type', 'deposits.amount' )
@@ -145,10 +153,10 @@ class banks_deposits(models.Model):
 
 		if opt:
 			# Convertir de "from_currency" a "company_currency"
-			return company_currency._convert(amount, from_currency, self.env.company, date, True)
+			return from_currency._convert(amount, company_currency, self.env.company, date, True)
 		else:
 			# Convertir de "company_currency" a "from_currency"
-			return from_currency._convert(amount, company_currency, self.env.company, date, True)
+			return company_currency._convert(amount, from_currency, self.env.company, date, True)
 
 	def _get_equivalent(self):
 		for deposit in self:
@@ -173,7 +181,7 @@ class banks_deposits(models.Model):
 		select_journal_currency_id = curr_rates['journal_curr_id']#the currency of the journal selected, if it dosent have it, it will see if the default account have a currency, in defect it will be the default company currency
 		
 		if select_journal_currency_id:#if there is a secundary currency, brings the curency rate for this currency
-			select_journal_currency_rate = curr_rates['journal_curr_rate']#rate of the currently selected journal				
+			select_journal_currency_rate = 1/curr_rates['journal_curr_rate']#rate of the currently selected journal				
 			#select_journal_currency_name = curr_rates['company_curr_rate']
 		else: #if there was not a secundary currency, wi will use the ones that la compania usa
 			select_journal_currency_rate = currency_rate 

@@ -40,7 +40,7 @@ class debit_credit(models.Model):
 	voucher_id = fields.Many2one('account.payment', string='Documento', copy=False)
 	# mcheck_mcheck_id = fields.Many2one('mcheck.mcheck', string='Cheque', copy=False)
 	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de la empresa)')
-	currency = fields.Float(compute='_get_currency', string='Moneda', digits=(12,6))
+	currency = fields.Float(compute='_get_currency', string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Empresa')
 	was_unreconcilied = fields.Boolean(string='Desconciliar')
 	doc_type = fields.Selection([('debit','Debito'),('credit','Credito')], string='Tipo',default='debit')
@@ -138,13 +138,12 @@ class debit_credit(models.Model):
 
 		if opt:
 			# Convertir de "from_currency" a "company_currency"
-			return company_currency._convert(amount, from_currency, self.env.company, date, True)
+			return from_currency._convert(amount, company_currency, self.env.company, date, True)
 		else:
 			# Convertir de "company_currency" a "from_currency"
-			return from_currency._convert(amount, company_currency, self.env.company, date, True)
+			return company_currency._convert(amount, from_currency, self.env.company, date, True)
 
 	def _get_currency(self):
-		result={}
 		comp_rate = False
 		for dc in self:
 			date1 = datetime.combine(dc.date, datetime.now().time())
@@ -153,7 +152,7 @@ class debit_credit(models.Model):
 				if not dc.journal_id.currency_id.id == user_obj.company_id.id:
 					comp_rate = user_obj.company_id.currency_id.with_context(date=(date1 + relativedelta(hours=6))).rate
 				else:
-					comp_rate = dc.journal_id.currency_id.rate
+					comp_rate = 1/dc.journal_id.currency_id.rate
 			dc.currency = comp_rate
 		return True
 
@@ -195,7 +194,7 @@ class debit_credit(models.Model):
 		
 		if self.journal_id and self.doc_type:
 			if self.journal_id.sequence_ids:
-				sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code == self.doc_type)
+				sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.doc_type)
 				if sequence_id:
 					next_number = sequence_id.get_next_char(sequence_id.number_next_actual)
 					return { 'value' :{ 'number' : next_number,'number_calc' : next_number}}
@@ -224,8 +223,7 @@ class debit_credit(models.Model):
 				flag=True
 				select_journal_currency_id = curr_rates['journal_curr_id']#the currency of the journal selected, if it dosent have it, it will see if the default account have a currency, in defect it will be the default company currency
 				if select_journal_currency_id:#if there is a secundary currency, brings the curency rate for this currency
-				
-					select_journal_currency_rate = curr_rates['journal_curr_rate']#rate of the currently selected journal				
+					select_journal_currency_rate = 1/curr_rates['journal_curr_rate']#rate of the currently selected journal				
 				else: #if there was not a secundary currency, wi will use the ones that la compania usa
 					select_journal_currency_rate = currency_rate 
 					select_journal_currency_id = currency_id

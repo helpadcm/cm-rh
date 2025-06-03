@@ -45,7 +45,7 @@
 								</group>
 								<field name="mcheck_ids"  mode="tree" widget="one2many_list" readonly="state != 'draft'" context="{'type':doc_type}">
 									<tree editable="bottom">
-										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('account_type','!=','view')]"/>
+										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('deprecated','=',False)]"/>
 										<field name="name"/>
 										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
 										<field name="chqmanalitics" string="Analitics"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
@@ -60,7 +60,7 @@
 										<field name="move_id"/>
 										<field name="date"/>
 										<field name="statement_id"/>
-										<field name="account_id" domain="[('account_type','!=','view')]"/>
+										<field name="account_id" domain="[('deprecated','=',False)]"/>
 										<field name="name"/>
 										<field name="debit" sum="Debit"/>
 										<field name="credit" sum="Credit"/>
