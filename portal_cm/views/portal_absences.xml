@@ -62,8 +62,10 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Medio Día</label>
                                                 <input type="checkbox" class="form-check-input" name="record_middle_day" id="middle_day"/>
-                                                <label class="form-label">Por Horas</label>
-                                                <input type="checkbox" class="form-check-input" name="record_hours" id="hours_request"/>
+                                                <div id="hours_request_checkbox_div"> 
+                                                    <label class="form-label">Por Horas</label>
+                                                    <input type="checkbox" class="form-check-input" name="record_hours" id="hours_request"/>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -224,6 +226,7 @@
                     var hoursRequest = document.getElementById("hours_request");
                     var hoursDiv = document.getElementById("hours_div_id");
                     var adjuntosDiv = document.getElementById("adjuntos_div");
+                    var hoursRequestCheckboxDiv = document.getElementById("hours_request_checkbox_div");
 
                     function setDefaultValues() {
                         var selectedOption = absence_type.options[absence_type.selectedIndex];
@@ -232,6 +235,8 @@
                         // Mostrar u ocultar VAC y HCOMP
                         vacDiv.style.display = (type_code === "VAC") ? "block" : "none";
                         hcompDiv.style.display = (type_code === "HCOMP") ? "block" : "none";
+
+                        hoursRequestCheckboxDiv.style.display = (type_code === "PGS") ? "inline-block" : "none";
 
                         // Mostrar u ocultar horas
                         if (hoursRequest.checked) {
@@ -263,6 +268,28 @@
                     absence_type.addEventListener("change", setDefaultValues);
                     middleDay.addEventListener("change", setDefaultValues);
                     hoursRequest.addEventListener("change", setDefaultValues);
+
+                    middleDay.addEventListener("change", function() {
+                        if (this.checked) {
+                            hoursRequest.checked = false;
+                            // Vuelve a llamar a setDefaultValues para recalcular la visibilidad de hoursDiv
+                            setDefaultValues();
+                        }
+                    });
+
+                    hoursRequest.addEventListener("change", function() {
+                        if (this.checked) {
+                            middleDay.checked = false;
+                            // Vuelve a llamar a setDefaultValues para recalcular la visibilidad de periodDiv
+                            setDefaultValues();
+                        }
+                    });
+
+                    absence_type.addEventListener("change", function() {
+                        middleDay.checked = false;
+                        hoursRequest.checked = false;
+                        setDefaultValues();
+                    });
                 });
 
             </script>
