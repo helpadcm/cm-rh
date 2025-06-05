@@ -27,7 +27,7 @@
 
                     <div class="row justify-content-center">
                         <div class="col-12 col-md-8 col-lg-6">
-                            <form action="/request_absences/submit" method="POST" class="mt-2">
+                            <form action="/request_absences/submit" method="POST" class="mt-2" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                                 <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
@@ -62,6 +62,8 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Medio Día</label>
                                                 <input type="checkbox" class="form-check-input" name="record_middle_day" id="middle_day"/>
+                                                <label class="form-label">Por Horas</label>
+                                                <input type="checkbox" class="form-check-input" name="record_hours" id="hours_request"/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -70,6 +72,20 @@
                                                 <select class="form-control" name="selection_period" id="period_time">
                                                     <option t-att-value="am">Mañana</option>
                                                     <option t-att-value="pm">Tarde</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3" id="hours_div_id">
+                                                <label class="form-label">Desde</label>
+                                                <select id="start_hour_select" name="selected_start_hour" class="form-control">
+                                                    <t t-foreach="hours" t-as="hour">
+                                                        <option t-att-value="hour[0]"><t t-esc="hour[1]"/></option>
+                                                    </t>
+                                                </select>
+                                                <label class="form-label">Hasta</label>
+                                                <select id="end_hour_select" name="selected_end_hour" class="form-control">
+                                                    <t t-foreach="hours" t-as="hour">
+                                                        <option t-att-value="hour[0]"><t t-esc="hour[1]"/></option>
+                                                    </t>
                                                 </select>
                                             </div>
                                         </div>
@@ -98,6 +114,14 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-12" id="adjuntos_div">
+                                        <div class="mb-3">
+                                            <label class="form-label">Adjuntar Archivos (Opcional)</label>
+                                            <input type="file" name="rec_portal_attachments" id="portal_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                                            <small class="form-text text-muted">Formatos permitidos: imágenes, PDF, Word, Excel.</small>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12 text-center">
                                         <button type="submit" class="btn btn-primary mt-3">Registrar</button>
                                     </div>
@@ -117,6 +141,7 @@
                                     <th class="header_historical">Fecha de Finalizacion</th>
                                     <!-- <th class="header_historical">Solicitado</th> -->
                                     <th class="header_historical">Estado</th>
+                                    <th class="header_historical">Accion</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -133,6 +158,14 @@
                                         <td t-if="absences.state == 'refuse'">Rechazado</td>
                                         <td t-if="absences.state == 'validate1'">Segunda aprobacion</td>
                                         <td t-if="absences.state == 'validate'">Aprobado</td>
+                                        <td t-if="absences.state in ['draft','confirm']">
+                                            <form t-att-action="'/delete_absence/' + str(absences.id)" method="POST">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 </t>
                             </tbody>
@@ -188,37 +221,48 @@
                     var middleDay = document.getElementById("middle_day");
                     var finalDateDiv = document.getElementById("final_date_div");
                     var finalDate = document.getElementById("final_date_id");
+                    var hoursRequest = document.getElementById("hours_request");
+                    var hoursDiv = document.getElementById("hours_div_id");
+                    var adjuntosDiv = document.getElementById("adjuntos_div");
 
                     function setDefaultValues() {
                         var selectedOption = absence_type.options[absence_type.selectedIndex];
                         var type_code = selectedOption.getAttribute("data-opt-code");
 
-                        if (type_code === "VAC") {
-                            vacDiv.style.display = "block";
+                        // Mostrar u ocultar VAC y HCOMP
+                        vacDiv.style.display = (type_code === "VAC") ? "block" : "none";
+                        hcompDiv.style.display = (type_code === "HCOMP") ? "block" : "none";
+
+                        // Mostrar u ocultar horas
+                        if (hoursRequest.checked) {
+                            hoursDiv.style.display = "block";
                         } else {
-                            vacDiv.style.display = "none";
+                            hoursDiv.style.display = "none";
                         }
 
-                        if (type_code === "HCOMP") {
-                            hcompDiv.style.display = "block";
-                        } else {
-                            hcompDiv.style.display = "none";
-                        }
-
-                        if(middleDay.checked){
+                        // Lógica de finalDateDiv y periodDiv (según prioridad)
+                        if (hoursRequest.checked) {
+                            finalDateDiv.style.display = "none";
+                            finalDate.required = false;
+                            periodDiv.style.display = "none";
+                        } else if (middleDay.checked) {
                             periodDiv.style.display = "block";
                             finalDateDiv.style.display = "none";
-                            final_date_id.required = false;
-                        }else{
+                            finalDate.required = false;
+                        } else {
                             periodDiv.style.display = "none";
                             finalDateDiv.style.display = "block";
-                            final_date_id.required = true;
+                            finalDate.required = true;
                         }
+
+                        adjuntosDiv.style.display = (type_code === "PGS") ? "block" : "none";
+
                     }
 
                     setDefaultValues();
                     absence_type.addEventListener("change", setDefaultValues);
                     middleDay.addEventListener("change", setDefaultValues);
+                    hoursRequest.addEventListener("change", setDefaultValues);
                 });
 
             </script>

@@ -1,8 +1,23 @@
+import base64
 from odoo import http
 from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError, ValidationError
+
+hours_array = [
+        ('0', '12:00 AM'), ('0.5', '12:30 AM'),('1', '1:00 AM'), ('1.5', '1:30 AM'),
+        ('2', '2:00 AM'), ('2.5', '2:30 AM'),('3', '3:00 AM'), ('3.5', '3:30 AM'),
+        ('4', '4:00 AM'), ('4.5', '4:30 AM'),('5', '5:00 AM'), ('5.5', '5:30 AM'),
+        ('6', '6:00 AM'), ('6.5', '6:30 AM'),('7', '7:00 AM'), ('7.5', '7:30 AM'),
+        ('8', '8:00 AM'), ('8.5', '8:30 AM'),('9', '9:00 AM'), ('9.5', '9:30 AM'),
+        ('10', '10:00 AM'), ('10.5', '10:30 AM'),('11', '11:00 AM'), ('11.5', '11:30 AM'),
+        ('12', '12:00 PM'), ('12.5', '12:30 PM'),('13', '1:00 PM'), ('13.5', '1:30 PM'),
+        ('14', '2:00 PM'), ('14.5', '2:30 PM'),('15', '3:00 PM'), ('15.5', '3:30 PM'),
+        ('16', '4:00 PM'), ('16.5', '4:30 PM'),('17', '5:00 PM'), ('17.5', '5:30 PM'),
+        ('18', '6:00 PM'), ('18.5', '6:30 PM'),('19', '7:00 PM'), ('19.5', '7:30 PM'),
+        ('20', '8:00 PM'), ('20.5', '8:30 PM'),('21', '9:00 PM'), ('21.5', '9:30 PM'),
+        ('22', '10:00 PM'), ('22.5', '10:30 PM'),('23', '11:00 PM'), ('23.5', '11:30 PM')]
 
 class CustomPortalAbsences(http.Controller):
 
@@ -25,6 +40,7 @@ class CustomPortalAbsences(http.Controller):
             'history_absences_ids': history_absences_ids,
             'comp_days': employee_id.compensatory_day_string,
             'vacations': vacations,
+            'hours': hours_array
         }
         return request.render("portal_cm.portal_employee_absences", values)
 
@@ -45,6 +61,13 @@ class CustomPortalAbsences(http.Controller):
         middle_day = post.get("record_middle_day")
         middle_day_opt = post.get("selection_period")
 
+        record_hours = post.get("record_hours")
+        start_hour = post.get("selected_start_hour")
+        end_hour = post.get("selected_end_hour")
+
+        # Obtener los archivos adjuntos
+        uploaded_files = request.httprequest.files.getlist('rec_portal_attachments') # Nombre del campo 'input type="file"'
+
         type_absence_id = request.env['hr.leave.type'].sudo().search([('id','=',int(type_value))])
 
 
@@ -59,20 +82,51 @@ class CustomPortalAbsences(http.Controller):
             'name': notes
         }
 
-        if middle_day:
-            vals.update({'request_unit_half': True})
-            vals.update({'request_date_to': datetime.strptime(start_date, "%Y-%m-%d")})
-            if middle_day_opt == 'Mañana':
-                vals.update({'request_date_from_period': 'am'})
-            else:
-                vals.update({'request_date_from_period': 'pm'})
-        else:
+        if not record_hours and not middle_day:
             vals.update({'request_date_to': datetime.strptime(end_date, "%Y-%m-%d")})
+        else:
+            if record_hours:
+                initial_hour = [item for item in hours_array if item[0] == start_hour]
+                final_hour = [item for item in hours_array if item[0] == end_hour]
+                vals.update({
+                    'request_unit_hours': True, 
+                    'request_date_to': datetime.strptime(start_date, "%Y-%m-%d"),
+                    'request_hour_from': initial_hour[0][0],
+                    'request_hour_to': final_hour[0][0],
+                })
+
+            if middle_day:
+                vals.update({'request_unit_half': True, 'request_date_to': datetime.strptime(start_date, "%Y-%m-%d")})
+                if middle_day_opt == 'Mañana':
+                    vals.update({'request_date_from_period': 'am'})
+                else:
+                    vals.update({'request_date_from_period': 'pm'})
+
 
         
         leave_id = request.env['hr.leave'].sudo().create(vals)
         leave_created = True
         request_days = leave_id.number_of_days
+
+        # --- Lógica de adjuntos ---
+        attachment_ids_to_link = []
+        for uploaded_file in uploaded_files:
+            if uploaded_file and uploaded_file.filename:
+                attachment_data = base64.b64encode(uploaded_file.read())
+                # Crea el adjunto
+                attachment = request.env['ir.attachment'].sudo().create({
+                    'name': uploaded_file.filename,
+                    'datas': attachment_data,
+                    'res_model': 'hr.leave',    # Modelo al que se adjunta
+                    'res_id': leave_id.id,      # ID del registro de la solicitud de ausencia
+                    'type': 'binary',
+                    'mimetype': uploaded_file.content_type,
+                })
+                attachment_ids_to_link.append(attachment.id)
+
+        if attachment_ids_to_link:
+            leave_id.sudo().write({'supported_attachment_ids': [(6, 0, attachment_ids_to_link)]})
+
         if type_absence_id.code == 'VAC':
             available_days = employee_id.vacations_day
             leave_created = self.validate_creation(request_days, available_days, request_days, 'VAC')
@@ -96,6 +150,13 @@ class CustomPortalAbsences(http.Controller):
             leave_id.sudo().unlink()
 
         return request.redirect('/absences/record_absences_employee')
+
+    @http.route('/delete_absence/<int:absences_id>', type="http", auth="user", methods=["POST"], website=True)
+    def delete_record(self, absences_id, **kwargs):
+        leave_id = request.env['hr.leave'].sudo().search([('id','=',absences_id)])
+        if leave_id:
+            leave_id.sudo().unlink()
+        return request.redirect('/absences/record_absences_employee') 
 
     def validate_creation(self, req, available, days, code):
         leave_created = False
