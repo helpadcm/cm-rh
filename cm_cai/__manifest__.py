@@ -18,6 +18,7 @@
         'views/cai_management_view.xml',
         'views/sequence_inh.xml',
         'views/account_move_view_inh.xml',
-        'views/menus.xml'
+        'views/menus.xml',
+        'reports/report_invoice_inherit.xml'
     ],
 }

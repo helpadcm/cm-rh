@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[@class='mt-5 clearfix']/div/h2" position="after">
+                <span t-if="(o.move_type == 'out_invoice' and (o.state == 'posted' or o.payment_state == 'paid')) or (o.move_type == 'out_invoice' and o.state == 'cancel') or (o.move_type == 'out_refund')" style="font-size:15px">
+                    CAI: <span t-field="o.cai_number"></span><br/>
+                    Rango Autorizado: <span t-field="o.min_number_cai"> </span> al <span t-field="o.max_number_cai"/><br/>
+                    Fecha limite de emisión: <span t-field="o.expiration_cai_date"> </span><br/>	
+                </span>
+            </xpath>
+        </template>
+    </data>
+</odoo>
