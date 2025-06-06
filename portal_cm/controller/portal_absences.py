@@ -29,6 +29,7 @@ class CustomPortalAbsences(http.Controller):
         domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','!=','PFLY')]
         types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
         history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','!=','PFLY'),('number_of_days','>',0)], order="request_date_from desc")
+        paid_leave_ids = request.env['paid.leave'].sudo().search([])
         if employee_id.vacations_day == 0:
             vacations = 'No tiene dias de vacaciones disponibles'
         else:
@@ -40,6 +41,7 @@ class CustomPortalAbsences(http.Controller):
             'history_absences_ids': history_absences_ids,
             'comp_days': employee_id.compensatory_day_string,
             'vacations': vacations,
+            'paid_leave_ids': paid_leave_ids,
             'hours': hours_array
         }
         return request.render("portal_cm.portal_employee_absences", values)
@@ -65,11 +67,12 @@ class CustomPortalAbsences(http.Controller):
         start_hour = post.get("selected_start_hour")
         end_hour = post.get("selected_end_hour")
 
+        paid_leave_id = post.get("selection_paid_leave")
+
         # Obtener los archivos adjuntos
         uploaded_files = request.httprequest.files.getlist('rec_portal_attachments') # Nombre del campo 'input type="file"'
 
         type_absence_id = request.env['hr.leave.type'].sudo().search([('id','=',int(type_value))])
-
 
         vals = {
             'employee_id': employee_id.id,
@@ -81,6 +84,9 @@ class CustomPortalAbsences(http.Controller):
             'tickets_request': tickets_request,
             'name': notes
         }
+
+        if type_absence_id.code == 'PGS':
+            vals.update({'paid_leave_id': paid_leave_id})
 
         if not record_hours and not middle_day:
             vals.update({'request_date_to': datetime.strptime(end_date, "%Y-%m-%d")})
@@ -138,13 +144,20 @@ class CustomPortalAbsences(http.Controller):
             elif request_days == 0.5:
                 request_hours = 4
             available_hours = employee_id.compensatory_hours
+            
             if request_hours > 0:
                 leave_created = self.validate_creation(request_hours, available_hours, request_days, 'HCOMP')
             else:
                 message = """Ocurrio un problema en la creacion de su solicitud, contacte con el encargado del sistema"""
                 request.session['flash_message'] = message
                 request.session['flash_message_type'] = 'alert-danger'
-                request.session.modified = True        
+                request.session.modified = True
+
+        elif type_absence_id.code not in ['VAC','HCOMP']:
+            message = """Solicitud creada exitosamente"""
+            request.session['flash_message'] = message
+            request.session['flash_message_type'] = 'alert-success'
+            request.session.modified = True
 
         if not leave_created:
             leave_id.sudo().unlink()

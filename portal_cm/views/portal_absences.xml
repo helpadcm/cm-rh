@@ -56,6 +56,18 @@
                                             <input type="text" disabled="disabled" class="form-control" name="record_comp_days" id="comp_days_id" t-att-value="comp_days"/>
                                         </div>
                                     </div>
+                                    
+                                    <div class="col-12" id="paid_leave_div_id">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de permiso</label>
+                                            <select class="form-control" name="selection_paid_leave" id="paid_leave_type">
+                                                <t t-foreach="paid_leave_ids" t-as="paid_leave">
+                                                    <option t-att-value="paid_leave.id" t-att-data-opt-concept="paid_leave.concept"><t t-esc="paid_leave.name"/></option>
+                                                </t>
+                                            </select>
+                                            <input type="text" name="record_concept" class="form-control" id="concept_paid_leave" disabled="disabled"/>
+                                        </div>
+                                    </div>
 
                                     <div class="row">
                                         <div class="col-md-6" id="middle_day_div_id">
@@ -153,8 +165,6 @@
                                         <td><t t-esc="absences.name"/></td>
                                         <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
                                         <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <!-- <td t-if="absences.holiday_status_id.code == 'PFLY'"><t t-esc="int(absences.tickets_request)"/> Boleto(s)</td>
-                                        <td t-if="absences.holiday_status_id.code != 'PFLY'"><t t-esc="absences.duration_display"/></td> -->
                                         <td t-if="absences.state == 'draft'">A enviar</td>
                                         <td t-if="absences.state == 'confirm'">A aprobar</td>
                                         <td t-if="absences.state == 'refuse'">Rechazado</td>
@@ -227,6 +237,9 @@
                     var hoursDiv = document.getElementById("hours_div_id");
                     var adjuntosDiv = document.getElementById("adjuntos_div");
                     var hoursRequestCheckboxDiv = document.getElementById("hours_request_checkbox_div");
+                    var paidLeaveDiv = document.getElementById("paid_leave_div_id");
+                    var paidLeaveTypeSelect = document.getElementById("paid_leave_type");
+                    var conceptPaidLeaveInput = document.getElementById("concept_paid_leave");
 
                     function setDefaultValues() {
                         var selectedOption = absence_type.options[absence_type.selectedIndex];
@@ -237,6 +250,7 @@
                         hcompDiv.style.display = (type_code === "HCOMP") ? "block" : "none";
 
                         hoursRequestCheckboxDiv.style.display = (type_code === "PGS") ? "inline-block" : "none";
+                        paidLeaveDiv.style.display = (type_code === "PGS") ? "inline-block" : "none";
 
                         // Mostrar u ocultar horas
                         if (hoursRequest.checked) {
@@ -262,6 +276,21 @@
 
                         adjuntosDiv.style.display = (type_code === "PGS") ? "block" : "none";
 
+                        if (paidLeaveDiv.style.display === "block") {
+                            updatePaidLeaveConcept();
+                        } else {
+                            // Si el div no está visible, limpia el campo de concepto
+                            conceptPaidLeaveInput.value = "";
+                        }
+
+                    }
+
+                    function updatePaidLeaveConcept() {
+                        if (paidLeaveTypeSelect) {
+                            var selectedPaidLeaveOption = paidLeaveTypeSelect.options[paidLeaveTypeSelect.selectedIndex];
+                            var concept = selectedPaidLeaveOption.getAttribute("data-opt-concept");
+                            conceptPaidLeaveInput.value = concept || ""; // Pone el concepto o una cadena vacía si no hay
+                        }
                     }
 
                     setDefaultValues();
@@ -290,6 +319,10 @@
                         hoursRequest.checked = false;
                         setDefaultValues();
                     });
+
+                    if (paidLeaveTypeSelect) { // Asegura que el elemento exista antes de añadir el listener
+                        paidLeaveTypeSelect.addEventListener("change", updatePaidLeaveConcept);
+                    }
                 });
 
             </script>
