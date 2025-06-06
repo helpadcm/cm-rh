@@ -5,6 +5,7 @@ class leaveInh(models.Model):
     _inherit = 'hr.leave'
 
     boss_id = fields.Many2one('res.users',string="Gerente de Area")
+    paid_leave_id = fields.Many2one('paid.leave', string="Tipo de permiso")
 
     @api.model_create_multi
     def create(self, vals):

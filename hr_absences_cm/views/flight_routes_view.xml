@@ -12,9 +12,26 @@
         </field>
     </record>
 
+    <record id="paid_leave_tree" model="ir.ui.view">
+        <field name="name">paid.leave.tree</field>
+        <field name="model">paid.leave</field>
+        <field name="arch" type="xml">
+            <tree string="Rutas" editable="bottom">
+                <field name="name" required="1"/>
+                <field name="concept"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="action_flight_routes" model="ir.actions.act_window">
         <field name="name">Rutas de Vuelo</field>
         <field name="res_model">flight.routes</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <record id="action_paid_leaves" model="ir.actions.act_window">
+        <field name="name">Permisos Goce de Sueldo</field>
+        <field name="res_model">paid.leave</field>
         <field name="view_mode">tree</field>
     </record>
 </odoo>
