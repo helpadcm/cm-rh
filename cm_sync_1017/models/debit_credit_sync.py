@@ -1,0 +1,64 @@
+# -*- coding: utf-8 -*-
+
+import requests
+from odoo import models, fields, api
+from datetime import datetime, timedelta
+
+class debitCreditSync(models.Model):
+    _inherit = 'debit.credit'
+
+    def sync_debit_credit(self):
+        last_date = datetime.now().date() - timedelta(days=1)
+        url = "http://10.1.4.56:8000/get_debit_credit?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        # url = "http://181.189.230.70/get_debit_credit?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            debits_credits = response.json()
+            for db_cr in debits_credits:
+                exist = self.exist_number(db_cr['number'])
+                if not exist:
+                    values = {
+                        'number': db_cr['number'],
+                        'date': db_cr['date'],
+                        'doc_type': db_cr['doc_type'],
+                        'name': db_cr['name'],
+                        'total': db_cr['total'],
+                    }
+                    journal_id = self.env['account.journal'].search([('code','=',db_cr['journal_id'][0].get('code'))])
+                    if journal_id:
+                        values.update({'journal_id': journal_id.id})
+
+                    debit_credit_id = self.create(values)
+                    for line in db_cr['mcheck_ids']:
+                        account = line['account_id'][1]
+                        code, name_account = account.split(maxsplit=1)
+                        account_id = self.env['account.account'].search([('code', '=', code)])
+                        
+                        partner_id = False
+                        if line['partner_id']:
+                            partner_id = self.search_data('res.partner', line['partner_id'][0])
+                        
+                        self.env['debit.credit.name'].create({
+                            'debit_credit_id': debit_credit_id.id,
+                            'name': line['name'],
+                            'partner_id': partner_id,
+                            'type': line['type'],
+                            'amount': line['amount'],
+                            'account_id': account_id.id,
+                        })
+                    
+                    if db_cr['state'] == 'validated':
+                        debit_credit_id.action_validate()
+
+    def search_data(self, model, search_id):
+        if search_id:
+            return self.env[model].search([('odoo10_id', '=', search_id)], limit=1).id
+        return False
+
+    def exist_number(self, number):
+        db_cr_id = self.search([('number','=',number)])
+        if db_cr_id:
+            return True
+        else:
+            return False
