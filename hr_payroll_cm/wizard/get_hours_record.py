@@ -132,15 +132,35 @@ class getRecordHours(models.TransientModel):
                         'schedule2_in_date': entry_date_2,
                         'schedule2_out_date': out_date_2,
                         'turn_type_b': turn_line_id.turn_type_b.id,
-                        'turn_note': turn_line_id.note
-                    })
-
-
-                    vals.update({
+                        'turn_note': turn_line_id.note,
                         'total_hours': turn_line_id.ordinary_hours,
                         'ordinary_hours': turn_line_id.oh,
                         'extra_hours': turn_line_id.aditional_hours,
                     })
+
+                    if turn_line_id.turn_type_a.id == turn_line_id.turn_type_b.id:
+                        personal_action = False
+                        if turn_line_id.turn_type_a.code == 'LID':
+                            personal_action = 'free'
+                        elif turn_line_id.turn_type_a.code == 'F':
+                            personal_action = 'holiday'
+                        elif turn_line_id.turn_type_a.code == 'INC':
+                            personal_action = 'inc'
+                        elif turn_line_id.turn_type_a.code == 'PER':
+                            personal_action = 'special'
+                        elif turn_line_id.turn_type_a.code == 'COM':
+                            personal_action = 'comp'
+                        elif turn_line_id.turn_type_a.code == 'VAC':
+                            personal_action = 'vac'
+                        elif turn_line_id.turn_type_a.code == 'CAP':
+                            personal_action = 'cap'
+                        elif turn_line_id.turn_type_a.code == 'FT':
+                            personal_action = 'wh'
+                        elif turn_line_id.turn_type_a.code == 'CUB':
+                            personal_action = 'coe'
+
+                        if personal_action:                        
+                            vals.update({'personal_action': personal_action})
 
                 min_hours = []
                 max_hours = []
@@ -232,7 +252,8 @@ class getRecordHours(models.TransientModel):
                         'total_hours': total_h
                     })
 
-                self.env['hr.employee.attendance.line'].create(vals)
+                line_id = self.env['hr.employee.attendance.line'].create(vals)
+                line_id.personal_action_change()
         return True
 
     def get_name_rec(self, date_from):
