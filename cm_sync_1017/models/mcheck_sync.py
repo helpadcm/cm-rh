@@ -9,8 +9,8 @@ class mcheckSync(models.Model):
 
     def sync_mchecks(self):
         last_date = datetime.now().date() - timedelta(days=1)
-        url = "http://10.1.4.56:8000/get_mcheck?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
-        # url = "http://181.189.230.70/get_mcheck?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        # url = "http://10.1.4.56:8000/get_mcheck?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        url = "http://181.189.230.70:8000/get_mcheck?start_date=%s&end_date=%s"%(last_date, last_date)
         response = requests.get(url)
 
         if response.status_code == 200:

@@ -11,8 +11,8 @@ class accountMoveSync(models.Model):
 
     def sync_invoices(self, invoice_type):
         last_date = datetime.now().date() - timedelta(days=1)
-        url = "http://10.1.4.56:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&limit=%s"%(last_date, last_date, invoice_type, 10)
-        # url = "http://181.189.230.70/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&limit=%s"%(last_date, last_date, invoice_type, 10)
+        # url = "http://10.1.4.56:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&limit=%s"%('2025-06-09', '2025-06-09', invoice_type, 20)
+        url = "http://181.189.230.70:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
         response = requests.get(url)
 
         if response.status_code == 200:
@@ -24,7 +24,6 @@ class accountMoveSync(models.Model):
                     if partner_id:
                         user_id = self.search_data('res.users', inv['user_id'][0])
                         currency_id = self.env['res.currency'].search([('name', '=', inv['currency_id'][1])], limit=1)
-                        print (inv)
                         invoice_values = {
                             'odoo10_id': inv['id'],
                             'payment_reference': inv['name'],
@@ -125,19 +124,41 @@ class accountMoveSync(models.Model):
                 'payment_date': pay['payment_date'],
                 'journal_id': journal_id.id,
                 'currency_id': currency_id.id,
-                'communication': pay['communication'],
-                'payment_type': 'outbound',  # el dinero sale de tu empresa
-                'partner_type': 'supplier',
+                'communication': pay['communication']
             }
+
+            if inv_id.move_type == 'in_invoice':
+                values.update({'pay_method_type': pay['pay_method_type'], 'partner_type': 'supplier', 'payment_type': 'outbound'})
+            elif inv_id.move_type == 'out_invoice':
+                payment_method_line_id = journal_id._get_available_payment_method_lines('inbound')
+                values.update({'partner_type': 'customer', 'payment_type': 'inbound', 'payment_method_line_id': payment_method_line_id.id})
+
+            reconcilable_lines = inv_id.line_ids.filtered(lambda l: l.account_id.reconcile and not l.reconciled and l.balance != 0)
+            line_id_to_reconcile = reconcilable_lines[0].id if reconcilable_lines else False
             if pay['apply_retentions']:
-                print ("////////////////////// apply retentions //////////////////////")
-            else:
-                if inv_id.state == 'posted':
-                    reconcilable_lines = inv_id.line_ids.filtered(lambda l: l.account_id.reconcile and not l.reconciled and l.balance != 0)
+                ret_vals = []
+                for ret in pay['retention_lines']:
+                    inv_odoo10_id = ret.get('invoice_id')[0]
+                    if inv_id.odoo10_id == inv_odoo10_id:
+                        ret_values = {
+                            'invoice_line_id': line_id_to_reconcile,
+                            'amount': ret.get('amount'),
+                            'amount_currency': ret.get('amount')
+                        }
 
-                    line_id_to_reconcile = reconcilable_lines[0].id if reconcilable_lines else False
+                        account = ret.get('account_id')[1]
+                        code, name_account = account.split(maxsplit=1)
+                        account_id = self.env['account.account'].search([('code', '=', code)])
+                        if account_id:
+                            ret_values.update({'account_id': account_id.id})
+                            ret_values.update({'percentage': account_id.retention_porcent})
+                        ret_vals.append((0, 0, ret_values))
+                if len(ret_vals) > 0:
+                    values.update({
+                        'apply_retentions': True,
+                        'retention_line_ids': ret_vals
+                    })
 
-                    values.update({'line_ids': [(6, 0, reconcilable_lines.ids)]})
-                    payment_register_wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=[line_id_to_reconcile]).create(values)
-
-                    payment_register_wizard.action_create_payments()
+            values.update({'line_ids': [(6, 0, reconcilable_lines.ids)]})
+            payment_register_wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=[line_id_to_reconcile]).create(values)
+            payment_register_wizard.action_create_payments()
