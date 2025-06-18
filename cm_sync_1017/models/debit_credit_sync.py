@@ -9,7 +9,7 @@ class debitCreditSync(models.Model):
 
     def sync_debit_credit(self):
         last_date = datetime.now().date() - timedelta(days=1)
-        # url = "http://10.1.4.56:8000/get_debit_credit?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        # url = "http://10.1.4.56:8000/get_debit_credit?start_date=%s&end_date=%s"%(last_date, last_date)
         url = "http://181.189.230.70:8000/get_debit_credit?start_date=%s&end_date=%s"%(last_date, last_date)
         response = requests.get(url)
 
@@ -25,7 +25,7 @@ class debitCreditSync(models.Model):
                         'name': db_cr['name'],
                         'total': db_cr['total'],
                     }
-                    journal_id = self.env['account.journal'].search([('code','=',db_cr['journal_id'][0].get('code'))])
+                    journal_id = self.env['account.journal'].search([('odoo10_id','=',db_cr['journal_id'][0].get('id'))])
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
 

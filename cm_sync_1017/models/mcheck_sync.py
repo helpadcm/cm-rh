@@ -9,7 +9,7 @@ class mcheckSync(models.Model):
 
     def sync_mchecks(self):
         last_date = datetime.now().date() - timedelta(days=1)
-        # url = "http://10.1.4.56:8000/get_mcheck?start_date=%s&end_date=%s&limit=%s"%(last_date, last_date,10)
+        # url = "http://10.1.4.56:8000/get_mcheck?start_date=%s&end_date=%s"%(last_date, last_date)
         url = "http://181.189.230.70:8000/get_mcheck?start_date=%s&end_date=%s"%(last_date, last_date)
         response = requests.get(url)
 
@@ -27,7 +27,7 @@ class mcheckSync(models.Model):
                         'reference': check['reference'],
                     }
 
-                    journal_id = self.env['account.journal'].search([('code','=',check['journal_id'][0].get('code'))])
+                    journal_id = self.env['account.journal'].search([('odoo10_id','=',check['journal_id'][0].get('id'))])
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
 
