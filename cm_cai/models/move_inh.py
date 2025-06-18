@@ -75,7 +75,7 @@ class moveInh(models.Model):
 
 
     def _post(self, soft=True):
-        res = super(moveInh, self)._post(soft=True)
+        res = super(moveInh, self)._post(soft=False)
         for inv in self:
             if inv.move_type in ['out_invoice']:
                 if inv.journal_id.sequence_id:
