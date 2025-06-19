@@ -1,115 +1,89 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import logging
 from odoo import models, fields, api
 from datetime import datetime, timedelta
+
+_logger = logging.getLogger(__name__)
 
 class accountMoveSync(models.Model):
     _inherit = 'account.move'
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
 
-    def sync_invoices(self, invoice_type):
+    def sync_invoices(self, invoice_type, limit=1000):
+
         last_date = datetime.now().date() - timedelta(days=1)
-        # url = "http://10.1.4.56:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&limit=%s"%('2025-06-09', '2025-06-09', invoice_type, 20)
-        url = "http://181.189.230.70:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
-        response = requests.get(url)
 
-        if response.status_code == 200:
-            invoices = response.json()
-            for inv in invoices:
-                exist = self.exist_number(inv['move_name'], inv['id'])
-                if not exist:
-                    partner_id = self.search_data('res.partner', inv['partner_id'][0])
-                    if partner_id:
-                        user_id = self.search_data('res.users', inv['user_id'][0])
-                        currency_id = self.env['res.currency'].search([('name', '=', inv['currency_id'][1])], limit=1)
-                        invoice_values = {
-                            'odoo10_id': inv['id'],
-                            'payment_reference': inv['name'],
-                            'invoice_date': inv['date'],
-                            'invoice_user_id': user_id,
-                            # 'partner_name': inv['partner_name'],
-                            # 'rtn_name': inv['rtn_name'],
-                            'currency_id': currency_id.id,
-                            # 'is_sync': inv['is_sync'],
-                            'partner_id': partner_id if partner_id else False,
-                            'move_type': inv['type']
-                        }
-                        if invoice_type == 'supplier':
-                            invoice_values.update({'ref': inv['reference']})
-                            if inv['cai_id']:
-                                cai_id = self.env['management.cai'].search([('name','=',inv['cai_id'][1])])
-                                if cai_id:
-                                    invoice_values.update({'cai_id': cai_id.id})
+        ##################    URL INVOICES COUNT ##########################################
+        # url_inv_count = "http://10.1.4.56:8000/get_invoices_count?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
+        url_inv_count = "http://181.189.230.70:8000/get_invoices_count?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
+        response = requests.get(url_inv_count, timeout=60)
+        _logger.info(f"Solicitando conteo de facturas de tipo '{invoice_type}' a: {url_inv_count}")
+        
+        count_response = requests.get(url_inv_count, timeout=60)
+        total_items = count_response.json().get("total_invoices", 0)
+        # if total_items == 0:
+        #     _logger.info(f"No hay facturas de tipo '{invoice_type}' para sincronizar en el rango especificado. Pasando al siguiente tipo.")
+        #     continue
+
+        offset = 0
+        while offset < total_items:
+            ##################    URL INVOICES  ##########################################
+            _logger.info(f"Solicitando tanda de facturas '{invoice_type}': skip={offset}, limit={limit}")
+            # url = "http://10.1.4.56:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&skip=%s&limit=%s"%(last_date, last_date, invoice_type, offset, limit)
+            url = "http://181.189.230.70:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&skip=%s&limit=%s"%(last_date, last_date, invoice_type, offset, limit)
+            response = requests.get(url, timeout=300)
+            if response.status_code == 200:
+                invoices = response.json()
+                if not invoices:
+                    _logger.warning(f"No se recibieron más facturas en la tanda actual para '{invoice_type}'. Posible desincronización o fin de datos. skip={offset}, limit={limit_per_batch}")
+                    break
+
+                _logger.info(f"Recibidas {len(invoices)} facturas de tipo '{invoice_type}' en esta tanda. Procesando...")
+
+                odoo10_partner_ids = set()
+                odoo10_user_ids = set()
+                currency_names = set()
+                journal_codes = set()
+                odoo10_cai_names = set() # CAI ID viene como [id, name] en tu API
+                odoo10_payment_term_ids = set()
+                for inv in invoices:
+                    if inv.get('partner_id') and isinstance(inv['partner_id'], list) and inv['partner_id'][0]:
+                        odoo10_partner_ids.add(inv['partner_id'][0])
+                    if inv.get('user_id') and inv['user_id'][0]:
+                        odoo10_user_ids.add(inv['user_id'][0])
+                    if inv.get('currency_id') and inv['currency_id'][1]:
+                        currency_names.add(inv['currency_id'][1])
+                    if inv.get('journal_id') and inv['journal_id'].get('code'):
+                        journal_codes.add(inv['journal_id']['code'])
+                    if invoice_type == 'supplier' and inv.get('cai_id') and inv['cai_id'][1]:
+                        odoo10_cai_names.add(inv['cai_id'][1])
+                    if inv.get('payment_term_id') and inv['payment_term_id'][0]:
+                        odoo10_payment_term_ids.add(inv['payment_term_id'][0])
+                _logger.info(odoo10_partner_ids)
+                _logger.info(odoo10_user_ids)
+                _logger.info(currency_names)
+                _logger.info(journal_codes)
+                _logger.info(odoo10_cai_names)
+                _logger.info(odoo10_payment_term_ids)
+                offset += limit
 
 
-                        if not inv['move_name']:
-                            invoice_values.update({'name': 'Borrador'})
-                            invoice_values.update({'internal_number': 'Borrador'})
-                        else:
-                            invoice_values.update({'name': inv['move_name']})
-                            invoice_values.update({'internal_number': inv['move_name']})
-
-                        journal_id = self.env['account.journal'].search([('code','=',inv['journal_id'][0].get('code'))])
-                        if journal_id:
-                            invoice_values.update({'journal_id': journal_id.id})
-
-                        if inv['payment_term_id']:
-                            term_id = self.search_data('account.payment.term', inv['payment_term_id'][0])
-                            if term_id:
-                                invoice_values.update({'invoice_payment_term_id': term_id})
-                        
-                        invoice_id = self.env['account.move'].create(invoice_values)
-
-                        for line in inv['invoice_line_ids']:
-                            product_id = False
-                            if line['product_id']:
-                                product_id = self.env['product.product'].search([('name', '=', line['product_id'][1])], limit=1).id
-
-                            tax_ids = False
-                            if line['invoice_line_tax_ids']:
-                                # id_odoo10 = line['invoice_line_tax_ids'][0]
-                                tax_ids = self.env['account.tax'].search([('odoo10_id','in',line['invoice_line_tax_ids'])])
-
-                            lines_values = {
-                                'move_id': invoice_id.id,
-                                'product_id': product_id,
-                                'name': line['name'],
-                                'quantity': line['quantity'],
-                                'price_unit': line['price_unit']
-                            }
-
-                            if line['account_id']:
-                                account = line['account_id'][1]
-                                code, name_account = account.split(maxsplit=1)
-                                account_id = self.env['account.account'].search([('code', '=', code)])
-                                if account_id:
-                                    lines_values.update({'account_id': account_id.id})
-
-                            if tax_ids:
-                                lines_values.update({'tax_ids': [(6, 0, tax_ids.ids)]})
-
-                            self.env['account.move.line'].create(lines_values)
-
-                        if inv['state'] == 'open':
-                            invoice_id.action_post()
-                        elif inv['state'] == 'paid':
-                            invoice_id.action_post()
-                            if inv['payment_ids']:
-                                self.register_paymet(invoice_id, inv['payment_ids'])
-
-    def search_data(self, model, search_id):
+    def search_data(self, model, odoo10_id):
         if search_id:
             return self.env[model].search([('odoo10_id', '=', search_id)], limit=1).id
         return False
 
     def exist_number(self, number, id_inv):
-        move_id = self.search(['|',('name','=',number),('odoo10_id','=',id_inv)])
-        if move_id:
-            return True
-        else:
-            return False
+        if odoo10_id:
+            # Es más robusto buscar por el ID del sistema origen (Odoo 10)
+            return self.env['account.move'].sudo().search([('odoo10_id', '=', odoo10_id)], limit=1)
+        elif move_name:
+            # Como fallback, buscar por nombre de movimiento si no hay ID de Odoo 10 o es 'Borrador'
+            return self.env['account.move'].sudo().search([('name', '=', move_name)], limit=1)
+        return False
 
     def register_paymet(self, inv_id, payments):
         for pay in payments:
