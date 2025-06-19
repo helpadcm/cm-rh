@@ -25,7 +25,7 @@ class debitCreditSync(models.Model):
                         'name': db_cr['name'],
                         'total': db_cr['total'],
                     }
-                    journal_id = self.env['account.journal'].search([('odoo10_id','=',db_cr['journal_id'][0].get('id'))])
+                    journal_id = self.env['account.journal'].search([('odoo10_id','=',db_cr['journal_id'].get('id'))])
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
 

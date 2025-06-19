@@ -26,7 +26,7 @@ class depositSync(models.Model):
                         'total': dep['total'],
                     }
 
-                    journal_id = self.env['account.journal'].search([('odoo10_id','=',dep['journal_id'][0].get('id'))])
+                    journal_id = self.env['account.journal'].search([('odoo10_id','=',dep['journal_id'].get('id'))])
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
 
