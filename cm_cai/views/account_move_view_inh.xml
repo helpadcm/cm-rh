@@ -100,6 +100,7 @@
                 </field>
                 <group name="sale" position="inside">
                     <field name="is_customer"/>
+                    <field name="default_client"/>
                 </group>
                 <group name="purchase" position="inside">
                     <field name="is_supplier"/>

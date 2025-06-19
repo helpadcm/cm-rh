@@ -79,28 +79,29 @@ class moveInh(models.Model):
         for inv in self:
             if inv.move_type in ['out_invoice']:
                 if inv.journal_id.sequence_id:
-                    if inv.invoice_date > inv.journal_id.sequence_id.expiration_date:
-                        raise ValidationError(_('Fecha de Factura mayor que fecha de expiracion CAI'))
+                    if inv.journal_id.sequence_id.is_fiscal_sequence:
+                        if inv.invoice_date > inv.journal_id.sequence_id.expiration_date:
+                            raise ValidationError(_('Fecha de Factura mayor que fecha de expiracion CAI'))
 
-                    cai_id = inv.journal_id.sequence_id.cai_ids.filtered(lambda cai: cai.selected == True)
-                    if cai_id:
-                        if inv.journal_id.sequence_id.number_next_actual > cai_id.number_to:
-                            raise ValidationError('Ha llegado al numero maximo permitido, por favor configurar un nuevo CAI')
-                    
-                    if inv.internal_number == 'Borrador' or not inv.internal_number:
-                        new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
-                        inv.with_context({'cai': True}).write({'name': new_name})
-                        inv.write({'payment_reference': new_name})
-                        inv.write({'internal_number': new_name})
-                        inv.expiration_cai_date = inv.journal_id.sequence_id.expiration_date
-                        inv.min_number_cai = inv.journal_id.sequence_id.dis_min_value
-                        inv.max_number_cai = inv.journal_id.sequence_id.dis_max_value
-                    
-                        for seq in inv.journal_id.sequence_id.cai_ids:
-                            if seq.selected:
-                                inv.cai_number = seq.cai_id.name
-                    else:
-                        inv.write({'name': inv.internal_number})
+                        cai_id = inv.journal_id.sequence_id.cai_ids.filtered(lambda cai: cai.selected == True)
+                        if cai_id:
+                            if inv.journal_id.sequence_id.number_next_actual > cai_id.number_to:
+                                raise ValidationError('Ha llegado al numero maximo permitido, por favor configurar un nuevo CAI')
+                        
+                        if inv.internal_number == 'Borrador' or not inv.internal_number:
+                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                            inv.with_context({'cai': True}).write({'name': new_name})
+                            inv.write({'payment_reference': new_name})
+                            inv.write({'internal_number': new_name})
+                            inv.expiration_cai_date = inv.journal_id.sequence_id.expiration_date
+                            inv.min_number_cai = inv.journal_id.sequence_id.dis_min_value
+                            inv.max_number_cai = inv.journal_id.sequence_id.dis_max_value
+                        
+                            for seq in inv.journal_id.sequence_id.cai_ids:
+                                if seq.selected:
+                                    inv.cai_number = seq.cai_id.name
+                        else:
+                            inv.write({'name': inv.internal_number})
                 else:
                     raise ValidationError('Por favor configure una secuencia en el diario %s'%(inv.journal_id.name))
             # if inv.move_type in ['in_invoice', 'entry',]:

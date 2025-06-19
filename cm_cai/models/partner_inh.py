@@ -9,6 +9,7 @@ class partnerInh(models.Model):
     identity = fields.Char(string="Identidad")
     is_customer = fields.Boolean(string="Es Cliente")
     is_supplier = fields.Boolean(string="Es proveedor")
+    default_client = fields.Boolean(string="Cliente por defecto")
 
     cai_ids	= fields.One2many('management.cai','supplier_id','Listado de Numeros Cai Asociados')
 
