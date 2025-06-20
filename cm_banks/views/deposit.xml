@@ -34,6 +34,7 @@
 								<field name="date" readonly="state != 'draft'" />
 								<field name="currency"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" readonly="1"/>
 								<field name="total_equivalent" readonly='1'/>
+								<field name="user_id" invisible="1" readonly="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
 							</group> 
             	     	</group>
 						<group>    

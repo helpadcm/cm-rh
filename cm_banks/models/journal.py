@@ -64,6 +64,10 @@ class banks_account_journal(models.Model):
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr_c').id
 				if self.env["ir.sequence.type"].search([('code','=','transference_cancel')]):
 					resultado.append({'code':'transference_cancel','code2':record_id,'name':'TRANSFERENCIAS CANCELACION','prefix':'TRANS-NULL-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+			if 'transference' not in actual_codes:
+				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr').id
+				if self.env["ir.sequence.type"].search([('code','=','transference')]):
+					resultado.append({'code':'transference','code2':record_id,'name':'TRANSFERENCIAS','prefix':'TRANS-','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
 			for s in resultado:
 				new_id = self.env['ir.sequence'].create(s)
 				sequences.append(new_id.id)
@@ -131,6 +135,12 @@ class banks_account_journal(models.Model):
 				vals.update({'code':'transference_cancel','code2':record_id,'name':'TRANSFERENCIAS CANCELACION %s'%(self.name),'prefix':'DTRANS-NULL-#'})
 				new_id = self.env['ir.sequence'].create(vals)
 				self.sequence_ids = [(4, new_id.id)]
+
+			record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr').id
+			if self.env["ir.sequence.type"].search([('code','=','transference')]):
+				vals.update({'code':'transference','code2':record_id,'name':'TRANSFERENCIAS %s'%(self.name),'prefix':'TRANS-'})
+				new_id = self.env['ir.sequence'].create(vals)
+				self.sequence_ids = [(4, new_id.id)]
 		return True
 			
 	def existe_repeat(self,sequence_ids_list):
@@ -183,30 +193,33 @@ class banks_account_journal(models.Model):
 		sequence_ids=[]
 		ir_seq_pool = self.env['ir.sequence']
 		for vals in values:
-			if vals.get('allow_multi_sequence') and vals.get('type','') == 'bank':
-				if len(vals.get('sequence_ids'))>0:
-					if len(vals.get('sequence_ids')[0])>=3:
-						sequence_ids=vals.get('sequence_ids')[0]
-				added_ids = self.create_secuences_if_dont_exits(vals.get('allow_multi_sequence'),sequence_ids)
-				vals.update({'sequence_ids':[[6,False, added_ids+sequence_ids]]})
-				b = super(banks_account_journal, self).create(vals)
-				if b:
-					seq_ops = vals['sequence_ids']
-					sequence_ids = False
-					for op in seq_ops:
-						if isinstance(op, (list, tuple)) and len(op) == 3 and op[0] in (6,):
-							sequence_ids = ir_seq_pool.browse(op[2])
-						elif isinstance(op, (list, tuple)) and len(op) == 3 and op[0] in (0,):
-							sequence_ids = ir_seq_pool.browse([])
-					if sequence_ids:
-						res=self.existe_repeat(sequence_ids)
-						if res:
-							raise osv.except_osv(_("There is more than one sequence with the code '"+res+"', you have to delete or change one") )
-					return b
+			if vals.get('sequence_ids'):
+				if vals.get('allow_multi_sequence') and vals.get('type','') == 'bank':
+					if len(vals.get('sequence_ids')) > 0:
+						if len(vals.get('sequence_ids')[0]) >= 3:
+							sequence_ids = vals.get('sequence_ids')[0]
+
+					added_ids = self.create_secuences_if_dont_exits(vals.get('allow_multi_sequence'),sequence_ids)
+					vals.update({'sequence_ids':[[6,False, added_ids+sequence_ids]]})
+					b = super(banks_account_journal, self).create(vals)
+					if b:
+						seq_ops = vals['sequence_ids']
+						sequence_ids = False
+						for op in seq_ops:
+							if isinstance(op, (list, tuple)) and len(op) == 3 and op[0] in (6,):
+								sequence_ids = ir_seq_pool.browse(op[2])
+							elif isinstance(op, (list, tuple)) and len(op) == 3 and op[0] in (0,):
+								sequence_ids = ir_seq_pool.browse([])
+						if sequence_ids:
+							res=self.existe_repeat(sequence_ids)
+							if res:
+								raise osv.except_osv(_("There is more than one sequence with the code '"+res+"', you have to delete or change one") )
+						return b
+					else:
+						return False
 				else:
-					return False
-			else:
-				return super(banks_account_journal, self).create(values)
+					return super(banks_account_journal, self).create(values)
+			return super(banks_account_journal, self).create(values)
 
 	@api.returns('self', lambda value: value.id)
 	def copy(self,default=None):

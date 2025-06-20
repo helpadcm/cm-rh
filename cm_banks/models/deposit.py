@@ -20,6 +20,10 @@ class banks_deposits(models.Model):
 			},
 	}
 
+	@api.model
+	def _get_user_default(self):
+		return self.env.user.id
+
 	move_id = fields.Many2one('account.move', string='Entrada Contable', copy=False)
 	journal_id = fields.Many2one('account.journal', string='Diario', required=True )
 	name = fields.Text(string='Circular', required=True)
@@ -43,6 +47,7 @@ class banks_deposits(models.Model):
 	actual_comp_rate = fields.Float(string='Tasa de la empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa moneda secundaria actual') #date of the anulation of the check
 	number = fields.Char(string='Numero', default="Borrador")
+	user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
 	obs = fields.Text('Obs')
 	type = fields.Selection([
 		('sale','Ventas'),

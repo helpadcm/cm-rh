@@ -22,6 +22,10 @@ class debit_credit(models.Model):
 		'total': {'debit_credit.debit_credit_total_change': lambda self: True},
 	}
 
+	@api.model
+	def _get_user_default(self):
+		return self.env.user.id
+
 	account_analytic_id = fields.Many2one('account.analytic.account', string="Cuenta Analitica")
 	analytic_account_ids = fields.Many2many('account.analytic.account', string="Cuentas Analiticas")
 	move_id = fields.Many2one('account.move', string='Asiento', copy=False)
@@ -49,6 +53,7 @@ class debit_credit(models.Model):
 	actual_comp_rate = fields.Float(string='Tasa de empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa en moneda secundaria') #date of the anulation of the check
 	number = fields.Char(string='Numero', default="Borrador", copy=False)
+	user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
 	obs=fields.Text(string='Obs')
 	type=fields.Selection([
 		('sale','Ventas'),
@@ -212,6 +217,8 @@ class debit_credit(models.Model):
 		curr_rates = self.calculate_curr_rates()
 		currency_rate = curr_rates['company_curr_rate']
 		currency_id = curr_rates['company_curr_id']
+		print ('################################')
+		print (self)
 		for mcheck in self:
 			obj_user = self.env.user
 			obj_company = self.env.user.company_id
