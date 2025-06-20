@@ -7,10 +7,13 @@ from datetime import datetime, timedelta
 class debitCreditSync(models.Model):
     _inherit = 'debit.credit'
 
-    def sync_debit_credit(self):
+    def sync_debit_credit(self, opt='production'):
+        ip = '181.189.230.70'
+        if opt == 'test':
+            ip = '10.1.4.56'
+
         last_date = datetime.now().date() - timedelta(days=1)
-        # url = "http://10.1.4.56:8000/get_debit_credit?start_date=%s&end_date=%s"%(last_date, last_date)
-        url = "http://181.189.230.70:8000/get_debit_credit?start_date=%s&end_date=%s"%(last_date, last_date)
+        url = "http://%s:8000/get_debit_credit?start_date=%s&end_date=%s"%(ip, last_date, last_date)
         response = requests.get(url)
 
         if response.status_code == 200:

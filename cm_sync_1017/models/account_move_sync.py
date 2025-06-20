@@ -12,28 +12,28 @@ class accountMoveSync(models.Model):
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
 
-    def sync_invoices(self, invoice_type, limit=1000):
+    def sync_invoices(self, invoice_type, limit=1000, opt='production'):
         default_partner_id = self.env['res.partner'].sudo().search([('default_client', '=', True)])
         last_date = datetime.now().date() - timedelta(days=1)
 
         ##################    URL INVOICES COUNT ##########################################
-        # url_inv_count = "http://10.1.4.56:8000/get_invoices_count?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
-        url_inv_count = "http://181.189.230.70:8000/get_invoices_count?start_date=%s&end_date=%s&invoice_type=%s"%(last_date, last_date, invoice_type)
+        ip = '181.189.230.70'
+        if opt == 'test':
+            ip = '10.1.4.56'
+
+        url_inv_count = "http://%s:8000/get_invoices_count?start_date=%s&end_date=%s&invoice_type=%s"%(ip, last_date, last_date, invoice_type)
         response = requests.get(url_inv_count, timeout=60)
         _logger.info(f"Solicitando conteo de facturas de tipo '{invoice_type}' a: {url_inv_count}")
         
         count_response = requests.get(url_inv_count, timeout=60)
         total_items = count_response.json().get("total_invoices", 0)
-        # if total_items == 0:
-        #     _logger.info(f"No hay facturas de tipo '{invoice_type}' para sincronizar en el rango especificado. Pasando al siguiente tipo.")
-        #     continue
+        _logger.info(f"Cantidad de Facturas tipo '{invoice_type}' es '{total_items}'.")
 
         offset = 0
         while offset < total_items:
             ##################    URL INVOICES  ##########################################
             _logger.info(f"Solicitando tanda de facturas '{invoice_type}': skip={offset}, limit={limit}")
-            # url = "http://10.1.4.56:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&skip=%s&limit=%s"%(last_date, last_date, invoice_type, offset, limit)
-            url = "http://181.189.230.70:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&skip=%s&limit=%s"%(last_date, last_date, invoice_type, offset, limit)
+            url = "http://%s:8000/get_invoices?start_date=%s&end_date=%s&invoice_type=%s&skip=%s&limit=%s"%(ip, last_date, last_date, invoice_type, offset, limit)
             response = requests.get(url, timeout=300)
             if response.status_code == 200:
                 invoices = response.json()
@@ -257,5 +257,8 @@ class accountMoveSync(models.Model):
                     })
 
             values.update({'line_ids': [(6, 0, reconcilable_lines.ids)]})
-            payment_register_wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=[line_id_to_reconcile]).create(values)
-            payment_register_wizard.action_create_payments()
+            if line_id_to_reconcile:
+                payment_register_wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=[line_id_to_reconcile]).create(values)
+                payment_register_wizard.action_create_payments()
+            else:
+                _logger.info(f"No se pudo realizar el pago de la factura {inv_id.name}")
