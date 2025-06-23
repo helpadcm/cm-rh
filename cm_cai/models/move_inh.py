@@ -104,12 +104,13 @@ class moveInh(models.Model):
                             inv.write({'name': inv.internal_number})
                 else:
                     raise ValidationError('Por favor configure una secuencia en el diario %s'%(inv.journal_id.name))
-            # if inv.move_type in ['in_invoice', 'entry',]:
-            #     if inv.internal_number == 'Borrador' or not inv.internal_number:
-            #         new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
-            #         inv.write({'name': new_name})
-            #         inv.write({'payment_reference': new_name})
-            #         inv.write({'internal_number': new_name})
+            if inv.move_type in ['entry']:
+                if inv.internal_number != 'Borrador':
+                    inv.write({'name': inv.internal_number})
+                #     new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                #     inv.write({'name': new_name})
+                #     inv.write({'payment_reference': new_name})
+                #     inv.write({'internal_number': new_name})
         return res
 
     @api.depends("currency_id",'invoice_date')
