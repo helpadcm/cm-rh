@@ -217,8 +217,6 @@ class debit_credit(models.Model):
 		curr_rates = self.calculate_curr_rates()
 		currency_rate = curr_rates['company_curr_rate']
 		currency_id = curr_rates['company_curr_id']
-		print ('################################')
-		print (self)
 		for mcheck in self:
 			obj_user = self.env.user
 			obj_company = self.env.user.company_id
@@ -262,6 +260,7 @@ class debit_credit(models.Model):
 				amovedata = {
 					'journal_id': mcheck.journal_id.id,
 					'name': name,
+					'internal_number': name,
 					'date': mcheck.date,
 					'move_type': 'entry',
 					'ref': mcheck.name,

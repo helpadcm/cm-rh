@@ -323,6 +323,7 @@ class banks_deposits(models.Model):
 			amovedata = {
 				'journal_id': dep.journal_id.id,
 				'name': name,
+				'internal_number': name,
 				'date': dep.date,
 				'ref': dep.name,
 			}

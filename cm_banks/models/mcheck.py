@@ -432,6 +432,7 @@ class mcheck(models.Model):
 					amovedata = {
 						'journal_id': mcheck.journal_id.id,
 						'name': name,
+						'internal_number': name,
 						'date': mcheck.date,
 						'ref': mcheck.reference					
 					}
