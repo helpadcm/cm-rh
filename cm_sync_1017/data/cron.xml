@@ -59,5 +59,29 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
+
+        <record id="ir_cron_get_moves" model="ir.cron">
+            <field name="name">Sincronizacion Odoo 10 y 17: Sincronizar asientos manuales</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_moves()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+
+        <record id="ir_cron_get_rate" model="ir.cron">
+            <field name="name">Sincronizacion Odoo 10 y 17: Sincronizar tasas de cambio</field>
+            <field name="model_id" ref="base.model_res_currency_rate"/>
+            <field name="state">code</field>
+            <field name="code">model.sync_rate()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
     </data>
 </odoo>

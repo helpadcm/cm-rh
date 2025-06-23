@@ -47,7 +47,7 @@ class accountMoveSync(models.Model):
                 odoo10_user_ids = set()
                 currency_names = set()
                 journal_codes = set()
-                odoo10_cai_names = set() # CAI ID viene como [id, name] en tu API
+                odoo10_cai_names = set()
                 odoo10_payment_term_ids = set()
                 for inv in invoices:
                     if inv.get('partner_id') and isinstance(inv['partner_id'], list) and inv['partner_id'][0]:
@@ -86,20 +86,17 @@ class accountMoveSync(models.Model):
                 
                 cai_map = {}
                 if odoo10_cai_names:
-                    # Asumo que 'name' de management.cai es el nombre del CAI de Odoo 10
                     cais = self.env['management.cai'].sudo().search([('name', 'in', list(odoo10_cai_names))])
                     cai_map = {c.name: c.id for c in cais}
 
                 payment_term_map = {}
                 if odoo10_payment_term_ids:
-                    # Asumo que tienes un campo 'odoo10_id' en account.payment.term para mapeo
                     terms = self.env['account.payment.term'].sudo().search([('odoo10_id', 'in', list(odoo10_payment_term_ids))])
                     payment_term_map = {t.odoo10_id: t.id for t in terms}
                 
                 for inv in invoices:
-                    # Convertir fechas de string a date/datetime objects
                     invoice_date = False
-                    if inv.get('date'): # Usando 'date' para invoice_date como en tu código
+                    if inv.get('date'):
                         try:
                             invoice_date = datetime.strptime(inv['date'], "%Y-%m-%d").date()
                         except ValueError:
@@ -158,7 +155,6 @@ class accountMoveSync(models.Model):
 
                             tax_ids = False
                             if line['invoice_line_tax_ids']:
-                                # id_odoo10 = line['invoice_line_tax_ids'][0]
                                 tax_ids = self.env['account.tax'].search([('odoo10_id','in',line['invoice_line_tax_ids'])])
 
                             lines_values = {
@@ -189,10 +185,6 @@ class accountMoveSync(models.Model):
                                 self.register_paymet(invoice_id, inv['payment_ids'])
                     else:
                         _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id}")
-
-                    # except Exception as e:
-                    #     _logger.error(f"Error procesando factura con ID Externo {inv.get('id')} ({inv.get('name')}): {e}", exc_info=True)
-                    #     continue 
                 offset += limit
 
 
@@ -262,3 +254,64 @@ class accountMoveSync(models.Model):
                 payment_register_wizard.action_create_payments()
             else:
                 _logger.info(f"No se pudo realizar el pago de la factura {inv_id.name}")
+
+    def sync_moves(self, limit=500, opt='production'):
+        company_id = self.env.user.company_id
+        ip = '181.189.230.70'
+        if opt == 'test':
+            ip = '10.1.4.56'
+
+        last_date = datetime.now().date() - timedelta(days=1)
+        url = "http://%s:8000/get_moves?start_date=%s&end_date=%s&limit=%s"%(ip, '2025-06-09', '2025-06-09', limit)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            moves = response.json()
+            for mv in moves:
+                exist = self.exist_number(mv['name'], mv['id'])
+                if not exist:
+                    values = {
+                        'odoo10_id': mv['id'],
+                        'ref': mv.get('ref'),
+                        'date': mv['date'],
+                        'name': mv['name'],
+                        'move_type': 'entry'
+                    }
+                    journal_id = self.env['account.journal'].search([('code','=',mv['journal_id'].get('code'))])
+                    if journal_id:
+                        values.update({'journal_id': journal_id.id})
+                    move_id = self.create(values)
+                    lines = []
+                    for line in mv['line_ids']:
+                        account = line['account_id'][1]
+                        code, name_account = account.split(maxsplit=1)
+                        account_id = self.env['account.account'].search([('code', '=', code)])
+                        partner_id = False
+                        if line['partner_id']:
+                            partner_id = self.search_data('res.partner', line['partner_id'][0])
+
+                        if not line.get('currency_id'):
+                            currency_id = company_id.currency_id
+                        else:
+                            currency_id = self.env['res.currency'].search([('name', '=', line.get('currency_id')[1])])
+                        
+                        if line['credit'] > 0:
+                            amount_currency = -line['credit']
+                        elif line['debit'] > 0:
+                            amount_currency = line['debit']
+
+                        lines_values = {
+                            'account_id': account_id.id,
+                            'name': line['name'],
+                            'partner_id': partner_id,
+                            'debit': line['debit'],
+                            'credit': line['credit'],
+                            'currency_id': currency_id.id,
+                            'amount_currency': amount_currency
+                        }
+
+                        lines.append((0, 0, lines_values))
+                    move_id.update({'line_ids': lines})
+                    
+                    if mv['state'] == 'posted':
+                        move_id.action_post()
