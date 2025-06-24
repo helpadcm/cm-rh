@@ -286,6 +286,7 @@ class accountMoveSync(models.Model):
                         'ref': mv.get('ref'),
                         'date': mv['date'],
                         'name': mv['name'],
+                        'internal_number': mv['name'],
                         'move_type': 'entry'
                     }
                     journal_id = self.env['account.journal'].search([('code','=',mv['journal_id'].get('code'))])
