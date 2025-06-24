@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-		<!-- <record model="ir.ui.view" id="view_mcheck_mcheck_search">
-			<field name="name">mcheck.search</field>
-			<field name="model">mcheck.mcheck</field>
-			<field name="arch" type="xml">
-				<search string = 'search'>
-					<field name="name" filter_domain="[('number', 'ilike', self)]" string="Number"/>
-					<field name="name" filter_domain="[('name', 'ilike', self)]" string="Memo"/>			
-					<field name="name" filter_domain="[('reference', 'ilike', self)]" string="reference"/>
-					<field name="name" filter_domain="[('journal_id', 'ilike', self)]" string="journal"/>
-					<filter name="deliver" string="Deliver" domain="[('delivery','=',False)]"/>
-					<filter name="delivered" string="Delivered" domain="[('delivery','=',True)]"/>
-					<group expand="0" string="Group By">
-						<filter string="Month"  domain="[]" context="{'group_by':'date'}"/>
-						<filter string="State" domain="[]" context="{'group_by':'state'}"/>
-						<filter string="Journal" domain="[]" context="{'group_by':'journal_id'}"/>
-						<filter string="Issued to" domain="[]" context="{'group_by':'reference'}"/>
-					</group>
-				</search>
-			</field>
-		</record> -->
-	
         <record model="ir.ui.view" id="view_mcheck_form">
             <field name="name">mcheck.mcheck.form</field>
             <field name="model">mcheck.mcheck</field>
@@ -140,6 +119,24 @@
                 </tree>
             </field>
         </record>
+
+		<record model="ir.ui.view" id="view_mcheck_mcheck_search">
+			<field name="name">mcheck.search</field>
+			<field name="model">mcheck.mcheck</field>
+			<field name="arch" type="xml">
+				<search string = 'search'>
+					<field name="number"/>
+					<field name="name"/>			
+					<field name="reference"/>
+					<group expand="1" string="Group By">
+						<filter string="Fecha" name="name_group" context="{'group_by':'date'}"/>
+						<filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
+						<filter string="Diario" name="journal_group" context="{'group_by':'journal_id'}"/>
+						<filter string="Pagar a" name="pay_to_group" context="{'group_by':'reference'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
 	
 		<record id="mcheck_action_form_mcheck" model="ir.actions.act_window">
 			<field name="name">Pagos Miscelaneos</field>
