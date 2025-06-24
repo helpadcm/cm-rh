@@ -16,6 +16,8 @@
         'cm_banks'
     ],
     'data': [
-        'data/cron.xml'
+        'security/ir.model.access.csv',
+        'data/cron.xml',
+        'wizard/manual_sync_view.xml'
     ],
 }

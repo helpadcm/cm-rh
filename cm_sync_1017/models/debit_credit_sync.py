@@ -8,11 +8,17 @@ class debitCreditSync(models.Model):
     _inherit = 'debit.credit'
 
     def sync_debit_credit(self, opt='production'):
+        last_date = datetime.now().date() - timedelta(days=1)
+        if self.env.context.get('start_date'):
+            last_date = self.env.context.get('start_date')
+
+        if self.env.context.get('opt'):
+            opt = self.env.context.get('opt')
+
         ip = '181.189.230.70'
         if opt == 'test':
             ip = '10.1.4.56'
 
-        last_date = datetime.now().date() - timedelta(days=1)
         url = "http://%s:8000/get_debit_credit?start_date=%s&end_date=%s"%(ip, last_date, last_date)
         response = requests.get(url)
 

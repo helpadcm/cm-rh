@@ -10,11 +10,18 @@ class currencyRateSync(models.Model):
 
     def sync_rate(self, opt='production'):
         currency_usd_id =  self.env.ref('base.USD')
+
+        last_date = datetime.now().date()
+        if self.env.context.get('start_date'):
+            last_date = self.env.context.get('start_date')
+
+        if self.env.context.get('opt'):
+            opt = self.env.context.get('opt')
+            
         ip = '181.189.230.70'
         if opt == 'test':
             ip = '10.1.4.56'
 
-        last_date = datetime.now().date()
         url = "http://%s:8000/get_rate?date=%s&currency_id=%s"%(ip, last_date, 45)
         response = requests.get(url)
 

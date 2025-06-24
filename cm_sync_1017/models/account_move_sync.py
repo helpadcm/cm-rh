@@ -15,6 +15,17 @@ class accountMoveSync(models.Model):
     def sync_invoices(self, invoice_type, limit=1000, opt='production'):
         default_partner_id = self.env['res.partner'].sudo().search([('default_client', '=', True)])
         last_date = datetime.now().date() - timedelta(days=1)
+        if self.env.context.get('start_date'):
+            last_date = self.env.context.get('start_date')
+
+        if self.env.context.get('opt'):
+            opt = self.env.context.get('opt')
+
+        if self.env.context.get('type'):
+            invoice_type = self.env.context.get('type')
+
+        if self.env.context.get('limit'):
+            limit = self.env.context.get('limit')
 
         ##################    URL INVOICES COUNT ##########################################
         ip = '181.189.230.70'
