@@ -28,18 +28,20 @@ class manualSync(models.TransientModel):
             self.env[model].with_context({'start_date': self.start_date, 'end_date': self.end_date, 'opt': self.type_selection}).sync_deposits(self.type_selection)
         elif self.model_selection in ['supplier_inv','customer_inv','moves']:
             model = 'account.move'
-            move_type = 'customer'
-            if self.model_selection == 'supplier_inv':
-                move_type = 'supplier'
-                
             add_context = {
                 'start_date': self.start_date, 
                 'end_date': self.end_date, 
-                'opt': self.type_selection,
-                'limit': self.limit,
-                'type': move_type
+                'opt': self.type_selection
             }
-            self.env[model].with_context(add_context).sync_invoices(self.type_selection)
+            if self.model_selection in ['supplier_inv','customer_inv']:
+                move_type = 'customer'
+                if self.model_selection == 'supplier_inv':
+                    move_type = 'supplier'
+                
+                add_context.update({'type': move_type, 'limit': self.limit})
+                self.env[model].with_context(add_context).sync_invoices(self.type_selection)
+            else:
+                self.env[model].with_context(add_context).sync_moves()
         else:
             model = 'res.currency.rate'
             self.env[model].with_context({'start_date': self.start_date, 'opt': self.type_selection}).sync_rate(self.type_selection)

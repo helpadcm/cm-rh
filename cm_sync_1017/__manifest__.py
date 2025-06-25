@@ -6,7 +6,7 @@
         Modulo para sincronizacion odoo 17 con odoo 10""",
     'author': 'Oniel Avilez',
     'category': 'Accounting/Accounting',
-    'version': "17.1",
+    'version': "17.2",
     'license': 'LGPL-3',
     'depends': [
         'base',

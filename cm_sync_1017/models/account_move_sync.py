@@ -268,11 +268,17 @@ class accountMoveSync(models.Model):
 
     def sync_moves(self, limit=500, opt='production'):
         company_id = self.env.user.company_id
+        last_date = datetime.now().date() - timedelta(days=1)
+        if self.env.context.get('start_date'):
+            last_date = self.env.context.get('start_date')
+
+        if self.env.context.get('opt'):
+            opt = self.env.context.get('opt')
+        
         ip = '181.189.230.70'
         if opt == 'test':
             ip = '10.1.4.56'
 
-        last_date = datetime.now().date() - timedelta(days=1)
         url = "http://%s:8000/get_moves?start_date=%s&end_date=%s&limit=%s"%(ip, last_date, last_date, limit)
         response = requests.get(url)
 
@@ -293,6 +299,7 @@ class accountMoveSync(models.Model):
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
                     move_id = self.create(values)
+                    _logger.info(f"Sincronizando asiento contable con id{mv['id']}, Odoo17 ID {move_id.id}")
                     lines = []
                     for line in mv['line_ids']:
                         account = line['account_id'][1]
