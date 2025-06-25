@@ -273,7 +273,7 @@ class accountMoveSync(models.Model):
             ip = '10.1.4.56'
 
         last_date = datetime.now().date() - timedelta(days=1)
-        url = "http://%s:8000/get_moves?start_date=%s&end_date=%s&limit=%s"%(ip, '2025-06-09', '2025-06-09', limit)
+        url = "http://%s:8000/get_moves?start_date=%s&end_date=%s&limit=%s"%(ip, last_date, last_date, limit)
         response = requests.get(url)
 
         if response.status_code == 200:

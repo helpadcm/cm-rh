@@ -40,6 +40,9 @@ class depositSync(models.Model):
                         values.update({'journal_id': journal_id.id})
 
                     deposit_id = self.create(values)
+                    user_id = self.env['res.users'].search([('odoo10_id','=',dep['create_uid'][0])])
+                    if user_id:
+                        deposit_id.write({'user_id': user_id.id})
                     for line in dep['mcheck_ids']:
                         account = line['account_id'][1]
                         code, name_account = account.split(maxsplit=1)

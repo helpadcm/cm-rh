@@ -38,7 +38,12 @@ class debitCreditSync(models.Model):
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
 
+
                     debit_credit_id = self.create(values)
+                    user_id = self.env['res.users'].search([('odoo10_id','=',db_cr['create_uid'][0])])
+                    if user_id:
+                        debit_credit_id.write({'user_id': user_id.id})
+
                     for line in db_cr['mcheck_ids']:
                         account = line['account_id'][1]
                         code, name_account = account.split(maxsplit=1)

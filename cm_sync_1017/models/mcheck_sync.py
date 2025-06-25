@@ -41,6 +41,9 @@ class mcheckSync(models.Model):
                         values.update({'journal_id': journal_id.id})
 
                     mcheck_id = self.create(values)
+                    user_id = self.env['res.users'].search([('odoo10_id','=',check['create_uid'][0])])
+                    if user_id:
+                        mcheck_id.write({'user_id': user_id.id})
                     for line in check['mcheck_ids']:
                         account = line['account_id'][1]
                         code, name_account = account.split(maxsplit=1)
