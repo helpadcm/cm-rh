@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 class depositSync(models.Model):
     _inherit = 'banks.deposit'
 
+    create_odoo10 = fields.Datetime(string="Creado en odoo 10")
+
     def sync_deposits(self, opt='production'):
         last_date = datetime.now().date() - timedelta(days=1)
         if self.env.context.get('start_date'):
@@ -29,6 +31,7 @@ class depositSync(models.Model):
                 if not exist:
                     values = {
                         'number': dep['number'],
+                        'create_odoo10': dep['create_date'],
                         'date': dep['date'],
                         'doc_type': dep['doc_type'],
                         'name': dep['name'],

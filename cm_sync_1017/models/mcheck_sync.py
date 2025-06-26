@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 class mcheckSync(models.Model):
     _inherit = 'mcheck.mcheck'
 
+    create_odoo10 = fields.Datetime(string="Creado en odoo 10")
+
     def sync_mchecks(self, opt='production'):
 
         last_date = datetime.now().date() - timedelta(days=1)
@@ -29,6 +31,7 @@ class mcheckSync(models.Model):
                 if not exist:
                     values = {
                         'number': check['number'],
+                        'create_odoo10': check['create_date'],
                         'date': check['date'],
                         'doc_type': check['doc_type'],
                         'name': check['name'],

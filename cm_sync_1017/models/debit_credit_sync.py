@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 class debitCreditSync(models.Model):
     _inherit = 'debit.credit'
 
+    create_odoo10 = fields.Datetime(string="Creado en odoo 10")
+
     def sync_debit_credit(self, opt='production'):
         last_date = datetime.now().date() - timedelta(days=1)
         if self.env.context.get('start_date'):
@@ -29,6 +31,7 @@ class debitCreditSync(models.Model):
                 if not exist:
                     values = {
                         'number': db_cr['number'],
+                        'create_odoo10': db_cr['create_date'],
                         'date': db_cr['date'],
                         'doc_type': db_cr['doc_type'],
                         'name': db_cr['name'],

@@ -11,6 +11,7 @@ class accountMoveSync(models.Model):
     _inherit = 'account.move'
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
+    create_odoo10 = fields.Datetime(string="Creado en odoo 10")
 
     def sync_invoices(self, invoice_type, limit=1000, opt='production'):
         default_partner_id = self.env['res.partner'].sudo().search([('default_client', '=', True)])
@@ -136,6 +137,7 @@ class accountMoveSync(models.Model):
                     if not exist_invoice:
                         invoice_values = {
                             'odoo10_id': inv['id'],
+                            'create_odoo10': inv['create_date'],
                             'payment_reference': inv.get('name'),
                             'invoice_date': invoice_date,
                             'invoice_user_id': user_id,
@@ -281,7 +283,6 @@ class accountMoveSync(models.Model):
 
         url = "http://%s:8000/get_moves?start_date=%s&end_date=%s&limit=%s"%(ip, last_date, last_date, limit)
         response = requests.get(url)
-
         if response.status_code == 200:
             moves = response.json()
             for mv in moves:
@@ -289,6 +290,7 @@ class accountMoveSync(models.Model):
                 if not exist:
                     values = {
                         'odoo10_id': mv['id'],
+                        'create_odoo10': mv['create_date'],
                         'ref': mv.get('ref'),
                         'date': mv['date'],
                         'name': mv['name'],
@@ -313,11 +315,13 @@ class accountMoveSync(models.Model):
                             currency_id = company_id.currency_id
                         else:
                             currency_id = self.env['res.currency'].search([('name', '=', line.get('currency_id')[1])])
-                        
-                        if line['credit'] > 0:
-                            amount_currency = -line['credit']
-                        elif line['debit'] > 0:
-                            amount_currency = line['debit']
+
+                        amount_currency = line['amount_currency']
+                        if amount_currency == 0:
+                            if line['credit'] != 0:
+                                amount_currency = -line['credit']
+                            elif line['debit'] != 0:
+                                amount_currency = line['debit']
 
                         lines_values = {
                             'account_id': account_id.id,

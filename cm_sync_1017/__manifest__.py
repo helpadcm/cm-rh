@@ -6,7 +6,7 @@
         Modulo para sincronizacion odoo 17 con odoo 10""",
     'author': 'Oniel Avilez',
     'category': 'Accounting/Accounting',
-    'version': "17.2",
+    'version': "17.3",
     'license': 'LGPL-3',
     'depends': [
         'base',
@@ -18,6 +18,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/cron.xml',
-        'wizard/manual_sync_view.xml'
+        'wizard/manual_sync_view.xml',
+        'views/move_view_inh.xml'
     ],
 }
