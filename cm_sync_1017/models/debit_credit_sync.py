@@ -17,7 +17,8 @@ class debitCreditSync(models.Model):
         if self.env.context.get('opt'):
             opt = self.env.context.get('opt')
 
-        ip = '181.189.230.70'
+        # ip = '181.189.230.70'
+        ip = '181.115.21.90'
         if opt == 'test':
             ip = '10.1.4.56'
 

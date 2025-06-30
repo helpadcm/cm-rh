@@ -29,7 +29,8 @@ class accountMoveSync(models.Model):
             limit = self.env.context.get('limit')
 
         ##################    URL INVOICES COUNT ##########################################
-        ip = '181.189.230.70'
+        # ip = '181.189.230.70'
+        ip = '181.115.21.90'
         if opt == 'test':
             ip = '10.1.4.56'
 
@@ -108,6 +109,7 @@ class accountMoveSync(models.Model):
                 
                 for inv in invoices:
                     invoice_date = False
+                    finalize = True
                     if inv.get('date'):
                         try:
                             invoice_date = datetime.strptime(inv['date'], "%Y-%m-%d").date()
@@ -123,14 +125,24 @@ class accountMoveSync(models.Model):
                     payment_term_id = payment_term_map.get(inv['payment_term_id'][0]) if inv.get('payment_term_id') else False
 
                     # Validaciones antes de crear/actualizar
+                    messages = []
                     if not partner_id:
-                        _logger.warning(f"Partner con ID de Odoo 10 '{inv['partner_id'][0]}' (nombre: {inv['partner_id'][1]}) no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Usando Cliente por defecto.")
+                        message_partner = f"Partner con ID de Odoo 10 '{inv['partner_id'][0]}' (nombre: {inv['partner_id'][1]}) no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Usando Cliente por defecto."
+                        messages.append(message_partner)
+                        _logger.warning(message_partner)
                         partner_id = default_partner_id.id
+                        finalize = False
                     if not journal_id:
-                        _logger.warning(f"Journal con código '{inv['journal_id'].get('code')}' no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Saltando esta factura.")
+                        message_journal = f"Journal con código '{inv['journal_id'].get('code')}' no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Saltando esta factura."
+                        messages.append(message_journal)
+                        _logger.warning(message_journal)
+                        finalize = False
                         continue
                     if not currency_id:
-                        _logger.warning(f"Currency con nombre '{inv['currency_id'][1]}' no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Saltando esta factura.")
+                        message_currency = f"Currency con nombre '{inv['currency_id'][1]}' no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Saltando esta factura."
+                        messages.append(message_currency)
+                        _logger.warning(message_currency)
+                        finalize = False
                         continue
 
                     exist_invoice = self.exist_number(inv['move_name'], inv['id']) 
@@ -190,12 +202,21 @@ class accountMoveSync(models.Model):
 
                             self.env['account.move.line'].create(lines_values)
 
-                        if inv['state'] == 'open':
-                            invoice_id.action_post()
-                        elif inv['state'] == 'paid':
-                            invoice_id.action_post()
-                            if inv['payment_ids']:
-                                self.register_paymet(invoice_id, inv['payment_ids'])
+                        if finalize:
+                            if inv['state'] == 'open':
+                                invoice_id.action_post()
+                            elif inv['state'] == 'paid':
+                                invoice_id.action_post()
+                                if inv['payment_ids']:
+                                    self.register_paymet(invoice_id, inv['payment_ids'])
+                        else:
+                            title = "No se pudo finalizar el proceso de la factura por los siguientes motivos:\n"
+                            list_formated = "\n".join([f"***{item}***" for item in messages])
+                            message_body = title + list_formated
+                            invoice_id.message_post(
+                                body = message_body,
+                                message_type = "comment"   
+                            )
                     else:
                         _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id}")
                 offset += limit
@@ -277,7 +298,8 @@ class accountMoveSync(models.Model):
         if self.env.context.get('opt'):
             opt = self.env.context.get('opt')
         
-        ip = '181.189.230.70'
+        # ip = '181.189.230.70'
+        ip = '181.115.21.90'
         if opt == 'test':
             ip = '10.1.4.56'
 
