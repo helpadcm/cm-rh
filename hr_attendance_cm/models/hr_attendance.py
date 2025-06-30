@@ -54,7 +54,7 @@ class HrAttendance(models.Model):
         code_employees = []
         for clock in clocks_ids:
             # url = "http://10.1.4.56:8080/markings?ip_str=%s&port_str=%s&date=%s"%(str(clock.ip_address), str(clock.port), last_date)
-            url = "http://181.189.230.70:8080/markings?ip_str=%s&port_str=%s&date=%s"%(str(clock.ip_address), str(clock.port), last_date)
+            url = "http://181.115.21.90:8080/markings?ip_str=%s&port_str=%s&date=%s"%(str(clock.ip_address), str(clock.port), last_date)
 
             response = requests.get(url)
             if response.status_code == 200:
