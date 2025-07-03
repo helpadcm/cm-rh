@@ -426,7 +426,9 @@ class debit_credit(models.Model):
 		lines_col={}
 		lines_col['account_id']=lines.account_id.id
 		lines_col['partner_id']=lines.partner_id.id
-		# lines_col['analytic_account_id']=lines.chqmanalitics.id
+		if lines.chqmanalitics:
+			distribution_line = {str(lines.chqmanalitics.id): 100.0}
+			lines_col['analytic_distribution'] = distribution_line
 		return lines_col
 
 	def update_sequence(self,journal_id, doc_type):

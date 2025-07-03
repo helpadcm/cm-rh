@@ -423,9 +423,11 @@ class banks_deposits(models.Model):
 		lines_col={
 			'account_id': lines.account_id.id,
 			'partner_id': lines.partner_id.id,
-			# 'analytic_account_id': lines.chqmanalitics.id,
 			'name':  lines.name2,
 		}
+		if lines.chqmanalitics:
+			distribution_line = {str(lines.chqmanalitics.id): 100.0}
+			lines_col.update({'analytic_distribution': distribution_line})
 		return lines_col
 
 	def reset_to_draft(self):

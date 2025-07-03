@@ -655,9 +655,11 @@ class mcheck(models.Model):
 	def dict_col(self,lines):
 		lines_col = {
 			'partner_id': lines.partner_id.id,
-			# 'analytic_account_id': lines.chqmanalitics.id,
 			'account_id': lines.account_id.id
 		}
+		if lines.chqmanalitics:
+			distribution_line = {str(lines.chqmanalitics.id): 100.0}
+			lines_col.update({'analytic_distribution': distribution_line})
 		return lines_col
 
 	@api.returns('self', lambda value: value.id)
