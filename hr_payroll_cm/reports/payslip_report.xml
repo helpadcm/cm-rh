@@ -84,23 +84,48 @@
                         <tbody>
                             <t id="incomes_lines">
                                 <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ALW')" t-as="line">
-                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                    </tr>
-                                    <t t-set="alw_total" t-value="alw_total + line.total"/>
-                                </span>
-                                <t t-if="alw_total == 0 and entry_total == 0">
-                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
+                                    <t t-if="line.total != 0">
                                         <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
                                             <td id="payslip_line_name"><span t-field="line.name"/></td>
                                             <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
                                                     t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
                                         </tr>
                                         <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                    </t>
+                                </span>
+                                <t t-if="alw_total != 0 and entry_total == 0">
+                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
+                                        <t t-if="line.total != 0">
+                                            <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                                <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                                <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                            </tr>
+                                            <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                        </t>
                                     </span>
                                 </t>
+                                <t t-if="alw_total == 0 and entry_total == 0">
+                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
+                                        <t t-if="line.total != 0">
+                                            <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                                <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                                <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                            </tr>
+                                            <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                        </t>
+                                    </span>
+                                </t>
+                                <span t-if="o.payslip_run_id.type_lot=='fourteenth'" t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'GROSS')" t-as="line">
+                                    <t t-if="line.total != 0">
+                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/></td>
+                                        </tr>
+                                        <t t-set="alw_total" t-value="alw_total + line.total"/>
+                                    </t>
+                                </span>
                                 <tr>
                                     <td id="payslip_line_name"><strong>TOTAL INGRESOS</strong></td>
                                     <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(alw_total + entry_total)"
@@ -125,10 +150,19 @@
                         <tbody>
                             <t id="deduction_lines">
                                 <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'DED')" t-as="line">
+                                    <t t-if="line.total != 0">
+                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
+                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
+                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
+                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        </tr>
+                                        <t t-set="ded_total" t-value="ded_total + line.total"/>
+                                    </t>
+                                </span>
+                                <span t-if="o.payslip_run_id.type_lot=='fourteenth'" t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ANTC14')" t-as="line">
                                     <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
                                         <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
+                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/></td>
                                     </tr>
                                     <t t-set="ded_total" t-value="ded_total + line.total"/>
                                 </span>
