@@ -106,8 +106,8 @@ class accountMoveSync(models.Model):
                 if odoo10_payment_term_ids:
                     terms = self.env['account.payment.term'].sudo().search([('odoo10_id', 'in', list(odoo10_payment_term_ids))])
                     payment_term_map = {t.odoo10_id: t.id for t in terms}
-                
                 for inv in invoices:
+
                     invoice_date = False
                     finalize = True
                     if inv.get('date'):
@@ -189,6 +189,12 @@ class accountMoveSync(models.Model):
                                 'quantity': line['quantity'],
                                 'price_unit': line['price_unit']
                             }
+
+                            if line['account_analytic_id']:
+                                analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line['account_analytic_id'][0])])
+                                if analytic_account_id:
+                                    distribution_line = {str(analytic_account_id.id): 100.0}
+                                    lines_values.update({'analytic_distribution': distribution_line})
 
                             if line['account_id']:
                                 account = line['account_id'][1]
@@ -354,6 +360,11 @@ class accountMoveSync(models.Model):
                             'currency_id': currency_id.id,
                             'amount_currency': amount_currency
                         }
+                        if line.get('analytic_account_id'):
+                            analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line.get('analytic_account_id')[0])])
+                            if analytic_account_id:
+                                distribution_line = {str(analytic_account_id.id): 100.0}
+                                lines_values.update({'analytic_distribution': distribution_line})
 
                         lines.append((0, 0, lines_values))
                     move_id.update({'line_ids': lines})

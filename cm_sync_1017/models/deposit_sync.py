@@ -55,15 +55,22 @@ class depositSync(models.Model):
                         partner_id = False
                         if line['partner_id']:
                             partner_id = self.search_data('res.partner', line['partner_id'][0])
-                        
-                        self.env['banks.deposit.name'].create({
+
+                        values = {
                             'mcheck_id': deposit_id.id,
                             'name': line['name'],
                             'partner_id': partner_id,
                             'type': line['type'],
                             'amount': line['amount'],
                             'account_id': account_id.id,
-                        })
+                        }
+
+                        if line.get('chqmanalitics'):
+                            analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line.get('chqmanalitics')[0])])
+                            if analytic_account_id:
+                                values.update({'chqmanalitics': analytic_account_id.id})
+                        
+                        self.env['banks.deposit.name'].create(values)
                     
                     if dep['state'] == 'validated':
                         deposit_id.action_validate()

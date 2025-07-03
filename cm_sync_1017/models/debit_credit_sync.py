@@ -56,15 +56,22 @@ class debitCreditSync(models.Model):
                         partner_id = False
                         if line['partner_id']:
                             partner_id = self.search_data('res.partner', line['partner_id'][0])
-                        
-                        self.env['debit.credit.name'].create({
+
+                        values = {
                             'debit_credit_id': debit_credit_id.id,
                             'name': line['name'],
                             'partner_id': partner_id,
                             'type': line['type'],
                             'amount': line['amount'],
                             'account_id': account_id.id,
-                        })
+                        }
+
+                        if line.get('chqmanalitics'):
+                            analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line.get('chqmanalitics')[0])])
+                            if analytic_account_id:
+                                values.update({'chqmanalitics': analytic_account_id.id})
+                        
+                        self.env['debit.credit.name'].create(values)
                     
                     if db_cr['state'] == 'validated':
                         debit_credit_id.action_validate()
