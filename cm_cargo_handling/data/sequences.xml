@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+	    <record id="sequence_client_account" model="ir.sequence">
+            <field name="name">Sequence Client Account</field>
+            <field name="code">client.account.cargo</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">CE-</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="sequence_sale_order_handling" model="ir.sequence">
+            <field name="name">Sequence Sale Order Handling</field>
+            <field name="code">sale.order.handling.seq</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">OV</field>
+            <field name="padding">6</field>
+        </record>
+    </data>
+</odoo>

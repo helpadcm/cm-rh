@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="cargo_handling_menu_root"
+            name="Encomiendas"
+            web_icon="cm_cargo_handling,static/description/icon.png"
+            action="action_sale_order_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="6"/>
+
+<!-- ##################################  SALE ORDERS  ##################################################  -->
+
+        <menuitem
+            id="sale_order_handling_root"
+            name="Ordenes de venta"
+            parent="cargo_handling_menu_root"
+            sequence="1"/>
+
+        <menuitem
+            id="sale_order_handling_menuitem"
+            name="Ordenes"
+            parent="sale_order_handling_root"
+            action="action_sale_order_handling"
+            sequence="1"/>
+
+        <menuitem
+            id="partner_handling_menuitem"
+            name="Clientes"
+            parent="sale_order_handling_root"
+            action="action_partner_handling"
+            sequence="2"/>
+
+<!-- ###############################  CONFIGURATIONS  ###################################################### -->
+        <menuitem
+            id="cargo_handling_config"
+            name="Configuracion"
+            parent="cargo_handling_menu_root"
+            sequence="2"/>
+
+        <menuitem
+            id="airport_config_menu"
+            name="Configuracion Aeropuertos"
+            parent="cargo_handling_config"
+            sequence="1"/>
+
+        <menuitem
+            id="cargo_handling_airport"
+            name="Aeropuertos"
+            parent="airport_config_menu"
+            sequence="1"
+            action="action_cargo_airport_object"/>
+
+        <menuitem
+            id="cargo_handling_airport_rel"
+            name="Relacion aeropuertos"
+            parent="airport_config_menu"
+            sequence="2"
+            action="action_cargo_airport_rel_object"/>
+
+        <menuitem
+            id="cargo_handling_station"
+            name="Estaciones de Venta"
+            parent="airport_config_menu"
+            sequence="3"
+            action="action_cargo_station_object"/>
+
+        <menuitem
+            id="pricelist_handling_menuitem"
+            name="Lista de Precios"
+            parent="airport_config_menu"
+            sequence="4"
+            action="action_pricelist_handling"/>
+
+
+        <menuitem
+            id="cargo_type_menuitem"
+            name="Tipos de Envio"
+            parent="cargo_handling_config"
+            sequence="2"
+            action="action_cargo_type_object"/>
+
+        <menuitem
+            id="cargo_handling_additional_services"
+            name="Servicios Adicionales"
+            parent="cargo_handling_config"
+            sequence="2"
+            action="action_cargo_additional_services_object"/>
+
+        <menuitem
+            id="cargo_handling_content_description"
+            name="Descripcion de Contenido"
+            parent="cargo_handling_config"
+            sequence="3"
+            action="action_cargo_content_description_object"/>
+
+        <menuitem
+            id="fare_classes_menuitem"
+            name="Clases tarifarias"
+            parent="cargo_handling_config"
+            sequence="4"
+            action="action_fare_classes"/>
+    </data>
+</odoo>

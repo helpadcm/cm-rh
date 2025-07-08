@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="res_company_view_inherit" model="ir.ui.view">
+            <field name="name">res company</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Encomiendas">
+                        <group>
+                            <group>
+                                <field name="tgu_int_phone"/>
+                                <field name="sps_int_phone"/>
+                            </group>
+                            <group>
+                                <field name="whatsapp"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="phone_attention"/>
+                            <field name="entrust_website"/>
+                            <field name="conditions"/>
+                            <field name="acuerdo"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="cargo_res_users_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo Res users</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/div[hasclass('oe_title')]/group/field[@name='partner_id']" position="after">
+                    <field name="station_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="cargo_partner_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo partner</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Encomiendas">
+                        <group>
+                            <group>
+                                <field name="cargo_client"/>
+                                <field name="client_account" invisible="not cargo_client" readonly="0"/>
+                            </group>
+                            <group>
+                                <field name="fare_classes_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not cargo_client" required="cargo_client"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        
+    </data>
+</odoo>

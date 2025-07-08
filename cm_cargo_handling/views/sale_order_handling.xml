@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="sale_order_handling_form_view" model="ir.ui.view">
+            <field name="name">Ordenes de Venta</field>
+            <field name="model">sale.order.handling</field>
+            <field name="arch" type="xml">
+                <form string="Servicios Adicionales">
+                    <header>
+                        <button name="change_states" context="{'state': 'order'}" class="oe_highlight" type="object" string="Crear Guias" invisible="state != 'quote'"/>
+                        <button name="change_states" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order'"/>
+						<field name="state" widget="statusbar"/>
+                  	</header>
+                    <sheet>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                <field name="date" readonly="1" for_save="1"/>
+                                <field name="product_id" domain="[('for_cargo','=',True)]" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="partner_id" domain="[('cargo_client','=',True)]" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group>
+                                <field name="destination_id" options="{'no_create': True, 'no_open': True}" required="1"/>
+                                <field name="user_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                <field name="pricelist_id" domain="listprice_domain" options="{'no_create': True, 'no_open': True}" required="1"/>
+                                <field name="listprice_domain" invisible="1"/>
+                            </group>
+                        </group>
+                        <group string="Calculos">
+                            <group>
+                                <div class="o_row">
+                                    <label for="weight_or_qty" string="Cantidad:"/> 
+                                    <div class="d-flex align-items-center"> 
+                                        <field name="weight_or_qty" nolabel="1" class="oe_inline"/>
+                                        <span class="ms-1"><field name="udm_id" nolabel="1" class="oe_inline" readonly="1" for_save="1" options="{'no_create': True, 'no_open': True}"/></span>
+                                    </div>
+                                </div>
+                                <div class="o_row mt-5"> 
+                                    <button name="add_cart" type="object" string="Agregar al Carrito" invisible="state != 'quote'" class="oe_highlight"/>	
+                                </div>
+                            </group>
+                            <group>
+                                <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
+                                <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1"/>
+                                <field name="external_currency_id" invisible="1"/>
+                                <field name="local_currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="cart" string="Carrito">
+                                <field name="cart_ids">
+                                    <tree create="false">
+                                        <field name="product_id" />
+                                        <field name="weight_or_qty" />
+                                        <field name="udm_id" />
+                                        <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1" sum="Total USD"/>
+                                        <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1" sum="Total LPS"/>
+                                        <field name="external_currency_id" column_invisible="1"/>
+                                        <field name="local_currency_id" column_invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_order_habdling_tree_view" model="ir.ui.view">
+            <field name="name">Ordenes de Venta</field>
+            <field name="model">sale.order.handling</field>
+            <field name="arch" type="xml">
+                <tree string="Ordenes de Venta" decoration-info="state == 'quote'">
+                    <field name="name"/>
+                    <field name="user_id" />
+                    <field name="origin_id"/>
+                    <field name="destination_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_sale_order_handling" model="ir.actions.act_window">            
+            <field name="name">Ordenes de Venta</field>
+            <field name="res_model">sale.order.handling</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval=""/>
+        </record>
+
+        <record id="action_partner_handling" model="ir.actions.act_window">            
+            <field name="name">Clientes Encomiendas</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{'default_cargo_client': True}</field>         
+            <field name="domain" eval="[('cargo_client','=',True)]"/>
+        </record>
+
+    </data>
+</odoo>

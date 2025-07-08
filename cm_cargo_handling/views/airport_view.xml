@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="cargo_airport_tree_view" model="ir.ui.view">
+            <field name="name">Lista de Aeropuertos</field>
+            <field name="model">cargo.airport</field>
+            <field name="arch" type="xml">
+                <tree string="Aeropuertos" editable="bottom">
+                    <field name="name" />
+                    <field name="ref" />
+                    <field name="city" />
+                    <field name="valid_destinations" options="{'no_create':True}" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_cargo_airport_object" model="ir.actions.act_window">            
+            <field name="name">Aeropuertos</field>
+            <field name="res_model">cargo.airport</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record model="ir.module.category" id="cargo_handling_category">
+			<field name="name">Venta de carga</field>
+			<field name="description">Cargo permissions</field>
+			<field name="sequence">21</field>
+		</record>
+
+		<record id="group_cargo_handling_user" model="res.groups">
+			<field name="name">Venta de carga usuario</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+
+		<record id="group_pago_contable" model="res.groups">
+			<field name="name">Registrar Pago Contable</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+
+		<record id="group_todos_los_pagos" model="res.groups">
+			<field name="name">Ver Todos los Pagos de Caja</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+
+		<record id="group_desechar_guias" model="res.groups">
+			<field name="name">Desechar todas las guias</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+		
+		 <record id="group_cargo_handling_manager" model="res.groups">
+			<field name="name">Venta de carga manager</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+
+		<record id="group_cargo_handling_ventas" model="res.groups">
+			<field name="name">Venta de carga y ventas</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>
+
+		<record id="group_guia_cargar_admin" model="res.groups">
+			<field name="name">Administrador de guias de carga</field>
+			<field name="category_id" ref="cargo_handling_category"/>
+		</record>  	
+
+		<!-- <record id="sale.menu_sale_invoicing" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+
+		<record id="sales_team.menu_sales_team_act" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="crm.menu_crm_opportunities" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="sale.menu_sale_quotations" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="sale.menu_product_template_action" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>				
+		<record id="sales_team.menu_partner_form" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="sales_team.menu_partner_form" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="sale.menu_sale_order" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(6,0,[ref('cargo_handling.group_cargo_handling_ventas'),ref('sales_team.group_sale_manager')])]"/>
+    	</record>
+		<record id="crm.crm_lead_menu_activities" model="ir.ui.menu">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+	
+		<record id="cargo_handling.cargo_handling_report_sales" model="ir.actions.report.xml">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record>
+		<record id="account.account_invoices" model="ir.actions.report.xml">
+        	<field name="groups_id" eval="[(4,ref('cargo_handling.group_cargo_handling_ventas'))]"/>
+    	</record> -->
+
+	</data>
+</odoo>
+
+
+
