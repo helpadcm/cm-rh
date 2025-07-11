@@ -27,16 +27,9 @@ class CustomPortal(http.Controller):
         domain = [('employee_id','=',employee_id.id),('state','=','validated')]
         actual_domain = [('employee_id','=',employee_id.id),('state','=','validated')]
 
+        print ("!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print (actual_date.day)
         if actual_date.day in first:
-            min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
-            max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
-            domain.extend([('date','>=',min_date),('date','<=',max_date)])
-
-            actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
-            actual_max_date = actual_date.replace(day=10).date()
-            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
-
-        elif actual_date.day in second:
             min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
             max_date = actual_date.replace(day=10).date()
             domain.extend([('date','>=',min_date),('date','<=',max_date)])
@@ -44,9 +37,29 @@ class CustomPortal(http.Controller):
             actual_min_date = actual_date.replace(day=11).date()
             actual_max_date = actual_date.replace(day=25).date()
             actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
+
+        elif actual_date.day in second:
+            if actual_date.day <= 10:
+                min_date = actual_date.replace(day=10).date() - relativedelta(months=1)
+                max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
+                actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
+                actual_max_date = actual_date.replace(day=10).date()
+            else:
+                max_date = actual_date.replace(day=25).date()
+                min_date = actual_date.replace(day=10).date()
+                actual_min_date = actual_date.replace(day=26).date()
+                actual_max_date = actual_date.replace(day=10).date() + relativedelta(months=1)
+
+            domain.extend([('date','>=',min_date),('date','<=',max_date)])
+
+            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
         
         validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
         actual_record_ids = request.env['hr.turn.registration'].sudo().search(actual_domain, order="date desc")
+        print ("////////////  LAST   /////////////////")
+        print (domain)
+        print ("##### ACTUAL  #######")
+        print (actual_domain)
         values = {
             "records": types_turn_ids, 
             "schedules": schedule_ids, 
