@@ -82,7 +82,7 @@ class employeeAttendanceRecords(models.Model):
         next_state = self.env.context.get('next_stage')
         if next_state == 'finalized':
             aditional_he_real = 0
-            if self.real_aditional_he > 0:
+            if self.real_aditional_he != 0:
                 aditional_he_real = self.real_aditional_he
             else:
                 aditional_he_real = self.aditional_he
