@@ -40,6 +40,7 @@
                             <field name="eh_limit" readonly="1"/>
                             <field name="diff_hours"/>
                             <field name="eh_holiday"/>
+                            <field name="sum_compensatory" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="eh_pay"/>

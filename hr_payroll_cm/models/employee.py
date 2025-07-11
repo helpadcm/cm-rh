@@ -8,6 +8,11 @@ class Employee(models.Model):
         for employee in self:
             employee.employee_no = employee.registration_number or employee.barcode or employee.pin or ''
 
+class EmployeeMembersInh(models.Model):
+    _inherit = 'hr.employees.members'
+
+    compensatory_day_string = fields.Char(related="employee_id.compensatory_day_string",string="Tiempo Compensatorio")
+
 class departmentInherit(models.Model):
     _inherit = 'hr.department'
 

@@ -37,4 +37,15 @@
             </field>
         </field>
     </record>
+
+    <record id="teams_view_form_inherit" model="ir.ui.view">
+        <field name="name">teams.form.inherit</field>
+        <field name="model">hr.work.teams</field>
+        <field name="inherit_id" ref="hr_turns_cm.view_turn_work_teams"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='member_employees_ids']/tree/field[@name='job_id']" position="after">
+                <field name="compensatory_day_string"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

@@ -39,7 +39,7 @@ class employeeAttendanceRecords(models.Model):
     eh_pay = fields.Float(string="Pagar HE",compute='compute_eh_totals',help="Horas Extras a pagar ")
     real_eh_pay = fields.Float(string="Pagar HE Real",help="Horas Extras reales a pagar ")
     pay_extra_hours = fields.Float(string="HE Real",help="Horas Extras reales",compute="get_eh_real")
-    aditional_he = fields.Float(string="HE adicionales",compute='compute_eh_totals',help="Horas extras restantes")
+    aditional_he = fields.Float(string="Compensatorio",compute='compute_eh_totals',help="Horas extras restantes")
     real_aditional_he = fields.Float(string="Compensatorias Reales", help="Horas compensatorias reales a aplicar")
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
@@ -50,6 +50,7 @@ class employeeAttendanceRecords(models.Model):
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
     department_id = fields.Many2one('hr.department',string="Departamento")
+    sum_compensatory = fields.Boolean(string="Sumar Compensatorio",default=True)
 
     def update_name(self):
         name = ''
@@ -85,11 +86,12 @@ class employeeAttendanceRecords(models.Model):
                 aditional_he_real = self.real_aditional_he
             else:
                 aditional_he_real = self.aditional_he
-            self.employee_id.compensatory_hours += aditional_he_real
+            if self.sum_compensatory:
+                self.employee_id.compensatory_hours += aditional_he_real
         self.state = next_state
 
     def add_aditional_hours(self):
-        if self.state == 'finalized':
+        if self.state == 'finalized' and self.sum_compensatory:
             self.employee_id.compensatory_hours += self.aditional_he
 
 
