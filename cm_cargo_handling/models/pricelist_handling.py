@@ -16,7 +16,7 @@ class priceListHandling(models.Model):
     active = fields.Boolean(string="Activo", default=True)
     list_product_ids = fields.One2many('pricelist.product.handling','list_id',string="Lista de productos")
     fare_class_id = fields.Many2one('fare.clases',string="Clase Tarifaria")
-    default_list = fields.Boolean(string="Lista por defecto")
+    all_available = fields.Boolean(string="Aplicable a todos")
 
 class productListHandling(models.Model):
     _name = 'pricelist.product.handling'

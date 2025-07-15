@@ -42,3 +42,29 @@ class partnerInherit(models.Model):
             if sequence_id:
                 res.client_account = sequence_id.next_by_id()
         return res
+
+class contactListInherit(models.Model):
+    _name = 'res.partner.contact'
+    _description = "Lista de contactos para encomiendas"
+    _rec_names_search = ['name', 'phone', 'identity', 'code']
+
+    name = fields.Char(string="Nombre")
+    phone = fields.Char(string="Telefono")
+    identity = fields.Char(string="Identidad")
+    code = fields.Char(string="Cuenta")
+    list_number = fields.Integer(string="Numero de contacto en lista")
+
+    @api.onchange('phone')
+    def generate_code(self):
+        if self.phone:
+            contact_existing_ids = self.search([('phone','=',self.phone)])
+            if not contact_existing_ids:
+                self.list_number = 1
+                self.code = f"{self.phone}-01"
+            else:
+                last_number = max(contact_existing_ids.mapped('list_number'))
+                if last_number < 10:
+                    self.code = f"{self.phone}-0{last_number + 1}"
+                else:
+                    self.code = f"{self.phone}-{last_number + 1}"
+                self.list_number = (last_number + 1)

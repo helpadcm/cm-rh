@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Airport(models.Model):
 	_name = 'cargo.airport'
-	_description = "Aeropuertos"
+	_description = "CTIS"
 	_rec_name='ref'
 
 	ref = fields.Char(string="Codigo", required=True)
@@ -14,7 +14,7 @@ class Airport(models.Model):
 
 class AirportAirportRel(models.Model):
 	_name = "cargo.airport.airport.rel"
-	_description = "Relaciones entre aeropuertos"
+	_description = "CTIPAIR"
 	
 	origin_id = fields.Many2one('cargo.airport', string='Origen', ondelete='cascade')
 	destination_id = fields.Many2one('cargo.airport', string='Destino', ondelete='cascade')

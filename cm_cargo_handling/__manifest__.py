@@ -17,7 +17,7 @@
 		# 'data/report_format_paper.xml',
 		# 'views/res_partner_view.xml',
 		# 'views/sale_order.xml',
-		# 'views/cargo_bill_view.xml',
+		'views/cargo_bill_view.xml',
 		'views/cargo_type_view.xml',
 		'views/airport_view.xml',
         'views/rel_airports_view.xml',

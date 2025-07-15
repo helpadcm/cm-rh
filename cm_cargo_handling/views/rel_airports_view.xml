@@ -2,10 +2,10 @@
 <odoo>
     <data>
         <record id="cargo_airport_rel_form_view" model="ir.ui.view">
-            <field name="name">Relacion Aeropuertos</field>
+            <field name="name">Relacion CTIPAIR</field>
             <field name="model">cargo.airport.airport.rel</field>
             <field name="arch" type="xml">
-                <form string="Relacion entre aeropuertos">
+                <form string="Relacion entre CTIPAIR">
                     <sheet>
                         <group>
                             <group>
@@ -61,10 +61,10 @@
         </record>
 
         <record id="cargo_airport_rel_tree_view" model="ir.ui.view">
-            <field name="name">Relacion Aeropuertos</field>
+            <field name="name">Relacion CTIPAIR</field>
             <field name="model">cargo.airport.airport.rel</field>
             <field name="arch" type="xml">
-                <tree string="Relacion entre aeropuertos">
+                <tree string="Relacion entre CTIPAIR">
                     <field name="name" />
                     <field name="origin_id" />
                     <field name="destination_id" />
@@ -74,7 +74,7 @@
         </record>
 
         <record id="action_cargo_airport_rel_object" model="ir.actions.act_window">            
-            <field name="name">Relacion Aeropuertos</field>
+            <field name="name">Relacion CTIPAIR</field>
             <field name="res_model">cargo.airport.airport.rel</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{}</field>         

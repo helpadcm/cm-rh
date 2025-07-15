@@ -7,60 +7,227 @@
             <field name="arch" type="xml">
                 <form string="Servicios Adicionales">
                     <header>
-                        <button name="change_states" context="{'state': 'order'}" class="oe_highlight" type="object" string="Crear Guias" invisible="state != 'quote'"/>
-                        <button name="change_states" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order'"/>
+                        <button name="create_order" class="oe_highlight" type="object" string="Crear como orden" invisible="state != 'quote'"/>
+                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura" invisible="state != 'order' or modality not in ['counted','credit'] or move_id != False"/>
+                        <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
+                        <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit']"/>
+                        <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order'"/>
 						<field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
-                        <group>
-                            <group>
-                                <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
-                                <field name="date" readonly="1" for_save="1"/>
-                                <field name="product_id" domain="[('for_cargo','=',True)]" options="{'no_create': True, 'no_open': True}"/>
-                                <field name="partner_id" domain="[('cargo_client','=',True)]" options="{'no_create': True, 'no_open': True}"/>
-                            </group>
-                            <group>
-                                <field name="destination_id" options="{'no_create': True, 'no_open': True}" required="1"/>
-                                <field name="user_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
-                                <field name="pricelist_id" domain="listprice_domain" options="{'no_create': True, 'no_open': True}" required="1"/>
-                                <field name="listprice_domain" invisible="1"/>
-                            </group>
-                        </group>
-                        <group string="Calculos">
-                            <group>
-                                <div class="o_row">
-                                    <label for="weight_or_qty" string="Cantidad:"/> 
-                                    <div class="d-flex align-items-center"> 
-                                        <field name="weight_or_qty" nolabel="1" class="oe_inline"/>
-                                        <span class="ms-1"><field name="udm_id" nolabel="1" class="oe_inline" readonly="1" for_save="1" options="{'no_create': True, 'no_open': True}"/></span>
-                                    </div>
-                                </div>
-                                <div class="o_row mt-5"> 
-                                    <button name="add_cart" type="object" string="Agregar al Carrito" invisible="state != 'quote'" class="oe_highlight"/>	
-                                </div>
-                            </group>
-                            <group>
-                                <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
-                                <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1"/>
-                                <field name="external_currency_id" invisible="1"/>
-                                <field name="local_currency_id" invisible="1"/>
-                            </group>
-                        </group>
+                        <div class="oe_button_box" name="button_box"> 
+                            <button name="show_bill_ladings" type="object" class="oe_stat_button" icon="fa-copy" invisible="not created_guides">
+                                <field name="qty_guides" widget="statinfo" string="Guias"/>
+                            </button>
+                            <button name="show_invoice" type="object" class="oe_stat_button" icon="fa-copy" invisible="not move_id">Factura</button>
+                        </div>
+
+                        <widget name="web_ribbon" title="Sin Pagar" invisible="payment_state != 'not_paid'"/>
+                        <widget name="web_ribbon" title="Pagada" invisible="payment_state != 'paid'"/>
+                        <widget name="web_ribbon" title="Pagada Parcialmente" invisible="payment_state != 'partial'"/>
+
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
                         <notebook>
+                            <page  string="Principal">
+                                <group col="3">
+                                    <group>
+                                        <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="partner_id" readonly="state != 'quote'" domain="[('cargo_client','=',True)]" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="date" readonly="1" for_save="1" invisible="1"/>
+                                        <field name="allow_create_guides" invisible="1"/>
+                                        <field name="created_guides" invisible="1" />
+                                    </group>
+                                    <group>
+                                        <field name="destination_id" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}" required="1"/>
+                                        <field name="product_id" domain="[('for_cargo','=',True)]" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="user_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="listprice_domain" invisible="1"/>
+                                        <field name="pricelist_id" domain="listprice_domain" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                </group>
+                                <group col="3">
+                                    <group string="Remitente">
+                                        <field name="sender_name" string="Remitente" invisible="1"/>
+                                        <field name="sender_id" required="1" readonly="state != 'quote'"/>
+                                        <field name="id_sender" string="Identidad" required="1" readonly="state != 'quote'"/>
+                                        <field name="sender_phone" string="Telefono" required="1" readonly="state != 'quote'"/>
+                                    </group>
+                                    <group string="Destinatario">
+                                        <field name="receiver_name" string="Destinatario" invisible="1"/>
+                                        <field name="receiver_id" required="1" readonly="state != 'quote'"/>
+                                        <field name="id_receiver" string="Identidad" readonly="state != 'quote'"/>
+                                        <field name="receiver_phone" string="Telefono" required='1' readonly="state != 'quote'"/>
+                                    </group>
+                                    <group string="Contenido">
+                                        <field name="content_description_ids" readonly="state != 'quote'" string="Descripcion" widget="many2many_checkboxes"/>
+                                        <field name="has_contacts" invisible="1"/>
+                                    </group>
+                                </group>
+                                <group string="Detalles">
+                                    <group>
+                                        <field name="content_description" readonly="state != 'quote'" required="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="observations" readonly="state != 'quote'"/>
+                                    </group>
+                                </group>
+                                <group string="Calculos" col="3">
+                                    <group>
+                                        <field name="piece_type" required="1" readonly="state != 'quote'" help="Uniforme: Piezas con mismas dimensiones y peso; Mixta: Piezas con peso y dimensiones variables"/>
+                                        <field name="pieces_qty" readonly="state != 'quote'"/>
+                                    </group>
+                                    <group>
+                                        <div class="o_row">
+                                            <label for="weight_or_qty" string="Cantidad:"/> 
+                                            <div class="d-flex align-items-center"> 
+                                                <field name="weight_or_qty" nolabel="1" class="oe_inline" readonly="state != 'quote'"/>
+                                                <span class="ms-1"><field name="udm_id" nolabel="1" class="oe_inline" readonly="1" for_save="1" options="{'no_create': True, 'no_open': True}"/></span>
+                                            </div>
+                                        </div>
+                                        <div class="o_row mt-5"> 
+                                            <button name="add_cart" type="object" string="Agregar al Carrito" invisible="state != 'quote'" class="oe_highlight"/>	
+                                        </div>
+                                    </group>
+                                    <group>
+                                        <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
+                                        <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1"/>
+                                        <field name="external_currency_id" invisible="1"/>
+                                        <field name="local_currency_id" invisible="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Servicios Adicionales" >
+                                <field name="additional_services_ids" readonly="state != 'quote'">
+                                    <tree string="Caption">
+                                        <field name="additional_service"/>
+                                        <field name="type_service" column_invisible="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="total" sum="Total"/>
+                                    </tree>
+                                    <form string="Servicios Adicionales">
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="additional_service" options="{'no_create': True}" required='1'/>
+                                                    <field name="total" sum="Total"/>
+                                                    <field name="type_service" invisible="1"/>
+                                                    <field name="currency_id" invisible="1"/>
+                                                </group>
+                                                <group>
+                                                    <field name="rent_product" invisible="type_service != 'rent'" readonly="1"/>
+                                                    <field name="by_value" invisible="type_service != 'value'" readonly="1"/>
+                                                    <field name="fixed_value" invisible="type_service != 'fixed'" readonly="1"/>                                                    
+                                                    <field name="by_weight" invisible="type_service != 'weight'" readonly="1"/>
+                                                    <field name="weight" invisible="type_service != 'weight'"/>
+                                                    <field name="commercial_value" invisible="type_service != 'value'"/>
+                                                    <field name="date_send" invisible="type_service != 'date'"/>
+                                                    <field name="size_id" invisible="type_service != 'rent'"/>
+                                                </group>
+                                            </group>
+                                        </sheet>
+                                    </form>
+                                </field>
+                            </page>
                             <page name="cart" string="Carrito">
-                                <field name="cart_ids">
-                                    <tree create="false">
-                                        <field name="product_id" />
-                                        <field name="weight_or_qty" />
-                                        <field name="udm_id" />
+                                <group col="3">
+                                    <group>
+                                        <field name="modality" required="1" readonly="state != 'quote'"/>
+                                    </group>
+                                    <group>
+                                        <field name="apply_rtn" readonly="state != 'quote'"/>
+                                    </group>
+                                    <group>
+                                        <field name="rtn" invisible="not apply_rtn" readonly="state != 'quote'" required="apply_rtn"/>
+                                    </group>
+                                </group>>
+                                <field name="cart_ids" readonly="state != 'quote'">
+                                    <tree create="false" editable="bottom">
+                                        <field name="product_id" readonly="1"/>
+                                        <field name="pieces_qty" sum="Total Piezas" readonly="1"/>
+                                        <field name="weight_or_qty" sum="Total LBS" readonly="1"/>
+                                        <field name="udm_id" readonly="1" force_save="1"/>
                                         <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1" sum="Total USD"/>
                                         <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1" sum="Total LPS"/>
                                         <field name="external_currency_id" column_invisible="1"/>
                                         <field name="local_currency_id" column_invisible="1"/>
                                     </tree>
+                                </field>
+                                <group col="3">
+                                    <group>
+                                        <field name="type_id" invisible="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="options" invisible="1"/>
+                                        <field name="move_id" invisible="1"/>
+                                        <field name="payment_state" invisible="1"/>
+                                    </group>
+                                    <group class="oe_subtotal_footer">
+                                        <!-- <field name="kilometers" invisible="1"/> -->
+                                        <field name="weight"/>
+                                        <!-- <field name="volumetric_weight"  attrs="{'invisible':[('options','=','is_sobre')]}"/> -->
+                                        <field name="preliminar_price" widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <field name="additional_costs" widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <field name="total" string='Subtotal' widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <!-- <field name="amount_discount"/> -->
+                                        <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <field name="amount_tax" string='Impuesto' widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <field name="amount_total" class="oe_subtotal_footer_separator" string='Total' widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                                        <field name="amount_total_lps" class="oe_subtotal_footer_separator" string='Total(Lps)' widget="monetary" options="{'currency_field': 'local_currency_id'}"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="bill_ladings" string="Guias de carga" invisible="1">
+                                <field name="bill_lading_ids">
+                                    <tree create="false">
+                                        <field name="name"/>
+                                        <field name="origin_id"/>
+                                        <field name="destination_id"/>
+                                        <field name="state"/>
+                                    </tree>
+                                    <form string="Guia de Carga">
+                                        <header>
+                                            <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
+                                        </header>
+                                        <sheet>
+                                            <label for="name"/>
+                                            <field name="name" required="1" readonly="1"/>
+                                            <group>
+                                                <group>
+                                                    <field name="content_description" string="Descripcion del Contenido" required="1"/>
+                                                    <field name='order_id' invisible='1'/>
+                                                </group>
+                                                <group>
+                                                    <field name="observations"/>
+                                                </group>
+                                                <!-- <field name="international_add" colspan='4'/> -->
+                                            </group>
+                                            <notebook>
+                                                <page string="Principal">
+                                                    <group col="3">
+                                                        <group string="Ruta">
+                                                            <field name="origin_id" readonly="1" options="{'no_open': True}"/>
+                                                            <field name="destination_id" readonly="1" options="{'no_open': True}"/>
+                                                            <field name="content_description_ids" widget="many2many_checkboxes"/>
+                                                        </group>
+                                                        <group string="Remitente">
+                                                            <field name="sender_name" required='1'/>
+                                                            <field name="id_sender" string="Identidad" required="1"/>
+                                                            <field name="sender_phone" string="Telefono" required="1"/>
+                                                        </group>
+                                                        <group string="Destinatario">
+                                                            <field name="receiver_name" required='1'/>
+                                                            <field name="id_receiver" string="Identidad"/>
+                                                            <field name="receiver_phone" string="Telefono" required='1'/>
+                                                        </group>
+                                                    </group>
+                                                </page>
+                                            </notebook>
+                                        </sheet>
+                                    </form>
                                 </field>
                             </page>
                         </notebook>
@@ -83,7 +250,13 @@
                     <field name="user_id" />
                     <field name="origin_id"/>
                     <field name="destination_id"/>
+                    <field name="modality" />
+                    <field name="amount_total" sum="Total DLS" string='Total' widget="monetary" options="{'currency_field': 'external_currency_id'}"/>
+                    <field name="amount_total_lps" sum="Total LPS" string='Total(Lps)' widget="monetary" options="{'currency_field': 'local_currency_id'}"/>
+                    <field name="payment_state"/>
                     <field name="state"/>
+                    <field name="external_currency_id" column_invisible="1"/>
+                    <field name="local_currency_id" column_invisible="1"/>
                 </tree>
             </field>
         </record>

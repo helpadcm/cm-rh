@@ -21,7 +21,7 @@
                             <group>
                                 <field name="active"/>
                                 <field name="final_date" invisible="applicable != 'temporal'" required="applicable == 'temporal'"/>
-                                <field name="default_list"/>
+                                <field name="all_available"/>
                             </group>
                         </group>
                         <group>

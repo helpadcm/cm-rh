@@ -11,13 +11,15 @@
                             <group>
                                 <field name="ref" />
                                 <field name="name" />
+                                <field name="address"/>
                                 <field name="address_send"/>
-                                <field name="use_discounts"/>
+                                <field name="active" groups="base.group_no_one"/>
                             </group>
                             <group>
                                 <field name="airport_id" options="{'no_create': True}"/>
-                                <field name="address"/>
-                                <field name="active" groups="base.group_no_one"/>
+                                <field name="internal_load_ori"/>
+                                <field name="internal_load_dest"/>
+                                <field name="use_discounts"/>
                             </group>
                         </group>
                         
@@ -70,7 +72,7 @@
         </record>
 
         <record id="cargo_station_tree_view" model="ir.ui.view">
-            <field name="name">Estacion de Ventas</field>
+            <field name="name">Punto de Envio</field>
             <field name="model">cargo.station</field>
             <field name="arch" type="xml">
                 <tree string="Estaciones de Venta">
@@ -84,7 +86,7 @@
         </record>
 
         <record id="action_cargo_station_object" model="ir.actions.act_window">            
-            <field name="name">Estacion de Ventas</field>
+            <field name="name">Punto de Envio</field>
             <field name="res_model">cargo.station</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{}</field>         

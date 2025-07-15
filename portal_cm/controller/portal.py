@@ -27,8 +27,6 @@ class CustomPortal(http.Controller):
         domain = [('employee_id','=',employee_id.id),('state','=','validated')]
         actual_domain = [('employee_id','=',employee_id.id),('state','=','validated')]
 
-        print ("!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print (actual_date.day)
         if actual_date.day in first:
             min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
             max_date = actual_date.replace(day=10).date()
@@ -56,10 +54,6 @@ class CustomPortal(http.Controller):
         
         validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
         actual_record_ids = request.env['hr.turn.registration'].sudo().search(actual_domain, order="date desc")
-        print ("////////////  LAST   /////////////////")
-        print (domain)
-        print ("##### ACTUAL  #######")
-        print (actual_domain)
         values = {
             "records": types_turn_ids, 
             "schedules": schedule_ids, 

@@ -60,6 +60,24 @@
             </field>
         </record>
 
-        
+        <record id="contact_list_form_view" model="ir.ui.view">
+            <field name="name">Lista de contactos encomiendas</field>
+            <field name="model">res.partner.contact</field>
+            <field name="arch" type="xml">
+                <form string="Crear Contacto">
+                    <group>
+                        <group>
+                            <field name="name"></field>
+                            <field name="identity"></field>
+                        </group>
+                        <group>
+                            <field name="phone"></field>
+                            <field name="code" force_save="1" readonly="1"></field>
+                            <field name="list_number" invisible="0"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
     </data>
 </odoo>

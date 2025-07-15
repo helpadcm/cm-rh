@@ -25,11 +25,24 @@
             sequence="1"/>
 
         <menuitem
+            id="bill_handling_menuitem"
+            name="Guias de Carga"
+            parent="sale_order_handling_root"
+            action="action_cargo_bill_object"
+            sequence="2"/>
+
+        <menuitem
             id="partner_handling_menuitem"
             name="Clientes"
             parent="sale_order_handling_root"
             action="action_partner_handling"
-            sequence="2"/>
+            sequence="3"/>
+            <menuitem
+            id="product_handling_menuitem"
+            name="Productos"
+            parent="sale_order_handling_root"
+            action="action_product_handling"
+            sequence="4"/>
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem
@@ -46,21 +59,21 @@
 
         <menuitem
             id="cargo_handling_airport"
-            name="Aeropuertos"
+            name="CTIS"
             parent="airport_config_menu"
             sequence="1"
             action="action_cargo_airport_object"/>
 
         <menuitem
             id="cargo_handling_airport_rel"
-            name="Relacion aeropuertos"
+            name="CTIPAIR"
             parent="airport_config_menu"
             sequence="2"
             action="action_cargo_airport_rel_object"/>
 
         <menuitem
             id="cargo_handling_station"
-            name="Estaciones de Venta"
+            name="Puntos de Envio"
             parent="airport_config_menu"
             sequence="3"
             action="action_cargo_station_object"/>

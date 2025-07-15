@@ -1,6 +1,7 @@
 # import res_partner
 # import sale_order_inherit
 from . import bill_lading
+from . import other_models
 from . import station
 from . import airport
 from . import rent_product
