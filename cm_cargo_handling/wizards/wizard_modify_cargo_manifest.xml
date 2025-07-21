@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record id="view_wizard_modify_cargo_manifest" model='ir.ui.view'>
+            <field name="name">Modify cargo manifest</field>
+            <field name="model">wizard.modify_cargo_manifest</field>
+            <field name="arch" type="xml">
+                <form string='Modify cargo manifest'>
+                    <group>
+                        <field name="barcode" default_focus="1"/>
+                        <field name="observations" required="1"/>
+                    </group>
+                    <h2 invisible="not context.get('remove_bill_landing')">Guia de carga para remover</h2>
+                    <h2 invisible="context.get('remove_bill_landing')">Guia de carga a agregar</h2>
+                    <field name="bill_landing_ids">
+                        <tree string="Bill landings" create="false" edit="false">
+                            <field name="name"/>
+                            <field name="destination_id"/>
+                            <field name="content_description"/>
+                            <field name="weight"/>
+                        </tree>
+                        <form>
+
+                        </form>
+                    </field>
+                    <field name="bill_landing_ids_hide" widget="many2many_tags" invisible="1"/>
+                    <footer>
+                        <button name="accept" class="oe_highlight" string="Aceptar" type="object"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_wizard_modify_cargo_manifest" model="ir.actions.act_window">
+            <field name="name">Modify cargo manifest</field>
+            <field name="res_model">wizard.modify_cargo_manifest</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wizard_modify_cargo_manifest"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

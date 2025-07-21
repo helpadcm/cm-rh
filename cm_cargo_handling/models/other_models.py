@@ -20,6 +20,15 @@ class ContentDescription(models.Model):
     description = fields.Char(string="Descripcion")
     img_info = fields.Binary(string="Image tag")
 
+class lostReason(models.Model):
+    _name = 'handling.lost.reason'
+    _description = "Motivos para desechar"
+    _rec_names_search = ['name', 'code']
+
+    name = fields.Char(string="Nombre")
+    code = fields.Char(string="Codigo")
+    active = fields.Boolean(string="Activo", default=True)
+
 
 class AdditionalServices(models.Model):
     _name = 'cargo.additional.services'

@@ -53,16 +53,6 @@ class moveInh(models.Model):
         self.write({'name': 'Borrador'})
         return res
 
-    @api.depends('posted_before', 'state', 'journal_id', 'date')
-    def _compute_name(self):
-        for rec in self:
-            if rec.move_type in ['out_invoice','out_refund']:
-                if rec.state == 'draft':
-                    rec.name = _('/')
-            else:
-                res = super(moveInh, self)._compute_name()
-                return res
-
     @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
     def _compute_name(self):
         for rec in self:

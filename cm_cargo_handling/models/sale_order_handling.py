@@ -75,6 +75,9 @@ class saleOrderHandling(models.Model):
     qty_guides = fields.Integer(string="Cant. Guias", compute="calculate_total_guides")
     allow_create_guides = fields.Boolean(string="Crear guias?")
     created_guides = fields.Boolean(string="Guias Creadas")
+    parent_id = fields.Many2one('res.partner',string="Fact. Autorizados")
+    readonly_rtn = fields.Boolean(string="RTN solo lectura")
+    default_client = fields.Boolean(string="Cliente por defecto")
     # Sender
     sender_id = fields.Many2one('res.partner.contact',string="Remitente", tracking=True)
     sender_name = fields.Char(string="Nombre Remitente", tracking=True)
@@ -93,18 +96,21 @@ class saleOrderHandling(models.Model):
     amount_untaxed = fields.Float(string="Base imponible", compute='calculate_totals', store=True)
     amount_total = fields.Float(string="Total", compute='calculate_totals', store=True)
     total = fields.Float(string="Subtotal", compute='calculate_totals', store=True)
-    amount_total_lps = fields.Float(string="Total(Lps)", compute='calculate_totals', store=True)
+    amount_total_lps = fields.Float(string="Total (Lps)", compute='calculate_totals', store=True)
     additional_costs = fields.Float(string="Costos Adicionales ($)", compute='calculate_totals',store=True)
 
     move_id = fields.Many2one('account.move',string="Factura")
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.payment_state")
 
-    @api.onchange('modality')
+    @api.onchange('modality', 'default_client')
     def allow_create_handling(self):
         if self.modality == 'upon_delivery':
             self.allow_create_guides = True
         else:
             self.allow_create_guides = False
+
+        if not self.default_client and self.modality != 'credit':
+            self.readonly_rtn = False
 
     def show_bill_ladings(self):
         return {
@@ -186,11 +192,30 @@ class saleOrderHandling(models.Model):
         self.sender_phone = False
         self.receiver_phone = False
 
-        if self.partner_id.default_client:
-            self.has_contacts = False
-        else:
-            self.has_contacts = True
+        if self.partner_id:
+            if self.partner_id.default_client:
+                self.has_contacts = False
+                self.default_client = True
+                self.apply_rtn = False
+                self.rtn = False
+                self.modality = 'counted'
+                self.readonly_rtn = False
+            else:
+                self.has_contacts = True
+                self.apply_rtn = True
+                self.rtn = self.partner_id.vat
+                self.modality = self.partner_id.modality
 
+                if self.partner_id.modality == 'credit':
+                    self.readonly_rtn = True
+                else:
+                    self.readonly_rtn = False
+
+    @api.onchange('parent_id')
+    def change_parent(self):
+        if self.parent_id:
+            self.rtn = self.parent_id.vat
+    
     @api.onchange('receiver_id','sender_id')
     def get_data_contacts(self):
         if self.receiver_id:
@@ -340,6 +365,8 @@ class saleOrderHandling(models.Model):
         if self.pieces_qty != total_pieces:
             raise ValidationError("La cantidad de piezas detallada en el carrito debe ser igual a la cantidad de piezas descrita en los calculos")
 
+        len_cart = len(self.cart_ids)
+        cont = 1
         for line in self.cart_ids:
             vals = {
                 'order_id': self.id,
@@ -354,7 +381,8 @@ class saleOrderHandling(models.Model):
                 'receiver_phone': self.receiver_phone,
                 'content_description': self.content_description,
                 'observations': self.observations,
-                'weight': line.weight_or_qty
+                'weight': line.weight_or_qty,
+                'modality': self.modality
             }
             if self.content_description_ids:
                 vals.update({'content_description_ids': [(6, 0, self.content_description_ids.ids)]})
@@ -364,13 +392,21 @@ class saleOrderHandling(models.Model):
                     vals.update({'name': f"{self.name}-{piece}"})
                     self.env['cargo.bill'].create(vals)
             else:
-                vals.update({'name': self.name})
+                if len_cart == 1:
+                    vals.update({'name': self.name})
+                else:
+                    vals.update({'name': f"{self.name}-{cont}"})
+                    cont += 1
                 self.env['cargo.bill'].create(vals)
 
             if self.modality in ['counted','credit']:
                 self.state = 'invoiced'
 
             self.created_guides = True
+
+    def print_guides(self):
+        data = {'order_id': self.id}
+        return self.env.ref('cm_cargo_handling.action_guide_format').report_action(self, data=data)
 
 class orderCartHandling(models.Model):
     _name = 'cart.order.handling'

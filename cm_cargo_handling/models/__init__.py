@@ -10,5 +10,6 @@ from . import pricelist_handling
 from . import sale_order_handling
 # import account_invoice_inherit
 from . import res_company_inherit
+from . import cargo_manifest
 # import configuration_status_inherit
 # import view_data

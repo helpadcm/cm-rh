@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="wizard_desechar_guia" model="ir.ui.view">
+        <field name="name">Desechar Guia</field>
+        <field name="model">cm_cargo_handling.desechar_guia</field>
+        <field name="arch" type="xml">
+            <form string="Desechar">
+                <group col="2">
+                    <field name="lost_reason_id"  required="1" options="{'no_create': True}"/>
+                    <field name="guia_id" groups="base.group_no_one" readonly="1" options="{'no_open': True}"/>
+                </group>
+                <footer>
+                    <button string="Desechar" type="object" class="oe_highlight" name="apply"/>
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -113,5 +113,69 @@
             parent="cargo_handling_config"
             sequence="4"
             action="action_fare_classes"/>
+
+        <menuitem
+            id="lost_reason_guide_menuitem"
+            name="Motivos para desechar"
+            parent="cargo_handling_config"
+            sequence="5"
+            action="action_lost_reason_guide"/>
+    
+        <!-- ###############################  LANDING MANIFEST ########################################-->
+        
+        <menuitem
+            id="cargo_manifest_main"
+            name="Manifiestos de carga"
+            web_icon="cm_cargo_handling,static/description/manifest_icon.png"
+            sequence="25"/>
+
+        <menuitem
+            id="cargo_manifest_board"
+            name="Tablero"
+            parent="cargo_manifest_main"
+            sequence="1"
+            action="cargo_manifest_dashboard_kanban"/>
+            
+        <menuitem
+            id="cargo_manifest_main_menu"
+            name="Manifiestos de carga"
+            parent="cargo_manifest_main"
+            sequence="2"/>
+
+        <menuitem
+            id="cargo_manifest"
+            name="Manifiestos de carga"
+            parent="cargo_manifest_main_menu"
+            sequence="2"
+            action="action_cargo_manifest"/>
+
+        <menuitem
+            id="cargo_manifest_logs_menu"
+            name="Bitacora"
+            parent="cargo_manifest_main"
+            sequence="3"/>
+
+        <menuitem
+            id="cargo_manifest_logs"
+            name="Bitacora Manifiesto de Carga"
+            parent="cargo_manifest_logs_menu"
+            sequence="1"
+            groups="cm_cargo_handling.group_cargo_manifest_logs"
+            action="action_cargo_manifest_logs"/>
+
+        <menuitem
+            id="cargo_bill_logs"
+            name="Bitacoras de guias de carga"
+            parent="cargo_manifest_logs_menu"
+            sequence="2"
+            action="action_cargo_bill_logs"/>
+
+        <!-- <menuitem
+            id="cargo_manifest_2"
+            name="My station Cargo manifest"
+            parent="cargo_manifest_main_menu"
+            sequence="3"
+            action="cargo_manifest_action_python"/> -->
     </data>
+
 </odoo>

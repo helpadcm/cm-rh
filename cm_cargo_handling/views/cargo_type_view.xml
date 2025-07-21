@@ -24,6 +24,18 @@
             </field>
         </record>
 
+        <record id="lost_reason_guides_tree_view" model="ir.ui.view">
+            <field name="name">Motivos para Desechar</field>
+            <field name="model">handling.lost.reason</field>
+            <field name="arch" type="xml">
+                <tree string="Motivos para Desechar" editable="bottom">
+                    <field name="name" required="1"/>
+                    <field name="code" required="1"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
         <record id="action_cargo_type_object" model="ir.actions.act_window">            
             <field name="name">Tipos de Envio</field>
             <field name="res_model">cargo.type</field>
@@ -35,6 +47,14 @@
         <record id="action_fare_classes" model="ir.actions.act_window">            
             <field name="name">Clases Tarifarias</field>
             <field name="res_model">fare.clases</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+
+        <record id="action_lost_reason_guide" model="ir.actions.act_window">            
+            <field name="name">Motivos de perdida</field>
+            <field name="res_model">handling.lost.reason</field>
             <field name="view_mode">tree</field>
             <field name="context">{}</field>         
             <field name="domain" eval="[]"/>

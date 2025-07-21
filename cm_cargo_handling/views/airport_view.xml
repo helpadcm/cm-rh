@@ -9,8 +9,57 @@
                     <field name="name" />
                     <field name="ref" />
                     <field name="city" />
+                    <field name="cargo_manifest_sequence_id" />
                     <field name="valid_destinations" options="{'no_create':True}" widget="many2many_tags"/>
                 </tree>
+            </field>
+        </record>
+
+        <record id="cargo_manifest_dashboard_kanban_view" model="ir.ui.view">
+            <field name="name">cargo.manifest.kanban</field>
+            <field name="model">cargo.airport</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="oe_background_grey o_kanban_dashboard o_account_kanban">
+                    <field name="id"/>
+                    <field name="name"/>
+                    <field name="kanban_dashboard"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="#{kanban_color(0)}">
+                                <t t-value="JSON.parse(record.kanban_dashboard.raw_value)" t-set="dashboard"/>
+                                <t t-call="AirportTop"/>
+                                <div class="container o_kanban_card_content o_visible">
+                                    <div class="row">
+                                        <div class="col-6"> 
+                                            <button type="object" name="action_create_new" class="btn btn-primary btn-sm">
+                                                <span><h4>Nuevo Manifiesto</h4></span>
+                                            </button>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <a type="object" name="open_action_draft"  context="{'state':'draft'}" class="d-block">
+                                                <span title="To Send"><t t-esc="dashboard.to_send"/> Para Enviar</span>
+                                            </a>
+                                            <a type="object" name="open_action_sent" context="{'state':'sent'}" class="d-block">
+                                                <span title="To Receive"><t t-esc="dashboard.to_receive"/> Para Recibir</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <t t-name="AirportTop">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                       <h2><field name="name"/></h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        
+                    </templates>
+                </kanban>
             </field>
         </record>
 
@@ -20,6 +69,20 @@
             <field name="view_mode">tree</field>
             <field name="context">{}</field>         
             <field name="domain" eval="[]"/>
+        </record>
+
+        <record id="cargo_manifest_dashboard_kanban" model="ir.actions.act_window">
+            <field name="name">Tablero de Manifiestos de carga</field>
+            <field name="res_model">cargo.airport</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="usage">menu</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p>
+                    Este es un tablero de manifiestos
+                </p>
+            </field>
         </record>
     </data>
 </odoo>

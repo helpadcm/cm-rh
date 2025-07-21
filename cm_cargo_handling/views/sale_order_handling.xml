@@ -12,7 +12,8 @@
                         <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
                         <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit']"/>
                         <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order'"/>
-						<field name="state" widget="statusbar"/>
+						<button name='print_guides' type='object' string='Imprimir Factura/Guia'></button>
+                        <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>
                         <div class="oe_button_box" name="button_box"> 
@@ -34,7 +35,7 @@
                                 <group col="3">
                                     <group>
                                         <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
-                                        <field name="partner_id" readonly="state != 'quote'" domain="[('cargo_client','=',True)]" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="partner_id" readonly="state != 'quote'" domain="[('cargo_client','=',True),('parent_id','=',False)]" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="date" readonly="1" for_save="1" invisible="1"/>
                                         <field name="allow_create_guides" invisible="1"/>
                                         <field name="created_guides" invisible="1" />
@@ -136,12 +137,15 @@
                                 <group col="3">
                                     <group>
                                         <field name="modality" required="1" readonly="state != 'quote'"/>
+                                        <field name="parent_id" domain="[('parent_id','=',partner_id)]" invisible="not apply_rtn or default_client == True" readonly="state != 'quote'" options="{'no_create': True}"/>
                                     </group>
                                     <group>
-                                        <field name="apply_rtn" readonly="state != 'quote'"/>
+                                        <field name="apply_rtn" readonly="state != 'quote' or readonly_rtn == True" force_save="1"/>
+                                        <field name="readonly_rtn" invisible="1"/>
+                                        <field name="default_client" invisible="1"/>
                                     </group>
                                     <group>
-                                        <field name="rtn" invisible="not apply_rtn" readonly="state != 'quote'" required="apply_rtn"/>
+                                        <field name="rtn" invisible="not apply_rtn" readonly="state != 'quote' or readonly_rtn == True" required="apply_rtn" force_save="1"/>
                                     </group>
                                 </group>>
                                 <field name="cart_ids" readonly="state != 'quote'">
@@ -274,7 +278,7 @@
             <field name="res_model">res.partner</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="context">{'default_cargo_client': True}</field>         
-            <field name="domain" eval="[('cargo_client','=',True)]"/>
+            <field name="domain" eval="[('cargo_client','=',True),('parent_id','=',False)]"/>
         </record>
 
     </data>
