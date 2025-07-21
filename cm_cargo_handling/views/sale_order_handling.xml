@@ -12,7 +12,7 @@
                         <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
                         <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit']"/>
                         <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order'"/>
-						<button name='print_guides' type='object' string='Imprimir Factura/Guia'></button>
+						<button name='print_guides' type='object' string='Imprimir Factura/Guia' invisible="state == 'quote'"></button>
                         <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>

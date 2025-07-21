@@ -20,9 +20,12 @@ class reportHandling(models.AbstractModel):
     def get_data(self, data):
         print ("/////////////////////////")
         order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
+        print_inv = False
+        if order_id.move_id:
+            print_inv = True
 
         if order_id.move_id.invoice_line_ids.tax_ids.amount == 0.00:
-            excento = line.price_subtotal
+            excento = order_id.amount_untaxed
             gravado = 0.00
         else:
             excento = 0.00
@@ -62,6 +65,7 @@ class reportHandling(models.AbstractModel):
             'modality': order_id.modality,
             'image_description': order_id.content_description_ids,
             'pieces': order_id.pieces_qty,
+            'print_invoice': print_inv,
 
             'weight': order_id.weight,
             'subtotal': order_id.total,
