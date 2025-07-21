@@ -47,7 +47,7 @@ class partnerInherit(models.Model):
     def _get_complete_name(self):
         res = super(partnerInherit, self)._get_complete_name()
         if self.parent_id:
-            res = self.name
+            res = self.name or ''
         return res
 
 class contactListInherit(models.Model):
