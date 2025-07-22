@@ -210,13 +210,17 @@ class HrPayslipBonus(models.Model):
                     self.env['hr.payslip.worked_days'].create({
                         'payslip_id': payslip.id,
                         'work_entry_type_id': entry_work_id.id,
-                        'number_of_hours': hours
+                        'number_of_hours': hours,
+                        'from_entry_register': True
                     })
         return res
 
     def compute_sheet(self):
         for rec in self:
             rec.get_other_incomes()
+            line_id = rec.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'OVERTIME' and line.from_entry_register == False)
+            if line_id:
+                line_id.unlink()
         res = super(HrPayslipBonus, self).compute_sheet()
         return res
 
@@ -288,6 +292,8 @@ class HrPayslipBonus(models.Model):
 
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
+
+    from_entry_register = fields.Boolean(string="Desde registro de entradas")
 
     @api.depends('is_paid', 'is_credit_time', 'number_of_hours', 'payslip_id', 'contract_id.wage', 'payslip_id.sum_worked_hours')
     def _compute_amount(self):
