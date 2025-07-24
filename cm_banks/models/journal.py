@@ -32,42 +32,66 @@ class banks_account_journal(models.Model):
 					actual_codes.append(sec.code2.name)
 
 			resultado = []
+			vals = {
+				'padding':5,
+				'number_next_actual':1,
+				'number_increment':1,
+				'implementation':'no_gap'
+			}
 			if 'check' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_ch').id
 				if self.env["ir.sequence.type"].search([('code','=','check')]):
-					resultado.append({'code':'check','code2':record_id,'name':'CHEQUES','prefix':'CH-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'check', 'code2':record_id, 'name':f"CHEQUES {self.name}", 'prefix':'CH-#'})
+					resultado.append(vals)
+
 			if 'other' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_other').id
 				if self.env["ir.sequence.type"].search([('code','=','other')]):
-					resultado.append({'code':'other','code2':record_id,'name':'OTHER','prefix':'OTH-#','padding':8,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'other', 'code2':record_id, 'name':f"OTHER {self.name}", 'prefix':'OTH-#'})
+					resultado.append(vals)
+
 			if 'check_cancel' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_ch_c').id
 				if self.env["ir.sequence.type"].search([('code','=','check_cancel')]):
-					resultado.append({'code':'check_cancel','code2':record_id,'name':'CHEQUES CANCELACION','prefix':'CH-NULL-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'check_cancel', 'code2':record_id, 'name':f"CHEQUES CANCELACION {self.name}", 'prefix':'CH-NULL-#'})
+					resultado.append(vals)
+
 			if 'deposit' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_dep').id
 				if self.env["ir.sequence.type"].search([('code','=','deposit')]):
-					resultado.append({'code':'deposit','code2':record_id,'name':'DEPOSITOS','prefix':'DEP-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'deposit', 'code2':record_id, 'name':f"DEPOSITOS {self.name}", 'prefix':'DEP-#'})
+					resultado.append(vals)
+
 			if 'credit' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_cre').id
 				if self.env["ir.sequence.type"].search([('code','=','credit')]):
-					resultado.append({'code':'credit','code2':record_id,'name':'CREDITOS','prefix':'CRD-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'credit', 'code2':record_id, 'name':f"CREDITOS {self.name}", 'prefix':'CRD-#'})
+					resultado.append(vals)
+
 			if 'debit' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_deb').id
 				if self.env["ir.sequence.type"].search([('code','=','debit')]):
-					resultado.append({'code':'debit','code2':record_id,'name':'DEBITOS','prefix':'DEB-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'debit', 'code2':record_id, 'name':f"DEBITOS {self.name}", 'prefix':'DEB-#'})
+					resultado.append(vals)
+
 			if 'banks_transferences' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_dep_bank_transfer').id
 				if self.env["ir.sequence.type"].search([('code','=','banks_transferences')]):
-					resultado.append({'code':'banks_transferences','code2':record_id,'name':'TRANSFERENCIAS BANCARIAS','prefix':'TRANS-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'banks_transferences', 'code2':record_id, 'name':f"TRANSFERENCIAS BANCARIAS {self.name}", 'prefix':'TRANS-#'})
+					resultado.append(vals)
+
 			if 'transference_cancel' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr_c').id
 				if self.env["ir.sequence.type"].search([('code','=','transference_cancel')]):
-					resultado.append({'code':'transference_cancel','code2':record_id,'name':'TRANSFERENCIAS CANCELACION','prefix':'TRANS-NULL-#','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'transference_cancel', 'code2':record_id, 'name':f"TRANSFERNCIAS CANCELACION {self.name}", 'prefix':'TRANS-NULL-#'})
+					resultado.append(vals)
+
 			if 'transference' not in actual_codes:
 				record_id = self.env.ref('cm_banks.codes_for_ir_sequence_type_tr').id
 				if self.env["ir.sequence.type"].search([('code','=','transference')]):
-					resultado.append({'code':'transference','code2':record_id,'name':'TRANSFERENCIAS','prefix':'TRANS-','padding':5,'number_next_actual':1,'number_increment':1,'implementation':'no_gap'})
+					vals.update({'code':'transference', 'code2':record_id, 'name':f"TRANSFERENCIAS {self.name}", 'prefix':'TRANS-#'})
+					resultado.append(vals)
+
 			for s in resultado:
 				new_id = self.env['ir.sequence'].create(s)
 				sequences.append(new_id.id)
