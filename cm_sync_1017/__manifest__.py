@@ -13,7 +13,8 @@
         'account',
         'sale',
         'cm_cai',
-        'cm_banks'
+        'cm_banks',
+        'cm_retention_register'
     ],
     'data': [
         'security/ir.model.access.csv',

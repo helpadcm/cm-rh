@@ -264,13 +264,14 @@ class accountMoveSync(models.Model):
 
             reconcilable_lines = inv_id.line_ids.filtered(lambda l: l.account_id.reconcile and not l.reconciled and l.balance != 0)
             line_id_to_reconcile = reconcilable_lines[0].id if reconcilable_lines else False
+
+            ret_vals_for_wizard = []
             if pay['apply_retentions']:
-                ret_vals = []
                 for ret in pay['retention_lines']:
                     inv_odoo10_id = ret.get('invoice_id')[0]
                     if inv_id.odoo10_id == inv_odoo10_id:
                         ret_values = {
-                            'invoice_line_id': line_id_to_reconcile,
+                            'invoice_line_id': line_id_to_reconcile, # Esto es importante si tu campo de retención lo usa
                             'amount': ret.get('amount'),
                             'amount_currency': ret.get('amount')
                         }
@@ -281,16 +282,16 @@ class accountMoveSync(models.Model):
                         if account_id:
                             ret_values.update({'account_id': account_id.id})
                             ret_values.update({'percentage': account_id.retention_porcent})
-                        ret_vals.append((0, 0, ret_values))
-                if len(ret_vals) > 0:
-                    values.update({
-                        'apply_retentions': True,
-                        'retention_line_ids': ret_vals
-                    })
+                        ret_vals_for_wizard.append((0, 0, ret_values))
 
             values.update({'line_ids': [(6, 0, reconcilable_lines.ids)]})
             if line_id_to_reconcile:
                 payment_register_wizard = self.env['account.payment.register'].with_context(active_model='account.move', active_ids=[line_id_to_reconcile]).create(values)
+                if pay['apply_retentions'] and ret_vals_for_wizard:
+                    payment_register_wizard.write({
+                        'apply_retentions': True, # Asegura que este campo esté activado en el wizard
+                        'retention_line_ids': ret_vals_for_wizard
+                    })
                 payment_register_wizard.action_create_payments()
             else:
                 _logger.info(f"No se pudo realizar el pago de la factura {inv_id.name}")
