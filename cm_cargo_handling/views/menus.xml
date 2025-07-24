@@ -6,7 +6,7 @@
             name="Encomiendas"
             web_icon="cm_cargo_handling,static/description/icon.png"
             action="action_sale_order_handling"
-            groups="cm_cargo_handling.group_cargo_handling_manager"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
             sequence="6"/>
 
 <!-- ##################################  SALE ORDERS  ##################################################  -->
@@ -36,12 +36,14 @@
             name="Clientes"
             parent="sale_order_handling_root"
             action="action_partner_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
             sequence="3"/>
             <menuitem
             id="product_handling_menuitem"
             name="Productos"
             parent="sale_order_handling_root"
             action="action_product_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
             sequence="4"/>
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
@@ -127,6 +129,7 @@
             id="cargo_manifest_main"
             name="Manifiestos de carga"
             web_icon="cm_cargo_handling,static/description/manifest_icon.png"
+            groups="cm_cargo_handling.group_cargo_manifest_create,cm_cargo_handling.group_cargo_manifest_logs"
             sequence="25"/>
 
         <menuitem
@@ -167,6 +170,7 @@
             id="cargo_bill_logs"
             name="Bitacoras de guias de carga"
             parent="cargo_manifest_logs_menu"
+            groups="cm_cargo_handling.group_cargo_manifest_logs"
             sequence="2"
             action="action_cargo_bill_logs"/>
 

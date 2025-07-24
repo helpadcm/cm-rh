@@ -8,26 +8,24 @@
             <field name="arch" type="xml">
                 <notebook position="inside">
                     <page string="Encomiendas">
-                        <group>
+                        <group col="3">
                             <group>
                                 <field name="for_cargo"/>
-                                <field name="for_recargo" />
                                 <field name="type_cargo" options="{'no_create': True}"/>
+                                <field name="for_recargo" invisible="1"/>
                             </group>
                             <group invisible="not for_cargo">
                                 <field name="rute_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                 <field name="price" />
                                 <field name="qty_min" />
                             </group>
-                        </group>
-                        <group>
                             <group>
-                                <button name="add_routes" type="object" string="Agregar Rutas" class="oe_highlight"/>
-                            </group>
-                            <group>
-                                <button name="add_values" type="object" string="Agregar Montos" class="oe_highlight"/>
+                                <field name="by_size"/>
+                                <field name="little_amount" invisible="not by_size"/>
+                                <field name="big_amount" invisible="not by_size"/>
                             </group>
                         </group>
+                        <button name="add_values" type="object" string="Agregar Rutas/Montos" class="oe_highlight"/>
                         <notebook>
                             <page string="Lista de precios">
                                 <field name="price_list_ids" invisible="not for_cargo">

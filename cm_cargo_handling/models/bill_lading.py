@@ -51,7 +51,7 @@ class BillLading(models.Model):
                 if line.order_id.payment_state != 'paid':
                     raise UserError(
                             "La modalidad de la guia de carga es por cobrar o de contado y la factura "
-                            "no se encuentra pagado, Se debe pagar la factura para entregar la encomienda"
+                            "no se encuentra pagada, Se debe pagar la factura para entregar la encomienda"
                             )
                 line.state = 'delivered'
                 line.order_id.state = 'invoiced'
@@ -100,6 +100,8 @@ class BillLading(models.Model):
         if not self.order_id.move_id:
             self.order_id.create_invoices()
             self.order_id.move_id.action_post()
+            return self.order_id.move_id.line_ids.action_register_payment()
+        else:
             return self.order_id.move_id.line_ids.action_register_payment()
 
 class cargo_bill_logs(models.Model):

@@ -12,14 +12,22 @@ class ProductTemplateInherit(models.Model):
 	rute_ids = fields.Many2many('cargo.airport.airport.rel', string="Rutas")
 	price = fields.Monetary(string="Precio")
 	qty_min = fields.Float(string="Minimo")
+	by_size = fields.Boolean(string="Por talla")
+	little_amount = fields.Float(string="Pequeño")
+	big_amount = fields.Float(string="Grande")
+			
+	def add_values(self):
+		if not self.rute_ids:
+			raise ValidationError("Debe seleccionar una o mas rutas.")
 
-	def add_routes(self):
-		route_ids = self.env['cargo.airport.airport.rel'].search([])
+		route_ids = self.rute_ids
 		if len(self.price_list_ids) == 0:
 			for route in route_ids:
 				self.env['pricelist.product'].create({
 					'product_id': self.id,
-					'rute_id': route.id
+					'rute_id': route.id,
+					'price': self.price,
+					'qty_min': self.qty_min
 				})
 		else:
 			existing_routes_ids = self.price_list_ids.mapped('rute_id').ids
@@ -27,24 +35,14 @@ class ProductTemplateInherit(models.Model):
 				if route.id not in existing_routes_ids:
 					self.env['pricelist.product'].create({
 						'product_id': self.id,
-						'rute_id': route.id
+						'rute_id': route.id,
+						'price': self.price,
+						'qty_min': self.qty_min
 					})
-					
-	def add_values(self):
-		if not self.rute_ids:
-			raise ValidationError("Debe seleccionar una o mas rutas.")
-
-		if self.price_list_ids:
-			for line in self.price_list_ids:
-				if line.rute_id.id in self.rute_ids.ids:
-					line.price = self.price
-					line.qty_min = self.qty_min
-
-			self.rute_ids = False
-			self.price = 0
-			self.qty_min = 0
-		else:
-			raise ValidationError('No existe lista de precios creada')
+		
+		self.rute_ids = False
+		self.price = 0
+		self.qty_min = 0
 
 class ProductProductInherit(models.Model):
 	_inherit = 'product.product'

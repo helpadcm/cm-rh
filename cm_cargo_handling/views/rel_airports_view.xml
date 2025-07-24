@@ -73,6 +73,20 @@
             </field>
         </record>
 
+        <record id="ctipair_search_view" model="ir.ui.view">
+            <field name="name">CTIPAIR search</field>
+            <field name="model">cargo.airport.airport.rel</field>
+            <field name="arch" type="xml">
+                <search string="CTIPAIR">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="action_cargo_airport_rel_object" model="ir.actions.act_window">            
             <field name="name">Relacion CTIPAIR</field>
             <field name="res_model">cargo.airport.airport.rel</field>

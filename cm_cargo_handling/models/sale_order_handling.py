@@ -78,6 +78,8 @@ class saleOrderHandling(models.Model):
     parent_id = fields.Many2one('res.partner',string="Fact. Autorizados")
     readonly_rtn = fields.Boolean(string="RTN solo lectura")
     default_client = fields.Boolean(string="Cliente por defecto")
+    by_size = fields.Boolean(string="Por talla")
+    options_size = fields.Selection([('little','Pequeño'),('big','Grande')], default='big', string="Talla")
     # Sender
     sender_id = fields.Many2one('res.partner.contact',string="Remitente", tracking=True)
     sender_name = fields.Char(string="Nombre Remitente", tracking=True)
@@ -251,8 +253,9 @@ class saleOrderHandling(models.Model):
     def change_product(self):
         if self.product_id:
             self.udm_id = self.product_id.uom_id.id
+            self.by_size = self.product_id.by_size
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -262,22 +265,35 @@ class saleOrderHandling(models.Model):
                 else:
                     line_id = rec.pricelist_id.list_product_ids.filtered(lambda line: line.product_id.id == rec.product_id.id)
                 
-                if line_id:
-                    price = 0
-                    if rec.weight_or_qty > 0:
-                        if rec.weight_or_qty <= line_id.qty_min:
-                            price = line_id.price * line_id.qty_min
-                        else:
-                            price = line_id.price * rec.weight_or_qty
+                price = 0
+                if rec.product_id.by_size:
+                    if rec.options_size == 'little':
+                        price = rec.product_id.little_amount
+                    else:
+                        price = rec.product_id.big_amount
 
-                    rec.external_price = price
-                    rec.local_price = rec.external_currency_id._convert(price, rec.local_currency_id, self.env.company, rec.date, True)
-                else:
+                if line_id:
+                    if rec.weight_or_qty > 0:
+                        if rec.product_id.by_size:
+                            price += line_id.price
+                        else:
+                            if rec.weight_or_qty <= line_id.qty_min:
+                                price += line_id.price * line_id.qty_min
+                            else:
+                                price += line_id.price * rec.weight_or_qty
+                elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
+                            
+                rec.external_price = price
+                rec.local_price = rec.external_currency_id._convert(price, rec.local_currency_id, self.env.company, rec.date, True)
 
     def add_cart(self):
         if self.cart_ids:
             total_qty = sum(self.cart_ids.mapped('pieces_qty'))
+            cart_product_id = self.cart_ids.mapped('product_id')
+            if cart_product_id.id != self.product_id.id:
+                raise ValidationError("Solo se puede agregar al carrito un tipo de producto")
+
             if total_qty == self.pieces_qty:
                 raise ValidationError("No puede agregar mas lineas al carrito, la cantidad de piezas no puede ser mayor")
 

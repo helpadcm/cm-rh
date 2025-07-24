@@ -36,6 +36,8 @@
                                     <group>
                                         <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
                                         <field name="partner_id" readonly="state != 'quote'" domain="[('cargo_client','=',True),('parent_id','=',False)]" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="options_size" invisible="not by_size" required="by_size"/>
+                                        <field name="by_size" invisible="1"/>
                                         <field name="date" readonly="1" for_save="1" invisible="1"/>
                                         <field name="allow_create_guides" invisible="1"/>
                                         <field name="created_guides" invisible="1" />
@@ -251,6 +253,7 @@
             <field name="arch" type="xml">
                 <tree string="Ordenes de Venta" decoration-info="state == 'quote'">
                     <field name="name"/>
+                    <field name="partner_id"/>
                     <field name="user_id" />
                     <field name="origin_id"/>
                     <field name="destination_id"/>
@@ -262,6 +265,29 @@
                     <field name="external_currency_id" column_invisible="1"/>
                     <field name="local_currency_id" column_invisible="1"/>
                 </tree>
+            </field>
+        </record>
+
+        <record id="order_handling_search_view" model="ir.ui.view">
+            <field name="name">Ordenes de venta search</field>
+            <field name="model">sale.order.handling</field>
+            <field name="arch" type="xml">
+                <search string="CTIPAIR">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_payment_state" string="Estado de pago" domain="[]" context="{'group_by':'payment_state'}"/>
+                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
             </field>
         </record>
 
