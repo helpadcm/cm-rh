@@ -7,7 +7,7 @@
             <field name="subject">Aprobacion Programa a Volar</field>
             <!-- <field name="email_from">{{object.employee_id.user_id.login}}</field> -->
             <field name="email_to">conectividad@cmairlines.com</field>
-            <!-- <field name="email_cc">{{object.email_cc}}</field> -->
+            <field name="email_cc">{{object.employee_id.private_email}}, indira@cmairlines.com, kcastellanos@cmairlines.com</field>
             <field name="body_html" type="html">
                 <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
                     <tr>
@@ -48,6 +48,7 @@
                                                             <t t-if="object.tickets_request &gt; 2">Beneficiario 3: <t t-out="object.beneficiary3.name or ''"/>, Identidad: <t t-out="object.beneficiary3.identity or ''"/>.<br/><br/></t>
                                                             <t t-if="object.tickets_request &gt; 3">Beneficiario 4: <t t-out="object.beneficiary4.name or ''"/>, Identidad: <t t-out="object.beneficiary4.identity or ''"/>.<br/><br/></t>
                                                             <t t-if="object.name">Descripcion: <t t-out="object.name"/>.<br/><br/></t>
+                                                            <t t-if="object.employee_id.private_email">Correo: <t t-out="object.employee_id.private_email"/>.<br/><br/></t>
                                                             <br/>Saludos.<br/>
                                                         </div>
                                                     </td>
