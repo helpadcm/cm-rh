@@ -85,6 +85,8 @@
                                     <div class="col-12">
                                         <label class="form-label">Solo Ida</label>
                                         <input type="checkbox" class="form-check-input" name="exit_only" id="exit_only_id"/>
+                                        <label class="form-label">Regreso Open</label>
+                                        <input type="checkbox" class="form-check-input" name="open_back" id="open_back_id"/>
                                     </div>
 
                                     <div class="col-12">
@@ -278,6 +280,7 @@
                     var ben3Container = document.getElementById("beneficiary3_id").closest(".col-12");
                     var ben4Container = document.getElementById("beneficiary4_id").closest(".col-12");
                     var exit_only = document.getElementById("exit_only_id");
+                    var open_back = document.getElementById("open_back_id");
                     var returnDiv = document.getElementById("return_div_id");
                     var finalDateDiv = document.getElementById("final_date_div");
                     var finalDate = document.getElementById("final_date_id");
@@ -295,7 +298,7 @@
                             beneficiaryForm.style.display = "none";
                         }
 
-                        if(exit_only.checked){
+                        if(exit_only.checked || open_back.checked){
                             returnDiv.style.display = "none";
                             finalDateDiv.style.display = "none";
                             finalDate.removeAttribute("required");
@@ -334,6 +337,7 @@
                     create_beneficiary.addEventListener("change", setDefaultValues);
                     take_tickets.addEventListener("change", setDefaultValues);
                     exit_only.addEventListener("change", setDefaultValues);
+                    open_back.addEventListener("change", setDefaultValues);
                 });
 
             </script>

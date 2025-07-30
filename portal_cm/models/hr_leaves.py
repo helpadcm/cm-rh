@@ -14,6 +14,7 @@ class HrLeavesInh(models.Model):
     exit_route_id = fields.Many2one('flight.routes',string="Ruta de Salida", tracking=True)
     return_route_id = fields.Many2one('flight.routes',string="Ruta de Regreso", tracking=True)
     exit_only = fields.Boolean(string="Solo Salida",tracking=True)
+    open_back = fields.Boolean(string="Regreso Abierto",tracking=True)
     beneficiary1 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 1", tracking=True)
     beneficiary2 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 2", tracking=True)
     beneficiary3 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 3", tracking=True)

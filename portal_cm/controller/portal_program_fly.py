@@ -73,6 +73,7 @@ class CustomPortalAbsences(http.Controller):
         exit_route_id = post.get("selection_exit_route")
         return_route_id = post.get("selection_return_route")
         exit_only = post.get("exit_only")
+        open_back = post.get("open_back")
         tickets_request = post.get("record_tickets")
         beneficiary1 = post.get("selection_beneficiary1")
         beneficiary2 = post.get("selection_beneficiary2")
@@ -82,9 +83,9 @@ class CustomPortalAbsences(http.Controller):
         notes = post.get("record_notes")
 
         date_from = datetime.strptime(start_date, "%Y-%m-%d")
-        if not exit_only:
+        if not exit_only and not open_back:
             date_to = datetime.strptime(end_date, "%Y-%m-%d")
-        else:
+        elif exit_only or open_back:
             date_to = date_from
         
         vals = {
@@ -132,7 +133,7 @@ class CustomPortalAbsences(http.Controller):
                 validated = True
 
         if validated:
-            if not exit_only:
+            if not exit_only and not open_back:
                 if exit_route_id != return_route_id:
                     validated = True
                 else:
@@ -140,8 +141,11 @@ class CustomPortalAbsences(http.Controller):
                     validated = False
 
         if validated:
-            if exit_only:
-                vals.update({'exit_route_id': exit_route_id, 'exit_only': True, 'request_date_to': date_from})
+            if exit_only or open_back:
+                if exit_only:
+                    vals.update({'exit_route_id': exit_route_id, 'exit_only': True, 'request_date_to': date_from})
+                if open_back:
+                    vals.update({'exit_route_id': exit_route_id, 'open_back': True, 'request_date_to': date_from})
             else:
                 vals.update({'exit_route_id': exit_route_id, 'return_route_id': return_route_id, 'request_date_to': date_to})
             

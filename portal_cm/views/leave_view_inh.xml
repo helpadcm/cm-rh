@@ -18,16 +18,27 @@
             <field name="name" position="after">
                 <field name="code" invisible="1"/>
             </field>
-            <field name="name" position="before">
-                <field name="tickets_request" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
-                <field name="exit_only" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
-                <field name="exit_route_id" options="{'no_create': True}" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
-                <field name="return_route_id" options="{'no_create': True}" invisible="code != 'PFLY' or exit_only == True" readonly="state not in ['draft','confirm']"/>
-                <field name="beneficiary1" options="{'no_create': True}" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']"/>
-                <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']"/>
-                <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']"/>
-                <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']"/>
-            </field>
+            <div name="duration_warning" position="after">
+                <notebook>
+                    <page name="pfly" string="Programa Volar" invisible="code != 'PFLY'">
+                        <group>
+                            <group>
+                                <field name="tickets_request" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
+                                <field name="exit_only" invisible="code != 'PFLY' or not exit_only" readonly="state not in ['draft','confirm']"/>
+                                <field name="open_back" invisible="code != 'PFLY' or not open_back" readonly="state not in ['draft','confirm']"/>
+                                <field name="exit_route_id" options="{'no_create': True}" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
+                                <field name="return_route_id" options="{'no_create': True}" invisible="code != 'PFLY' or not exit_only or not open_back" readonly="state not in ['draft','confirm']"/>
+                            </group>
+                            <group>
+                                <field name="beneficiary1" options="{'no_create': True}" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']"/>
+                                <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']"/>
+                                <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']"/>
+                                <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </div>
         </field>
     </record>
 
