@@ -42,6 +42,7 @@
                                     <tree editable="bottom">
                                         <field name="name" />
                                         <field name="identity" />
+                                        <field name="birthday" />
                                         <field name="relationship" />
                                         <field name="observation" />
                                     </tree>

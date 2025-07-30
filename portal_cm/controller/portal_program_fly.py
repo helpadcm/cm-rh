@@ -44,6 +44,7 @@ class CustomPortalAbsences(http.Controller):
 
         beneficiary_name = post.get("record_beneficiry_name")
         beneficiary_id = post.get("record_beneficiry_identity")
+        birthday = post.get("record_beneficiry_birth")
         beneficiary_relationship = post.get("selection_relationship")
         beneficiary_obs = post.get("record_beneficiry_obs")
 
@@ -51,6 +52,7 @@ class CustomPortalAbsences(http.Controller):
             'employee_id': employee_id.id,
             'name': beneficiary_name,
             'identity': beneficiary_id,
+            'birthday': birthday,
             'relationship': beneficiary_relationship,
             'observation': beneficiary_obs
         }
@@ -87,6 +89,13 @@ class CustomPortalAbsences(http.Controller):
             date_to = datetime.strptime(end_date, "%Y-%m-%d")
         elif exit_only or open_back:
             date_to = date_from
+            if open_back:
+                flight_route_id = request.env['flight.routes'].sudo().browse(int(exit_route_id))
+                if flight_route_id:
+                    exit_destination = flight_route_id.destination
+                    exit_origin = flight_route_id.origin
+                    ret_route_id = request.env['flight.routes'].sudo().search([('origin','=',exit_destination),('destination','=',exit_origin)])
+                    return_route_id = ret_route_id.id
         
         vals = {
             'employee_id': employee_id.id,
@@ -145,10 +154,11 @@ class CustomPortalAbsences(http.Controller):
                 if exit_only:
                     vals.update({'exit_route_id': exit_route_id, 'exit_only': True, 'request_date_to': date_from})
                 if open_back:
-                    vals.update({'exit_route_id': exit_route_id, 'open_back': True, 'request_date_to': date_from})
+                    vals.update({'exit_route_id': exit_route_id, 'return_route_id': return_route_id, 'open_back': True, 'request_date_to': date_from})
             else:
                 vals.update({'exit_route_id': exit_route_id, 'return_route_id': return_route_id, 'request_date_to': date_to})
             
+            vals.update({'char_date_from': self.convert_date(date_from), 'char_date_to': self.convert_date(date_to)})
             leave_id = request.env['hr.leave'].sudo().create(vals)
             for attachment in attachments:
                 if attachment.filename:
@@ -183,7 +193,24 @@ class CustomPortalAbsences(http.Controller):
                 'employee_id': employee.id,
                 'name': employee.name,
                 'identity': employee.identification_id,
+                'birthday': employee.birthday,
                 'relationship': 'employee',
                 'is_employee': True
             }
             request.env['beneficiaries.detail.list'].sudo().create(vals)
+
+    def convert_date(self, date):
+        months = {
+            1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+            5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+            9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+        }
+        
+        if isinstance(date, str):
+            date = datetime.strptime(date, "%Y-%m-%d")
+        
+        day = date.day
+        month = months[date.month]
+        year = date.year
+
+        return f"{day} de {month} del {year}"

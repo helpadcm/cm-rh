@@ -34,6 +34,8 @@
                                 <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']"/>
                                 <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']"/>
                                 <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']"/>
+                                <field name="char_date_from" invisible="1"/>
+                                <field name="char_date_to" invisible="1"/>
                             </group>
                         </group>
                     </page>

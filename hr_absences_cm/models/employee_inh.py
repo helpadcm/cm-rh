@@ -180,6 +180,7 @@ class vacationsDetail(models.Model):
     employee_id = fields.Many2one('hr.employee',string="Empleado")
     name = fields.Char(string="Nombre")
     identity = fields.Char(string="Identidad")
+    birthday = fields.Date(string="Fecha de nacimiento")
     relationship = fields.Selection(relationship_list ,string="Parentesto")
     observation = fields.Char(string="Observaciones")
     is_employee = fields.Boolean(string="Es empleado")

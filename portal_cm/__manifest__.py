@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Portal CM Airlines',
-    'version': '1.2',
+    'version': '1.3',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
     'summary': 'Portal for CM Airlines',

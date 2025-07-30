@@ -152,6 +152,7 @@
                                 <tr>
                                     <th class="header_historical">Nombre</th>
                                     <th class="header_historical">Identidad</th>
+                                    <th class="header_historical">Fecha de nacimiento</th>
                                     <th class="header_historical">Parentesco</th>
                                     <th class="header_historical">Observacion</th>
                                 </tr>
@@ -161,6 +162,7 @@
                                     <tr>
                                         <td><t t-esc="beneficary.name"/></td>
                                         <td><t t-esc="beneficary.identity"/></td>
+                                        <td><t t-esc="beneficary.birthday.strftime('%d/%m/%Y')"/></td>
                                         <td t-if="beneficary.relationship == 'mother'">Madre</td>
                                         <td t-if="beneficary.relationship == 'father'">Padre</td>
                                         <td t-if="beneficary.relationship == 'children'">Hijo(a)</td>
@@ -192,6 +194,11 @@
                                 <div class="col-12 col-md-3">
                                     <label class="form-label">Identidad</label>
                                     <input type="text" class="form-control" name="record_beneficiry_identity" id="beneficiary_id" required="required"/>
+                                </div>
+
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">Fecha de nacimiento</label>
+                                    <input type="date" class="form-control" name="record_beneficiry_birth" id="birthday_id" required="required"/>
                                 </div>
 
                                 <div class="col-12 col-md-3">
