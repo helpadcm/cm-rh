@@ -9,17 +9,29 @@ from reportlab.graphics.shapes import Drawing
 from reportlab.lib import units
 
 class reportHandling(models.AbstractModel):
-    _name = 'report.cm_cargo_handling.guide_format_cm'
+    _name = 'report.cm_cargo_handling.main_template_guides'
     _description = "Formato guia de carga"
  
     @api.model
     def _get_report_values(self, docids, data=None):
-        vals = self.get_data(data)
-        return vals
+        # vals = self.get_data(data)
+        order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
+        docs = order_id
+        return {
+            'doc_ids': docids,
+            'doc_model': 'sale.order.handling',
+            'docs': docs,
+            'guide_mother': 'cm_cargo_handling.guide_mother',
+            'child_guide': 'cm_cargo_handling.child_guide',
+            'invoice_order': 'cm_cargo_handling.invoice_order',
+            'data': self.get_data(data), # Función para obtener más datos
+        }
+        # return vals
 
     def get_data(self, data):
         print ("/////////////////////////")
         order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
+
         print_inv = False
         if order_id.move_id:
             print_inv = True
@@ -41,6 +53,10 @@ class reportHandling(models.AbstractModel):
                 'num_piece': count
             })
             count += 1
+
+        partner = order_id.partner_id
+        if order_id.parent_id:
+            partner = order_id.parent_id
 
         values = {
             'company': order_id.user_id.company_id,
@@ -92,13 +108,13 @@ class reportHandling(models.AbstractModel):
             'invoice_payment_term': order_id.move_id.invoice_payment_term_id.name or '',
             'invoice_date_due': self.change_format(order_id.move_id.invoice_date_due),
             'invoice_partner_identity': order_id.move_id.partner_id.identity or '',
-            'invoice_partner_rtn': order_id.move_id.partner_id.vat,
-            'invoice_partner_name': order_id.partner_id.name,
-            'invoice_partner_stree': order_id.partner_id.street,
-            'invoice_partner_stree2': order_id.partner_id.street2,
-            'invoice_partner_city': order_id.partner_id.city,
-            'invoice_partner_state': order_id.partner_id.state_id.name,
-            'invoice_partner_country': order_id.partner_id.country_id.name,
+            'invoice_partner_rtn': order_id.rtn or '',
+            'invoice_partner_name': partner.name,
+            'invoice_partner_stree': partner.street,
+            'invoice_partner_stree2': partner.street2,
+            'invoice_partner_city': partner.city,
+            'invoice_partner_state': partner.state_id.name,
+            'invoice_partner_country': partner.country_id.name,
             'invoice_cai_shot': order_id.move_id.cai_number,
             'invoice_expire_cai': self.change_format(order_id.move_id.expiration_cai_date),
             'invoice_min_cai': order_id.move_id.min_number_cai,

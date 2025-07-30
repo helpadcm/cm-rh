@@ -58,7 +58,7 @@ class contactListInherit(models.Model):
     name = fields.Char(string="Nombre")
     phone = fields.Char(string="Telefono")
     identity = fields.Char(string="Identidad")
-    code = fields.Char(string="Cuenta")
+    code = fields.Char(string="Perfil")
     list_number = fields.Integer(string="Numero de contacto en lista")
 
     @api.onchange('phone')

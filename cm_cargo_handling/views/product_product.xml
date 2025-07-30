@@ -11,27 +11,29 @@
                         <group col="3">
                             <group>
                                 <field name="for_cargo"/>
-                                <field name="type_cargo" options="{'no_create': True}"/>
+                                <field name="type_cargo" options="{'no_create': True}" invisible="not for_cargo"/>
+                                <field name="modality" options="{'no_create': True}" invisible="not for_cargo"/>
                                 <field name="for_recargo" invisible="1"/>
                             </group>
                             <group invisible="not for_cargo">
-                                <field name="rute_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                <field name="price" />
-                                <field name="qty_min" />
+                                <field name="rute_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not for_cargo"/>
+                                <field name="price" invisible="not for_cargo"/>
+                                <field name="qty_min" invisible="not for_cargo"/>
                             </group>
                             <group>
-                                <field name="by_size"/>
+                                <field name="by_size" invisible="not for_cargo"/>
                                 <field name="little_amount" invisible="not by_size"/>
                                 <field name="big_amount" invisible="not by_size"/>
                             </group>
                         </group>
-                        <button name="add_values" type="object" string="Agregar Rutas/Montos" class="oe_highlight"/>
+                        <button name="add_values" type="object" string="Agregar Rutas/Montos" class="oe_highlight" invisible="not for_cargo"/>
                         <notebook>
-                            <page string="Lista de precios">
+                            <page string="Lista de precios" invisible="not for_cargo">
                                 <field name="price_list_ids" invisible="not for_cargo">
                                     <tree editable="bottom">
                                         <field name="rute_id" />
                                         <field name="price" />
+                                        <field name="min_price" />
                                         <field name="qty_min" />
                                         <field name="currency_id" column_invisible="1"/>
                                     </tree>

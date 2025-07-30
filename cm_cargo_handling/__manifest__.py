@@ -30,7 +30,10 @@
 		'views/cargo_manifest.xml',
 		'views/logs.xml',
         'views/menus.xml',
-		'report/report_guides.xml',
+		'report/mother_guide.xml',
+		'report/child_guides.xml',
+		'report/invoice_order.xml',
+		'report/main_template.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,

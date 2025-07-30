@@ -15,6 +15,7 @@ class ProductTemplateInherit(models.Model):
 	by_size = fields.Boolean(string="Por talla")
 	little_amount = fields.Float(string="Pequeño")
 	big_amount = fields.Float(string="Grande")
+	modality = fields.Selection([('only','Unico'),('combinable','Combinable')], default="only", string="Modo")
 			
 	def add_values(self):
 		if not self.rute_ids:
@@ -62,5 +63,6 @@ class priceListProduct(models.Model):
 	product_id = fields.Many2one('product.template',string="Producto")
 	rute_id = fields.Many2one('cargo.airport.airport.rel',string="Ruta")
 	price = fields.Monetary(string="Precio")
+	min_price = fields.Monetary(string="Precio Minimo")
 	qty_min = fields.Float(string="Minimo")
 	currency_id = fields.Many2one('res.currency',string="Moneda", default=get_default_currency)

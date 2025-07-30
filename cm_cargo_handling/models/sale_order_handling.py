@@ -42,7 +42,7 @@ class saleOrderHandling(models.Model):
         return rec
 
 
-    name = fields.Char(string="Numero de orden", default="Borrador", tracking=True)
+    name = fields.Char(string="Numero de orden", default="Borrador", tracking=True, copy=False)
     origin_id = fields.Many2one('cargo.station', string="Origen", default=origin_default, tracking=True)
     destination_id = fields.Many2one('cargo.station', string="Destino", tracking=True)
     user_id = fields.Many2one('res.users', string="Agente", default=user_default, tracking=True)
@@ -70,7 +70,8 @@ class saleOrderHandling(models.Model):
     content_description = fields.Text(string="Descripcion", tracking=True)
     observations = fields.Text(string="Observaciones", tracking=True)
     pieces_qty = fields.Integer(string="Piezas",default=1, tracking=True)
-    piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza", tracking=True, default="uniform")
+    piece_description = fields.Text(string="Descripcion Pieza", tracking=True)
+    piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza", tracking=True, default="mix")
     additional_services_ids = fields.One2many('cargo.bill.additional.service', 'order_id', string="Servicios Adicionales")
     qty_guides = fields.Integer(string="Cant. Guias", compute="calculate_total_guides")
     allow_create_guides = fields.Boolean(string="Crear guias?")
@@ -85,7 +86,6 @@ class saleOrderHandling(models.Model):
     sender_name = fields.Char(string="Nombre Remitente", tracking=True)
     id_sender = fields.Char(string="Identidad Remitente", tracking=True)
     sender_phone = fields.Char(string="Telefono Remitente", tracking=True)
-    # lost_reason_id = fields.Many2one("crm.lost.reason", "Motivo DESECHADA")
     # Receiver
     receiver_id = fields.Many2one('res.partner.contact',string="Destinatario", tracking=True)
     receiver_name = fields.Char(string="Nombre Destinatario", tracking=True)
@@ -101,7 +101,7 @@ class saleOrderHandling(models.Model):
     amount_total_lps = fields.Float(string="Total (Lps)", compute='calculate_totals', store=True)
     additional_costs = fields.Float(string="Costos Adicionales ($)", compute='calculate_totals',store=True)
 
-    move_id = fields.Many2one('account.move',string="Factura")
+    move_id = fields.Many2one('account.move',string="Factura", copy=False)
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.payment_state")
 
     @api.onchange('modality', 'default_client')
@@ -137,7 +137,8 @@ class saleOrderHandling(models.Model):
         }
 
     def register_payment(self):
-        self.move_id.action_post()
+        if self.move_id.state == 'draft':
+            self.move_id.action_post()
         return self.move_id.line_ids.action_register_payment()
 
     @api.depends('cart_ids')
@@ -185,7 +186,7 @@ class saleOrderHandling(models.Model):
             rec.amount_total_lps = rec.external_currency_id._convert(rec.amount_total, rec.local_currency_id, self.env.company, rec.date, True)
 
 
-    @api.onchange('partner_id')
+    @api.onchange('partner_id', 'parent_id')
     def show_contacts(self):
         self.receiver_id = False
         self.id_receiver = False
@@ -194,18 +195,18 @@ class saleOrderHandling(models.Model):
         self.sender_phone = False
         self.receiver_phone = False
 
-        if self.partner_id:
+        vals_rtn = False
+        if self.partner_id and not self.parent_id:
             if self.partner_id.default_client:
                 self.has_contacts = False
                 self.default_client = True
                 self.apply_rtn = False
-                self.rtn = False
                 self.modality = 'counted'
                 self.readonly_rtn = False
             else:
                 self.has_contacts = True
                 self.apply_rtn = True
-                self.rtn = self.partner_id.vat
+                vals_rtn = self.partner_id.vat
                 self.modality = self.partner_id.modality
 
                 if self.partner_id.modality == 'credit':
@@ -213,10 +214,10 @@ class saleOrderHandling(models.Model):
                 else:
                     self.readonly_rtn = False
 
-    @api.onchange('parent_id')
-    def change_parent(self):
         if self.parent_id:
-            self.rtn = self.parent_id.vat
+            vals_rtn = self.parent_id.vat
+        self.rtn = vals_rtn
+
     
     @api.onchange('receiver_id','sender_id')
     def get_data_contacts(self):
@@ -274,13 +275,10 @@ class saleOrderHandling(models.Model):
 
                 if line_id:
                     if rec.weight_or_qty > 0:
-                        if rec.product_id.by_size:
+                        if rec.weight_or_qty <= line_id.qty_min:
                             price += line_id.price
                         else:
-                            if rec.weight_or_qty <= line_id.qty_min:
-                                price += line_id.price * line_id.qty_min
-                            else:
-                                price += line_id.price * rec.weight_or_qty
+                            price += line_id.min_price * rec.weight_or_qty
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
@@ -290,9 +288,10 @@ class saleOrderHandling(models.Model):
     def add_cart(self):
         if self.cart_ids:
             total_qty = sum(self.cart_ids.mapped('pieces_qty'))
-            cart_product_id = self.cart_ids.mapped('product_id')
-            if cart_product_id.id != self.product_id.id:
-                raise ValidationError("Solo se puede agregar al carrito un tipo de producto")
+            cart_modality = self.cart_ids.mapped('product_id.modality')[0]
+
+            if cart_modality != self.product_id.modality:
+                raise ValidationError(f"El producto {self.product_id.name} no es combinable")
 
             if total_qty == self.pieces_qty:
                 raise ValidationError("No puede agregar mas lineas al carrito, la cantidad de piezas no puede ser mayor")
@@ -316,6 +315,7 @@ class saleOrderHandling(models.Model):
                 'external_price': self.external_price * pieces,
                 'partner_id': self.partner_id.id,
                 'pieces_qty': pieces,
+                'piece_description': self.piece_description,
                 'piece_type': self.piece_type
             })
             self.weight_or_qty = 0
@@ -345,9 +345,12 @@ class saleOrderHandling(models.Model):
 
         journal_id = self.env['account.journal'].search([('code','=','INV')])
 
+        invoice_partner_id = self.partner_id
+        if self.parent_id:
+            invoice_partner_id = self.parent_id
 
         self.move_id = self.env['account.move'].create({
-            'partner_id': self.partner_id.id,
+            'partner_id': invoice_partner_id.id,
             'move_type': 'out_invoice',
             'invoice_user_id': self.user_id.id,
             'journal_id': journal_id.id,
@@ -360,6 +363,7 @@ class saleOrderHandling(models.Model):
 
         line_vals = {
             'product_id': self.product_id.id,
+            'partner_id': invoice_partner_id.id,
             'name': self.product_id.name,
             'account_id': self.product_id.property_account_income_id.id,
             'price_unit': self.total,
@@ -439,3 +443,4 @@ class orderCartHandling(models.Model):
     partner_id = fields.Many2one('res.partner',string="Cliente")
     pieces_qty = fields.Integer(string="Piezas",default=1)
     piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza")
+    piece_description = fields.Text(string="Descripcion Pieza")
