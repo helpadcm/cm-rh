@@ -33,6 +33,7 @@
         <field name="inherit_id" ref="hr.view_department_tree"/>
         <field name="arch" type="xml">
             <field name="color" position="before">
+                <field name="analytic_account_id" options="{'no_create': True}"/>
                 <field name="calculate_hours"/>
             </field>
         </field>

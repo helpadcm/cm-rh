@@ -290,6 +290,9 @@ class HrPayslipBonus(models.Model):
                     else:
                         obj_payslip_input.create(vals)
 
+    def _action_create_account_move(self):
+        return True
+
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
 

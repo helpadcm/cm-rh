@@ -17,6 +17,7 @@ class departmentInherit(models.Model):
     _inherit = 'hr.department'
 
     calculate_hours = fields.Selection([('one','1 vez'),('two','2 veces')], string="Calculo Horas al Mes", default="two")
+    analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
 
 class salaryRulesInh(models.Model):
     _inherit = 'hr.salary.rule'
