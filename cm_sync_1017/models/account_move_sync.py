@@ -149,6 +149,7 @@ class accountMoveSync(models.Model):
                     if not exist_invoice:
                         invoice_values = {
                             'odoo10_id': inv['id'],
+                            'company_id': inv['company_id'][0],
                             'create_odoo10': inv['create_date'],
                             'payment_reference': inv.get('name'),
                             'invoice_date': invoice_date,
@@ -324,6 +325,7 @@ class accountMoveSync(models.Model):
                         'date': mv['date'],
                         'name': mv['name'],
                         'internal_number': mv['name'],
+                        'company_id': mv['company_id'][0],
                         'move_type': 'entry'
                     }
                     journal_id = self.env['account.journal'].search([('code','=',mv['journal_id'].get('code'))])
