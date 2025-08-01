@@ -92,8 +92,8 @@ class moveInh(models.Model):
                                     inv.cai_number = seq.cai_id.name
                         else:
                             inv.write({'name': inv.internal_number})
-                else:
-                    raise ValidationError('Por favor configure una secuencia en el diario %s'%(inv.journal_id.name))
+                # else:
+                #     raise ValidationError('Por favor configure una secuencia en el diario %s'%(inv.journal_id.name))
             if inv.move_type in ['entry']:
                 if inv.internal_number != 'Borrador':
                     inv.write({'name': inv.internal_number})

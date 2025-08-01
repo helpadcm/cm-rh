@@ -51,7 +51,7 @@ class accountMoveSync(models.Model):
             if response.status_code == 200:
                 invoices = response.json()
                 if not invoices:
-                    _logger.warning(f"No se recibieron más facturas en la tanda actual para '{invoice_type}'. Posible desincronización o fin de datos. skip={offset}, limit={limit_per_batch}")
+                    _logger.warning(f"No se recibieron más facturas en la tanda actual para '{invoice_type}'. Posible desincronización o fin de datos. skip={offset}, limit={limit}")
                     break
 
                 _logger.info(f"Recibidas {len(invoices)} facturas de tipo '{invoice_type}' en esta tanda. Procesando...")
