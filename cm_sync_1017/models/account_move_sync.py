@@ -259,6 +259,7 @@ class accountMoveSync(models.Model):
                 'payment_date': pay['payment_date'],
                 'journal_id': journal_id.id,
                 'currency_id': currency_id.id,
+                'user_id': inv_id.invoice_user_id.id,
                 'communication': pay['communication']
             }
 
