@@ -107,7 +107,6 @@ class accountMoveSync(models.Model):
                     terms = self.env['account.payment.term'].sudo().search([('odoo10_id', 'in', list(odoo10_payment_term_ids))])
                     payment_term_map = {t.odoo10_id: t.id for t in terms}
                 for inv in invoices:
-
                     invoice_date = False
                     finalize = True
                     if inv.get('date'):
@@ -154,6 +153,7 @@ class accountMoveSync(models.Model):
                     if not exist_invoice:
                         invoice_values = {
                             'odoo10_id': inv['id'],
+                            'modality': inv['modality'] or False,
                             'company_id': company_id,
                             'create_odoo10': inv['create_date'],
                             'payment_reference': inv.get('name'),

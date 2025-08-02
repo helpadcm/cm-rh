@@ -19,6 +19,7 @@ class moveInh(models.Model):
     min_number_cai = fields.Char(string="Número máximo",copy=False)
     max_number_cai = fields.Char(string="Número Minímo",copy=False)
     internal_number = fields.Char(string="Numero interno",copy=False,default='Borrador')
+    modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad")
 
     cai_id = fields.Many2one('management.cai', string='Numero de Cai')
 
