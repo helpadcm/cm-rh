@@ -56,15 +56,15 @@ class accountMoveSync(models.Model):
 
                 _logger.info(f"Recibidas {len(invoices)} facturas de tipo '{invoice_type}' en esta tanda. Procesando...")
 
-                odoo10_partner_ids = set()
+                # odoo10_partner_ids = set()
                 odoo10_user_ids = set()
                 currency_names = set()
                 # journal_codes = set()
                 odoo10_cai_names = set()
                 odoo10_payment_term_ids = set()
                 for inv in invoices:
-                    if inv.get('partner_id') and isinstance(inv['partner_id'], list) and inv['partner_id'][0]:
-                        odoo10_partner_ids.add(inv['partner_id'][0])
+                    # if inv.get('partner_id') and isinstance(inv['partner_id'], list) and inv['partner_id'][0]:
+                    #     odoo10_partner_ids.add(inv['partner_id'][0])
                     if inv.get('user_id') and inv['user_id'][0]:
                         odoo10_user_ids.add(inv['user_id'][0])
                     if inv.get('currency_id') and inv['currency_id'][1]:
@@ -76,10 +76,10 @@ class accountMoveSync(models.Model):
                     if inv.get('payment_term_id') and inv['payment_term_id'][0]:
                         odoo10_payment_term_ids.add(inv['payment_term_id'][0])
 
-                partner_map = {}
-                if odoo10_partner_ids:
-                    partners = self.env['res.partner'].sudo().search([('odoo10_id', 'in', list(odoo10_partner_ids))])
-                    partner_map = {p.odoo10_id: p.id for p in partners}
+                # partner_map = {}
+                # if odoo10_partner_ids:
+                #     partners = self.env['res.partner'].sudo().search([('odoo10_id', 'in', list(odoo10_partner_ids))])
+                #     partner_map = {p.odoo10_id: p.id for p in partners}
 
 
                 user_map = {}
@@ -117,7 +117,7 @@ class accountMoveSync(models.Model):
                             _logger.warning(f"Formato de 'date' inválido para factura {inv.get('id')}: {inv['date']}")
 
                     # Resolver IDs de Odoo 17 usando los mapas pre-cargados
-                    partner_id = partner_map.get(inv['partner_id'][0]) if inv.get('partner_id') else False
+                    # partner_id = partner_map.get(inv['partner_id'][0]) if inv.get('partner_id') else False
                     user_id = user_map.get(inv['user_id'][0]) if inv.get('user_id') else False
                     currency_id = currency_map.get(inv['currency_id'][1]) if inv.get('currency_id') else False
                     # journal_id = journal_map.get(inv['journal_id'].get('code')) if inv.get('journal_id') else False
@@ -126,13 +126,16 @@ class accountMoveSync(models.Model):
 
                     company_id = inv.get('journal_id').get('company_id')[0]
                     journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
+                    partner_id = self.env['res.partner'].sudo().search([('odoo10_id', '=', inv.get('partner_id')[0])])
+                    print ("///////////////////////////////")
+                    print (partner_id)
                     # Validaciones antes de crear/actualizar
                     messages = []
                     if not partner_id:
                         message_partner = f"Partner con ID de Odoo 10 '{inv['partner_id'][0]}' (nombre: {inv['partner_id'][1]}) no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Usando Cliente por defecto."
                         messages.append(message_partner)
                         _logger.warning(message_partner)
-                        partner_id = default_partner_id.id
+                        partner_id = default_partner_id
                         finalize = False
                     if not journal_id:
                         message_journal = f"Journal con código '{inv['journal_id'].get('code')}' no encontrado/mapeado en Odoo 17 para factura {inv.get('id')}. Saltando esta factura."
@@ -157,7 +160,7 @@ class accountMoveSync(models.Model):
                             'invoice_date': invoice_date,
                             'invoice_user_id': user_id,
                             'currency_id': currency_id,
-                            'partner_id': partner_id,
+                            'partner_id': partner_id.id,
                             'move_type': inv['type'],
                             'journal_id': journal_id.id,
                             'state': 'draft',
