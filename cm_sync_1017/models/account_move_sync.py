@@ -59,7 +59,7 @@ class accountMoveSync(models.Model):
                 odoo10_partner_ids = set()
                 odoo10_user_ids = set()
                 currency_names = set()
-                journal_codes = set()
+                # journal_codes = set()
                 odoo10_cai_names = set()
                 odoo10_payment_term_ids = set()
                 for inv in invoices:
@@ -69,8 +69,8 @@ class accountMoveSync(models.Model):
                         odoo10_user_ids.add(inv['user_id'][0])
                     if inv.get('currency_id') and inv['currency_id'][1]:
                         currency_names.add(inv['currency_id'][1])
-                    if inv.get('journal_id') and inv['journal_id'].get('code'):
-                        journal_codes.add(inv['journal_id']['code'])
+                    # if inv.get('journal_id') and inv['journal_id'].get('code'):
+                    #     journal_codes.add(inv['journal_id']['code'])
                     if invoice_type == 'supplier' and inv.get('cai_id') and inv['cai_id'][1]:
                         odoo10_cai_names.add(inv['cai_id'][1])
                     if inv.get('payment_term_id') and inv['payment_term_id'][0]:
@@ -92,10 +92,10 @@ class accountMoveSync(models.Model):
                     currencies = self.env['res.currency'].sudo().search([('name', 'in', list(currency_names))])
                     currency_map = {c.name: c.id for c in currencies}
 
-                journal_map = {}
-                if journal_codes:
-                    journals = self.env['account.journal'].sudo().search([('code', 'in', list(journal_codes))])
-                    journal_map = {j.code: j.id for j in journals}
+                # journal_map = {}
+                # if journal_codes:
+                #     journals = self.env['account.journal'].sudo().search([('code', 'in', list(journal_codes))])
+                #     journal_map = {j.code: j.id for j in journals}
                 
                 cai_map = {}
                 if odoo10_cai_names:
@@ -120,10 +120,12 @@ class accountMoveSync(models.Model):
                     partner_id = partner_map.get(inv['partner_id'][0]) if inv.get('partner_id') else False
                     user_id = user_map.get(inv['user_id'][0]) if inv.get('user_id') else False
                     currency_id = currency_map.get(inv['currency_id'][1]) if inv.get('currency_id') else False
-                    journal_id = journal_map.get(inv['journal_id'].get('code')) if inv.get('journal_id') else False
+                    # journal_id = journal_map.get(inv['journal_id'].get('code')) if inv.get('journal_id') else False
                     cai_id = cai_map.get(inv['cai_id'][1]) if invoice_type == 'supplier' and inv.get('cai_id') else False
                     payment_term_id = payment_term_map.get(inv['payment_term_id'][0]) if inv.get('payment_term_id') else False
 
+                    company_id = inv.get('journal_id').get('company_id')[0]
+                    journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
                     # Validaciones antes de crear/actualizar
                     messages = []
                     if not partner_id:
@@ -157,7 +159,7 @@ class accountMoveSync(models.Model):
                             'currency_id': currency_id,
                             'partner_id': partner_id,
                             'move_type': inv['type'],
-                            'journal_id': journal_id,
+                            'journal_id': journal_id.id,
                             'state': 'draft',
                             'name': inv.get('move_name') if inv.get('move_name') else 'Borrador',
                             'internal_number': inv.get('move_name') if inv.get('move_name') else 'Borrador',
@@ -200,7 +202,7 @@ class accountMoveSync(models.Model):
                             if line['account_id']:
                                 account = line['account_id'][1]
                                 code, name_account = account.split(maxsplit=1)
-                                account_id = self.env['account.account'].search([('code', '=', code)])
+                                account_id = self.env['account.account'].search([('code', '=', code),('company_id','=',company_id)])
                                 if account_id:
                                     lines_values.update({'account_id': account_id.id})
 
@@ -328,6 +330,7 @@ class accountMoveSync(models.Model):
                         'company_id': mv['company_id'][0],
                         'move_type': 'entry'
                     }
+                    
                     journal_id = self.env['account.journal'].search([('code','=',mv['journal_id'].get('code'))])
                     if journal_id:
                         values.update({'journal_id': journal_id.id})
