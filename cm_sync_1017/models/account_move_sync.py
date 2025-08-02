@@ -125,10 +125,10 @@ class accountMoveSync(models.Model):
                     payment_term_id = payment_term_map.get(inv['payment_term_id'][0]) if inv.get('payment_term_id') else False
 
                     company_id = inv.get('journal_id').get('company_id')[0]
-                    journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
                     partner_id = self.env['res.partner'].sudo().search([('odoo10_id', '=', inv.get('partner_id')[0])])
-                    print ("///////////////////////////////")
-                    print (partner_id)
+                    journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
+                    if partner_id:
+                        company_id = partner_id.company_id.id
                     # Validaciones antes de crear/actualizar
                     messages = []
                     if not partner_id:
@@ -154,7 +154,7 @@ class accountMoveSync(models.Model):
                     if not exist_invoice:
                         invoice_values = {
                             'odoo10_id': inv['id'],
-                            'company_id': inv['company_id'][0],
+                            'company_id': company_id,
                             'create_odoo10': inv['create_date'],
                             'payment_reference': inv.get('name'),
                             'invoice_date': invoice_date,
