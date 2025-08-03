@@ -255,7 +255,6 @@ class banks_account_journal(models.Model):
 		        #allow_multi_sequence=False
 		default['allow_multi_sequence']=False
 		default['checkmiscelaneous']=False
-		default['allow_check_writing']=False
 		default['allow_banks_transferences']=False
 		default['allow_multi_sequence']=False
 		return super(banks_account_journal, self).copy(default)
