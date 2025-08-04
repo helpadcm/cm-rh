@@ -254,12 +254,16 @@ class accountMoveSync(models.Model):
             else:
                 currency_id = self.env.user.company_id.currency_id
 
+            user = self.env['res.users'].sudo().search([('odoo10_id', '=', pay['user_id'][0])])
+            if not user:
+                user = inv_id.invoice_user_id
+
             values = {
                 'amount': pay['amount'],
                 'payment_date': pay['payment_date'],
                 'journal_id': journal_id.id,
                 'currency_id': currency_id.id,
-                'user_id': inv_id.invoice_user_id.id,
+                'user_id': user.id,
                 'communication': pay['communication']
             }
 
