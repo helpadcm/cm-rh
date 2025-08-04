@@ -91,6 +91,18 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="account_payment_inh_search">
+            <field name="name">account.payment.search.inh</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <field name="is_internal_transfer" position="after">
+                    <field name="user_id"/>
+                    <field name="date" />
+                </field>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="partner_inh_form">
             <field name="name">partner.form.inh</field>
             <field name="model">res.partner</field>
