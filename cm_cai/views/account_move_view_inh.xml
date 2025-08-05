@@ -103,6 +103,17 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="account_payment_inh_list">
+            <field name="name">account.payment.list.inh</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_tree"/>
+            <field name="arch" type="xml">
+                <field name="company_currency_id" position="before">
+                    <field name="user_id"/>
+                </field>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="partner_inh_form">
             <field name="name">partner.form.inh</field>
             <field name="model">res.partner</field>
