@@ -214,21 +214,12 @@ class accountMoveSync(models.Model):
 
                             self.env['account.move.line'].create(lines_values)
 
-                        if finalize:
-                            if inv['state'] == 'open':
-                                invoice_id.action_post()
-                            elif inv['state'] == 'paid':
-                                invoice_id.action_post()
-                                if inv['payment_ids']:
-                                    self.register_paymet(invoice_id, inv['payment_ids'])
-                        else:
-                            title = "No se pudo finalizar el proceso de la factura por los siguientes motivos:\n"
-                            list_formated = "\n".join([f"***{item}***" for item in messages])
-                            message_body = title + list_formated
-                            invoice_id.message_post(
-                                body = message_body,
-                                message_type = "comment"   
-                            )
+                        if inv['state'] == 'open':
+                            invoice_id.action_post()
+                        elif inv['state'] == 'paid':
+                            invoice_id.action_post()
+                            if inv['payment_ids']:
+                                self.register_paymet(invoice_id, inv['payment_ids'])
                     else:
                         _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id}")
                 offset += limit

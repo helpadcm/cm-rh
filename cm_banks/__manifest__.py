@@ -16,6 +16,7 @@
 
 	'depends'	:['base','account','payment','cm_cai','account_accountant'],
 	'data'		:[
+		'data/paperformat.xml',
 		'data/sequence_codes.xml',
 		'data/decimal_precision.xml',
 		'security/groups.xml',
@@ -47,7 +48,8 @@
 		# 'views/conciliation_config_lines.xml',
 		# 'views/res_currency.xml',
 		'views/menus.xml',
-
+		'report/checks_miscelaneo.xml',
+		'report/report_reports.xml'
 	],
 	'license': 'LGPL-3',
 	'installable':True,
