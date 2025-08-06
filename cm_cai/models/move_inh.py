@@ -50,6 +50,7 @@ class moveInh(models.Model):
                     ))
 
     def button_draft(self):
+        self.write({'internal_number': self.name})
         res = super(moveInh, self).button_draft()
         self.write({'name': 'Borrador'})
         return res
