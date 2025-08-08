@@ -19,6 +19,25 @@ class ap_account_payment(models.Model):
 				('check','Cheque'),
 				('transference','Transferencia'),
 				('otros','Otros')], string='Tipo de Transaccion')
+	total_usd = fields.Float(string="USD")
+
+	@api.onchange('amount', 'date', 'currency_id')
+	def _compute_currency_amount(self):
+		base_USD = self.env.ref('base.USD')
+		for payment in self:
+			# Siempre se realiza la conversión a USD, sin importar la divisa de origen
+			payment.total_usd = payment.currency_id._convert(
+				payment.amount,
+				base_USD,
+				payment.company_id,
+				payment.date
+			)
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		records = super().create(vals_list)
+		records._compute_currency_amount()
+		return records
 
 	def action_post(self):
 		res = super(ap_account_payment, self).action_post()

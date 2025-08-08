@@ -240,10 +240,13 @@ class accountMoveSync(models.Model):
     def register_paymet(self, inv_id, payments):
         for pay in payments:
             journal_id = self.env['account.journal'].search([('code','=',pay['journal_id'].get('code'))])
-            if journal_id.currency_id:
-                currency_id = journal_id.currency_id
-            else:
-                currency_id = self.env.user.company_id.currency_id
+            currency_id = self.env['res.currency'].search([('name','=',pay['currency_id'][1])])
+
+            if not currency_id:
+                if journal_id.currency_id:
+                    currency_id = journal_id.currency_id
+                else:
+                    currency_id = self.env.user.company_id.currency_id
 
             user = self.env['res.users'].sudo().search([('odoo10_id', '=', pay['user_id'][0])])
             if not user:

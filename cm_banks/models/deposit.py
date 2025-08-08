@@ -48,6 +48,7 @@ class banks_deposits(models.Model):
 	actual_sec_curr_rate = fields.Float(string='Tasa moneda secundaria actual') #date of the anulation of the check
 	number = fields.Char(string='Numero', default="Borrador")
 	user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
+	anulation_date = fields.Date(string="Fecha de anulacion")
 	obs = fields.Text('Obs')
 	type = fields.Selection([
 		('sale','Ventas'),
@@ -112,6 +113,7 @@ class banks_deposits(models.Model):
 			dep.amounttext = a
 		return True
 
+	@api.depends('date')
 	def _get_currency(self):
 		comp_rate = False
 		for dc in self:
@@ -165,7 +167,7 @@ class banks_deposits(models.Model):
 
 	def _get_equivalent(self):
 		for deposit in self:
-			deposit.total_equivalent = self._from_to_company_currency(deposit.total,deposit.journal_id.currency_id.id,True,deposit.date)
+			deposit.total_equivalent = self._from_to_company_currency(deposit.total, deposit.journal_id.currency_id.id, True, deposit.date)
 		return True
 
 	def _calculate_number(self):

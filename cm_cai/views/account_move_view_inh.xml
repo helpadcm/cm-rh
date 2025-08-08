@@ -97,31 +97,8 @@
             <field name="inherit_id" ref="account.view_account_payment_search"/>
             <field name="arch" type="xml">
                 <field name="is_internal_transfer" position="after">
-                    <field name="user_id"/>
                     <field name="date" />
                 </field>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="account_payment_inh_list">
-            <field name="name">account.payment.list.inh</field>
-            <field name="model">account.payment</field>
-            <field name="inherit_id" ref="account.view_account_payment_tree"/>
-            <field name="arch" type="xml">
-                <field name="company_currency_id" position="before">
-                    <field name="user_id"/>
-                </field>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="account_payment_inh_form">
-            <field name="name">account.payment.form.inh</field>
-            <field name="model">account.payment</field>
-            <field name="inherit_id" ref="account.view_account_payment_form"/>
-            <field name="arch" type="xml">
-                <group name="group2" position="inside">
-                    <field name="user_id" readonly="state != 'draft'"/>
-                </group>
             </field>
         </record>
 
