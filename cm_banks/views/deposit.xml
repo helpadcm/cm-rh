@@ -32,9 +32,10 @@
 							</group> 
 							<group>
 								<field name="date" readonly="state != 'draft'" />
-								<field name="currency"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" readonly="1"/>
-								<field name="total_equivalent" readonly='1'/>
+								<field name="currency" invisible="same_currency" force_save="1" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" readonly="1"/>
+								<field name="total_equivalent" invisible="same_currency" readonly='1'/>
 								<field name="user_id" invisible="1" readonly="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+								<field name="same_currency" invisible="1"/>
 							</group> 
             	     	</group>
 						<group>    

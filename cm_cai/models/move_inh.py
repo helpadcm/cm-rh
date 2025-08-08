@@ -106,9 +106,10 @@ class moveInh(models.Model):
                     inv.write({'name': inv.internal_number})
             if inv.move_type in ['in_invoice']:
                 if inv.internal_number == 'Borrador' or not inv.internal_number:
-                    new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
-                    inv.write({'payment_reference': new_name})
-                    inv.write({'internal_number': new_name})
+                    if inv.journal_id.sequence_id:
+                        new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                        inv.write({'payment_reference': new_name})
+                        inv.write({'internal_number': new_name})
                 else:
                     inv.write({'name': inv.internal_number})
         return res
