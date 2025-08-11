@@ -48,8 +48,8 @@
 		# 'views/conciliation_config_lines.xml',
 		# 'views/res_currency.xml',
 		'views/menus.xml',
-		# 'report/checks_miscelaneo.xml',
-		# 'report/report_reports.xml'
+		'report/checks_miscelaneo.xml',
+		'report/report_reports.xml'
 	],
 	'license': 'LGPL-3',
 	'installable':True,

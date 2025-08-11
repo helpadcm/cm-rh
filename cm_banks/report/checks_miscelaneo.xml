@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="check_template">
+        <template id="check_format_template">
             <t t-call="web.html_container">
+                <t t-set="company" t-value="res_company"></t>
                 <t t-foreach="info_account" t-as="o">
-                    <div class="page">
+                    <div class="page" style="font-size:15px; font-family:sans-serif; height:50%">
                         <table style="width:85%;margin-left:7.5%">
                             <tr>
                                 <td><h3><span t-esc="o.get('company_name')"/></h3></td>
@@ -18,6 +19,159 @@
                                 </td>
                             </tr>
                         </table>
+                        <table style="width:85%;margin-left:7.5%;margin-top:2%">
+                            <tr>
+                                <td colspan="2" style="padding-left:60%;padding-bottom:2%"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:70%;padding-top:1%;padding-left:15%">
+                                    ***<span t-esc="o.get('pay_to')"/>***
+                                </td>
+                                <td style="width:30%;padding-top:1%;padding-left:9%">
+                                    <span t-esc="'{0:,.2f}'.format(float(o.get('total')))"/>***
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top:4%;padding-left:15%" colspan="2">
+                                <t t-if="o.get('show_letter')">
+                                    ***<t  t-esc="o.get('amount_text')"/>***
+                                </t>  <t t-if="not o.get('show_letter')"><br/></t>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:85%;margin-left:8%;margin-top:8.5%">
+                            <tbody style="width:100%;">
+                            <tr>
+                                <td colspan="2" style="padding-top:4%;text-align:right;padding-right:9%;font-size:115%"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:80%;padding-top:7.7%;font-size:115%">
+                                    ***<span t-esc="o.get('pay_to')"/>***
+                                </td>
+                                <td style="width:20%;padding-top:7.7%;text-align:center;font-size:115%">
+                                <strong><span t-esc="'{0:,.2f}'.format(float(o.get('total')))"/>***</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;padding-top:4.7%;font-size:115%" colspan="2">
+                                <t t-if="o.get('show_letter')">
+                                    ***<t  t-esc="o.get('amount_text')"/>***
+
+                                </t>  <t t-if="not o.get('show_letter')"><br/></t>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!--TABLA DE INFORMACION DE LAS CUENTAS-->
+                        <table style="margin-top:26%;width:86%;margin-left:7%;margin-right:7%;border-collapse: collapse">
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Codigo</th>
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Cuentas</th>
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Descripcion</th>
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Debitos</th>
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Creditos</th>
+                            <t t-foreach="o.get('moves')" t-as="i">
+                                <tr>
+                                    <td style="width:12%;border: 1px solid #151515">
+                                        <span t-esc="i.get('code')"/>
+                                    </td>
+                                    <td style="width:20%;border: 1px solid #151515">
+                                        <span t-esc="i.get('cuenta')"/>
+                                    </td>
+                                    <td style="width:40%;border: 1px solid #151515">
+                                        <span t-esc="i.get('etiqueta')"/>
+                                    </td>
+                                    <td style="width:14%;text-align:right;border: 1px solid #151515">
+                                        <span t-esc="'{0:,.2f}'.format(float(i.get('debit')))"/>
+                                    </td>
+                                    <td style="width:14%;text-align:right;border: 1px solid #151515">
+                                        <span t-esc="'{0:,.2f}'.format(float(i.get('credit')))"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="padding-top:1%">
+                                <td style="width:10%;border: 2px solid black;"></td>
+                                <td style="width:20%;border: 2px solid black;"></td>
+                                <td style="width:40%;text-align:center;border: 2px solid black;border-left: 1px solid #151515;padding-top:1%">Total</td>
+                                <td style="width:15%;text-align:right;border: 2px solid black;border-left: 1px solid #151515">
+                                    <span t-esc="'{0:,.2f}'.format(float(o.get('debit_sum')))"/>
+                                </td>
+                                <td style="width:15%;text-align:right;border: 2px solid black;border-left: 1px solid #151515">
+                                    <span t-esc="'{0:,.2f}'.format(float(o.get('credit_sum')))"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:85%;margin-left:8%;margin-top:10%;margin-right:7%">
+                            <tr>
+                                <td style="text-align:left;width:70%padding-left:5%">
+                                    <table style="margin-left:5%">
+                                        <tr>
+                                            <td>_______________________</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center">ELABORADO POR</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="text-align:left;width:30%;padding-left:5%">
+                                    <table>
+                                        <tr>
+                                            <td>_______________________</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center">REVISADO POR</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <table style="width:85%;margin-left:7.5%;margin-top:5%;margin-right:7.5%;">
+                            <tr>
+                                <td style="text-align:left;width:70%">
+                                    <table style="width:100%;border-collapse: collapse">
+                                        <tr>
+                                            <td>RECIBI CONFORME</td>
+                                            <td>_________________________________________________</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="text-align:left;width:30%;padding-left:5%">
+                                    FECHA_____________________
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top:3%;width:70%">
+                                    <table style="width:100%;">
+                                        <tr>
+                                            <td style="width:28%">IDENTIFICACIÓN</td>
+                                            <td>_________________________________________________</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding-top:2%;font-size:12px">Impreso el: <span t-esc="date_today"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+                <div class="footer">
+                    <div class="text-center">
+                        <ul class="list-inline">
+                            <li>Pagina</li>
+                            <li><span class="page"/></li>
+                            <li>de</li>
+                            <li><span class="topage"/></li>
+                        </ul>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="check_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <t t-call="{{ format }}"/>
                     </div>
                 </t>
             </t>

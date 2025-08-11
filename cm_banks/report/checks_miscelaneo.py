@@ -17,8 +17,12 @@ class ReportChecks(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         data = self.get_data(docids)
+        mcheck_ids = self.env['mcheck.mcheck'].search([('id','in',docids)])
+        docs = mcheck_ids
         docargs = {
+            'docs': docs,
             'info_account': data.get('info_account'),
+            'format': 'cm_banks.check_format_template',
             'date_today': fields.Datetime.context_timestamp(self, timestamp=datetime.now()).strftime("%d/%m/%Y %H:%M:%S %p"),
             'fecha': data.get('fecha')
         }
@@ -46,7 +50,7 @@ class ReportChecks(models.AbstractModel):
                     'debit_sum': total_debit,
                     'credit_sum': total_credit,
                     'doc_type': check.doc_type,
-                    # 'show_letter': check.journal_id.show_letter,
+                    'show_letter': True,
                 })
             for info in info_account:
                 locale.setlocale(locale.LC_TIME,self.env.context.get('lang','es')+'.utf8')
