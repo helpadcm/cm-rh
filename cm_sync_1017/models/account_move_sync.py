@@ -258,6 +258,8 @@ class accountMoveSync(models.Model):
                 'journal_id': journal_id.id,
                 'currency_id': currency_id.id,
                 'user_id': user.id,
+                'nro_auto': pay['nro_auto'] or False,
+                'card_digits': pay['card_digits'] or False,
                 'communication': pay['communication']
             }
 
