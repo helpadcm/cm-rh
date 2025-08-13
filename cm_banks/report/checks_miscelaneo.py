@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 import time
-import locale
 from math import ceil,floor
 from odoo import api, models, fields, _
 from dateutil import parser
@@ -26,8 +25,6 @@ class ReportChecks(models.AbstractModel):
             'date_today': fields.Datetime.context_timestamp(self, timestamp=datetime.now()).strftime("%d/%m/%Y %H:%M:%S %p"),
             'fecha': data.get('fecha')
         }
-        print ("/////////////////////////////////////")
-        print (docargs)
         return docargs
 
     def get_data(self, ids):
@@ -53,7 +50,6 @@ class ReportChecks(models.AbstractModel):
                     'show_letter': True,
                 })
             for info in info_account:
-                locale.setlocale(locale.LC_TIME,self.env.context.get('lang','es')+'.utf8')
                 fdate = info.get('check_date')
                 #fecha = datetime.strftime(fdate,'%d de %B del %Y')
                 day = str(fdate.day)

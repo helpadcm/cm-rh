@@ -3,10 +3,13 @@
     <data>
         <template id="check_format_template">
             <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
                 <t t-set="company" t-value="res_company"></t>
                 <t t-foreach="info_account" t-as="o">
                     <div class="page" style="font-size:15px; font-family:sans-serif; height:50%">
-                        <table style="width:85%;margin-left:7.5%">
+                        <table style="width:85%;margin-left:7.5%;border-collapse: collapse">
                             <tr>
                                 <td><h3><span t-esc="o.get('company_name')"/></h3></td>
                             </tr>
@@ -14,46 +17,46 @@
                                 <td>
                                     <h4>BANCO: <span t-esc="o.get('bank_name')"/></h4>
                                 </td>
-                                <td style="text-align:right;font-size:16px">
-                                <strong>CHEQUE No.<span t-esc="o.get('check_number')"/></strong>
+                                <td style="text-align:right;font-size:16px;">
+                                    <h4>CHEQUE No.<span t-esc="o.get('check_number')"/></h4>
                                 </td>
                             </tr>
                         </table>
-                        <table style="width:85%;margin-left:7.5%;margin-top:2%">
+                        <table style="width:85%;margin-left:7.5%;">
                             <tr>
-                                <td colspan="2" style="padding-left:60%;padding-bottom:2%"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
+                                <td colspan="2" style="padding-left:60%;padding-bottom:2%;font-size:13px"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
                             </tr>
                             <tr>
-                                <td style="width:70%;padding-top:1%;padding-left:15%">
+                                <td style="width:70%;padding-top:1%;padding-left:15%;font-size:13px">
                                     ***<span t-esc="o.get('pay_to')"/>***
                                 </td>
-                                <td style="width:30%;padding-top:1%;padding-left:9%">
+                                <td style="width:30%;padding-top:1%;padding-left:9%;font-size:13px">
                                     <span t-esc="'{0:,.2f}'.format(float(o.get('total')))"/>***
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding-top:4%;padding-left:15%" colspan="2">
+                                <td style="padding-top:4%;padding-left:15%;font-size:13px" colspan="2">
                                 <t t-if="o.get('show_letter')">
                                     ***<t  t-esc="o.get('amount_text')"/>***
                                 </t>  <t t-if="not o.get('show_letter')"><br/></t>
                                 </td>
                             </tr>
                         </table>
-                        <table style="width:85%;margin-left:8%;margin-top:8.5%">
+                        <table style="width:85%;margin-left:8%;margin-top:7%">
                             <tbody style="width:100%;">
                             <tr>
-                                <td colspan="2" style="padding-top:4%;text-align:right;padding-right:9%;font-size:115%"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
+                                <td colspan="2" style="padding-top:4%;text-align:right;padding-right:9%;font-size:16px"><span t-esc="(company.city).upper()"/> <span t-esc="fecha.upper()"/></td>
                             </tr>
                             <tr>
-                                <td style="width:80%;padding-top:7.7%;font-size:115%">
+                                <td style="width:80%;padding-top:7.7%;font-size:16px">
                                     ***<span t-esc="o.get('pay_to')"/>***
                                 </td>
-                                <td style="width:20%;padding-top:7.7%;text-align:center;font-size:115%">
+                                <td style="width:20%;padding-top:7.7%;text-align:center;font-size:16px">
                                 <strong><span t-esc="'{0:,.2f}'.format(float(o.get('total')))"/>***</strong>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="width:100%;padding-top:4.7%;font-size:115%" colspan="2">
+                                <td style="width:100%;padding-top:4.7%;font-size:16px" colspan="2">
                                 <t t-if="o.get('show_letter')">
                                     ***<t  t-esc="o.get('amount_text')"/>***
 
@@ -66,7 +69,7 @@
                         <table style="margin-top:26%;width:86%;margin-left:7%;margin-right:7%;border-collapse: collapse">
                             <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Codigo</th>
                             <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Cuentas</th>
-                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Descripcion</th>
+                            <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Descripción</th>
                             <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Debitos</th>
                             <th style="text-align:center;border: 1px solid #151515;padding-top:1%">Creditos</th>
                             <t t-foreach="o.get('moves')" t-as="i">
@@ -108,7 +111,7 @@
                                             <td>_______________________</td>
                                         </tr>
                                         <tr>
-                                            <td style="text-align:center">ELABORADO POR</td>
+                                            <td style="text-align:center;font-size:15px">ELABORADO POR</td>
                                         </tr>
                                     </table>
                                 </td>
@@ -118,7 +121,7 @@
                                             <td>_______________________</td>
                                         </tr>
                                         <tr>
-                                            <td style="text-align:center">REVISADO POR</td>
+                                            <td style="text-align:center;font-size:15px">REVISADO POR</td>
                                         </tr>
                                     </table>
                                 </td>
@@ -129,12 +132,12 @@
                                 <td style="text-align:left;width:70%">
                                     <table style="width:100%;border-collapse: collapse">
                                         <tr>
-                                            <td>RECIBI CONFORME</td>
-                                            <td>_________________________________________________</td>
+                                            <td style="font-size:15px">RECIBI CONFORME</td>
+                                            <td>____________________________________</td>
                                         </tr>
                                     </table>
                                 </td>
-                                <td style="text-align:left;width:30%;padding-left:5%">
+                                <td style="text-align:left;width:30%;padding-left:5%;font-size:15px">
                                     FECHA_____________________
                                 </td>
                             </tr>
@@ -142,8 +145,8 @@
                                 <td style="padding-top:3%;width:70%">
                                     <table style="width:100%;">
                                         <tr>
-                                            <td style="width:28%">IDENTIFICACIÓN</td>
-                                            <td>_________________________________________________</td>
+                                            <td style="width:28%;font-size:15px">IDENTIFICACIÓN</td>
+                                            <td>____________________________________</td>
                                         </tr>
                                     </table>
                                 </td>
@@ -156,12 +159,7 @@
                 </t>
                 <div class="footer">
                     <div class="text-center">
-                        <ul class="list-inline">
-                            <li>Pagina</li>
-                            <li><span class="page"/></li>
-                            <li>de</li>
-                            <li><span class="topage"/></li>
-                        </ul>
+                        Pág. <span class="page"/> de <span class="topage"/>
                     </div>
                 </div>
             </t>
