@@ -44,7 +44,7 @@ class debit_credit(models.Model):
 	voucher_id = fields.Many2one('account.payment', string='Documento', copy=False)
 	# mcheck_mcheck_id = fields.Many2one('mcheck.mcheck', string='Cheque', copy=False)
 	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de la empresa)')
-	currency = fields.Float(compute='_get_currency', string='Tasa de cambio', digits=(12,4))
+	currency = fields.Float(string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Empresa')
 	was_unreconcilied = fields.Boolean(string='Desconciliar')
 	doc_type = fields.Selection([('debit','Debito'),('credit','Credito')], string='Tipo',default='debit')
@@ -54,6 +54,7 @@ class debit_credit(models.Model):
 	actual_sec_curr_rate = fields.Float(string='Tasa en moneda secundaria') #date of the anulation of the check
 	number = fields.Char(string='Numero', default="Borrador", copy=False)
 	user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
+	same_currency = fields.Boolean(string="Misma moneda")
 	obs=fields.Text(string='Obs')
 	type=fields.Selection([
 		('sale','Ventas'),
@@ -86,6 +87,14 @@ class debit_credit(models.Model):
 						totalc+=lines.amount
 			mcheck.amount=self.addComa('%.2f'%(totald-totalc))
 		return True	
+
+	@api.onchange('journal_id')
+	def _get_same_currency(self):
+		same = True
+		if self.journal_id.currency_id:
+			if self.journal_id.currency_id.id != self.env.user.company_id.currency_id.id:
+				same = False
+		self.same_currency = same
 
 	def _get_totaldebit(self):
 		result = {}
@@ -127,6 +136,7 @@ class debit_credit(models.Model):
 			result[mcheck.id]=a
 		return result
 
+	@api.depends('total','journal_id','date')
 	def _get_equivalent(self):
 		result={}
 		for mcheck in self:
@@ -148,18 +158,18 @@ class debit_credit(models.Model):
 			# Convertir de "company_currency" a "from_currency"
 			return company_currency._convert(amount, from_currency, self.env.company, date, True)
 
+	@api.onchange('date','journal_id')
 	def _get_currency(self):
 		comp_rate = False
 		for dc in self:
-			date1 = datetime.combine(dc.date, datetime.now().time())
+			date1 = dc.date
 			if dc.journal_id.currency_id:
 				user_obj = self.env.user
-				if not dc.journal_id.currency_id.id == user_obj.company_id.id:
-					comp_rate = user_obj.company_id.currency_id.with_context(date=(date1 + relativedelta(hours=6))).rate
+				if not dc.journal_id.currency_id.id == user_obj.company_id.currency_id.id:
+					comp_rate = 1/user_obj.company_id.currency_id._get_conversion_rate(user_obj.company_id.currency_id, dc.journal_id.currency_id, self.env.company, date1)
 				else:
 					comp_rate = 1/dc.journal_id.currency_id.rate
 			dc.currency = comp_rate
-		return True
 
 	@api.depends('mcheck_ids.amount', 'total','doc_type' )
 	def _compute_rest_credit(self):

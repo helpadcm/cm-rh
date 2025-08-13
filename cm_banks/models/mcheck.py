@@ -62,7 +62,7 @@ class mcheck(models.Model):
 	was_unreconcilied = fields.Boolean(string='Desconciliar', default=False)
 	has_been_unreconcilied = fields.Boolean(string='Ha sido Desconciliado', default=False)#for showing invalidate draft buttons
 	total = fields.Float(string='Total Monto',required=True, tracking=True)
-	currency = fields.Float(compute='_get_currency',string='Tasa de cambio', digits=(12,4))
+	currency = fields.Float(string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Empresa')
 	
 	template_id = fields.Many2one('banks.template', string='Plantilla')
@@ -83,6 +83,7 @@ class mcheck(models.Model):
 	# banks_check_book_assoc = fields.Many2one(compute='_calculate_journal_assoc', comodel_name="banks.checkbook", string='Diario de Bancos')
 	user_creator = fields.Many2one(default=_use_creator, comodel_name="res.users", string='Usuario')
 	op_code = fields.Char(string="Orden de pago")
+	same_currency = fields.Boolean(string="Misma moneda")
 	type = fields.Selection([
 		('sale','Venta'),
 		('purchase','Compras'),
@@ -117,6 +118,14 @@ class mcheck(models.Model):
 			mcheck.amount = '{0:,.2f}'.format(totald-totalc)
 		return result
 
+	@api.onchange('journal_id')
+	def _get_same_currency(self):
+		same = True
+		if self.journal_id.currency_id:
+			if self.journal_id.currency_id.id != self.env.user.company_id.currency_id.id:
+				same = False
+		self.same_currency = same
+
 	def _get_totaldebit(self):
 		result = {}
 		for mcheck in self:
@@ -135,6 +144,7 @@ class mcheck(models.Model):
 					totalc += lines.credit
 			mcheck.amountcredit = '{0:,.2f}'.format(totalc)
 
+	@api.depends('total','journal_id','date')
 	def _get_equivalent(self):
 		result = {}
 		for mcheck in self:
@@ -160,18 +170,18 @@ class mcheck(models.Model):
 				a = mcheck.to_word(abs(totald - totalc), 'HNL')
 			mcheck.amounttext = a
 
+	@api.onchange('date','journal_id')
 	def _get_currency(self):
 		comp_rate = False
 		for dc in self:
-			date1 = datetime.combine(dc.date, datetime.now().time())
+			date1 = dc.date
 			if dc.journal_id.currency_id:
 				user_obj = self.env.user
-				if not dc.journal_id.currency_id.id == user_obj.company_id.id:
-					comp_rate = user_obj.company_id.currency_id.with_context(date=(date1 + relativedelta(hours=6))).rate
+				if not dc.journal_id.currency_id.id == user_obj.company_id.currency_id.id:
+					comp_rate = 1/user_obj.company_id.currency_id._get_conversion_rate(user_obj.company_id.currency_id, dc.journal_id.currency_id, self.env.company, date1)
 				else:
 					comp_rate = 1/dc.journal_id.currency_id.rate
 			dc.currency = comp_rate
-		return True
 
 	@api.depends('mcheck_ids.amount', 'total')
 	def _compute_rest_credit(self):
