@@ -123,6 +123,8 @@ class accountMoveSync(models.Model):
                     cai_id = cai_map.get(inv['cai_id'][1]) if invoice_type == 'supplier' and inv.get('cai_id') else False
                     payment_term_id = payment_term_map.get(inv['payment_term_id'][0]) if inv.get('payment_term_id') else False
 
+                    # print ("///////////////////////////////////////")
+                    # print (inv.get('journal_id').get('company_id'))
                     company_id = inv.get('journal_id').get('company_id')[0]
                     partner_id = self.env['res.partner'].sudo().search([('odoo10_id', '=', inv.get('partner_id')[0])])
                     journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
@@ -149,79 +151,88 @@ class accountMoveSync(models.Model):
                         finalize = False
                         continue
 
-                    exist_invoice = self.exist_number(inv['move_name'], inv['id']) 
-                    if not exist_invoice:
-                        invoice_values = {
-                            'odoo10_id': inv['id'],
-                            'modality': inv['modality'] or False,
-                            'company_id': company_id,
-                            'create_odoo10': inv['create_date'],
-                            'payment_reference': inv.get('name'),
-                            'invoice_date': invoice_date,
-                            'invoice_user_id': user_id,
-                            'currency_id': currency_id,
-                            'partner_id': partner_id.id,
-                            'move_type': inv['type'],
-                            'journal_id': journal_id.id,
-                            'state': 'draft',
-                            'name': inv.get('move_name') if inv.get('move_name') else 'Borrador',
-                            'internal_number': inv.get('move_name') if inv.get('move_name') else 'Borrador',
-                            'amount_total': inv.get('amount_total', 0.0)
+                    exist_invoice = self.exist_number(inv['move_name'], inv['id'])
+                    if exist_invoice:
+                        if exist_invoice.state == 'draft':
+                            _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id} en Borrador")
+                            exist_invoice.unlink()
+                        elif exist_invoice.state == 'posted' and exist_invoice.payment_state == 'not_paid':
+                            _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id} en Abierta")
+                            exist_invoice.button_draft()
+                            exist_invoice.unlink()
+
+                    invoice_values = {
+                        'odoo10_id': inv['id'],
+                        'modality': inv['modality'] or False,
+                        'company_id': company_id,
+                        'create_odoo10': inv['create_date'],
+                        'payment_reference': inv.get('name'),
+                        'invoice_date': invoice_date,
+                        'invoice_user_id': user_id,
+                        'currency_id': currency_id,
+                        'partner_id': partner_id.id,
+                        'move_type': inv['type'],
+                        'journal_id': journal_id.id,
+                        'state': 'draft',
+                        'name': inv.get('move_name') if inv.get('move_name') else 'Borrador',
+                        'internal_number': inv.get('move_name') if inv.get('move_name') else 'Borrador',
+                        'amount_total': inv.get('amount_total', 0.0)
+                    }
+
+                    if invoice_type == 'supplier':
+                        invoice_values.update({'ref': inv.get('reference')})
+                        if cai_id:
+                            invoice_values.update({'cai_id': cai_id})
+
+                    if payment_term_id:
+                        invoice_values.update({'invoice_payment_term_id': payment_term_id})
+
+                    _logger.info(f"Creando nueva factura en Odoo 17: ID Externo {inv['id']}")
+                    invoice_id = self.env['account.move'].sudo().create(invoice_values)
+                    for line in inv['invoice_line_ids']:
+                        product_id = False
+                        if line['product_id']:
+                            product_id = self.env['product.product'].search([('name', '=', line['product_id'][1])], limit=1).id
+
+                        tax_ids = False
+                        if line['invoice_line_tax_ids']:
+                            tax_ids = self.env['account.tax'].search([('odoo10_id','in',line['invoice_line_tax_ids'])])
+
+                        lines_values = {
+                            'move_id': invoice_id.id,
+                            'product_id': product_id,
+                            'name': line['name'],
+                            'quantity': line['quantity'],
+                            'price_unit': line['price_unit']
                         }
 
-                        if invoice_type == 'supplier':
-                            invoice_values.update({'ref': inv.get('reference')})
-                            if cai_id:
-                                invoice_values.update({'cai_id': cai_id})
+                        if line['account_analytic_id']:
+                            analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line['account_analytic_id'][0])])
+                            if analytic_account_id:
+                                distribution_line = {str(analytic_account_id.id): 100.0}
+                                lines_values.update({'analytic_distribution': distribution_line})
 
-                        if payment_term_id:
-                            invoice_values.update({'invoice_payment_term_id': payment_term_id})
+                        if line['account_id']:
+                            account = line['account_id'][1]
+                            code, name_account = account.split(maxsplit=1)
+                            account_id = self.env['account.account'].search([('code', '=', code),('company_id','=',company_id)])
+                            if account_id:
+                                lines_values.update({'account_id': account_id.id})
 
-                        _logger.info(f"Creando nueva factura en Odoo 17: ID Externo {inv['id']}")
-                        invoice_id = self.env['account.move'].sudo().create(invoice_values)
-                        for line in inv['invoice_line_ids']:
-                            product_id = False
-                            if line['product_id']:
-                                product_id = self.env['product.product'].search([('name', '=', line['product_id'][1])], limit=1).id
+                        if tax_ids:
+                            lines_values.update({'tax_ids': [(6, 0, tax_ids.ids)]})
 
-                            tax_ids = False
-                            if line['invoice_line_tax_ids']:
-                                tax_ids = self.env['account.tax'].search([('odoo10_id','in',line['invoice_line_tax_ids'])])
+                        self.env['account.move.line'].create(lines_values)
 
-                            lines_values = {
-                                'move_id': invoice_id.id,
-                                'product_id': product_id,
-                                'name': line['name'],
-                                'quantity': line['quantity'],
-                                'price_unit': line['price_unit']
-                            }
-
-                            if line['account_analytic_id']:
-                                analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line['account_analytic_id'][0])])
-                                if analytic_account_id:
-                                    distribution_line = {str(analytic_account_id.id): 100.0}
-                                    lines_values.update({'analytic_distribution': distribution_line})
-
-                            if line['account_id']:
-                                account = line['account_id'][1]
-                                code, name_account = account.split(maxsplit=1)
-                                account_id = self.env['account.account'].search([('code', '=', code),('company_id','=',company_id)])
-                                if account_id:
-                                    lines_values.update({'account_id': account_id.id})
-
-                            if tax_ids:
-                                lines_values.update({'tax_ids': [(6, 0, tax_ids.ids)]})
-
-                            self.env['account.move.line'].create(lines_values)
-
-                        if inv['state'] == 'open':
-                            invoice_id.action_post()
-                        elif inv['state'] == 'paid':
-                            invoice_id.action_post()
-                            if inv['payment_ids']:
-                                self.register_paymet(invoice_id, inv['payment_ids'])
-                    else:
-                        _logger.info(f"Factura existente ID Externo {inv['id']}, Odoo17 ID {exist_invoice.id}")
+                    if inv['state'] == 'open':
+                        invoice_id.action_post()
+                    if inv['state'] == 'cancel':
+                        invoice_id.button_cancel()
+                    elif inv['state'] == 'paid':
+                        invoice_id.action_post()
+                        if inv['payment_ids']:
+                            self.register_paymet(invoice_id, inv['payment_ids'])
+                        
                 offset += limit
 
 
@@ -302,6 +313,7 @@ class accountMoveSync(models.Model):
                 payment_register_wizard.action_create_payments()
             else:
                 _logger.info(f"No se pudo realizar el pago de la factura {inv_id.name}")
+
 
     def sync_moves(self, limit=500, opt='production'):
         company_id = self.env.user.company_id
