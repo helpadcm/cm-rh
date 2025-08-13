@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="report_ticket_report_ticket" model="ir.actions.report">
+		<field name="name">Boletos</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.report_ticket</field>
+		<field name="report_file">cm_reports.report_ticket</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_order"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+	</record>
+
+	<record id="report_accounting_seat" model="ir.actions.report">
+		<field name="name">Asiento Contable</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.accounting_seat</field>
+		<field name="report_file">cm_reports.accounting_seat</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_accounting_seat"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+	</record>
+</odoo>
