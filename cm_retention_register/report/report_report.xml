@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+		<record id="report_retention_format" model="ir.actions.report">
+			<field name="name">Formato de Retencion</field>
+			<field name="model">retentions</field>
+			<field name="report_type">qweb-pdf</field>
+			<field name="report_name">cm_retention_register.retention_report_print_report</field>
+			<field name="report_file">cm_retention_register.retention_report_print_report</field>
+			<field name="binding_type">report</field>
+			<field name="paperformat_id" ref="cm_retention_register.paperformat_retention"/>
+			<field name="binding_model_id" ref="cm_retention_register.model_retentions"/>
+		</record>
+    </data>
+</odoo>

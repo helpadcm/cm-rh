@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="retention_report_print_report">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"/>
+                <t t-foreach="docs" t-as="o">
+                    <div class="page" style="font-size:14px sans-serif;">
+                        <style>
+                            td {
+                                font-size: 14px;
+                            }
+                        </style>
+                        <table style="align:center;width:100%;position:relative;">
+                            <tbody>
+                                <tr>
+                                    <td style="width:10%;">
+                                        <table>
+                                            <tr>
+                                                <td style="width:100%;">
+                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:50px" alt="Logo"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="padding-left:3%;">
+                                        <table style="width:300px;">
+                                            <tr>
+                                                <td style="font-size:16px;line-height: 2;"><strong><span t-field="company.name"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size:16px;line-height: 2;" colspan="2" col="2"><strong><span t-field="company.company_motto"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" col="2" style="line-height: 2;"><span t-field="company.street"/></td>
+                                            </tr>
+                                            <tr>
+                                            <td style="line-height: 2;">RTN:<span t-field="company.company_registry"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;">Tel:<span t-field="company.phone"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;">E-Mail:<span t-field="company.email"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;"><p style="font-size: 10px;">C.A.I.:<span t-esc="o.cai_ret"/></p></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="padding-left:37%;">
+                                        <table>
+                                            <tr>
+                                                <td>__________________________________</td>
+                                                    
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="font-size: 15px;">Comprobante de Retención</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 16px;"><b><span t-esc="o.name"/></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha:<span t-esc="o.date"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>  
+                            </tbody>     
+                        </table>
+                        <div>
+                            <p style="font-size:12px; text-align:center;"><b>Datos del sujeto y del comprobante de ventas que sustenta la transacción objeto de retención</b></p>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top : 1px solid black;">
+                                <tr style="">
+                                    <td colspan="2">Nombre:<b><span t-esc="o.partner_name"/></b></td>
+                                    <td colspan="3">Tipo de Documento:
+                                        <t t-if="o.ref_doc_type =='invoice'">
+                                            <b>Factura</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='receipt'">
+                                            <b>Recibo</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='ticket'">
+                                            <b>Ticket</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='sales_ticket'">
+                                            <b>Venta Ticket</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='rent_receipt'">
+                                            <b>Rent Receipt</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='fees_receipt'">
+                                            <b>Fees Receipt</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='account_state'">
+                                            <b>Estado de Cuenta</b>
+                                        </t>    
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">R.T.N.:<b><span t-esc="o.partner_rtn"/></b></td>
+                                    <td colspan="3" col="3">C.A.I. Documento: <b><span t-esc="o.cai_shot"/></b></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Fecha de emisión del Documento:<b><span t-esc="o.invoice_id.invoice_date"/></b></td>
+                                    <td colspan="3" col="2">Numero del Documento:<b><span t-esc="o.invoice_id.ref"/></b></td>
+                                    <td/>
+                                </tr> 
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px dotted grey;">
+                                <tr style="">
+                                    <td style="padding-bottom:30px;padding-top:10px;width:5%">N.</td>
+                                    <td style="text-align:center;width:50%;"><b>Descripción del Impuesto Retenido</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Base Imponible</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Tarifa,Tasa % de Retención</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Importe Total Retenido</b></td>
+                                </tr>
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px dotted grey;">
+                                <t t-set="acumular" t-value="0"/>
+                                <t t-set="cont" t-value="0"/>
+                                <t t-foreach="o.retention_lines" t-as="line">
+                                <t t-set="total" t-value="line.amount"/>
+                                <t t-set="acumular" t-value="acumular+total"/>
+                                <t t-set="cont" t-value="cont + 1"/>
+                                <tr style="border-top : 1px dotted grey ;">
+                                    <td style="text-align:left;width:5%;padding-bottom:10px;"><t t-esc="cont"/></td>
+                                    <td style="text-align:left;width:50%;padding-bottom:10px;"><span t-esc="line.name"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:10px;"><span t-esc="'{0:,.2f}'.format(line.base_amount)"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:10px;"><span t-esc="line.account_id.retention_porcent"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:15px;"><span t-esc="'{0:,.2f}'.format(line.amount)"/></td>
+                                </tr>
+                                </t>
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px solid black    ;">
+                            
+                                <tr style="border-top : 1px solid black ;">
+                                    <td style="width:85%;text-align:right">TOTAL:</td>
+                                    <td style="text-align:right"><b><t t-esc="'{0:,.2f}'.format(acumular)"/></b></td>
+                                </tr>
+                                <tr>
+                                    <td/>
+                                </tr>
+                                <tr><td colspan="2"><b>SON: ***<t t-esc="o.invoice_id.to_word(float(acumular),'HNL').upper()"/>***</b></td></tr>
+                                <tr><td colspan="2"><b>Fecha limíte de emisión:</b><span t-esc="o.cai_expires_shot"/></td></tr>
+                                <tr><td colspan="2"><b>Original:</b>Cliente<b> Copia:</b>Emisor</td></tr>
+                                <tr><td colspan="2"><b>Rango Autorizado:</b><span t-esc="o.min_number_shot"/> al <span t-esc="o.max_number_shot"/></td></tr>
+                                <tr><td colspan="2"><b>Fecha de impresión:</b><t t-esc="datetime.datetime.today().strftime('%d/%m/%Y')"/></td></tr>
+                                <tr>
+                                    <td style="font-size:13px;"><br/><br/><b><span t-esc="o.name"/></b></td>
+                                    <td style="text-align:center;">__________________________________<br>Firma y sello del Agente Retentor</br></td>
+                                </tr>
+                                <tr>
+                                    <td><br/><br/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="2"><br/></td>
+                                </tr>
+                                <tr>
+                                    <td><br/><br/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <table style="align:center;width:100%;position:relative;border-top:1px solid black">
+                            <tbody>
+                                <tr>
+                                    <td style="width:10%;">
+                                        <table>
+                                            <tr>
+                                                <td style="width:100%;">
+                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:50px" alt="Logo"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="padding-left:3%;">
+                                        <table style="width:300px;">
+                                            <tr>
+                                                <td style="font-size:16px;line-height: 2;"><strong><span t-field="company.name"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size:16px;line-height: 2;" colspan="2" col="2"><strong><span t-field="company.company_motto"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" col="2" style="line-height: 2;"><span t-field="company.street"/></td>
+                                            </tr>
+                                            <tr>
+                                            <td style="line-height: 2;">RTN:<span t-field="company.company_registry"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;">Tel:<span t-field="company.phone"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;">E-Mail:<span t-field="company.email"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 2;"><p style="font-size: 10px;">C.A.I.:<span t-esc="o.cai_ret"/></p></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="padding-left:37%;">
+                                        <table>
+                                            <tr>
+                                                <td>__________________________________</td>
+                                                    
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="font-size: 15px;">Comprobante de Retención</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size: 16px;"><b><span t-esc="o.name"/></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fecha:<span t-esc="o.date"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>  
+                            </tbody>     
+                        </table>
+                        <div>
+                            <p style="font-size:12px; text-align:center;"><b>Datos del sujeto y del comprobante de ventas que sustenta la transacción objeto de retención</b></p>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top : 1px solid black;">
+                                <tr style="">
+                                    <td colspan="2">Nombre:<b><span t-esc="o.partner_name"/></b></td>
+                                    <td colspan="3">Tipo de Documento:
+                                        <t t-if="o.ref_doc_type =='invoice'">
+                                            <b>Factura</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='receipt'">
+                                            <b>Recibo</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='ticket'">
+                                            <b>Ticket</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='sales_ticket'">
+                                            <b>Venta Ticket</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='rent_receipt'">
+                                            <b>Rent Receipt</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='fees_receipt'">
+                                            <b>Fees Receipt</b>
+                                        </t>
+                                        <t t-if="o.ref_doc_type =='account_state'">
+                                            <b>Estado de Cuenta</b>
+                                        </t>    
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">R.T.N.:<b><span t-esc="o.partner_rtn"/></b></td>
+                                    <td colspan="3" col="3">C.A.I. Documento: <b><span t-esc="o.cai_shot"/></b></td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Fecha de emisión del Documento:<b><span t-esc="o.invoice_id.invoice_date"/></b></td>
+                                    <td colspan="3" col="2">Numero del Documento:<b><span t-esc="o.invoice_id.ref"/></b></td>
+                                    <td/>
+                                </tr> 
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px dotted grey;">
+                                <tr style="">
+                                    <td style="padding-bottom:30px;padding-top:10px;width:5%">N.</td>
+                                    <td style="text-align:center;width:50%;"><b>Descripción del Impuesto Retenido</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Base Imponible</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Tarifa,Tasa % de Retención</b></td>
+                                    <td style="text-align:center;width:15%;"><b>Importe Total Retenido</b></td>
+                                </tr>
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px dotted grey;">
+                                <t t-set="acumular" t-value="0"/>
+                                <t t-set="cont" t-value="0"/>
+                                <t t-foreach="o.retention_lines" t-as="line">
+                                <t t-set="total" t-value="line.amount"/>
+                                <t t-set="acumular" t-value="acumular+total"/>
+                                <t t-set="cont" t-value="cont + 1"/>
+                                <tr style="border-top : 1px dotted grey ;">
+                                    <td style="text-align:left;width:5%;padding-bottom:10px;"><t t-esc="cont"/></td>
+                                    <td style="text-align:left;width:50%;padding-bottom:10px;"><span t-esc="line.name"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:10px;"><span t-esc="'{0:,.2f}'.format(line.base_amount)"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:10px;"><span t-esc="line.account_id.retention_porcent"/></td>
+                                    <td style="text-align:right;width:15%;padding-right:15px;"><span t-esc="'{0:,.2f}'.format(line.amount)"/></td>
+                                </tr>
+                                </t>
+                            </table>
+                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px solid black    ;">
+                            
+                                <tr style="border-top : 1px solid black ;">
+                                    <td style="width:85%;text-align:right">TOTAL:</td>
+                                    <td style="text-align:right"><b><t t-esc="'{0:,.2f}'.format(acumular)"/></b></td>
+                                </tr>
+                                <tr>
+                                    <td/>
+                                </tr>
+                                <tr><td colspan="2"><b>SON: ***<t t-esc="o.invoice_id.to_word(float(acumular),'HNL').upper()"/>***</b></td></tr>
+                                <tr><td colspan="2"><b>Fecha limíte de emisión:</b><span t-esc="o.cai_expires_shot"/></td></tr>
+                                <tr><td colspan="2"><b>Original:</b>Cliente<b> Copia:</b>Emisor</td></tr>
+                                <tr><td colspan="2"><b>Rango Autorizado:</b><span t-esc="o.min_number_shot"/> al <span t-esc="o.max_number_shot"/></td></tr>
+                                <tr><td colspan="2"><b>Fecha de impresión:</b><t t-esc="datetime.datetime.today().strftime('%d/%m/%Y')"/></td></tr>
+                                <tr>
+                                    <td style="font-size:13px;"><br/><br/><b><span t-esc="o.name"/></b></td>
+                                    <td style="text-align:center;">__________________________________<br>Firma y sello del Agente Retentor</br></td>
+                                </tr>
+                                <tr>
+                                    <td><br/><br/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="2"><br/></td>
+                                </tr>
+                                <tr>
+                                    <td><br/><br/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
