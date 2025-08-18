@@ -132,6 +132,10 @@ class accountMoveSync(models.Model):
                     journal_id = self.env['account.journal'].sudo().search([('code', '=', inv.get('journal_id').get('code')), ('company_id', '=', company_id)])
                     if partner_id:
                         company_id = partner_id.company_id.id
+
+                    if not company_id:
+                        company_id = 1
+
                     # Validaciones antes de crear/actualizar
                     messages = []
                     if not partner_id:
