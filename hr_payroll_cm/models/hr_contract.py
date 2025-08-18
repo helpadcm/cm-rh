@@ -61,7 +61,7 @@ class Contract(models.Model):
                 if deduction_ids:
                     for ded in deduction_ids:
                         if ded.deduction_type_id.code == code:
-                            amount = ded.monthly_amount
+                            amount += ded.monthly_amount
         return amount
 
     def get_transport_bonus(self, payslip):

@@ -196,10 +196,15 @@ class HrPayslipBonus(models.Model):
     @api.depends('employee_id', 'contract_id', 'struct_id', 'date_from', 'date_to')
     def _compute_worked_days_line_ids(self):
         res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
-        for payslip in self:
+        valid_slips = self.filtered(lambda p: p.employee_id and p.date_from and p.date_to and p.contract_id and p.struct_id)
+        if not valid_slips:
+            return
+        
+        for payslip in valid_slips:
+
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
-            if mark_id:
+            if mark_id and payslip:
                 hours = mark_id.pay_extra_hours
 
                 if hours > 0:
@@ -207,22 +212,24 @@ class HrPayslipBonus(models.Model):
                     if not entry_work_id:
                         raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
                     
-                    self.env['hr.payslip.worked_days'].create({
-                        'payslip_id': payslip.id,
+                    values = {
                         'work_entry_type_id': entry_work_id.id,
                         'number_of_hours': hours,
                         'from_entry_register': True
-                    })
+                    }
+
+                    payslip.update({'worked_days_line_ids': [(0, 0, values)]})
         return res
 
     def compute_sheet(self):
         for rec in self:
             rec.get_other_incomes()
-            line_id = rec.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'OVERTIME' and line.from_entry_register == False)
-            if line_id:
-                line_id.unlink()
         res = super(HrPayslipBonus, self).compute_sheet()
         return res
+
+    # def _get_worked_day_lines(self, domain=None, check_out_of_contract=True):
+    #     res =  super(HrPayslipBonus, self)._get_worked_day_lines(domain=None, check_out_of_contract=True)
+    #     return res
 
     def get_other_incomes(self):
         obj_payslip_input = self.env['hr.payslip.input']
