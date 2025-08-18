@@ -201,7 +201,6 @@ class HrPayslipBonus(models.Model):
             return
         
         for payslip in valid_slips:
-
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id and payslip:
@@ -217,7 +216,6 @@ class HrPayslipBonus(models.Model):
                         'number_of_hours': hours,
                         'from_entry_register': True
                     }
-
                     payslip.update({'worked_days_line_ids': [(0, 0, values)]})
         return res
 
