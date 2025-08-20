@@ -9,7 +9,8 @@ class account_payment_inherit_wizard(models.TransientModel):
     next_number = fields.Char(string='Siguiente Numero', help='El numero siguiente del cheque o transferencia', default="Borrador")
     writeoff_amount = fields.Float(string="Diferencia", compute='_compute_writeoff_amount')
     write_off_lines = fields.One2many('account.payment.writeoffline', 'register_id', string="Write off lines")
-    invoice_compute = fields.Many2many('account.move.line', string="move lines")	
+    invoice_compute = fields.Many2many('account.move.line', string="move lines")
+    # payment_line_ids = fields.One2many('account.payment.line', 'register_id',string="Lineas de pago")
     pay_method_type= fields.Selection([
                 ('check','Check'),
                 ('transference','Transference'),
@@ -19,9 +20,31 @@ class account_payment_inherit_wizard(models.TransientModel):
     def default_get(self, fields):
         rec = super(account_payment_inherit_wizard, self).default_get(fields)
         context = dict(self._context or {})
+        active_model = context.get('active_model')
         active_ids = context.get('active_ids')
+        invoices = self.env[active_model].browse(active_ids)
+        #domain=[('move_id','in',invoices.ids),('full_reconcile_id','=',False),('partner_id','=',rec.get('partner_id'))]
+        if invoices[0].move_type == 'in_invoice':
+            type_account = 'liability_payable'
+        if invoices[0].move_type == 'out_invoice':
+            type_account = 'asset_receivable'
+        move_line_obj = invoices.filtered(lambda line: line.reconciled == False and line.account_id.account_type == type_account)
+        pay_line_ids = []
+        for ml in move_line_obj:
+            vals = {
+                'move_line_id': ml.id,
+                'account_id': ml.account_id.id,
+                'amount_original': ml.move_id.amount_total,
+                'date_original': ml.date,
+                'date_due': ml.date_maturity,
+                'amount_unreconcilied': ml.move_id.amount_residual,
+                'amount': ml.amount_residual,
+                'reconcile': True
+            }
+            pay_line_ids.append((0, 0, vals))
         rec.update({
-            'invoice_compute': [(6, 0, active_ids)]
+            'invoice_compute': [(6, 0, active_ids)],
+            # 'payment_line_ids': pay_line_ids
         })
         return rec
 
@@ -68,7 +91,7 @@ class account_payment_inherit_wizard(models.TransientModel):
             'payment_method_line_id': self.payment_method_line_id.id,
             'destination_account_id': self.line_ids[0].account_id.id,
             'pay_method_type': self.pay_method_type,
-            'write_off_line_vals': [],
+            'write_off_line_vals': []
         }
 
         if self.payment_difference_handling == 'reconcile':
@@ -115,7 +138,7 @@ class account_payment_inherit_wizard(models.TransientModel):
                                 'name': line.description,
                                 'account_id': line.account_id.id,
                                 'partner_id': line.partner_id.id or self.partner_id.id,
-                                'currency_id': line.currency_id.id,
+                                'currency_id': self.currency_id.id,
                                 'amount_currency': amount,
                                 'balance': self.currency_id._convert(amount, self.company_id.currency_id, self.company_id, self.payment_date),    
                             }

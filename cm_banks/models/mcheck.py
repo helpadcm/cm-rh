@@ -90,7 +90,7 @@ class mcheck(models.Model):
 		('payment','Pago'),
 		('receipt','Recibos'),
 		], string='Tipo por defecto', default='payment')
-	mcheck_ids = fields.One2many('mcheck.mcheck_name', 'mcheck_id',string="Lineas de Cheque")
+	mcheck_ids = fields.One2many('mcheck.mcheck_name', 'mcheck_id',string="Lineas de Cheque",copy=True)
 	move_ids = fields.One2many('account.move.line', 'mcheck_id',string="Movimiento contable en línea de cheque")
 	state = fields.Selection(
 	    [('draft','Borrador'),
@@ -814,7 +814,7 @@ class mcheck_name(models.Model):
 	mcheck_id = fields.Many2one('mcheck.mcheck', string='mcheck')
 	account_id = fields.Many2one('account.account', string='Cuenta', required=True)
 	name = fields.Char(string='Descripcion')
-	amount = fields.Float(string='Monto', digits='Account')
+	amount = fields.Float(string='Monto', digits='Account',copy=True)
 	chqmanalitics = fields.Many2one("account.analytic.account", string="Analiticas")
 	type = fields.Selection([('dr','Debito'),('cr','Credito')], string='Db/Cr', default='dr')
 	partner_id = fields.Many2one('res.partner', string='Empresa')

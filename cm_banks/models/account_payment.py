@@ -203,7 +203,7 @@ class ap_account_payment(models.Model):
 					liquidity_aml_dict.update(self._get_liquidity_move_line_vals(-val))
 				
 								#aml_obj.create(liquidity_aml_dict)
-			if round(keep_open,2)>0:
+			if round(keep_open,2) > 0:
 				debit,credit,amount_currency_wo, currency_id = aml_obj.with_context(date=self.payment_date).compute_amount_fields(-keep_open, self.currency_id, self.company_id.currency_id, False)
 				
 				counterpart_aml_dict = self._get_shared_move_line_vals(debit, credit, amount_currency_wo, move.id, False)

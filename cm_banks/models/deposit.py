@@ -57,7 +57,7 @@ class banks_deposits(models.Model):
 		('payment','Pagos'),
 		('receipt','Recibos'),
 		], string='Tipo por defecto', default='payment')
-	mcheck_ids = fields.One2many('banks.deposit.name','mcheck_id',string="Deposito")
+	mcheck_ids = fields.One2many('banks.deposit.name','mcheck_id',string="Deposito",copy=True)
 	deposits = fields.One2many('account.payment', 'deposit_id', string="Lineas de deposito")
 	move_ids = fields.One2many('account.move.line', 'deposit_id', string="Apuntes Contables")
 	state=fields.Selection(
@@ -491,7 +491,7 @@ class banks_deposit_name(models.Model):
 	account_id = fields.Many2one('account.account', string='Cuenta',required=True)
 	name = fields.Char(string='Descripcion')
 	name2 = fields.Char(string='Recibo')
-	amount = fields.Float(string='Monto', digits='Account')
+	amount = fields.Float(string='Monto', digits='Account',copy=True)
 	partner_id = fields.Many2one('res.partner', string='Empresa')
 	chqmanalitics = fields.Many2one("account.analytic.account",string="Depositos Analiticos")
 	type = fields.Selection([('dr','Debito'),('cr','Credito')], string='Db/Cr',default="cr")

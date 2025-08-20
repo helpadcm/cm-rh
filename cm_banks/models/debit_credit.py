@@ -62,7 +62,7 @@ class debit_credit(models.Model):
 		('payment','Pagos'),
 		('receipt','Recibos'),
 		], string='Tipo por defecto',default="payment")		 
-	mcheck_ids = fields.One2many('debit.credit.name', 'debit_credit_id', string="Lineas de Debito y Credito")
+	mcheck_ids = fields.One2many('debit.credit.name', 'debit_credit_id', string="Lineas de Debito y Credito",copy=True)
 	move_ids = fields.One2many('account.move.line','credit_debit_id',string="Movimientos")
 	state=fields.Selection(
 	    [('draft','Borrador'),
@@ -500,7 +500,7 @@ class mcheck_name(models.Model):
 	debit_credit_id = fields.Many2one('debit.credit', string='Debito y Credito')
 	account_id = fields.Many2one('account.account', string='Cuenta', required=True)
 	name = fields.Char(string='Descripcion')
-	amount = fields.Float(string='Monto', digits='Account')
+	amount = fields.Float(string='Monto', digits='Account',copy=True)
 	chqmanalitics = fields.Many2one("account.analytic.account", string="Check Misc Analiticos")
 	type = fields.Selection([('dr','Debito'),('cr','Credito')], string='Dr/Cr',default=lambda self: 'dr' if self._context and self._context['type'] and self._context['type']=='debit' else 'cr')
 	partner_id = fields.Many2one('res.partner', 'Cliente')
