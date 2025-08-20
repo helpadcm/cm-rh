@@ -1,8 +1,16 @@
 from odoo import models, fields, api
 
+selection_type = [
+    ('one_line','Una Linea'),
+    ('deduction','Tipo de deduccion'),
+    ('employee','Por empleado'),
+    ('department','Por departamento'),
+]
 
 class Employee(models.Model):
     _inherit = 'hr.employee'
+
+    analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
 
     def get_employee_no(self):
         for employee in self:
@@ -31,3 +39,8 @@ class salaryRulesInh(models.Model):
             'category_id': rules.category_id.id
         })
         return rules
+
+class accountAccountInh(models.Model):
+    _inherit = 'account.account'
+
+    calculate_type = fields.Selection(selection_type, string="Tipo de Calculo", help="Campo para definir la forma en que se comportara la cuenta al crear el asiento contable de planillas")

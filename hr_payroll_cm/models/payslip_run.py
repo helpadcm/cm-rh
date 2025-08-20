@@ -71,73 +71,282 @@ class HrPayslipRun(models.Model):
         return res
 
     def create_move(self):
-        vals = {
+        vals_move = {
             'journal_id': self.journal_id.id,
             'move_type': 'entry',
             'ref': f"Asiento generado desde lote {self.name}",
             'date': self.date_end
         }
 
-        move_lines = []
-        departments_values = []
-        department_list = self.slip_ids.mapped('employee_id.department_id')
-        for dep in department_list:
-            account_list = []
-            account_values = []
-            slip_ids = self.slip_ids.filtered(lambda slip: slip.employee_id.department_id.id == dep.id)
-            for sl in slip_ids:
-                for line in sl.line_ids:
-                    if not line.salary_rule_id.account_debit and not line.salary_rule_id.account_credit:
-                        continue
+        one_line_account_ids = self.env['account.account'].search([('calculate_type','=','one_line')])
+        department_account_ids = self.env['account.account'].search([('calculate_type','=','department')])
+        employee_account_ids = self.env['account.account'].search([('calculate_type','=','employee')])
+        deduction_account_ids = self.env['account.account'].search([('calculate_type','=','deduction')])
 
-                    if line.salary_rule_id.account_debit.id in account_list:
-                        account_values[account_list.index(line.salary_rule_id.account_debit.id)]['amount'] += line.total
-                    else:
-                        account_list.append(line.salary_rule_id.account_debit.id)
-                        account_values.append({
-                            'account_id': line.salary_rule_id.account_debit.id,
-                            'amount': line.total,
-                            'type': 'debit'
+        one_line_list = []
+        one_line_values = []
+
+        employee_list = []
+        employee_values = []
+
+        deduction_list = []
+        deduction_values = []
+
+        department_list = []
+        department_values = []
+        for sl in self.slip_ids:
+            overtime_amount = 0
+            if sl.worked_days_line_ids:
+                for entry in sl.worked_days_line_ids:
+                    if entry.work_entry_type_id.code == 'OVERTIME':
+                        account_id = self.env['account.account'].search([('code','=','511.04')])
+                        vals = {
+                            'type': 'debit',
+                            'account_id':account_id.id,
+                            'employee': sl.employee_id.name,
+                            'amount': entry.amount, 
+                            'rule_name': account_id.name, 
+                            'account_name': account_id.name,
+                            'department': sl.employee_id.department_id.name
+                        }
+                        overtime_amount += entry.amount
+                        if sl.employee_id.department_id.id in department_list:
+                            department_values[department_list.index(sl.employee_id.department_id.id)]['lines'].append(vals)
+                        else:
+                            department_list.append(sl.employee_id.department_id.id)
+                            department_values.append({
+                                'name': sl.employee_id.department_id.name,
+                                'id': sl.employee_id.department_id.id,
+                                'analytic_account': sl.employee_id.department_id.analytic_account_id.id or False,
+                                'type': 'department',
+                                'lines': [vals]
+                            })
+
+            for line in sl.line_ids:
+                if not line.salary_rule_id.account_debit and not line.salary_rule_id.account_credit:
+                    continue
+
+                if abs(line.total) > 0:
+                    vals = {'employee': sl.employee_id.name,'amount': line.total, 'rule_name': line.salary_rule_id.name, 'department': sl.employee_id.department_id.name}
+
+                    if line.salary_rule_id.account_debit:
+                        vals.update({
+                            'type': 'debit', 
+                            'account_id': line.salary_rule_id.account_debit.id, 
+                            'account_name': line.salary_rule_id.account_debit.name
                         })
+                        if line.salary_rule_id.account_debit.id in one_line_account_ids.ids:
+                            if line.salary_rule_id.account_debit.id in one_line_list:
+                                one_line_values[one_line_list.index(line.salary_rule_id.account_debit.id)]['lines'].append(vals)
+                            else:
+                                one_line_list.append(line.salary_rule_id.account_debit.id)
+                                one_line_values.append({
+                                    'name': line.salary_rule_id.name,
+                                    'type': 'one_line',
+                                    'lines':[vals]
+                                })
 
-                    if line.salary_rule_id.account_credit.id in account_list:
-                        account_values[account_list.index(line.salary_rule_id.account_credit.id)]['amount'] += abs(line.total)
-                    else:
-                        account_list.append(line.salary_rule_id.account_credit.id)
-                        account_values.append({
+                        if line.salary_rule_id.account_debit.id in employee_account_ids.ids:
+                            if sl.employee_id.id in employee_list:
+                                employee_values[employee_list.index(sl.employee_id.id)]['lines'].append(vals)
+                            else:
+                                employee_list.append(sl.employee_id.id)
+                                employee_values.append({
+                                    'name': sl.employee_id.name,
+                                    'id': sl.employee_id.id,
+                                    'analytic_account': sl.employee_id.analytic_account_id.id or False,
+                                    'type': 'employee',
+                                    'lines': [vals]
+                                })
+
+                        if line.salary_rule_id.account_debit.id in deduction_account_ids.ids:
+                            if line.salary_rule_id.id in deduction_list:
+                                deduction_values[deduction_list.index(line.salary_rule_id.id)]['lines'].append(vals)
+                            else:
+                                deduction_list.append(line.salary_rule_id.id)
+                                deduction_values.append({
+                                    'name': line.salary_rule_id.name,
+                                    'id': line.salary_rule_id.id,
+                                    'type': 'deduction',
+                                    'lines':[vals]
+                                })
+
+                        if line.salary_rule_id.account_debit.id in department_account_ids.ids:
+                            if line.salary_rule_id.account_debit.code == '511.01':
+                                vals.update({'amount': line.total - overtime_amount})
+
+                            if sl.employee_id.department_id.id in department_list:
+                                department_values[department_list.index(sl.employee_id.department_id.id)]['lines'].append(vals)
+                            else:
+                                department_list.append(sl.employee_id.department_id.id)
+                                department_values.append({
+                                    'name': sl.employee_id.department_id.name,
+                                    'id': sl.employee_id.department_id.id,
+                                    'analytic_account': sl.employee_id.department_id.analytic_account_id.id or False,
+                                    'type': 'department',
+                                    'lines': [vals]
+                                })
+
+                    if line.salary_rule_id.account_credit:
+                        vals.update({
+                            'type': 'credit', 
                             'account_id': line.salary_rule_id.account_credit.id,
-                            'amount': abs(line.total),
-                            'type': 'credit'
+                            'account_name': line.salary_rule_id.account_credit.name
                         })
+                        if line.salary_rule_id.account_credit.id in one_line_account_ids.ids:
+                            if line.salary_rule_id.account_credit.id in one_line_list:
+                                one_line_values[one_line_list.index(line.salary_rule_id.account_credit.id)]['lines'].append(vals)
+                            else:
+                                one_line_list.append(line.salary_rule_id.account_credit.id)
+                                one_line_values.append({
+                                    'name': line.salary_rule_id.name,
+                                    'type': 'one_line',
+                                    'lines':[vals]
+                                })
 
-            departments_values.append({
-                'department_name': dep.name,
-                'analytic_account': dep.analytic_account_id.id or False,
-                'lines': account_values
-            })
+                        if line.salary_rule_id.account_credit.id in employee_account_ids.ids:
+                            if sl.employee_id.id in employee_list:
+                                employee_values[employee_list.index(sl.employee_id.id)]['lines'].append(vals)
+                            else:
+                                employee_list.append(sl.employee_id.id)
+                                employee_values.append({
+                                    'name': sl.employee_id.name,
+                                    'id': sl.employee_id.id,
+                                    'analytic_account': sl.employee_id.analytic_account_id.id or False,
+                                    'type': 'employee',
+                                    'lines': [vals]
+                                })
 
-        total_debit = 0
-        total_credit = 0
-        for department in departments_values:
-            for l in department.get('lines'):
-                if l.get('account_id') and l.get('amount') > 0:
-                    values = {
-                        'name': self.name,
-                        'account_id': l.get('account_id'),
-                    }
-                    if department.get('analytic_account'):
-                        distribution_line = {str(department.get('analytic_account')): 100.0}
-                        values.update({'analytic_distribution': distribution_line})
+                        if line.salary_rule_id.account_credit.id in deduction_account_ids.ids:
+                            if line.salary_rule_id.id in deduction_list:
+                                deduction_values[deduction_list.index(line.salary_rule_id.id)]['lines'].append(vals)
+                            else:
+                                deduction_list.append(line.salary_rule_id.id)
+                                deduction_values.append({
+                                    'name': line.salary_rule_id.name,
+                                    'id': line.salary_rule_id.id,
+                                    'type': 'deduction',
+                                    'lines':[vals]
+                                })
 
-                    if l.get('type') == 'debit':
-                        values.update({'debit': l.get('amount'), 'amount_currency': l.get('amount')})
-                        total_debit += l.get('amount')
+                        if line.salary_rule_id.account_credit.id in department_account_ids.ids:
+                            if line.salary_rule_id.account_credit.code == '511.01':
+                                vals.update({'amount': line.total - overtime_amount})
 
-                    if l.get('type') == 'credit':
-                        values.update({'credit': l.get('amount'), 'amount_currency': -l.get('amount')})
-                        total_credit += l.get('amount')
-                    
-                    move_lines.append((0, 0, values))
+                            if sl.employee_id.department_id.id in department_list:
+                                department_values[department_list.index(sl.employee_id.department_id.id)]['lines'].append(vals)
+                            else:
+                                department_list.append(sl.employee_id.department_id.id)
+                                department_values.append({
+                                    'name': sl.employee_id.department_id.name,
+                                    'id': sl.employee_id.department_id.id,
+                                    'analytic_account': sl.employee_id.department_id.analytic_account_id.id or False,
+                                    'type': 'department',
+                                    'lines': [vals]
+                                })
+
+        move_lines = []
+        t_total_debit = 0
+        t_total_credit = 0
+        for e in one_line_values:
+            total_debit = 0
+            total_credit = 0
+            values = {
+                'name': e.get('name')
+            }
+            for l in e.get('lines'):
+                values.update({'account_id': l.get('account_id')})
+                if l.get('type') == 'debit':
+                    total_debit += l.get('amount')
+                    t_total_debit += l.get('amount')
+
+                if l.get('type') == 'credit':
+                    total_credit += l.get('amount')
+                    t_total_credit += l.get('amount')
+
+            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            move_lines.append((0, 0, values))
+
+        for emp in employee_values:
+            total_debit = 0
+            total_credit = 0
+            employee_ids = []
+            values = {
+                'name': emp.get('name')
+            }
+            for l in emp.get('lines'):
+                values.update({'account_id': l.get('account_id')})
+                if emp.get('analytic_account'):
+                    distribution_line = {str(emp.get('analytic_account')): 100.0}
+                    values.update({'analytic_distribution': distribution_line})
+
+                if l.get('type') == 'debit':
+                    total_debit += l.get('amount')
+                    t_total_debit += l.get('amount')
+
+                if l.get('type') == 'credit':
+                    total_credit += l.get('amount')
+                    t_total_credit += l.get('amount')
+
+                # values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+
+            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            move_lines.append((0, 0, values))
+
+        for ded in deduction_values:
+            total_debit = 0
+            total_credit = 0
+            employee_ids = []
+            values = {
+                'name': ded.get('name')
+            }
+            for l in ded.get('lines'):
+                values.update({'account_id': l.get('account_id')})
+                if l.get('type') == 'debit':
+                    total_debit += l.get('amount')
+                    t_total_debit += l.get('amount')
+
+                if l.get('type') == 'credit':
+                    total_credit += l.get('amount')
+                    t_total_credit += l.get('amount')
+
+                # values.update({'credit': total_credit, 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+
+            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            move_lines.append((0, 0, values))
+
+        for dep in department_values:
+            employee_ids = []
+            account_names = []
+            department_values = []
+            for l in dep.get('lines'):
+                if l.get('account_name') in account_names:
+                    department_values[account_names.index(l.get('account_name'))]['amount'] += l.get('amount')
+                else:
+                    account_names.append(l.get('account_name'))
+                    department_values.append(l)
+
+            for val in department_values:
+                total_debit = 0
+                total_credit = 0
+                values = {
+                    'name': f"{val.get('account_name')} {dep.get('name')}", 
+                    'account_id': val.get('account_id')
+                }
+                if dep.get('analytic_account'):
+                    distribution_line = {str(dep.get('analytic_account')): 100.0}
+                    values.update({'analytic_distribution': distribution_line})
+
+                if val.get('type') == 'debit':
+                    total_debit = val.get('amount')
+                    t_total_debit += val.get('amount')
+
+                if l.get('type') == 'credit':
+                    total_credit = val.get('amount')
+                    t_total_credit += val.get('amount')
+
+                values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+                move_lines.append((0, 0, values))
         
         if not self.journal_id.default_account_id:
             raise ValidationError(f"Debe configurar una cuenta por defecto en el diario {self.journal_id.name}")
@@ -145,10 +354,11 @@ class HrPayslipRun(models.Model):
         last_line = move_lines.append((0, 0, {
             'name': self.name,
             'account_id': self.journal_id.default_account_id.id,
-            'credit': total_debit - total_credit,
-            'amount_currency': (total_debit - total_credit) * -1
+            'credit': t_total_debit - abs(t_total_credit),
+            'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
         }))
 
-        vals.update({'line_ids': move_lines})
-        move_id = self.env['account.move'].create(vals)
+        vals_move.update({'line_ids': move_lines})
+        move_id = self.env['account.move'].create(vals_move)
         self.slip_ids.write({'move_id': move_id.id})
+

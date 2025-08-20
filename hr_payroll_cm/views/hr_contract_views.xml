@@ -39,6 +39,17 @@
         </field>
     </record>
 
+    <record id="hr_employee_inherit_cm" model="ir.ui.view">
+        <field name="name">hr.employee.inherit.list</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <field name="coach_id" position="after">
+                <field name="analytic_account_id" options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+
     <record id="teams_view_form_inherit" model="ir.ui.view">
         <field name="name">teams.form.inherit</field>
         <field name="model">hr.work.teams</field>
@@ -46,6 +57,17 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='member_employees_ids']/tree/field[@name='job_id']" position="after">
                 <field name="compensatory_day_string"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_view_form_inherit" model="ir.ui.view">
+        <field name="name">account.form.inherit</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allowed_journal_ids']" position="after">
+                <field name="calculate_type"/>
             </xpath>
         </field>
     </record>
