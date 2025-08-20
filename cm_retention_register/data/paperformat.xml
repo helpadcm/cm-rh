@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <record id="paperformat_retention" model="report.paperformat">
-            <field name="name">formato</field>
+            <field name="name">Formato retencion</field>
             <field name="default" eval="True"/>
             <field name="format">custom</field>
             <field name="page_height">279</field>
@@ -14,6 +14,22 @@
             <field name="margin_right">5</field>
             <field name="header_line" eval="False" />
             <field name="header_spacing">5</field>
+            <field name="dpi">95</field>
+        </record>
+
+        <record id="paperformat_resume_retention" model="report.paperformat">
+            <field name="name">Reporte de retenciones</field>
+            <field name="default" eval="True"/>
+            <field name="format">custom</field>
+            <field name="page_height">279</field>
+            <field name="page_width">216</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">38</field>
+            <field name="margin_bottom">18</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">30</field>
             <field name="dpi">95</field>
         </record>
     </data>

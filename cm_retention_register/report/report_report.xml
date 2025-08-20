@@ -11,5 +11,23 @@
 			<field name="paperformat_id" ref="cm_retention_register.paperformat_retention"/>
 			<field name="binding_model_id" ref="cm_retention_register.model_retentions"/>
 		</record>
+
+		<record id="retentions_retention_report" model="ir.actions.report">
+			<field name="name">Reporte de Retenciones</field>
+			<field name="model">retentions</field>
+			<field name="report_type">qweb-pdf</field>
+			<field name="report_name">cm_retention_register.report_retention</field>
+			<field name="report_file">cm_retention_register.report_retention</field>
+			<field name="binding_type">report</field>
+			<field name="paperformat_id" ref="cm_retention_register.paperformat_resume_retention"/>
+		</record>
+
+		<record id="action_retentions_report_xls" model="ir.actions.report">
+			<field name="name">Retenciones XLSX</field>
+			<field name="model">retentions</field>
+			<field name="report_type">xlsx</field>
+			<field name="report_name">cm_retention_register.retentions_report_xls</field>
+			<field name="report_file">cm_retention_register.retentions_report_xls</field>
+		</record>
     </data>
 </odoo>

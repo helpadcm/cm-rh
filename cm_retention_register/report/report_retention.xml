@@ -21,7 +21,7 @@
                                         <table>
                                             <tr>
                                                 <td style="width:100%;">
-                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:50px" alt="Logo"/>
+                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:100px" alt="Logo"/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -155,28 +155,22 @@
                                     <td style="text-align:center;">__________________________________<br>Firma y sello del Agente Retentor</br></td>
                                 </tr>
                                 <tr>
-                                    <td><br/><br/></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
+                                    <td colspan="2" style="padding-top:30px">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid black;">
                                     <td colspan="2"><br/></td>
                                 </tr>
-                                <tr>
-                                    <td><br/><br/></td>
-                                </tr>
                             </table>
                         </div>
 
-                        <table style="align:center;width:100%;position:relative;border-top:1px solid black">
+                        <table style="align:center;width:100%;position:relative;border-top:1px solid black;margin-top:4%">
                             <tbody>
                                 <tr>
                                     <td style="width:10%;">
                                         <table>
                                             <tr>
                                                 <td style="width:100%;">
-                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:50px" alt="Logo"/>
+                                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:100px" alt="Logo"/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -291,7 +285,7 @@
                                 </tr>
                                 </t>
                             </table>
-                            <table style="width:100%; position:relative;page-break-inside: avoid;border-top: 1px solid black    ;">
+                            <table style="width:100%; position:relative;border-top: 1px solid black    ;">
                             
                                 <tr style="border-top : 1px solid black ;">
                                     <td style="width:85%;text-align:right">TOTAL:</td>
@@ -310,16 +304,10 @@
                                     <td style="text-align:center;">__________________________________<br>Firma y sello del Agente Retentor</br></td>
                                 </tr>
                                 <tr>
-                                    <td><br/><br/></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
+                                    <td colspan="2" style="padding-top:30px">Estado:Cerrado| Impreso por:<t t-esc="user.name"/></td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid black;">
                                     <td colspan="2"><br/></td>
-                                </tr>
-                                <tr>
-                                    <td><br/><br/></td>
                                 </tr>
                             </table>
                         </div>

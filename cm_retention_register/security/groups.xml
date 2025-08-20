@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="group_retention" model="res.groups">
+			<field name="name">Retenciones</field>
+			<field name="category_id" ref="cm_banks.module_category_banks"/>
+		</record>
+
+		<record id="grp_ret_print" model="res.groups">
+	        <field name="name">Ver e imprimir retenciones</field>
+			<field name="category_id" ref="cm_banks.module_category_banks"/>
+        </record>
+	</data>
+</odoo>
+
+
+

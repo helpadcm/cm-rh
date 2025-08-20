@@ -21,11 +21,10 @@ class AccountPayment(models.Model):
 
     def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
         line_vals = super()._prepare_move_line_default_vals(write_off_line_vals)
-
+        total_retention = 0
+        total_amount_currency = 0
         for payment in self:
             if payment.apply_retentions:
-                total_retention = 0
-                total_amount_currency = 0
                 retention_lines = []
                 for retention in payment.retention_line_ids:
                     payment.create_retention_detail(payment, retention)

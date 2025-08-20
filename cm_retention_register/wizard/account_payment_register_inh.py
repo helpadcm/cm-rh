@@ -30,6 +30,13 @@ class AccountPaymentRegister(models.TransientModel):
             #         "El total de las retenciones no puede ser mayor que el monto original del pago."
             #     )
 
+    @api.depends('can_edit_wizard', 'amount', 'total_retention')
+    def _compute_payment_difference(self):
+        res = super(AccountPaymentRegister, self)._compute_payment_difference()
+        for rec in self:
+            rec.payment_difference -= rec.total_retention
+        return res
+
     def _create_payment_vals_from_wizard(self, batch_result):
         vals = super()._create_payment_vals_from_wizard(batch_result)
 
@@ -53,7 +60,6 @@ class AccountPaymentRegister(models.TransientModel):
             vals['retention_line_ids'] = retentions
         return vals
 
-
 class AccountPaymentRegisterRetentionLine(models.TransientModel):
     _name = 'account.payment.register.retention.line'
     _description = 'Líneas de retención en el registro de pago'
@@ -66,6 +72,7 @@ class AccountPaymentRegisterRetentionLine(models.TransientModel):
     )
     account_id = fields.Many2one('account.account', string='Cuenta de retención', required=True)
     percentage = fields.Float(string='Porcentaje (%)', required=True)
+    # apply_percentage_payment = fields.Float(string="Porcentaje del pago")
     name = fields.Char(string="Descripcion")
     amount = fields.Monetary(string='Monto', compute='_compute_amount')
     currency_id = fields.Many2one(related='wizard_id.currency_id', readonly=True)

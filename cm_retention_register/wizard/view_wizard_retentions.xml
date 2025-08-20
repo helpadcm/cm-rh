@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="wizard_retentions_view" model="ir.ui.view">
+        <field name="name">Retenciones</field>
+        <field name="model">retention.wizard_retentions</field>
+        <field name="arch" type="xml">
+            <form string="Report Filter">
+                <group>
+                    <group>
+                        <field name="date_start" />
+                    </group>
+                    <group>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="check_report" string="Imprimir" type="object" class="oe_highlight"/>
+                    <button name="check_report" string="Excel" context="{'export_excel':True}" type="object" class="oe_highlight"/>
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_retentions_menu" model="ir.actions.act_window">
+        <field name="name">Retenciones</field>
+        <field name="res_model">retention.wizard_retentions</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_retentions_view"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

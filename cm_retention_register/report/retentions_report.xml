@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_retention">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>
+                <div class="header">
+                    <table class="table table-borderless" style="align:center;width:100%;border-collapse: collapse;border:none">
+                        <tr style="height: 20px;padding:0px;border:0px ;" >
+                            <td style="width:20%;border:none">
+                                <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:100px" alt="Logo"/>
+                            </td>
+                            <td style="text-align:center;font-size:28px;border:none">
+                                <table style="width:100%">
+                                    <tr>
+                                        <strong><span t-field="company.name"/></strong>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;font-size:20px;border:none"><strong><span t-field="company.company_motto"/></strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;font-size:20px;border:none"><strong>Reporte de Retenciones</strong></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="page" style="font-size:15px sans-serif;">
+                    <table style="width:100%;border-collapse: collapse">
+                            <style>
+                                td{
+                                    font-size:12px;
+                                }
+                            </style>
+                            <tbody>
+                                <tr>
+                                    <td style="border-bottom:1px solid black;width:10%;vertical-align:middle" ><strong>Tipo</strong></td>
+                                    <td style="border-bottom:1px solid black;width:10%;vertical-align:middle"><strong>RTN</strong></td>
+                                    <td style="border-bottom:1px solid black;width:20%;vertical-align:middle"><strong>Apellidos, Nombre o Razón social</strong></td>
+                                    <td style="border-bottom:1px solid black;width:8%;vertical-align:middle"><strong>Número de Documento</strong></td>
+                                    <td style="border-bottom:1px solid black;width:8%;vertical-align:middle"><strong>Fecha de Documento</strong></td>
+                                    <td style="border-bottom:1px solid black;width:8%;vertical-align:middle"><strong>Retención Base</strong></td>
+                                    <td style="border-bottom:1px solid black;width:8%;text-align:right;vertical-align:middle"><strong>Impuesto Retenido</strong></td>
+                                    <td style="border-bottom:1px solid black;width:12%;text-align:center;vertical-align:middle"><strong>Concepto de retención</strong></td>
+                                    <td style="border-bottom:1px solid black;width:16%;text-align:center;vertical-align:middle"><strong>Descripción del impuesto</strong></td>
+                                </tr>
+                                <t t-foreach="data" t-as="a">
+                                    <tr>
+                                        <td><span t-esc="a.get('type')"/></td>
+                                        <td><span t-esc="a.get('rtn')"/></td>
+                                        <td><span t-esc="a.get('names')"/></td>
+                                        <td><span t-esc="a.get('document_number')"/></td>
+                                        <td><span t-esc="a.get('document_date')"/></td>
+                                        <td style="text-align:right"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('base'))"/></td>
+                                        <td style="text-align:right"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('tax'))"/></td>
+                                        <td style="text-align:center"><span t-esc="a.get('concept')"/></td>
+                                        <td style="text-align:left"><span t-esc="a.get('description')"/></td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="5"></td>
+                                    <td style="text-align:right"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_base',0))"/></strong></td>
+                                    <td style="text-align:right"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_tax',0))"/></strong></td>
+                                </tr>
+                            </tbody>
+                    </table>
+                </div>
+                <div class="footer" style="border-top:1px solid black">
+                    <div class="text-center" style="word-spacing: 10px">
+                        <strong>Calle:</strong> <span t-field="company.street"/>   <strong>Sitio Web:</strong> <span t-field="company.website"/>   <strong>Teléfono:</strong> <span t-field="company.phone"/>   <strong>RTN:</strong> <span t-field="company.company_registry"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

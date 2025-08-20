@@ -5,7 +5,7 @@
         name="Retenciones" 
         sequence="4" 
         parent="account_accountant.menu_accounting"
-        
+        groups="group_retention"
     />
     <menuitem 
         id="action_retentions" 
@@ -13,6 +13,15 @@
         sequence="1" 
         parent="main_menu_retention" 
         action="retentions_form_view_action" 
+        groups="group_retention"
         
     />
+    <menuitem 
+        id="retentions_menuitem" 
+        name="Reporte de retenciones"
+        parent="main_menu_retention"
+        action="action_wizard_retentions_menu"
+        groups="grp_ret_print"
+        sequence="5"
+        />
 </odoo>

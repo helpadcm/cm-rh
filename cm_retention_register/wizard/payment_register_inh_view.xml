@@ -12,9 +12,11 @@
                 <xpath expr="//notebook" position="inside">
                     <page string="Lineas de retencion" invisible="apply_retentions != True">
                         <field name="invoice_compute" invisible="1"/>
+                        <field name="total_retention" invisible="1"/>
                         <field name="retention_line_ids" nolabel="1">
                             <tree editable="bottom">
                                 <field name="invoice_line_id" options="{'no_create': True}" domain="[('id', 'in', parent.invoice_compute),('account_id.account_type','in',['asset_receivable','liability_payable'])]"/>
+                                <!-- <field name="apply_percentage_payment" sum="Total"/> -->
                                 <field name="account_id" options="{'no_create': True}" domain="[('use_4_retention', '=', True)]"/>
                                 <field name="percentage" column_invisible="1"/>
                                 <field name="amount" readonly="1"/>
