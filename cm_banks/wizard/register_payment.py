@@ -22,26 +22,26 @@ class account_payment_inherit_wizard(models.TransientModel):
         context = dict(self._context or {})
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
-        invoices = self.env[active_model].browse(active_ids)
-        #domain=[('move_id','in',invoices.ids),('full_reconcile_id','=',False),('partner_id','=',rec.get('partner_id'))]
-        if invoices[0].move_type == 'in_invoice':
-            type_account = 'liability_payable'
-        if invoices[0].move_type == 'out_invoice':
-            type_account = 'asset_receivable'
-        move_line_obj = invoices.filtered(lambda line: line.reconciled == False and line.account_id.account_type == type_account)
-        pay_line_ids = []
-        for ml in move_line_obj:
-            vals = {
-                'move_line_id': ml.id,
-                'account_id': ml.account_id.id,
-                'amount_original': ml.move_id.amount_total,
-                'date_original': ml.date,
-                'date_due': ml.date_maturity,
-                'amount_unreconcilied': ml.move_id.amount_residual,
-                'amount': ml.amount_residual,
-                'reconcile': True
-            }
-            pay_line_ids.append((0, 0, vals))
+        # invoices = self.env[active_model].browse(active_ids)
+        # #domain=[('move_id','in',invoices.ids),('full_reconcile_id','=',False),('partner_id','=',rec.get('partner_id'))]
+        # if invoices[0].move_type == 'in_invoice':
+        #     type_account = 'liability_payable'
+        # if invoices[0].move_type == 'out_invoice':
+        #     type_account = 'asset_receivable'
+        # move_line_obj = invoices.filtered(lambda line: line.reconciled == False and line.account_id.account_type == type_account)
+        # pay_line_ids = []
+        # for ml in move_line_obj:
+        #     vals = {
+        #         'move_line_id': ml.id,
+        #         'account_id': ml.account_id.id,
+        #         'amount_original': ml.move_id.amount_total,
+        #         'date_original': ml.date,
+        #         'date_due': ml.date_maturity,
+        #         'amount_unreconcilied': ml.move_id.amount_residual,
+        #         'amount': ml.amount_residual,
+        #         'reconcile': True
+        #     }
+        #     pay_line_ids.append((0, 0, vals))
         rec.update({
             'invoice_compute': [(6, 0, active_ids)],
             # 'payment_line_ids': pay_line_ids
