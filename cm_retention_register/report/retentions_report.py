@@ -9,6 +9,7 @@ from odoo.exceptions import ValidationError
 
 class reportRetentions(models.AbstractModel):
     _name = 'report.cm_retention_register.report_retention'
+    _description = "Reporte de retencion"
 
     @api.model
     def _get_report_values(self, docids, data=None):

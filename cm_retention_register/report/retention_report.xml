@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="ret_report_retention">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>
+                <div class="header">
+                    <table class="table table-borderless" style="align:center;width:100%;border-collapse: collapse">
+                        <tbody>
+                            <tr style="height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="5">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height:80px" alt="Logo"/>
+                                </td>
+                                <td style="text-align:center;font-size:12px">
+                                    <table style="width:100%">
+                                        <tr>
+                                            <strong>REGISTRO DE RETIROS</strong>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;font-size:12px"><strong><span t-esc="vals.get('date_start')"/> - <span t-esc="vals.get('date_to')"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;font-size:12px"><strong><span t-field="company.name"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;font-size:12px"><strong><span t-field="company.company_registry"/></strong></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="page" style="font-size:15px sans-serif;">
+                   <table style="width:100%;border-collapse:collapse">
+                        <style>
+                            td{
+                                border:1px solid black;
+                                font-size:8px;
+                                text-align:center
+                            }
+                        </style>
+                        <thead>
+                            <tr>
+                                <td style="font-size:9px;width:1%;vertical-align:middle" rowspan="3">No</td>
+                                <td style="font-size:9px;width:7%;vertical-align:middle" rowspan="3">No. CORRELATIVO DEL COMPROBANTE DE RETENCION</td>
+                                <td style="font-size:9px;width:3%;vertical-align:middle" rowspan="3">FECHA DE EMISION DE VENCIMIENTO DE RECUPERACION</td>
+                                <td style="font-size:9px;width:11%;vertical-align:middle" rowspan="3">APELLIDO Y NOMBRE, MOTIVO O DENOMINACION SOCIAL</td>
+                                <td style="font-size:9px;width:5%;vertical-align:middle" rowspan="3">RTN DEL RETENIDO</td>
+                                <td style="font-size:9px;width:10%;vertical-align:middle" rowspan="3">CLAVE DE AUTORIZACION DE IMPRESION</td>
+                                <td style="font-size:9px;width:40%;vertical-align:middle" colspan="8">DATOS DEL COMPROBANTE DE VENTA QUE SUSTENTA TRANSACCION</td>
+                                <td style="font-size:9px;width:5%;vertical-align:middle" rowspan="3">DESCRIPCIÓN DEL TRIBUTO RETENIDO</td>
+                                <td style="font-size:9px;width:16%;vertical-align:middle" rowspan="2" colspan="4">TARIFA TASA O PORCENTAJE DE LA RETENCIÓN 1%, 10%, 12.5%, 25% Y TOTAL RETENIDO</td>
+                            </tr>
+          
+                            <tr>
+                                <td rowspan="2" style="font-size:9px;width:5%;vertical-align:middle">FECHA DE EMISION DEL COMPROBANTE DE VENTA</td>
+                                <td rowspan="2" style="font-size:9px;width:7%;vertical-align:middle">NÚMERO FACTURA DEL COMPROBANTE</td>
+                                <td rowspan="2" style="font-size:10px;width:7%;vertical-align:middle">CLAVE DE AUTORIZACIÓN DE IMPRESIÓN CAI</td>
+                                <td rowspan="2" style="font-size:9px;width:5%;vertical-align:middle">CODIGO DE AUTORIZACIÓN DE EMISION ELECTRONICA (SI APLICA)</td>
+                                <td colspan="4" style="font-size:9px;width:16%;vertical-align:middle">VALOR DEL COMPROBANTE</td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">1%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">10%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">12.5%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">25%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">1%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">10%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">12.5%</td>
+                                <td style="font-size:9px;width:4%;vertical-align:bottom">25%</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data" t-as="a">
+                                <tr>
+                                    <td style="border:1px solid black)"><span t-esc="a.get('count')"/></td>
+                                    <t t-if="a.get('state2') == 'close'">
+                                        <td style="border:1px solid black"><span t-esc="a.get('document_number')"/></td>
+                                        <td style="text-align:center;border-bottom:1px solid black"><span t-esc="a.get('document_date')"/></td>
+                                        <td style="padding-left:8px;text-align:left;border-bottom:1px solid black"><span t-esc="a.get('names')"/></td>
+                                        <td style="border:1px solid black"><span t-esc="a.get('rtn')"/></td>
+                                        <td style="border:1px solid black"><span t-esc="a.get('retention_cai')"/></td>
+                                        <td style="border:1px solid black"><span t-esc="a.get('invoice_date')"/></td>
+                                        <td style="border:1px solid black"><span t-esc="a.get('invoice_number')"/></td>
+                                        <td style="border:1px solid black"><span t-esc="a.get('invoice_cai')"/></td>
+                                        <td style="border:1px solid black"></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('base_1'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('base_10'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('base_12'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('base_25'))"/></td>
+                                        <td style="border:1px solid black"></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('amount_1'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('amount_10'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('amount_12'))"/></td>
+                                        <td style="text-align:right;border:1px solid black"><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(a.get('amounts').get('amount_25'))"/></td>
+                                    </t>
+                                    <t t-if="a.get('state2') == 'cancel'">
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"><span t-esc="a.get('document_number')"/></td>
+                                        <td colspan="7" style="border:1px solid black;text-align:center;background-color:rgb(218, 218, 218)"><strong>ANULADO</strong></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><span t-esc="company.currency_id.symbol"/> 0.00</td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="border:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                        <td style="text-align:right;border:1px solid black;background-color:rgb(218, 218, 218)"><span t-esc="company.currency_id.symbol"/> 0.00</td>
+                                    </t>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong>TOTALS</strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_base1'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_base10'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_base12'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_base25'))"/></strong></td>
+                                <td style="border-bottom:1px solid black;background-color:rgb(218, 218, 218)"></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_amount1'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_amount10'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_amount12'))"/></strong></td>
+                                <td style="text-align:right;border-bottom:1px solid black;background-color:rgb(218, 218, 218)"><strong><span t-esc="company.currency_id.symbol"/> <span t-esc="'{0:,.2f}'.format(vals.get('total_amount25'))"/></strong></td>
+                            </tr>
+                        </tbody>
+                   </table>
+                </div>
+                <div class="footer" style="border-top:1px solid black">
+                    <ul class="list-inline">
+                        <t t-if="company.street">
+                            <li><strong>Calle: <span t-field="company.street"/></strong></li>
+                        </t>
+                        <t t-if="company.website">
+                            <li><strong>Sitio Web: <span t-field="company.website"/></strong></li>
+                        </t>
+                        <t t-if="company.phone">
+                            <li><strong>Telefono: <span t-field="company.phone"/></strong></li>
+                        </t>
+                        <t t-if="company.company_registry">
+                            <li><strong>RTN: <span t-field="company.company_registry"/></strong></li>
+                        </t>
+                    </ul>
+                    <div class="text-center">
+                        <ul class="list-inline">
+                            <li><span class="page"/></li>
+                            <li>/</li>
+                            <li><span class="topage"/></li>
+                        </ul>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</openerp>

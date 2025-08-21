@@ -24,4 +24,12 @@
         groups="grp_ret_print"
         sequence="5"
         />
+
+    <menuitem id="wizard_retentions_menuitem" 
+        name="Retenciones"
+        parent="account.menu_finance_reports"
+        action="action_retentions_menu"
+        sequence="1"
+        groups="grp_ret_print"
+        />
 </odoo>
