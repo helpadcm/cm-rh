@@ -33,6 +33,15 @@ class ap_account_payment(models.Model):
 				payment.date
 			)
 
+	def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
+		res = super(ap_account_payment, self)._prepare_move_line_default_vals(write_off_line_vals=None, force_balance=None)
+		for line in res:
+			if line.get('account_id') == self.journal_id.default_account_id.id:
+				if self.analytic_account_id:
+					distribution_line = {str(self.analytic_account_id.id): 100.0}
+					line.update({'analytic_distribution': distribution_line})
+		return res
+
 	@api.model_create_multi
 	def create(self, vals_list):
 		records = super().create(vals_list)

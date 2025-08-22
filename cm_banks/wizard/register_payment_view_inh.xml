@@ -12,6 +12,7 @@
 
 				<xpath expr="//field[@name='payment_method_line_id']" position="replace">
 					<field name="pay_method_type" invisible="partner_type == 'customer'"/>
+					<field name="analytic_account_id" invisible="journal_id == False or partner_type == 'customer'" options="{'no_quick_create':True,'no_create_edit':True,'no_open':True}" groups="analytic.group_analytic_accounting"/>
 					<field name="payment_method_line_id" invisible="1"/>
 				</xpath>
 

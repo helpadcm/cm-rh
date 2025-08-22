@@ -9,6 +9,7 @@ class account_payment_inherit_wizard(models.TransientModel):
     next_number = fields.Char(string='Siguiente Numero', help='El numero siguiente del cheque o transferencia', default="Borrador")
     writeoff_amount = fields.Float(string="Diferencia", compute='_compute_writeoff_amount')
     write_off_lines = fields.One2many('account.payment.writeoffline', 'register_id', string="Write off lines")
+    analytic_account_id	=	fields.Many2one('account.analytic.account',string="Cuenta Analitica")
     invoice_compute = fields.Many2many('account.move.line', string="move lines")
     # payment_line_ids = fields.One2many('account.payment.line', 'register_id',string="Lineas de pago")
     pay_method_type= fields.Selection([
@@ -79,6 +80,7 @@ class account_payment_inherit_wizard(models.TransientModel):
     def _create_payment_vals_from_wizard(self, batch_result):
         payment_vals = {
             'date': self.payment_date,
+            'analytic_account_id': self.analytic_account_id.id or False,
             'amount': self.amount,
             'payment_type': self.payment_type,
             'partner_type': self.partner_type,
