@@ -16,6 +16,11 @@ class Employee(models.Model):
         for employee in self:
             employee.employee_no = employee.registration_number or employee.barcode or employee.pin or ''
 
+class employeePublic(models.Model):
+    _inherit = 'hr.employee.public'
+
+    analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
+
 class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'
 
