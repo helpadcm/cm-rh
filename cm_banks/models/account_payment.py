@@ -15,7 +15,8 @@ class ap_account_payment(models.Model):
 	analytic_account_id	=	fields.Many2one('account.analytic.account', string='Cuenta Analitica')
 	number_doc = fields.Char(string = 'Numero')
 	write_off_line = fields.One2many('account.payment.writeoffline','payment_id',string="Write off lines")
-	pay_method_type= fields.Selection([
+	partner_id_for_parents = fields.Many2one('res.partner',string="Partner")
+	pay_method_type = fields.Selection([
 				('check','Cheque'),
 				('transference','Transferencia'),
 				('otros','Otros')], string='Tipo de Transaccion')
@@ -44,6 +45,9 @@ class ap_account_payment(models.Model):
 
 	@api.model_create_multi
 	def create(self, vals_list):
+		for vals in vals_list:
+			if vals.get('partner_id') and not vals.get('partner_id_for_parents'):
+				vals.update({'partner_id_for_parents':vals.get('partner_id')})
 		records = super().create(vals_list)
 		records._compute_currency_amount()
 		return records

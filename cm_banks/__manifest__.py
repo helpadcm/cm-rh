@@ -49,6 +49,7 @@
 		# 'views/res_currency.xml',
 		'views/menus.xml',
 		'report/checks_miscelaneo.xml',
+		'report/misc_check_providers_report.xml',
 		'report/report_reports.xml'
 	],
 	'license': 'LGPL-3',
