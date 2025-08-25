@@ -55,6 +55,7 @@
                                         <field name="sender_id" required="1" readonly="state != 'quote'"/>
                                         <field name="id_sender" string="Identidad" required="1" readonly="state != 'quote'"/>
                                         <field name="sender_phone" string="Telefono" required="1" readonly="state != 'quote'"/>
+                                        <!-- <field name="sum_points" invisible="not default_client or modality != 'counted'" string="Acumula puntos" readonly="state != 'quote'"/> -->
                                     </group>
                                     <group string="Destinatario">
                                         <field name="receiver_name" string="Destinatario" invisible="1"/>
@@ -68,9 +69,6 @@
                                     </group>
                                 </group>
                                 <group string="Detalles">
-                                    <group>
-                                        <field name="content_description" readonly="state != 'quote'" required="1"/>
-                                    </group>
                                     <group>
                                         <field name="observations" readonly="state != 'quote'"/>
                                     </group>
@@ -143,6 +141,7 @@
                                         <field name="default_client" invisible="1"/>
                                     </group>
                                     <group>
+                                        <field name="client_name" invisible="not apply_rtn" readonly="state != 'quote'"/>
                                         <field name="rtn" invisible="not apply_rtn" readonly="state != 'quote' or readonly_rtn == True" required="apply_rtn" force_save="1"/>
                                     </group>
                                 </group>>

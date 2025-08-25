@@ -26,10 +26,8 @@ class reportHandling(models.AbstractModel):
             'invoice_order': 'cm_cargo_handling.invoice_order',
             'data': self.get_data(data), # Función para obtener más datos
         }
-        # return vals
 
     def get_data(self, data):
-        print ("/////////////////////////")
         order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
 
         print_inv = False

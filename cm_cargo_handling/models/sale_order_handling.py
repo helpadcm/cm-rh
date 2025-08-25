@@ -19,6 +19,12 @@ class saleOrderHandling(models.Model):
         return self.env.user.id
 
     @api.model
+    def default_client_rec(self):
+        client_def_id = self.env['res.partner'].search([('default_client','=',True)])
+        if client_def_id:
+            return client_def_id.id
+
+    @api.model
     def origin_default(self):
         if not self.env.user.station_id:
             raise ValidationError("¡¡Su usuario no cuenta con una estacion configurada por defecto, por favor contacte con el administrador!!")
@@ -58,7 +64,7 @@ class saleOrderHandling(models.Model):
     state = fields.Selection(states, string="Estado", default="quote", tracking=True)
     cart_ids = fields.One2many('cart.order.handling', 'order_id', string="Carrito de ordenes")
     listprice_domain = fields.Binary(string="Dominio de lista de precios", compute="update_pricelist")
-    partner_id = fields.Many2one('res.partner',string="Cliente", tracking=True)
+    partner_id = fields.Many2one('res.partner',string="Cliente", tracking=True, default=default_client_rec)
     bill_lading_ids = fields.One2many('cargo.bill', 'order_id', string="Guias de Carga")
     has_contacts = fields.Boolean(string="Tiene contactos")
     content_description_ids = fields.Many2many('cargo.content.description', string="Descripcion del Contenido")
@@ -103,6 +109,8 @@ class saleOrderHandling(models.Model):
 
     move_id = fields.Many2one('account.move',string="Factura", copy=False)
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.payment_state")
+    sum_points = fields.Boolean(string="Acumula puntos")
+    client_name = fields.Char(string="Nombre del cliente")
 
     @api.onchange('modality', 'default_client')
     def allow_create_handling(self):
@@ -188,12 +196,12 @@ class saleOrderHandling(models.Model):
 
     @api.onchange('partner_id', 'parent_id')
     def show_contacts(self):
-        self.receiver_id = False
-        self.id_receiver = False
-        self.id_sender = False
-        self.sender_id = False
-        self.sender_phone = False
-        self.receiver_phone = False
+        # self.receiver_id = False
+        # self.id_receiver = False
+        # self.id_sender = False
+        # self.sender_id = False
+        # self.sender_phone = False
+        # self.receiver_phone = False
 
         vals_rtn = False
         if self.partner_id and not self.parent_id:
@@ -351,6 +359,8 @@ class saleOrderHandling(models.Model):
 
         self.move_id = self.env['account.move'].create({
             'partner_id': invoice_partner_id.id,
+            'partner_name': self.client_name or invoice_partner_id.name,
+            'rtn_name': self.rtn or invoice_partner_id.vat,
             'move_type': 'out_invoice',
             'invoice_user_id': self.user_id.id,
             'journal_id': journal_id.id,
