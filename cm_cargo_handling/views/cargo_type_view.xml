@@ -36,6 +36,20 @@
             </field>
         </record>
 
+        <record id="volumen_list_tree_view" model="ir.ui.view">
+            <field name="name">Listado de Volumenes</field>
+            <field name="model">cargo.volumen.list</field>
+            <field name="arch" type="xml">
+                <tree string="Volumenes" editable="bottom">
+                    <field name="image" widget="image"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="volumen"/>
+                    <field name="instructions"/>
+                </tree>
+            </field>
+        </record>
+
         <record id="action_cargo_type_object" model="ir.actions.act_window">            
             <field name="name">Tipos de Envio</field>
             <field name="res_model">cargo.type</field>
@@ -55,6 +69,14 @@
         <record id="action_lost_reason_guide" model="ir.actions.act_window">            
             <field name="name">Motivos de perdida</field>
             <field name="res_model">handling.lost.reason</field>
+            <field name="view_mode">tree</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+
+        <record id="action_volumen_list" model="ir.actions.act_window">            
+            <field name="name">Volumenes</field>
+            <field name="res_model">cargo.volumen.list</field>
             <field name="view_mode">tree</field>
             <field name="context">{}</field>         
             <field name="domain" eval="[]"/>

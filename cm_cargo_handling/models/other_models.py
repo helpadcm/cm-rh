@@ -45,6 +45,17 @@ class AdditionalServices(models.Model):
     variable_factor = fields.Monetary(currency_field="currency_id", string="Variable factor")
     fixed_value = fields.Monetary(currency_field="currency_id", string="Valor Fijo")
 
+class volumenList(models.Model):
+    _name = 'cargo.volumen.list'
+    _description = "Lista de Volumenes"
+    _rec_names_search = ['name', 'code']
+
+    name = fields.Char(string="Nombre")
+    code = fields.Char(string="Codigo")
+    volumen = fields.Float(string="Volumen")
+    instructions = fields.Char(string="Instrucciones")
+    image = fields.Binary(string="Imagen", attachment=True)
+
 class AdditionalServices(models.Model):
     _name = 'cargo.bill.additional.service'
     _description = "Servicios Adicionales en Factura"

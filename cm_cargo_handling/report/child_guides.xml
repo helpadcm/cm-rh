@@ -170,7 +170,7 @@
                                 </tr>
                             </table>
                             <table style="float:left;width:40%;margin-left:10px">
-                                <t t-if="modality == 'upon_delivery'">
+                                <t t-if="data.get('modality') == 'upon_delivery'">
                                     <tr style="border:1px solid #000000">
                                         <td style="background-color:rgb(218,218,218);border:1 px solid black;text-align:center;padding:5px" colspan="4">
                                             <p style="font-size:35px">
@@ -179,7 +179,7 @@
                                         </td>
                                     </tr>
                                 </t>
-                                <t t-if="modality == 'credit'">
+                                <t t-if="data.get('modality') == 'credit'">
                                     <tr style="border:1px solid #000000">
                                         <td style="background-color:rgb(218,218,218);border:1 px solid black;text-align:center;padding:5px" colspan="4">
                                             <p style="font-size:35px">

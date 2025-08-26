@@ -122,6 +122,13 @@
             parent="cargo_handling_config"
             sequence="5"
             action="action_lost_reason_guide"/>
+
+        <menuitem
+            id="volumen_list_menuitem"
+            name="Volumenes"
+            parent="cargo_handling_config"
+            sequence="6"
+            action="action_volumen_list"/>
     
         <!-- ###############################  LANDING MANIFEST ########################################-->
         

@@ -111,6 +111,13 @@ class saleOrderHandling(models.Model):
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.payment_state")
     sum_points = fields.Boolean(string="Acumula puntos")
     client_name = fields.Char(string="Nombre del cliente")
+    volumen = fields.Float(string="Volumen")
+    volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico")
+
+    @api.onchange('volumen_list_id')
+    def _onchange_volumen_list_id(self):
+        if self.volumen_list_id:
+            self.volumen = self.volumen_list_id.volumen
 
     @api.onchange('modality', 'default_client')
     def allow_create_handling(self):
@@ -154,7 +161,7 @@ class saleOrderHandling(models.Model):
         for rec in self:
             rec.qty_guides = sum(rec.cart_ids.mapped('pieces_qty'))
 
-    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids')
+    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids', 'volumen')
     def calculate_totals(self):
         for rec in self:
             total_lbs = 0
@@ -178,9 +185,9 @@ class saleOrderHandling(models.Model):
                 total_lbs += line.weight_or_qty
                 total_dls += line.external_price
             
-            subtotal = total_dls + additional_cost
+            subtotal = total_dls + additional_cost + rec.volumen
             rec.weight = total_lbs
-            rec.preliminar_price = total_dls
+            rec.preliminar_price = total_dls + rec.volumen
             rec.amount_untaxed = subtotal
             rec.total = subtotal
 
@@ -196,13 +203,6 @@ class saleOrderHandling(models.Model):
 
     @api.onchange('partner_id', 'parent_id')
     def show_contacts(self):
-        # self.receiver_id = False
-        # self.id_receiver = False
-        # self.id_sender = False
-        # self.sender_id = False
-        # self.sender_phone = False
-        # self.receiver_phone = False
-
         vals_rtn = False
         if self.partner_id and not self.parent_id:
             if self.partner_id.default_client:
@@ -342,6 +342,16 @@ class saleOrderHandling(models.Model):
             if sequence_id:
                 self.name = sequence_id.next_by_id()
 
+        if self.sender_id:
+            self.sender_id.phone = self.sender_phone
+            self.sender_id.identity = self.id_sender
+            self.sender_id.generate_code()
+
+        if self.receiver_id:
+            self.receiver_id.phone = self.receiver_phone
+            self.receiver_id.identity = self.id_receiver
+            self.receiver_id.generate_code()
+
     def set_to_quote(self):
         state_type = self.env.context.get('state')
         if state_type:
@@ -409,7 +419,7 @@ class saleOrderHandling(models.Model):
                 'receiver_name': self.receiver_id.name,
                 'id_receiver': self.id_receiver,
                 'receiver_phone': self.receiver_phone,
-                'content_description': self.content_description,
+                'content_description': line.piece_description,
                 'observations': self.observations,
                 'weight': line.weight_or_qty,
                 'modality': self.modality
