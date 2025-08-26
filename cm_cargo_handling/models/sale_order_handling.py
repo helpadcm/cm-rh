@@ -58,7 +58,7 @@ class saleOrderHandling(models.Model):
     date = fields.Datetime(string="Fecha de registro",default=default_date)
     local_currency_id = fields.Many2one('res.currency',string="Moneda Local")
     external_currency_id = fields.Many2one('res.currency',string="Moneda Extranjera")
-    weight_or_qty = fields.Float(string="Cantidad", help="En este campo se debe agregar el peso en lbs o la cantidad de unidades, esto de acuerdo al producto que se este seleccionando")
+    weight_or_qty = fields.Float(string="Cantidad")
     local_price = fields.Float(string="Precio Lps", compute="calculate_amounts", store=True)
     external_price = fields.Float(string="Precio USD", compute="calculate_amounts", store=True)
     state = fields.Selection(states, string="Estado", default="quote", tracking=True)
@@ -82,6 +82,7 @@ class saleOrderHandling(models.Model):
     qty_guides = fields.Integer(string="Cant. Guias", compute="calculate_total_guides")
     allow_create_guides = fields.Boolean(string="Crear guias?")
     created_guides = fields.Boolean(string="Guias Creadas")
+    created_invoice = fields.Boolean(string="Factura Creada")
     parent_id = fields.Many2one('res.partner',string="Fact. Autorizados")
     readonly_rtn = fields.Boolean(string="RTN solo lectura")
     default_client = fields.Boolean(string="Cliente por defecto")
@@ -99,6 +100,7 @@ class saleOrderHandling(models.Model):
     receiver_phone = fields.Char(string="Telefono Destinatario", tracking=True)
 
     weight = fields.Float(string="Peso LBS", compute="calculate_totals", store=True)
+    weight_piece = fields.Float(string="Peso(LBS)")
     preliminar_price = fields.Float(string="Precio preliminar ($)", compute='calculate_totals', store=True)
     amount_tax = fields.Float(string="Isv", compute='calculate_totals', store=True)
     amount_untaxed = fields.Float(string="Base imponible", compute='calculate_totals', store=True)
@@ -113,6 +115,7 @@ class saleOrderHandling(models.Model):
     client_name = fields.Char(string="Nombre del cliente")
     volumen = fields.Float(string="Volumen")
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico")
+    uom_name = fields.Char(string="Nombre unidad de medida")
 
     @api.onchange('volumen_list_id')
     def _onchange_volumen_list_id(self):
@@ -161,13 +164,14 @@ class saleOrderHandling(models.Model):
         for rec in self:
             rec.qty_guides = sum(rec.cart_ids.mapped('pieces_qty'))
 
-    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids', 'volumen')
+    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids')
     def calculate_totals(self):
         for rec in self:
             total_lbs = 0
             total_dls = 0
             additional_cost = 0
             total_included = 0
+            total_volumen = 0
             if rec.origin_id:
                 additional_cost += rec.origin_id.internal_load_ori
             if rec.destination_id:
@@ -182,12 +186,13 @@ class saleOrderHandling(models.Model):
             rec.additional_costs = additional_cost
 
             for line in rec.cart_ids:
-                total_lbs += line.weight_or_qty
+                total_lbs += line.weight_piece
                 total_dls += line.external_price
+                total_volumen += line.volumen
             
-            subtotal = total_dls + additional_cost + rec.volumen
+            subtotal = total_dls + additional_cost + total_volumen
             rec.weight = total_lbs
-            rec.preliminar_price = total_dls + rec.volumen
+            rec.preliminar_price = total_dls + total_volumen
             rec.amount_untaxed = subtotal
             rec.total = subtotal
 
@@ -214,6 +219,7 @@ class saleOrderHandling(models.Model):
             else:
                 self.has_contacts = True
                 self.apply_rtn = True
+                self.client_name = self.partner_id.name
                 vals_rtn = self.partner_id.vat
                 self.modality = self.partner_id.modality
 
@@ -224,6 +230,7 @@ class saleOrderHandling(models.Model):
 
         if self.parent_id:
             vals_rtn = self.parent_id.vat
+            self.client_name = self.parent_id.name
         self.rtn = vals_rtn
 
     
@@ -263,8 +270,9 @@ class saleOrderHandling(models.Model):
         if self.product_id:
             self.udm_id = self.product_id.uom_id.id
             self.by_size = self.product_id.by_size
+            self.uom_name = self.product_id.uom_id.name
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -282,11 +290,16 @@ class saleOrderHandling(models.Model):
                         price = rec.product_id.big_amount
 
                 if line_id:
-                    if rec.weight_or_qty > 0:
+                    if rec.weight_or_qty > 0 or rec.weight_piece > 0:
                         if rec.weight_or_qty <= line_id.qty_min:
                             price += line_id.price
+                        elif rec.weight_piece <= line_id.qty_min:
+                            price += line_id.price
                         else:
-                            price += line_id.min_price * rec.weight_or_qty
+                            if rec.weight_or_qty > 0:
+                                price += line_id.min_price * rec.weight_or_qty
+                            if rec.weight_piece > 0:
+                                price += line_id.min_price * rec.weight_piece
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
@@ -304,10 +317,10 @@ class saleOrderHandling(models.Model):
             if total_qty == self.pieces_qty:
                 raise ValidationError("No puede agregar mas lineas al carrito, la cantidad de piezas no puede ser mayor")
 
-        if self.weight_or_qty <= 0:
+        if self.weight_or_qty == 0 and self.weight_piece == 0:
             raise ValidationError("La cantidad debe ser mayor de cero")
 
-        if self.weight_or_qty > 0:
+        if self.weight_or_qty > 0 or self.weight_piece > 0:
             pieces = 1
             if self.piece_type == 'uniform':
                 pieces = self.pieces_qty
@@ -324,9 +337,14 @@ class saleOrderHandling(models.Model):
                 'partner_id': self.partner_id.id,
                 'pieces_qty': pieces,
                 'piece_description': self.piece_description,
-                'piece_type': self.piece_type
+                'piece_type': self.piece_type,
+                'volumen': self.volumen,
+                'weight_piece': self.weight_piece
             })
             self.weight_or_qty = 0
+            self.weight_piece = 0
+            self.volumen_list_id = False
+            self.volumen = 0
             self.local_price = 0 
             self.external_price = 0
         return True
@@ -394,6 +412,8 @@ class saleOrderHandling(models.Model):
         if self.modality in ['counted','credit']:
             self.allow_create_guides = True
 
+        self.created_invoice = True
+
     def create_guides(self):
         if self.modality == 'counted' and self.payment_state != 'paid':
             raise ValidationError('Modalidad Contado: Debe realizar el pago de la factura antes de crear las guias')
@@ -421,7 +441,9 @@ class saleOrderHandling(models.Model):
                 'receiver_phone': self.receiver_phone,
                 'content_description': line.piece_description,
                 'observations': self.observations,
-                'weight': line.weight_or_qty,
+                'weight': line.weight_piece,
+                'qty': line.weight_or_qty,
+                'product_id': line.product_id.id,
                 'modality': self.modality
             }
             if self.content_description_ids:
@@ -457,6 +479,7 @@ class orderCartHandling(models.Model):
     local_currency_id = fields.Many2one('res.currency',string="Moneda Local")
     external_currency_id = fields.Many2one('res.currency',string="Moneda Extranjera")
     weight_or_qty = fields.Float(string="Cantidad", help="En este campo se debe agregar el peso en lbs o la cantidad de unidades, esto de acuerdo al producto que se este seleccionando")
+    weight_piece = fields.Float(string="Peso(LBS)")
     local_price = fields.Float(string="Precio Lps")
     external_price = fields.Float(string="Precio USD")
     order_id = fields.Many2one('sale.order.handling',string="Orden de Venta")
@@ -464,3 +487,4 @@ class orderCartHandling(models.Model):
     pieces_qty = fields.Integer(string="Piezas",default=1)
     piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza")
     piece_description = fields.Text(string="Descripcion Pieza")
+    volumen = fields.Float(string="Volumen")

@@ -40,6 +40,8 @@ class BillLading(models.Model):
     lost_reason_id = fields.Many2one("handling.lost.reason", "Motivo DESECHADA")
 
     weight = fields.Float(string="Peso LBS")
+    qty = fields.Float(string="Cantidad")
+    product_id = fields.Many2one('product.product',string="Producto")
 
 ##################################  MANIFEST FIELDS  ##############################################
     cargo_manifest_id = fields.Many2one('cargo.manifest', string="Manifiesto de Carga")

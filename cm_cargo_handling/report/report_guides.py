@@ -47,14 +47,21 @@ class reportHandling(models.AbstractModel):
             guides_values.append({
                 'number': guide.name,
                 'weight': guide.weight,
+                'qty': guide.qty,
                 'barcode': self.get_image(guide.name),
-                'num_piece': count
+                'category': guide.product_id.name,
+                'uom_name': guide.product_id.uom_id.name,
+                'num_piece': count,
+                'description': guide.content_description
             })
             count += 1
 
-        partner = order_id.partner_id
+        partner = order_id.partner_id.name
         if order_id.parent_id:
-            partner = order_id.parent_id
+            partner = order_id.parent_id.name
+
+        if order_id.client_name:
+            partner = order_id.client_name
 
         values = {
             'company': order_id.user_id.company_id,
@@ -74,7 +81,7 @@ class reportHandling(models.AbstractModel):
             'observations': order_id.observations or '',
             'guides': ', '.join([guide.name for guide in order_id.bill_lading_ids]),
             'payment_state': order_id.payment_state,
-            'description': order_id.content_description,
+            'description': 'Envio de orden %s'%order_id.name,
             'product': order_id.product_id.name,
             'modality': order_id.modality,
             'image_description': order_id.content_description_ids,
@@ -107,7 +114,7 @@ class reportHandling(models.AbstractModel):
             'invoice_date_due': self.change_format(order_id.move_id.invoice_date_due),
             'invoice_partner_identity': order_id.move_id.partner_id.identity or '',
             'invoice_partner_rtn': order_id.rtn or '',
-            'invoice_partner_name': partner.name,
+            'invoice_partner_name': partner,
             'invoice_partner_stree': partner.street,
             'invoice_partner_stree2': partner.street2,
             'invoice_partner_city': partner.city,

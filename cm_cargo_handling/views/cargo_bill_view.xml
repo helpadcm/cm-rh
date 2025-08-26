@@ -52,6 +52,7 @@
                         </group>
                         <group class="oe_subtotal_footer">
                             <field name="weight"/>
+                            <field name="qty"/>
                             <field name="cargo_manifest_id" invisible="1"/>
                         </group>
                         <notebook>
@@ -91,6 +92,30 @@
                     <field name="state"/>
                     <!-- <field name="total"/> -->
                 </tree>
+            </field>
+        </record>
+
+        <record id="order_bill_search_view" model="ir.ui.view">
+            <field name="name">Guiar de carga search</field>
+            <field name="model">cargo.bill</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_name" filter_domain="[('sender_name', 'ilike', self)]"/>
+                    <field name="receiver_name" filter_domain="[('receiver_name', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_payment_state" string="Estado de pago" domain="[]" context="{'group_by':'payment_state'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
             </field>
         </record>
 
