@@ -14,6 +14,7 @@ actions = [
     ('holiday', 'Feriado'),
     ('comp', 'Compensatorio'),
     ('homeoffice', 'Home Office'),
+    ('other', 'Otros'),
 ]
 
 months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
