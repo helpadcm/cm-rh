@@ -60,9 +60,6 @@ class reportHandling(models.AbstractModel):
         if order_id.parent_id:
             partner = order_id.parent_id.name
 
-        if order_id.client_name:
-            partner = order_id.client_name
-
         values = {
             'company': order_id.user_id.company_id,
             'address_send': order_id.destination_id.address_send or order_id.destination_id.address,
@@ -114,7 +111,7 @@ class reportHandling(models.AbstractModel):
             'invoice_date_due': self.change_format(order_id.move_id.invoice_date_due),
             'invoice_partner_identity': order_id.move_id.partner_id.identity or '',
             'invoice_partner_rtn': order_id.rtn or '',
-            'invoice_partner_name': partner,
+            'invoice_partner_name': order_id.client_name or partner.name,
             'invoice_partner_stree': partner.street,
             'invoice_partner_stree2': partner.street2,
             'invoice_partner_city': partner.city,
