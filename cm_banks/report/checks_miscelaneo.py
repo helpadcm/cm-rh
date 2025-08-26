@@ -41,7 +41,7 @@ class ReportChecks(models.AbstractModel):
                     'check_date': check.date,
                     'pay_to': check.reference,
                     'total': round(check.total,2),
-                    'amount_text': check.move_id.amount_in_words.upper(),
+                    'amount_text': check.user_creator.company_id.to_word(check.total, check.user_creator.company_id.currency_id.name).upper(),
                     'moves': moves_vals,
                     'company_name': check.journal_id.company_id.name,
                     'debit_sum': total_debit,

@@ -46,7 +46,7 @@ class ReportChecks(models.AbstractModel):
                     'check_date': check.date,
                     'pay_to': check.partner_id_for_parents.name,
                     'total': check.amount,
-                    'amount_text': check.move_id.amount_in_words.upper(),
+                    'amount_text': check.company_id.to_word(check.amount, check.company_id.currency_id.name).upper(),
                     'moves': moves,
                     'company_name': check.journal_id.company_id.name,
                     'debit_sum': asiento.get('suma_debito'),
