@@ -59,7 +59,7 @@ class moveInh(models.Model):
     @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
     def _compute_name(self):
         for rec in self:
-            if rec.move_type in ['out_invoice','out_refund']:
+            if rec.move_type in ['out_invoice','out_refund','entry']:
                 if rec.state == 'draft':
                     rec.name = _('/')
             else:
@@ -113,6 +113,7 @@ class moveInh(models.Model):
                         inv.write({'internal_number': new_name})
                 else:
                     inv.write({'name': inv.internal_number})
+        # print (a)
         return res
 
     @api.depends("currency_id",'invoice_date')

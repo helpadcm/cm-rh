@@ -55,10 +55,11 @@ class ap_account_payment(models.Model):
 	def action_post(self):
 		res = super(ap_account_payment, self).action_post()
 		for rec in self:
-			if rec.partner_type == 'supplier':
-				sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
-				if sequence_id:
-					rec.name = sequence_id.next_by_id()
+			if not rec.move_id:
+				if rec.partner_type == 'supplier':
+					sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
+					if sequence_id:
+						rec.name = sequence_id.next_by_id()
 		return res
 
 	def _get_shared_move_line_vals(self, debit, credit, amount_currency, move_id, invoice_id=False):

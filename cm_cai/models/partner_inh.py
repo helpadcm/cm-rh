@@ -32,3 +32,12 @@ class journalInh(models.Model):
     _inherit = "account.journal"
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
+
+class paymentInh(models.Model):
+    _inherit = "account.payment"
+
+    def action_post(self):
+        res = super(paymentInh, self).action_post()
+        for rec in self:
+            rec.move_id.internal_number = rec.move_id.name
+        return res

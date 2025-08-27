@@ -9,4 +9,33 @@
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
     </record>
+
+    <record id="cargo_manifest_report_id" model="ir.actions.report">
+        <field name="name">Manifiesto de Carga</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.report_cargo_manifest</field>
+        <field name="report_file">cm_cargo_handling.report_cargo_manifest</field>
+        <field name="binding_type">report</field>
+        <field name="binding_model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
+    </record>
+
+    <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
+        <field name="name">Manifiesto de Carga XLSX</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+        <field name="binding_model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
+    </record>
+
+    <report
+			id="cargo_manifest_report_xlsx"
+			model="cargo.manifest"
+			string="Cargo manifest Excel"
+			report_type="xlsx"
+			name="cargo_manifest.report_cargo_manifest.xlsx"
+			file="cargo_manifest.report_cargo_manifest.xlsx"
+		/>
 </odoo>

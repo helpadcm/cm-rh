@@ -26,7 +26,7 @@ class CmPrepago(models.Model):
     card_digits = fields.Char(string='Card Digits')
     payment_create = fields.Boolean(string="Pago Creado")
     payment_type = fields.Selection([('outbound', 'Send Money'), ('inbound', 'Receive Money')], default="inbound",string='Tipo de Pago', required=True)
-    payment_method_id = fields.Many2one('account.payment.method', string='Payment Method Type', oldname="payment_method")
+    payment_method_id = fields.Many2one('account.payment.method', string='Payment Method Type')
     payment_method_code = fields.Char(related='payment_method_id.code', help="Technical field used to adapt the interface to the payment type selected.", readonly=True)
     payment_difference = fields.Monetary(compute='_compute_payment_difference',string="Diferencia", readonly=True)
     partner_type = fields.Selection([('customer', 'Customer'), ('supplier', 'Vendor')],default="customer")

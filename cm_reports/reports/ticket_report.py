@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 
 class ReportHandling(models.AbstractModel):
     _name = 'report.cm_reports.report_ticket'
+    _description = "Boletos"
 
     @api.model
     def _get_report_values(self, docids, data=None):
