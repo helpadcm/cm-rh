@@ -15,6 +15,7 @@ class CmPrepago(models.Model):
     currency_id = fields.Many2one('res.currency', string='Moneda', required=True, default=lambda self: self.env.user.company_id.currency_id)
     partner_id = fields.Many2one('res.partner', string='Cliente')
     invoice_id  = fields.Many2one("account.move",string="Factura")
+    cargo_handling_id = fields.Many2one("sale.order.handling",string="Cargo Handling")
     payment_id  = fields.Many2one("account.payment",string="Pago")
     amount      = fields.Monetary(string="Importe", required=True)
     payment_date= fields.Date(string="Fecha de Pago",default=fields.Date.context_today, required=True, copy=False)
@@ -25,7 +26,7 @@ class CmPrepago(models.Model):
     card_digits = fields.Char(string='Card Digits')
     payment_create = fields.Boolean(string="Pago Creado")
     payment_type = fields.Selection([('outbound', 'Send Money'), ('inbound', 'Receive Money')], default="inbound",string='Tipo de Pago', required=True)
-    payment_method_id = fields.Many2one('account.payment.method', string='Payment Method Type', required=True, oldname="payment_method")
+    payment_method_id = fields.Many2one('account.payment.method', string='Payment Method Type', oldname="payment_method")
     payment_method_code = fields.Char(related='payment_method_id.code', help="Technical field used to adapt the interface to the payment type selected.", readonly=True)
     payment_difference = fields.Monetary(compute='_compute_payment_difference',string="Diferencia", readonly=True)
     partner_type = fields.Selection([('customer', 'Customer'), ('supplier', 'Vendor')],default="customer")
@@ -157,14 +158,14 @@ class CmPrepago(models.Model):
     #     return res
 
     
-    # @api.depends('payment_type', 'journal_id')
-    # def _compute_hide_payment_method(self):
-    #     if not self.journal_id:
-    #         self.hide_payment_method = True
-    #         return
-    #     print ("11111111111111111111111111111111111111111111111111111")
-    #     journal_payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
-    #     self.hide_payment_method = len(journal_payment_methods) == 1 and journal_payment_methods[0].code == 'manual'
+    @api.depends('payment_type', 'journal_id')
+    def _compute_hide_payment_method(self):
+        if not self.journal_id:
+            self.hide_payment_method = True
+            return
+        print ("11111111111111111111111111111111111111111111111111111")
+        journal_payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
+        self.hide_payment_method = len(journal_payment_methods) == 1 and journal_payment_methods[0].code == 'manual'
 
     
     @api.constrains('amount')
@@ -209,25 +210,24 @@ class CmPrepago(models.Model):
                     total += inv.amount_total_signed
         for inv in invoices:
             for prepago in inv.prepago_ids:
-                if prepago.state=="posted" and not prepago.payment_create:
-                    #if prepago.currency_id != payment_currency:
-                    total-=prepago.currency_id.with_context(date=prepago.payment_date).compute(prepago.amount, payment_currency)
+                if prepago.state == "posted" and not prepago.payment_create:
+                    total -= prepago.currency_id._convert(prepago.amount, payment_currency, self.env.company, prepago.payment_date, True)
                 
         return abs(total)
     
-    # @api.onchange('journal_id')
-    # def _onchange_journal(self):
-    #     if self.journal_id:
-    #         self.type=self.journal_id.type
-    #         self.request_card_data=self.journal_id.request_card_data
-    #         self.currency_id = self.journal_id.currency_id or self.company_id.currency_id
-    #         # Set default payment method (we consider the first to be the default one)
-    #         payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
-    #         self.payment_method_id = payment_methods and payment_methods[0].id or False
-    #         self.amount = self._compute_total_invoices_amount()
-    #         # Set payment method domain (restrict to methods enabled for the journal and to selected payment type)
-    #         payment_type = self.payment_type in ('outbound', 'transfer') and 'outbound' or 'inbound'
-    #         print ("33333333333333333333333333333333333333333333333333333333333")
-    #         print (payment_methods)
-    #         return {'domain': {'payment_method_id': [('payment_type', '=', payment_type), ('id', 'in', payment_methods.ids)]}}
-    #     return {}
+    @api.onchange('journal_id')
+    def _onchange_journal(self):
+        if self.journal_id:
+            self.type = self.journal_id.type
+            self.request_card_data = self.journal_id.request_card_data
+        #     self.currency_id = self.journal_id.currency_id or self.company_id.currency_id
+        #     # Set default payment method (we consider the first to be the default one)
+        #     payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
+        #     self.payment_method_id = payment_methods and payment_methods[0].id or False
+        #     self.amount = self._compute_total_invoices_amount()
+        #     # Set payment method domain (restrict to methods enabled for the journal and to selected payment type)
+        #     payment_type = self.payment_type in ('outbound', 'transfer') and 'outbound' or 'inbound'
+        #     print ("33333333333333333333333333333333333333333333333333333333333")
+        #     print (payment_methods)
+        #     return {'domain': {'payment_method_id': [('payment_type', '=', payment_type), ('id', 'in', payment_methods.ids)]}}
+        # return {}

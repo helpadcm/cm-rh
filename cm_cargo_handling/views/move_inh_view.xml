@@ -14,6 +14,7 @@
                         <group>
                             <group>
                                 <field name="amount_prepago"/>
+                                <field name="amount_dffprepago" invisible="1"/>
                             </group>
                         </group>
                         <field name="prepago_ids" readonly="1" widget="one2many"/>

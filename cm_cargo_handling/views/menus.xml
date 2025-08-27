@@ -49,7 +49,7 @@
 
 <!-- ##################################  PAYMENTS  ##################################################  -->
 
-        <menuitem
+        <!-- <menuitem
             id="payments_root"
             name="Pagos"
             parent="sale_order_handling_menuitem"
@@ -68,7 +68,7 @@
             name="Pagos de Caja"
             parent="payments_root"
             sequence="2"
-            action="action_prepago_object2"/> 
+            action="action_prepago_object2"/>  -->
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem

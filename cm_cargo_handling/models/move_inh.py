@@ -18,7 +18,7 @@ class account_invoice_inherit(models.Model):
             ttamount = 0.0
             for prepago in record.prepago_ids:
                 if prepago.state == "posted":
-                    ffprepago = prepago.currency_id.with_context(date=prepago.payment_date).compute(prepago.amount, record.currency_id)
+                    ffprepago = prepago.currency_id._convert(prepago.amount, record.currency_id, self.env.company, prepago.payment_date, True)
                     amount_prepago += ffprepago
                     if not prepago.payment_create:
                         ttamount += ffprepago

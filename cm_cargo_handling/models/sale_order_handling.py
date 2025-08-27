@@ -83,6 +83,7 @@ class saleOrderHandling(models.Model):
     allow_create_guides = fields.Boolean(string="Crear guias?")
     created_guides = fields.Boolean(string="Guias Creadas")
     created_invoice = fields.Boolean(string="Factura Creada")
+    residual = fields.Monetary(string="Monto pendiente", currency_field='external_currency_id', related="move_id.amount_dffprepago")
     parent_id = fields.Many2one('res.partner',string="Fact. Autorizados")
     readonly_rtn = fields.Boolean(string="RTN solo lectura")
     default_client = fields.Boolean(string="Cliente por defecto")
@@ -155,25 +156,25 @@ class saleOrderHandling(models.Model):
         }
 
     def register_payment(self):
-        # for record in self:
-        #     if record.move_id.state == 'draft':
-        #         record.move_id.action_post()
+        for record in self:
+            if record.move_id.state == 'draft':
+                record.move_id.action_post()
 
-        #     val={"default_partner_id":record.partner_id.id, "default_invoice_id":record.move_id.id, "default_user_id": self.env.user.id, "default_communication": record.move_id.name}
-        #     res={
-        #         'type': 'ir.actions.act_window',
-        #         'name':_("Registrar Prepago"),
-        #         'res_model': 'cm.prepago',
-        #         'view_type': 'form',
-        #         'view_mode':'form',
-        #         'context':val,
-        #         'target': 'new',
-        #     }
+            val={"default_partner_id":record.partner_id.id, "default_invoice_id":record.move_id.id, "default_user_id": self.env.user.id, "default_communication": record.move_id.name, 'default_cargo_handling_id': record.id}
+            res={
+                'type': 'ir.actions.act_window',
+                'name':_("Registrar Prepago"),
+                'res_model': 'cm.prepago',
+                'view_type': 'form',
+                'view_mode':'form',
+                'context':val,
+                'target': 'new',
+            }
 
-        #     return res
-        if self.move_id.state == 'draft':
-            self.move_id.action_post()
-        return self.move_id.line_ids.action_register_payment()
+            return res
+        # if self.move_id.state == 'draft':
+        #     self.move_id.action_post()
+        # return self.move_id.line_ids.action_register_payment()
 
     @api.depends('cart_ids')
     def calculate_total_guides(self):
