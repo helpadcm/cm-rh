@@ -38,13 +38,37 @@
             action="action_partner_handling"
             groups="cm_cargo_handling.group_cargo_handling_manager"
             sequence="3"/>
-            <menuitem
+
+        <menuitem
             id="product_handling_menuitem"
             name="Productos"
             parent="sale_order_handling_root"
             action="action_product_handling"
             groups="cm_cargo_handling.group_cargo_handling_manager"
             sequence="4"/>
+
+<!-- ##################################  PAYMENTS  ##################################################  -->
+
+        <menuitem
+            id="payments_root"
+            name="Pagos"
+            parent="sale_order_handling_menuitem"
+            sequence="5"/>
+
+        <menuitem
+            id="cargo_prepago_sale"
+            name="Pagos de Caja"
+            parent="payments_root"
+            sequence="1"
+            action="action_prepago_object"/> 
+
+
+        <menuitem
+            id="cargo_prepago_sale2"
+            name="Pagos de Caja"
+            parent="payments_root"
+            sequence="2"
+            action="action_prepago_object2"/> 
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem

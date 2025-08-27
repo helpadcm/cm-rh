@@ -56,9 +56,9 @@ class reportHandling(models.AbstractModel):
             })
             count += 1
 
-        partner = order_id.partner_id.name
+        partner = order_id.partner_id
         if order_id.parent_id:
-            partner = order_id.parent_id.name
+            partner = order_id.parent_id
 
         values = {
             'company': order_id.user_id.company_id,

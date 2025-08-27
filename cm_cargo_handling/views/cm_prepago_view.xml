@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="cm_prepago_tree_view" model="ir.ui.view">
+            <field name="name">Pagos de Caja</field>
+            <field name="model">cm.prepago</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false" delete="false">
+                    <field name="name"/>
+                    <field name="payment_date"/>
+                    <field name="journal_id"/>
+                    <field name="amount"/>
+                    <field name="currency_id" />
+                    <field name="amount_hnl" sum="1"/>
+                    <field name="amount_usd" sum="1"/>
+                    <field name="state"/>
+                    <button name="action_cancel" type="object" string="Cancelar"/>
+                    <button name="post_to_pay" type="object" string="Procesar" groups="base.group_no_one"/>          
+                </tree>
+            </field>
+        </record>
+
+        <record id="cm_prepago_tree_view2" model="ir.ui.view">
+            <field name="name">Pagos de Caja</field>
+            <field name="model">cm.prepago</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false" delete="false">
+                    <field name="name"/>
+                    <field name="guia_ids"/>
+                    <field name="invoice_id"/>
+                    <field name="user_id"/>
+                    <field name="payment_date"/>
+                    <field name="journal_id"/>
+                    <field name="amount"/>
+                    <field name="amount_hnl" sum="1"/>
+                    <field name="amount_usd" sum="1"/>
+                    <field name="currency_id" />
+                    <field name="state"/>
+                    <button name="action_cancel" type="object" string="Cancelar"/>
+                    <button name="post_to_pay" type="object" string="Procesar" groups="base.group_no_one"/>   
+                </tree>
+            </field>
+        </record>
+
+        <record id="cm_prepago_form_view" model="ir.ui.view">
+            <field name="name">Pagos de Caja</field>
+            <field name="model">cm.prepago</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <form string="Registrar Pago">
+                    <sheet>
+                        <group>
+                            <field name="user_id" invisible="1"/>
+                            <field name="payment_type" invisible="1"/>
+                            <field name="partner_type" invisible="1"/>
+                            <field name="invoice_id" invisible="1"/>
+                            <field name="partner_id" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <group>
+                                <field name="journal_id" options="{'no_create': True}" context="{ 'costum_pay': True,'partner_type':partner_type }"/>
+                                <field name="hide_payment_method" invisible="1"/>
+                                <field name="payment_method_id" widget="radio" invisible="hide_payment_method"/>
+                                <field name="payment_method_code" invisible="1"/>
+                                <label for="amount"/>
+                                <div name="amount_div" class="o_row">
+                                    <field name="amount"/>
+                                    <field name="currency_id" options="{'no_create': True, 'no_open': True}" invisible="1"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="payment_date"/>
+                                <field name="communication"/>
+                                <field name="type" invisible="1"/>
+                                <field name="request_card_data" invisible="1"/>
+                                <field name="nro_auto" invisible="not request_card_data" required="request_card_data"/>
+                                <field name="card_digits" invisible="not request_card_data" required="request_card_data"/>
+                            </group>
+                            <group invisible="payment_difference == 0.0">
+                                <label for="payment_difference"/>
+                                <div>
+                                    <field name="payment_difference"/>
+                                    <field name="payment_difference_handling" widget="radio" nolabel="1"/>
+                                </div>
+                                
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Validar" name="post" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="cm_prepago_form_view2" model="ir.ui.view">
+            <field name="name">Pagos de Caja</field>
+            <field name="model">cm.prepago</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <form string="Registrar Pago" create="false" edit="false">
+                    <header>
+                        <button string="Cancelar" name="action_cancel" type="object" class="btn-primary"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="user_id" invisible="1"/>
+                            <field name="payment_type" invisible="1"/>
+                            <field name="partner_type" invisible="1"/>
+                            <field name="invoice_id" invisible="1"/>
+                            <field name="partner_id" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <group>
+                                <field name="user_id"/>
+                                <field name="journal_id" options="{'no_create': True}" context="{ 'costum_pay': True,'partner_type':partner_type }"/>
+                                <field name="hide_payment_method" invisible="1"/>
+                                <field name="payment_method_id" widget="radio" invisible="hide_payment_method == True"/>
+                                <field name="payment_method_code" invisible="1"/>
+                                <label for="amount"/>
+                                <div name="amount_div" class="o_row">
+                                    <field name="amount"/>
+                                    <field name="currency_id" options="{'no_create': True, 'no_open': True}" invisible="1"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="payment_date"/>
+                                <field name="communication"/>
+                                <field name="type" invisible="1"/>
+                                <field name="request_card_data" invisible="1"/>
+                                <field name="nro_auto" invisible="not request_card_data" required="request_card_data"/>
+                                <field name="card_digits" invisible="not request_card_data" required="request_card_data"/>
+                            </group>
+                            <group invisible="payment_difference == 0.0">
+                                <label for="payment_difference"/>
+                                <div>
+                                    <field name="payment_difference"/>
+                                    <field name="payment_difference_handling" widget="radio" nolabel="1"/>
+                                </div>
+                                
+                            </group>
+                        </group>
+                    </sheet>
+                   
+                </form>
+            </field>
+        </record>
+
+        <record id="action_prepago_object" model="ir.actions.act_window">            
+            <field name="name">Pagos de Caja</field>
+            <field name="res_model">cm.prepago</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), 
+                (0, 0, {'view_mode': 'tree','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('cm_cargo_handling.cm_prepago_form_view2')})]"/>
+            <field name="context">{}</field>  
+            <field name="domain">[('payment_create','=',False),('user_id','=',context.get('uid'))]</field>
+        </record>
+
+        <record id="action_prepago_object2" model="ir.actions.act_window">            
+            <field name="name">Todos los Pagos de Caja</field>
+            <field name="res_model">cm.prepago</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0), 
+                (0, 0, {'view_mode': 'tree','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
+                (0, 0, {'view_mode': 'form', 'view_id': ref('cm_cargo_handling.cm_prepago_form_view2')})]"/>
+            <field name="context">{}</field>  
+            <field name="domain">[('payment_create','=',False)]</field>
+        </record>
+
+    </data>
+</odoo>

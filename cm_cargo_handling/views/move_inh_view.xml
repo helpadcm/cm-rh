@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="cargo_move_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo Move</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="state" position="after">
+                    <field name="prestate2" widget="statusbar" invisible="1"/>
+                </field>
+                <notebook position="inside">
+                    <page string="Pagos de Caja">
+                        <group>
+                            <group>
+                                <field name="amount_prepago"/>
+                            </group>
+                        </group>
+                        <field name="prepago_ids" readonly="1" widget="one2many"/>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>

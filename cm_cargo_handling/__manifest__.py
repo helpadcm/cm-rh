@@ -29,6 +29,8 @@
 		'views/sale_order_handling.xml',
 		'views/cargo_manifest.xml',
 		'views/logs.xml',
+		# 'views/cm_prepago_view.xml',
+		# 'views/move_inh_view.xml',
         'views/menus.xml',
 		'report/mother_guide.xml',
 		'report/child_guides.xml',
