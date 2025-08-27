@@ -32,12 +32,19 @@
             sequence="2"/>
 
         <menuitem
+            id="sender_receiver_menuitem"
+            name="Historial Remitentes/Destinatarios"
+            parent="sale_order_handling_root"
+            action="action_receiver_sender_list"
+            sequence="3"/>
+
+        <menuitem
             id="partner_handling_menuitem"
             name="Clientes"
             parent="sale_order_handling_root"
             action="action_partner_handling"
             groups="cm_cargo_handling.group_cargo_handling_manager"
-            sequence="3"/>
+            sequence="4"/>
 
         <menuitem
             id="product_handling_menuitem"
@@ -45,14 +52,14 @@
             parent="sale_order_handling_root"
             action="action_product_handling"
             groups="cm_cargo_handling.group_cargo_handling_manager"
-            sequence="4"/>
+            sequence="5"/>
 
 <!-- ##################################  PAYMENTS  ##################################################  -->
 
-        <!-- <menuitem
+        <menuitem
             id="payments_root"
             name="Pagos"
-            parent="sale_order_handling_menuitem"
+            parent="cargo_handling_menu_root"
             sequence="5"/>
 
         <menuitem
@@ -68,7 +75,7 @@
             name="Pagos de Caja"
             parent="payments_root"
             sequence="2"
-            action="action_prepago_object2"/>  -->
+            action="action_prepago_object2"/> 
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem

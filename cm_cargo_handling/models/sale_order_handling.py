@@ -160,7 +160,13 @@ class saleOrderHandling(models.Model):
             if record.move_id.state == 'draft':
                 record.move_id.action_post()
 
-            val={"default_partner_id":record.partner_id.id, "default_invoice_id":record.move_id.id, "default_user_id": self.env.user.id, "default_communication": record.move_id.name, 'default_cargo_handling_id': record.id}
+            val = {"default_partner_id":record.partner_id.id, 
+                "default_invoice_id":record.move_id.id, 
+                "default_user_id": self.env.user.id, 
+                "default_communication": record.move_id.name, 
+                'default_cargo_handling_id': record.id
+            }
+
             res={
                 'type': 'ir.actions.act_window',
                 'name':_("Registrar Prepago"),
@@ -251,14 +257,17 @@ class saleOrderHandling(models.Model):
         self.rtn = vals_rtn
 
     
-    @api.onchange('receiver_id','sender_id')
-    def get_data_contacts(self):
-        if self.receiver_id:
-            self.id_receiver = self.receiver_id.identity
-            self.receiver_phone = self.receiver_id.phone
+    @api.onchange('sender_id')
+    def get_data_sender(self):
         if self.sender_id:
             self.id_sender = self.sender_id.identity
             self.sender_phone = self.sender_id.phone
+
+    @api.onchange('receiver_id')
+    def get_data_receiver(self):
+        if self.receiver_id:
+            self.id_receiver = self.receiver_id.identity
+            self.receiver_phone = self.receiver_id.phone
 
     @api.depends('origin_id', 'destination_id', 'partner_id')
     def update_pricelist(self):

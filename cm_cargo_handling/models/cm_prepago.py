@@ -94,30 +94,37 @@ class CmPrepago(models.Model):
         for cash in self:
             if cash.state == "posted" and not cash.payment_create:
                 cash.payment_create=True
-                if cash.invoice_id.state!="open":
+                if cash.invoice_id.state != "posted" or cash.invoice_id.payment_state == 'paid':
                     continue
+
                 vals={
-                    'payment_date':cash.payment_date,
+                    'date': cash.payment_date,
                     #'state':cash.state,
-                    'invoice_ids':[(6,0,[cash.invoice_id.id])],
-                    'currency_id':cash.currency_id.id,
+                    'reconciled_invoice_ids': [(6,0,[cash.invoice_id.id])],
+                    'currency_id': cash.currency_id.id,
                     #'obs':cash.obs,
-                    'journal_id':cash.journal_id.id,
-                    'amount':cash.amount,
-                    'communication':cash.communication,
-                    'company_id':cash.company_id.id,
-                    'user_id':cash.user_id.id,
-                    'partner_id':cash.partner_id.id,
-                    'partner_id_for_parents':cash.partner_id.id,
-                    'partner_type':cash.partner_type,
-                    'payment_type':cash.payment_type,
-                    'nro_auto':cash.nro_auto,
-                    'card_digits':cash.card_digits,
-                    'payment_method_id':cash.payment_method_id.id,
+                    'journal_id': cash.journal_id.id,
+                    'amount': cash.amount,
+                    'communication': cash.communication,
+                    'company_id': cash.company_id.id,
+                    'user_id': cash.user_id.id,
+                    'partner_id': cash.partner_id.id,
+                    'partner_id_for_parents': cash.partner_id.id,
+                    'partner_type': cash.partner_type,
+                    'payment_type': cash.payment_type,
+                    'nro_auto': cash.nro_auto,
+                    'card_digits': cash.card_digits,
+                    # 'payment_method_id': cash.payment_method_id.id,
                 }
-                pay_id=self.env.get("account.payment").create(vals)
-                pay_id.post()
-                cash.payment_id=pay_id.id
+                pay_id = self.env.get("account.payment").create(vals)
+                pay_id.action_post()
+                # Obtener las líneas de débito y crédito del pago y la factura
+                payment_lines = pay_id.move_id.line_ids.filtered(lambda line: line.account_id.reconcile)
+                invoice_lines = cash.invoice_id.line_ids.filtered(lambda line: line.account_id.reconcile)
+
+                # Conciliar las líneas. El método `reconcile()` toma un conjunto de líneas y las concilia.
+                (payment_lines | invoice_lines).reconcile()
+                cash.payment_id = pay_id.id
 
     def action_draft(self):
         for record in self:
@@ -163,7 +170,6 @@ class CmPrepago(models.Model):
         if not self.journal_id:
             self.hide_payment_method = True
             return
-        print ("11111111111111111111111111111111111111111111111111111")
         journal_payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
         self.hide_payment_method = len(journal_payment_methods) == 1 and journal_payment_methods[0].code == 'manual'
 
@@ -174,18 +180,7 @@ class CmPrepago(models.Model):
             raise ValidationError(_('El Pago debe ser Positivo'))
 
     
-    # @api.depends('payment_type', 'journal_id')
-    # def _compute_hide_payment_method(self):
-    #     if not self.journal_id:
-    #         self.hide_payment_method = True
-    #         return
-    #     journal_payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
-    #     print ("222222222222222222222222222222222222222222222222")
-    #     print (len(journal_payment_methods) == 1 and journal_payment_methods[0].name == 'Manual')
-    #     self.hide_payment_method = len(journal_payment_methods) == 1 and journal_payment_methods[0].name == 'Manual'
-
-    
-    @api.depends('invoice_id', 'amount', 'payment_date', 'currency_id')
+    @api.depends('invoice_id', 'amount', 'payment_date', 'currency_id', 'journal_id')
     def _compute_payment_difference(self):
         if not self.invoice_id:
             return
@@ -196,23 +191,23 @@ class CmPrepago(models.Model):
 
     def _compute_total_invoices_amount(self):
         """ Compute the sum of the residual of invoices, expressed in the payment currency """
-        payment_currency = self.currency_id or self.journal_id.currency_id or self.journal_id.company_id.currency_id or self.env.user.company_id.currency_id
+        payment_currency = self.journal_id.currency_id or self.journal_id.company_id.currency_id or self.env.user.company_id.currency_id
         invoices = [self.invoice_id]
 
         if all(inv.currency_id == payment_currency for inv in invoices):
-            total = self.invoice_id.residual_signed#sum(invoices.mapped(''))
+            total = self.invoice_id.amount_total#sum(invoices.mapped(''))
         else:
             total = 0
             for inv in invoices:
                 if inv.company_currency_id != payment_currency:
-                    total += inv.company_currency_id.with_context(date=self.payment_date).compute(inv.amount_total_signed, payment_currency)
+                    total += inv.company_currency_id._convert(inv.amount_total, payment_currency, self.env.company, self.payment_date, True)
                 else:
                     total += inv.amount_total_signed
         for inv in invoices:
             for prepago in inv.prepago_ids:
                 if prepago.state == "posted" and not prepago.payment_create:
                     total -= prepago.currency_id._convert(prepago.amount, payment_currency, self.env.company, prepago.payment_date, True)
-                
+        
         return abs(total)
     
     @api.onchange('journal_id')
@@ -220,11 +215,11 @@ class CmPrepago(models.Model):
         if self.journal_id:
             self.type = self.journal_id.type
             self.request_card_data = self.journal_id.request_card_data
-        #     self.currency_id = self.journal_id.currency_id or self.company_id.currency_id
+            self.currency_id = self.journal_id.currency_id or self.company_id.currency_id
         #     # Set default payment method (we consider the first to be the default one)
         #     payment_methods = self.payment_type == 'inbound' and self.journal_id.inbound_payment_method_line_ids or self.journal_id.outbound_payment_method_line_ids
         #     self.payment_method_id = payment_methods and payment_methods[0].id or False
-        #     self.amount = self._compute_total_invoices_amount()
+            self.amount = self._compute_total_invoices_amount()
         #     # Set payment method domain (restrict to methods enabled for the journal and to selected payment type)
         #     payment_type = self.payment_type in ('outbound', 'transfer') and 'outbound' or 'inbound'
         #     print ("33333333333333333333333333333333333333333333333333333333333")

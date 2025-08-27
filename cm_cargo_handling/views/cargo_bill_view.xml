@@ -86,6 +86,8 @@
                     <field name="name"/>
                     <field name="origin_id"/>
                     <field name="destination_id"/>
+                    <field name="sender_name"/>
+                    <field name="receiver_name"/>
                     <field name="weight"/>
                     <field name="modality"/>
                     <!-- <field name="additional_costs"/> -->
