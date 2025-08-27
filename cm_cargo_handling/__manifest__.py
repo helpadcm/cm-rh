@@ -6,7 +6,7 @@
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
 	'description'	:"""Module for cargo handling through quotations and sales for airlines.""",
-	'depends':['base','sale','cm_cai','account','cm_banks','account_fiscal_year_period','report_xlsx','mail','cm_sales'],
+	'depends':['base','sale','cm_cai','account','cm_banks','account_fiscal_year_period','report_xlsx','mail','cm_sales', 'settlement'],
 	'data':[
 		'security/groups.xml',
 		'security/ir.model.access.csv',

@@ -112,7 +112,7 @@
                                 <group string="Calculos" col="3">
                                     <group>
                                         <field name="product_id" domain="[('for_cargo','=',True)]" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
-                                        <field name="pricelist_id" domain="listprice_domain" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="pricelist_id" invisible="1" domain="listprice_domain" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="pieces_qty" readonly="state != 'quote'"/>
                                         <field name="listprice_domain" invisible="1"/>
                                         <field name="piece_type" required="1" readonly="state != 'quote'" invisible="1" help="Uniforme: Piezas con mismas dimensiones y peso; Mixta: Piezas con peso y dimensiones variables"/>

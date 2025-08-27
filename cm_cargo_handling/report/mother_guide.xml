@@ -179,7 +179,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <table style="float:left;width:40%;margin-left:10px;border:1px solid black">
+                        <table style="float:left;width:40%;margin-left:10px;border:1px solid black;border-collapse: collapse">
                             <tr>
                                 <th style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center"><strong>GUIAS</strong></th>
                             </tr>
@@ -187,6 +187,17 @@
                                 <td>
                                     <p style="font-size:15px">
                                         <span t-esc="data.get('guides')"/> </p>
+                                </td>
+                            </tr>
+                            <tr style="border:1px solid #000000">
+                                <td style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center" t-if="data.get('modality') == 'counted'">
+                                    <p style="font-size:17px"><strong>CONTADO</strong></p>
+                                </td>
+                                <td style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center" t-if="data.get('modality') == 'credit'">
+                                    <p style="font-size:17px"><strong>CREDITO</strong></p>
+                                </td>
+                                <td style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center" t-if="data.get('modality') == 'upon_delivery'">
+                                    <p style="font-size:17px"><strong>POR COBRAR</strong></p>
                                 </td>
                             </tr>
                         </table>
@@ -306,11 +317,13 @@
                                     </table>
                                 </td>
                             </tr>
+                        </table>
+                        <table>
                             <tr>
                                 <td style="font-size:11px;padding:5px;height:101px;overflow:hidden" colspan="2">
                                     <div style="width:100%;overflow:hidden">
-                                        <p>DESCRIPCION DEL CONTENIDO: <span t-esc="data.get('description')"/></p>
-                                        <p>CATEGORIA DE PRODUCTO: <span t-esc="data.get('product')"/></p>
+                                        <p>DESCRIPCION DEL CONTENIDO: <span t-esc="data.get('mother_description')"/></p>
+                                        <p>CATEGORIA DE PRODUCTO: <span t-esc="data.get('mother_product')"/></p>
                                     </div>
                                 </td>
                             </tr>

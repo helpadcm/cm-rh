@@ -71,11 +71,12 @@ class CmPrepago(models.Model):
     @api.model
     def cron_sent_pays(self):
         domain=[('state','=','posted'),("payment_create","=",False)]
-        pay_ids=self.search(domain)
+        pay_ids = self.search(domain)
         for pay in pay_ids:
             pay.post_to_pay()
-        domain=[('state','!=','posted'),("payment_create","=",False)]
-        pay_ids=self.search(domain)
+        
+        domain = [('state','!=','posted'),("payment_create","=",False)]
+        pay_ids = self.search(domain)
         for pay in pay_ids:
             pay.cancel_to_pay()
 

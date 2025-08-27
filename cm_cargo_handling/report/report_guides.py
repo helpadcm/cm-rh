@@ -60,6 +60,12 @@ class reportHandling(models.AbstractModel):
         if order_id.parent_id:
             partner = order_id.parent_id
 
+        description_list = []
+        category_list = []
+        for car in order_id.cart_ids:
+            description_list.append(car.piece_description)
+            category_list.append(car.product_id.name)
+
         values = {
             'company': order_id.user_id.company_id,
             'address_send': order_id.destination_id.address_send or order_id.destination_id.address,
@@ -79,6 +85,8 @@ class reportHandling(models.AbstractModel):
             'guides': ', '.join([guide.name for guide in order_id.bill_lading_ids]),
             'payment_state': order_id.payment_state,
             'description': 'Envio de orden %s'%order_id.name,
+            'mother_description': ', '.join([desc for desc in set(description_list)]),
+            'mother_product': ', '.join([cat for cat in set(category_list)]),
             'product': order_id.product_id.name,
             'modality': order_id.modality,
             'image_description': order_id.content_description_ids,
