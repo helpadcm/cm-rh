@@ -118,6 +118,35 @@ class saleOrderHandling(models.Model):
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico",tracking=True)
     uom_name = fields.Char(string="Nombre unidad de medida")
 
+    @api.constrains('id_receiver','id_sender','rtn','sender_phone','receiver_phone')
+    def _validate_dates(self):
+        for rec in self:
+            if rec.rtn:
+                if len(rec.rtn) != 14:
+                    raise ValidationError("El RTN debe contener 14 digitos")
+
+            if rec.id_receiver:
+                if not rec.id_receiver.isdigit():
+                    raise ValidationError("El campo identidad debe contener solo valores numéricos.")
+
+                if len(rec.id_receiver) < 10:
+                    raise ValidationError("Los numeros de identidad deben tener minimo 10 digitos")
+
+            if rec.id_sender:
+                if not rec.id_sender.isdigit():
+                    raise ValidationError("El campo identidad debe contener solo valores numéricos.")
+
+                if len(rec.id_sender) < 10:
+                    raise ValidationError("Los numeros de identidad deben tener minimo 10 digitos")
+
+            if rec.sender_phone:
+                if not rec.sender_phone.isdigit():
+                    raise ValidationError("El campo telefono debe contener solo valores numéricos.")
+
+            if rec.receiver_phone:
+                if not rec.receiver_phone.isdigit():
+                    raise ValidationError("El campo telefono debe contener solo valores numéricos.")
+
     @api.onchange('volumen_list_id')
     def _onchange_volumen_list_id(self):
         if self.volumen_list_id:
@@ -178,9 +207,6 @@ class saleOrderHandling(models.Model):
             }
 
             return res
-        # if self.move_id.state == 'draft':
-        #     self.move_id.action_post()
-        # return self.move_id.line_ids.action_register_payment()
 
     @api.depends('cart_ids')
     def calculate_total_guides(self):
@@ -376,6 +402,13 @@ class saleOrderHandling(models.Model):
         return True
 
     def create_order(self):
+        if not self.sender_id and not self.id_sender and not self.sender_phone:
+            raise ValidationError("No ha ingresado los datos necesarios del remitente (Nombre, Identidad, Telefono)")
+
+        if not self.receiver_id and not self.receiver_phone:
+            raise ValidationError("No ha ingresado los datos necesarios del destinatario (Nombre, Telefono)")
+
+
         total_pieces = sum(self.cart_ids.mapped('pieces_qty'))
         if self.pieces_qty != total_pieces:
             raise ValidationError("La cantidad de piezas detallada en el carrito debe ser igual a la cantidad de piezas descrita en los calculos")

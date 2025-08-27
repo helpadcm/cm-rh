@@ -54,16 +54,16 @@
                                 <group col="3">
                                     <group string="Remitente">
                                         <field name="sender_name" string="Remitente" invisible="1"/>
-                                        <field name="sender_id" string="Nombre" options="{'no_create_edit': True}" required="1" readonly="state != 'quote'"/>
-                                        <field name="id_sender" string="Identidad" required="1" readonly="state != 'quote'"/>
-                                        <field name="sender_phone" string="Telefono" required="1" readonly="state != 'quote'"/>
+                                        <field name="sender_id" string="Nombre" options="{'no_create_edit': True}" readonly="state != 'quote'"/>
+                                        <field name="id_sender" string="Identidad"  readonly="state != 'quote'"/>
+                                        <field name="sender_phone" widget="phone" string="Telefono" readonly="state != 'quote'"/>
                                         <!-- <field name="sum_points" invisible="not default_client or modality != 'counted'" string="Acumula puntos" readonly="state != 'quote'"/> -->
                                     </group>
                                     <group string="Destinatario">
                                         <field name="receiver_name" string="Destinatario" invisible="1"/>
-                                        <field name="receiver_id" string="Nombre" options="{'no_create_edit': True}" required="1" readonly="state != 'quote'"/>
+                                        <field name="receiver_id" string="Nombre" options="{'no_create_edit': True}" readonly="state != 'quote'"/>
                                         <field name="id_receiver" string="Identidad" readonly="state != 'quote'"/>
-                                        <field name="receiver_phone" string="Telefono" required='1' readonly="state != 'quote'"/>
+                                        <field name="receiver_phone" widget="phone" string="Telefono" readonly="state != 'quote'"/>
                                     </group>
                                     <group string="Contenido">
                                         <field name="content_description_ids" readonly="state != 'quote'" string="Descripcion" widget="many2many_checkboxes"/>

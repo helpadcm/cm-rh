@@ -102,9 +102,9 @@ class BillLading(models.Model):
         if not self.order_id.move_id:
             self.order_id.create_invoices()
             self.order_id.move_id.action_post()
-            return self.order_id.move_id.line_ids.action_register_payment()
+            return self.order_id.register_payment()
         else:
-            return self.order_id.move_id.line_ids.action_register_payment()
+            return self.order_id.register_payment()
 
 class cargo_bill_logs(models.Model):
     _name='cargo.bill_logs'

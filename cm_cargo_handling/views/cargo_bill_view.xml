@@ -11,7 +11,7 @@
                         <button name='undelive_cargo' type='object' string='Cambiar a recibido' groups='cm_cargo_handling.group_guia_cargar_admin' invisible="state not in ['delivered','abandoned','desechada']"></button>
                         <button name='abandoned_cargo' type='object' string='Marcar como abandono' groups='cm_cargo_handling.group_guia_cargar_admin' invisible="state != 'received'"></button>
                         <button name="action_desechar" string="Desechar" type="object" class="btn-primary" invisible="state not in ['created','sent']"/>
-                        <button name='pay_invoice' type='object' string='Pagar Factura' invisible="modality != 'upon_delivery' or payment_state == 'paid'"></button>
+                        <button name='pay_invoice' type='object' string='Crear/Pagar Factura' invisible="modality != 'upon_delivery' or payment_state == 'paid' or state != 'received'"></button>
                         <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
                     </header>
                     <sheet>
@@ -109,6 +109,14 @@
                     <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
                     <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
                     <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creadas" name="created_filter" domain="[('state','=','created')]"/>
+                    <filter string="Enviadas" name="send_filter" domain="[('state','=','send')]"/>
+                    <filter string="Recibidas" name="received_filter" domain="[('state','=','received')]"/>
+                    <filter string="Entregadas" name="delivered_filter" domain="[('state','=','delivered')]"/>
+                    <filter string="Abandonadas" name="abandoned_filter" domain="[('state','=','abandoned')]"/>
+                    <filter string="Desechadas" name="desechada_filter" domain="[('state','=','desechada')]"/>
+                    <filter string="Canceladas" name="canceled_filter" domain="[('state','=','canceled')]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
                         <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
