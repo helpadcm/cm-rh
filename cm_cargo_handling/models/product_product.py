@@ -10,8 +10,9 @@ class ProductTemplateInherit(models.Model):
 	for_recargo = fields.Boolean(string='Para Cargo Adicional?')
 	price_list_ids = fields.One2many('pricelist.product', 'product_id', string="Lista de precios")
 	rute_ids = fields.Many2many('cargo.airport.airport.rel', string="Rutas")
-	price = fields.Monetary(string="Precio")
-	qty_min = fields.Float(string="Minimo")
+	price = fields.Monetary(string="Precio Base", default=1)
+	qty_min = fields.Float(string="Minimo", default=1)
+	price_qty_min = fields.Float(string="Precio por libra", default=1)
 	by_size = fields.Boolean(string="Por talla")
 	little_amount = fields.Float(string="Pequeño")
 	big_amount = fields.Float(string="Grande")
@@ -28,7 +29,7 @@ class ProductTemplateInherit(models.Model):
 					'product_id': self.id,
 					'rute_id': route.id,
 					'price': self.price,
-					'min_price': 1,
+					'min_price': self.price_qty_min,
 					'qty_min': self.qty_min
 				})
 		else:
@@ -39,13 +40,14 @@ class ProductTemplateInherit(models.Model):
 						'product_id': self.id,
 						'rute_id': route.id,
 						'price': self.price,
-						'min_price': 1,
+						'min_price': self.price_qty_min,
 						'qty_min': self.qty_min
 					})
 		
 		self.rute_ids = False
-		self.price = 0
-		self.qty_min = 0
+		self.price = 1
+		self.qty_min = 1
+		self.price_qty_min = 1
 
 class ProductProductInherit(models.Model):
 	_inherit = 'product.product'
@@ -64,7 +66,7 @@ class priceListProduct(models.Model):
 		
 	product_id = fields.Many2one('product.template',string="Producto")
 	rute_id = fields.Many2one('cargo.airport.airport.rel',string="Ruta")
-	price = fields.Monetary(string="Precio")
-	min_price = fields.Monetary(string="Precio Minimo")
+	price = fields.Monetary(string="Precio Base")
+	min_price = fields.Monetary(string="Precio por libra")
 	qty_min = fields.Float(string="Minimo")
 	currency_id = fields.Many2one('res.currency',string="Moneda", default=get_default_currency)

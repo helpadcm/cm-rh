@@ -19,6 +19,7 @@
                                 <field name="rute_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not for_cargo"/>
                                 <field name="price" invisible="not for_cargo"/>
                                 <field name="qty_min" invisible="not for_cargo"/>
+                                <field name="price_qty_min" invisible="not for_cargo"/>
                             </group>
                             <group>
                                 <field name="by_size" invisible="not for_cargo"/>
