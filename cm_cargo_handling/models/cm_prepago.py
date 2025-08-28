@@ -39,16 +39,16 @@ class CmPrepago(models.Model):
     @api.depends("invoice_id")
     def _compute_guia(self):
         for record in self:
-            # guia_ids=""
-            # landing_ids=[]
-            # if record.invoice_id:
-            #     origin=record.invoice_id.origin
-            #     for info_sales in self.env.get('sale.order').search([('name','=',origin)]):
-            #         for line in info_sales.order_line:
-            #             for lading in line.bill_lading_id:
-            #                 landing_ids.append(lading.name)
+            guia_ids=""
+            landing_ids=[]
+            if record.invoice_id:
+                origin=record.invoice_id.origin
+                for info_sales in self.env.get('sale.order').search([('name','=',origin)]):
+                    for line in info_sales.order_line:
+                        for lading in line.bill_lading_id:
+                            landing_ids.append(lading.name)
     
-            # record.guia_ids=",".join(landing_ids)
+            record.guia_ids=",".join(landing_ids)
             record.guia_ids = "test"
 
     @api.depends("currency_id","amount","state")

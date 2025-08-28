@@ -83,7 +83,7 @@ class BillLading(models.Model):
                 if record.order_id.payment_state == "partial":
                     raise ValidationError("La Factura ya tiene pagos de caja")
 
-                val = {'default_guia_id': record.id}
+                val = {'default_guia_ids': [(6,0,record.ids)]}
                 res = {
                     'type': 'ir.actions.act_window',
                     'name': _("Motivo de Desechar"),

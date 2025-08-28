@@ -6,7 +6,8 @@ from odoo.exceptions import UserError, ValidationError
 states = [
     ('quote', 'Cotizacion'),
     ('order', 'Orden'),
-    ('invoiced', 'Finalizado')
+    ('invoiced', 'Finalizado'),
+    ('canceled', 'Cancelado')
 ]
 
 class saleOrderHandling(models.Model):
@@ -111,12 +112,40 @@ class saleOrderHandling(models.Model):
     additional_costs = fields.Float(string="Costos Adicionales ($)", compute='calculate_totals',store=True)
 
     move_id = fields.Many2one('account.move',string="Factura", copy=False)
-    payment_state = fields.Selection(string="Estado de Pago", related="move_id.payment_state")
+    payment_state = fields.Selection(string="Estado de Pago", related="move_id.prestate2")
     sum_points = fields.Boolean(string="Acumula puntos")
     client_name = fields.Char(string="Nombre del cliente",tracking=True)
     volumen = fields.Float(string="Volumen",tracking=True)
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico",tracking=True)
     uom_name = fields.Char(string="Nombre unidad de medida")
+
+    def action_desechar(self):
+        for record in self:
+            today = datetime.now()
+            midnight_totay = today.replace(hour=0, minute=0, second=0, microsecond=0)
+            
+            if record.create_uid.id == self.env.user.id or self.env.user.has_group("cm_cargo_handling.group_desechar_guias"):
+                if record.move_id.payment_state == "paid":
+                    raise ValidationError("La Factura ya se encuentra Pagada")
+
+                if record.move_id.payment_state == "partial":
+                    raise ValidationError("La Factura ya tiene pagos de caja")
+
+                guides_ids = self.env['cargo.bill'].search([('order_id','=',record.id)])
+                val = {'default_guia_ids': [(6,0,guides_ids.ids)]}
+                res = {
+                    'type': 'ir.actions.act_window',
+                    'name': _("Motivo de Desechar"),
+                    'res_model': 'cm_cargo_handling.desechar_guia',
+                    'view_type': 'form',
+                    'view_mode': 'form',
+                    'context': val,
+                    'target': 'new',
+                    }
+
+                return res
+            else:
+                raise ValidationError("Debe ser el usuario que creo la guia o tener el permiso para desechar todas la guias")
 
     @api.constrains('id_receiver','id_sender','rtn','sender_phone','receiver_phone')
     def _validate_dates(self):
@@ -402,10 +431,10 @@ class saleOrderHandling(models.Model):
         return True
 
     def create_order(self):
-        if not self.sender_id and not self.id_sender and not self.sender_phone:
+        if not self.sender_id or not self.id_sender or not self.sender_phone:
             raise ValidationError("No ha ingresado los datos necesarios del remitente (Nombre, Identidad, Telefono)")
 
-        if not self.receiver_id and not self.receiver_phone:
+        if not self.receiver_id or not self.receiver_phone:
             raise ValidationError("No ha ingresado los datos necesarios del destinatario (Nombre, Telefono)")
 
 

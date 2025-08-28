@@ -13,6 +13,7 @@
                         <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit'] or residual == 0"/>
                         <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order' or created_guides or created_invoice"/>
 						<button name='print_guides' type='object' string='Imprimir Factura/Guia' invisible="state == 'quote'"></button>
+                        <button name="action_desechar" invisible="not created_guides or state == 'canceled'" class="oe_highlight" type="object" string="Cancelar Orden"/>
                         <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>
@@ -34,7 +35,7 @@
                             <page  string="Principal">
                                 <group col="3">
                                     <group>
-                                        <field name="origin_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="origin_id" options="{'no_create': True, 'no_open': True}" required="1" readonly="state != 'quote'"/>
                                         <field name="partner_id" readonly="state != 'quote'" domain="[('cargo_client','=',True),('parent_id','=',False)]" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="options_size" invisible="not by_size" required="by_size"/>
                                         <field name="by_size" invisible="1"/>

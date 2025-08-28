@@ -15,6 +15,7 @@
             id="sale_order_handling_root"
             name="Ordenes de venta"
             parent="cargo_handling_menu_root"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
             sequence="1"/>
 
         <menuitem
@@ -22,6 +23,7 @@
             name="Ordenes"
             parent="sale_order_handling_root"
             action="action_sale_order_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
             sequence="1"/>
 
         <menuitem
@@ -29,6 +31,7 @@
             name="Guias de Carga"
             parent="sale_order_handling_root"
             action="action_cargo_bill_object"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
             sequence="2"/>
 
         <menuitem
@@ -36,6 +39,7 @@
             name="Historial Remitentes/Destinatarios"
             parent="sale_order_handling_root"
             action="action_receiver_sender_list"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
             sequence="3"/>
 
         <menuitem
@@ -60,7 +64,7 @@
             id="payments_root"
             name="Pagos"
             parent="cargo_handling_menu_root"
-            sequence="5"/>
+            sequence="2"/>
 
         <menuitem
             id="cargo_prepago_sale"
@@ -69,12 +73,12 @@
             sequence="1"
             action="action_prepago_object"/> 
 
-
         <menuitem
             id="cargo_prepago_sale2"
             name="Pagos de Caja"
             parent="payments_root"
             sequence="2"
+            groups="cm_cargo_handling.group_todos_los_pagos"
             action="action_prepago_object2"/> 
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
@@ -82,7 +86,8 @@
             id="cargo_handling_config"
             name="Configuracion"
             parent="cargo_handling_menu_root"
-            sequence="2"/>
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="3"/>
 
         <menuitem
             id="airport_config_menu"
