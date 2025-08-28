@@ -82,6 +82,7 @@ class account_payment_inherit_wizard(models.TransientModel):
             'date': self.payment_date,
             'analytic_account_id': self.analytic_account_id.id or False,
             'amount': self.amount,
+            'name': self.next_number,
             'payment_type': self.payment_type,
             'partner_type': self.partner_type,
             'ref': self.communication,
@@ -154,6 +155,10 @@ class account_payment_inherit_wizard(models.TransientModel):
                             'amount_currency': write_off_amount_currency,
                             'balance': self.currency_id._convert(write_off_amount_currency, self.company_id.currency_id, self.company_id, self.payment_date),
                         })
+        if self.journal_id.sequence_id:
+            sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.pay_method_type)
+            if sequence_id:
+                sequence_id.next_by_id()
         return payment_vals
 
 class write_off_line(models.TransientModel):

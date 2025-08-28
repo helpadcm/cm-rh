@@ -59,7 +59,7 @@ class moveInh(models.Model):
     @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
     def _compute_name(self):
         for rec in self:
-            if rec.move_type in ['out_invoice','out_refund','entry']:
+            if rec.move_type in ['out_invoice','out_refund']:
                 if rec.state == 'draft':
                     rec.name = _('/')
             else:
@@ -105,6 +105,9 @@ class moveInh(models.Model):
             if inv.move_type in ['entry']:
                 if inv.internal_number != 'Borrador':
                     inv.write({'name': inv.internal_number})
+                else:
+                    inv.write({'internal_number': inv.name})
+            
             if inv.move_type in ['in_invoice']:
                 if inv.internal_number == 'Borrador' or not inv.internal_number:
                     if inv.journal_id.sequence_id:
