@@ -28,6 +28,7 @@ class ProductTemplateInherit(models.Model):
 					'product_id': self.id,
 					'rute_id': route.id,
 					'price': self.price,
+					'min_price': 1,
 					'qty_min': self.qty_min
 				})
 		else:
@@ -38,6 +39,7 @@ class ProductTemplateInherit(models.Model):
 						'product_id': self.id,
 						'rute_id': route.id,
 						'price': self.price,
+						'min_price': 1,
 						'qty_min': self.qty_min
 					})
 		
