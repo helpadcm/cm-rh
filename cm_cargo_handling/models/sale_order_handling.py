@@ -110,6 +110,7 @@ class saleOrderHandling(models.Model):
     total = fields.Float(string="Subtotal", compute='calculate_totals', store=True,tracking=True)
     amount_total_lps = fields.Float(string="Total (Lps)", compute='calculate_totals', store=True)
     additional_costs = fields.Float(string="Costos Adicionales ($)", compute='calculate_totals',store=True)
+    discount = fields.Float(string="Descuento", compute='calculate_totals',store=True)
 
     move_id = fields.Many2one('account.move',string="Factura", copy=False)
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.prestate2")
@@ -118,6 +119,7 @@ class saleOrderHandling(models.Model):
     volumen = fields.Float(string="Volumen",tracking=True)
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico",tracking=True)
     uom_name = fields.Char(string="Nombre unidad de medida")
+    discount_id = fields.Many2one('cargo.discount.list',string="Descuento")
 
     def action_desechar(self):
         for record in self:
@@ -242,7 +244,7 @@ class saleOrderHandling(models.Model):
         for rec in self:
             rec.qty_guides = sum(rec.cart_ids.mapped('pieces_qty'))
 
-    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids')
+    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids','discount_id')
     def calculate_totals(self):
         for rec in self:
             total_lbs = 0
@@ -250,6 +252,7 @@ class saleOrderHandling(models.Model):
             additional_cost = 0
             total_included = 0
             total_volumen = 0
+            total_discount = 0
             if rec.origin_id:
                 additional_cost += rec.origin_id.internal_load_ori
             if rec.destination_id:
@@ -261,6 +264,8 @@ class saleOrderHandling(models.Model):
             if rec.modality in ['upon_delivery','credit']:
                 additional_cost += 1
 
+                
+
             rec.additional_costs = additional_cost
 
             for line in rec.cart_ids:
@@ -269,7 +274,13 @@ class saleOrderHandling(models.Model):
                 total_volumen += line.volumen
             
             subtotal = total_dls + additional_cost + total_volumen
+            
+            if rec.discount_id:
+                total_discount = subtotal * (rec.discount_id.porcentage/100)
+                subtotal -= total_discount
+            
             rec.weight = total_lbs
+            rec.discount = total_discount
             rec.preliminar_price = total_dls + total_volumen
             rec.amount_untaxed = subtotal
             rec.total = subtotal
@@ -386,7 +397,6 @@ class saleOrderHandling(models.Model):
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
-                print (price)
                 rec.external_price = price
                 rec.local_price = rec.external_currency_id._convert(price, rec.local_currency_id, self.env.company, rec.date, True)
 
@@ -560,6 +570,13 @@ class saleOrderHandling(models.Model):
     def print_guides(self):
         data = {'order_id': self.id}
         return self.env.ref('cm_cargo_handling.action_guide_format').report_action(self, data=data)
+
+    def unlink(self):
+        for rec in self:
+            if rec.state != 'quote':
+                raise ValidationError("Solo se pueden borrar ordenes en estado de cotizacion")
+        res = super(saleOrderHandling, self).unlink()
+        return res
 
 class orderCartHandling(models.Model):
     _name = 'cart.order.handling'

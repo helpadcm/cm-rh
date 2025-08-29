@@ -165,6 +165,13 @@
             parent="cargo_handling_config"
             sequence="6"
             action="action_volumen_list"/>
+
+        <menuitem
+            id="discount_list_menuitem"
+            name="Listado de Descuentos"
+            parent="cargo_handling_config"
+            sequence="7"
+            action="action_discount_list"/>
     
         <!-- ###############################  LANDING MANIFEST ########################################-->
         

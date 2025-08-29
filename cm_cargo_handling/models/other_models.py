@@ -56,6 +56,16 @@ class volumenList(models.Model):
     instructions = fields.Char(string="Instrucciones")
     image = fields.Binary(string="Imagen", attachment=True)
 
+class discountList(models.Model):
+    _name = 'cargo.discount.list'
+    _description = "Lista de Descuentos"
+
+    name = fields.Char(string="Nombre")
+    is_active = fields.Boolean("Esta Activo")
+    porcentage = fields.Float(string="Porcentaje")
+    user_ids = fields.Many2many('res.users',string="Para Usuarios")
+    product_ids = fields.Many2many('product.product', string="Para Productos")
+
 class AdditionalServices(models.Model):
     _name = 'cargo.bill.additional.service'
     _description = "Servicios Adicionales en Factura"
