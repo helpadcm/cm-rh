@@ -47,6 +47,13 @@ class BillLading(models.Model):
     cargo_manifest_id = fields.Many2one('cargo.manifest', string="Manifiesto de Carga")
     bill_log_ids = fields.One2many('cargo.bill_logs', 'bill_landing_id', string="Bitacora")
 
+    def print_guides(self):
+        data = {
+            'order_id': self.order_id.id,
+            'print_guides': False
+            }
+        return self.env.ref('cm_cargo_handling.action_invoice_guide_format').report_action(self, data=data)
+
     def deliver_cargo(self):
         for line in self:
             if line.modality in ['upon_delivery', 'counted']:

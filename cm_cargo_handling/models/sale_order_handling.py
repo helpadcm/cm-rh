@@ -311,6 +311,7 @@ class saleOrderHandling(models.Model):
                 self.client_name = self.partner_id.name
                 vals_rtn = self.partner_id.vat
                 self.modality = self.partner_id.modality
+                self.discount_id = self.partner_id.discount_default_id.id
 
                 if self.partner_id.modality == 'credit':
                     self.readonly_rtn = True
@@ -568,8 +569,15 @@ class saleOrderHandling(models.Model):
             self.created_guides = True
 
     def print_guides(self):
-        data = {'order_id': self.id}
+        data = {'order_id': self.id, 'print_guides': True}
         return self.env.ref('cm_cargo_handling.action_guide_format').report_action(self, data=data)
+
+    def print_invoice(self):
+        data = {
+            'order_id': self.id,
+            'print_guides': False
+            }
+        return self.env.ref('cm_cargo_handling.action_invoice_guide_format').report_action(self, data=data)
 
     def unlink(self):
         for rec in self:

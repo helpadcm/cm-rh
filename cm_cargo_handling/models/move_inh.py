@@ -10,6 +10,18 @@ class account_invoice_inherit(models.Model):
     prepago_ids     = fields.One2many("cm.prepago", "invoice_id",string="Prepagos")
     amount_prepago  = fields.Monetary(string="Monto Prepagado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
     amount_dffprepago  = fields.Monetary(string="Importe Adeudado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
+    from_handling = fields.Boolean(string="Desde Cargo")
+
+    def print_invoice(self):
+        order_id = self.env['sale.order.handling'].search([('move_id','=',self.id)])
+        if order_id:
+            data = {
+                'order_id': order_id.id,
+                'print_guides': False
+                }
+            return self.env.ref('cm_cargo_handling.action_invoice_guide_format').report_action(self, data=data)
+        else:
+            raise ValidationError("No hay orden de encomiendas ligada a esta factura")
 
     @api.depends("prepago_ids.state","currency_id","amount_total","rtn_name","state")
     def compute_amount_prepago(self):

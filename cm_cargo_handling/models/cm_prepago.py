@@ -32,35 +32,32 @@ class CmPrepago(models.Model):
     partner_type = fields.Selection([('customer', 'Customer'), ('supplier', 'Vendor')],default="customer")
     hide_payment_method = fields.Boolean(compute='_compute_hide_payment_method', help="Technical field used to hide the payment method if the selected journal has only one available which is 'manual'")
     payment_difference_handling = fields.Selection([('open', 'Mantener Abierta'), ('reconcile', 'Marcar Como Pagada')], default='open', string="Diferencia del Pago", copy=False)
-    amount_usd = fields.Float(string="Importe USD",compute="_compute_amount_currency",store=True)
-    amount_hnl = fields.Float(string="Importe HNL",compute="_compute_amount_currency",store=True)
-    guia_ids = fields.Char(string="Guías",compute="_compute_guia",store=True)
+    amount_usd = fields.Float(string="Importe USD",compute="_compute_amount_currency")
+    amount_hnl = fields.Float(string="Importe HNL",compute="_compute_amount_currency")
+    guia_ids = fields.Char(string="Guías",compute="_compute_guia")
 
-    @api.depends("invoice_id")
+    @api.depends("cargo_handling_id")
     def _compute_guia(self):
         for record in self:
-            guia_ids=""
-            landing_ids=[]
-            if record.invoice_id:
-                origin=record.invoice_id.origin
-                for info_sales in self.env.get('sale.order').search([('name','=',origin)]):
-                    for line in info_sales.order_line:
-                        for lading in line.bill_lading_id:
-                            landing_ids.append(lading.name)
-    
-            record.guia_ids=",".join(landing_ids)
-            record.guia_ids = "test"
+            number_guides = ""
+            if record.cargo_handling_id:
+                guides_ids = self.env['cargo.bill'].search([('order_id','=',record.cargo_handling_id.id)])
+                if guides_ids:
+                    number_guides = ', '.join([guide.name for guide in set(guides_ids)])
+            record.guia_ids = number_guides
 
-    @api.depends("currency_id","amount","state")
+    @api.depends("currency_id", "amount", "state")
     def _compute_amount_currency(self):
         for record in self:
-            amount_usd=0.0
-            amount_hnl=0.0
-            if record.state=="posted":
+            base_USD = self.env.ref('base.USD')
+            base_HNL = self.env.ref('base.HNL')
+            amount_usd = 0.0
+            amount_hnl = 0.0
+            if record.state == "posted":
                 if record.currency_id:
-                    if record.currency_id.id==45:
+                    if record.currency_id.id == base_HNL.id:
                         amount_hnl += record.amount
-                    if record.currency_id.id == 3:
+                    if record.currency_id.id == base_USD.id:
                         amount_usd += record.amount
                 else:
                     amount_hnl += record.amount
@@ -138,10 +135,11 @@ class CmPrepago(models.Model):
             else:
                 raise ValidationError("El Pago ya fue procesado")
 
-    @api.model
+    @api.model_create_multi
     def create(self,vals):
-        res=super(CmPrepago,self).create(vals)
-        res.name="PP{:08}".format(res.id)
+        res = super(CmPrepago,self).create(vals)
+        res.name = "PP{:08}".format(res.id)
+        res.invoice_id.from_handling = True
         return res
 
 

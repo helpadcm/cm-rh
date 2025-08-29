@@ -11,7 +11,8 @@
                         <button name='undelive_cargo' type='object' string='Cambiar a recibido' groups='cm_cargo_handling.group_guia_cargar_admin' invisible="state not in ['delivered','abandoned','desechada']"></button>
                         <button name='abandoned_cargo' type='object' string='Marcar como abandono' groups='cm_cargo_handling.group_guia_cargar_admin' invisible="state != 'received'"></button>
                         <button name="action_desechar" string="Desechar" type="object" class="btn-primary" invisible="state not in ['created','sent']"/>
-                        <button name='pay_invoice' type='object' string='Crear/Pagar Factura' invisible="modality != 'upon_delivery' or payment_state == 'paid' or state != 'received'"></button>
+                        <button name='pay_invoice' type='object' string='Crear/Pagar Factura' invisible="payment_state == 'paid' or state in ['delivered','canceled','abandoned']"></button>
+                        <button name='print_guides' invisible="payment_state != 'paid'" type='object' string='Imprimir Factura'></button>
                         <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
                     </header>
                     <sheet>
@@ -25,7 +26,7 @@
                             <group>
                                 <field name="content_description" required="1"/>
                                 <field name='order_id' invisible='1'/>
-                                <field name='payment_state' invisible='1'/>
+                                <field name='payment_state'/>
                                 <field name='modality' invisible='1'/>
                             </group>
                             <group>
@@ -90,7 +91,7 @@
                     <field name="receiver_name"/>
                     <field name="weight"/>
                     <field name="modality"/>
-                    <!-- <field name="additional_costs"/> -->
+                    <field name="payment_state"/>
                     <field name="state"/>
                     <!-- <field name="total"/> -->
                 </tree>

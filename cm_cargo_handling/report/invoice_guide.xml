@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="invoice_order">
+    <template id="invoice_guide">
         <t t-call="web.html_container">
             <div class="page" style="font-size:15px sans-serif;">
                 <div style="page-break-inside:avoid;font-size:15px sans-serif;heigth:45%">
@@ -334,6 +334,16 @@
                     </tbody>
                 </div>
             </div>
+        </t>
+    </template>
+
+    <template id="main_template_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <t t-call="{{ invoice_order }}"/>
+                </div>
+            </t>
         </t>
     </template>
 </odoo>

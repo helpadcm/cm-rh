@@ -75,7 +75,7 @@
 
         <menuitem
             id="cargo_prepago_sale2"
-            name="Pagos de Caja"
+            name=" Todos los pagos de caja"
             parent="payments_root"
             sequence="2"
             groups="cm_cargo_handling.group_todos_los_pagos"

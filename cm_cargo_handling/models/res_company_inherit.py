@@ -21,10 +21,11 @@ class partnerInherit(models.Model):
     _inherit = 'res.partner'
     _rec_names_search = ['complete_name', 'email', 'ref', 'vat', 'company_registry', 'client_account', 'phone']
 
-    cargo_client = fields.Boolean(string="Cliente de encomiendas")
-    fare_classes_ids = fields.Many2many('fare.clases',string="Clases Tarifarias")
-    client_account = fields.Char(string="Cuenta de Cliente")
-    modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad", default="counted")
+    cargo_client = fields.Boolean(string="Cliente de encomiendas",tracking=True)
+    fare_classes_ids = fields.Many2many('fare.clases',string="Clases Tarifarias",tracking=True)
+    client_account = fields.Char(string="Cuenta de Cliente",tracking=True)
+    modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad", default="counted",tracking=True)
+    discount_default_id = fields.Many2one('cargo.discount.list',string="Descuento",tracking=True)
 
     def write(self,vals):
         if vals.get('cargo_client'):

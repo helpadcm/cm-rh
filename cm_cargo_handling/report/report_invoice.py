@@ -8,9 +8,9 @@ from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib import units
 
-class reportHandling(models.AbstractModel):
-    _name = 'report.cm_cargo_handling.main_template_guides'
-    _description = "Formato guia de carga"
+class reportInvHandling(models.AbstractModel):
+    _name = 'report.cm_cargo_handling.main_template_invoice'
+    _description = "Formato Factura"
  
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -19,11 +19,9 @@ class reportHandling(models.AbstractModel):
         docs = order_id
         return {
             'doc_ids': docids,
-            'doc_model': 'sale.order.handling',
+            'doc_model': 'cargo.bill',
             'docs': docs,
-            'guide_mother': 'cm_cargo_handling.guide_mother',
-            'child_guide': 'cm_cargo_handling.child_guide',
-            'invoice_order': 'cm_cargo_handling.invoice_order',
+            'invoice_order': 'cm_cargo_handling.invoice_guide',
             'data': self.get_data(data), # Función para obtener más datos
         }
 

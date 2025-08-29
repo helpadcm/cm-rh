@@ -10,6 +10,16 @@
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
     </record>
 
+    <record id="action_invoice_guide_format" model="ir.actions.report">
+        <field name="name">Factura</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.main_template_invoice</field>
+        <field name="report_file">cm_cargo_handling.main_template_invoice</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+    </record>
+
     <record id="cargo_manifest_report_id" model="ir.actions.report">
         <field name="name">Manifiesto de Carga</field>
         <field name="model">cargo.manifest</field>

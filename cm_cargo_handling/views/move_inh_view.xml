@@ -6,11 +6,15 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
+                <button name="preview_invoice" position="before">
+                    <button name='print_invoice' invisible="not from_handling" type='object' string='Factura Encomiendas'></button>
+                </button>
                 <field name="state" position="after">
                     <field name="prestate2" widget="statusbar" invisible="1"/>
+                    <field name="from_handling" widget="statusbar" invisible="1"/>
                 </field>
                 <notebook position="inside">
-                    <page string="Pagos de Caja">
+                    <page string="Pagos de Caja" invisible="not from_handling">
                         <group>
                             <group>
                                 <field name="amount_prepago"/>
