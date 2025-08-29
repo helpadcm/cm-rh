@@ -52,15 +52,15 @@ class ap_account_payment(models.Model):
 		records._compute_currency_amount()
 		return records
 
-	def action_post(self):
-		res = super(ap_account_payment, self).action_post()
-		for rec in self:
-			if not rec.move_id:
-				if rec.partner_type == 'supplier':
-					sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
-					if sequence_id:
-						rec.name = sequence_id.next_by_id()
-		return res
+	# def action_post(self):
+	# 	res = super(ap_account_payment, self).action_post()
+	# 	for rec in self:
+	# 		if not rec.move_id:
+	# 			if rec.partner_type in ['supplier','customer']:
+	# 				sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
+	# 				if sequence_id:
+	# 					rec.name = sequence_id.next_by_id()
+	# 	return res
 
 	def _get_shared_move_line_vals(self, debit, credit, amount_currency, move_id, invoice_id=False):
 		""" Returns values common to both move lines (except for debit, credit and amount_currency which are reversed)
