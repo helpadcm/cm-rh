@@ -21,4 +21,23 @@
 		<field name="paperformat_id" ref="cm_reports.paperformat_accounting_seat"/>
 		<field name="binding_model_id" ref="account.model_account_move"/>
 	</record>
+
+	<record id="report_invoice_export_general_invoice" model="ir.actions.report">
+		<field name="name">Reporte de Facturas</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.general_invoice</field>
+		<field name="report_file">cm_reports.general_invoice</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_general_invoice"/>
+		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
+	</record>
+
+	<record id="report_invoice_export_general_invoice_xls" model="ir.actions.report">
+		<field name="name">Reporte de Facturas XLSX</field>
+		<field name="model">account.move</field>
+		<field name="report_type">xlsx</field>
+		<field name="report_name">cm_reports.general_invoice_xls</field>
+		<field name="report_file">cm_reports.general_invoice_xls</field>
+	</record>
 </odoo>

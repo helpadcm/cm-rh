@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="management_cai_menu" 
+        parent="account.menu_finance_configuration" 
+        name="CAI"  
+        sequence="10" 
+    />
+
+    <menuitem id="cai_menuitem" 
+        parent="management_cai_menu" 
+        name="CAI"  
+        sequence="1" 
+        groups="account.group_account_manager"
+        action="cm_cai.action_management_cai"
+    />
+
+    <menuitem 
+        action="action_invoice_wizard_menu" 
+        name="Reporte de Facturas"
+        parent="account.menu_finance_reports"  
+        id="report_invoice_menuitem" 
+        sequence="0"/>
+
+</odoo>
