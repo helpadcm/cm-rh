@@ -54,7 +54,7 @@
                             </group>
                             <group>
                                 <field name="fare_classes_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not cargo_client"/>
-                                <!-- <field name="discount_default_id" options="{'no_create': True}" invisible="not cargo_client"/> -->
+                                <field name="discount_id" options="{'no_create': True}" invisible="not cargo_client"/>
                             </group>
                         </group>
                     </page>

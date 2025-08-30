@@ -311,7 +311,7 @@ class saleOrderHandling(models.Model):
                 self.client_name = self.partner_id.name
                 vals_rtn = self.partner_id.vat
                 self.modality = self.partner_id.modality
-                # self.discount_id = self.partner_id.discount_default_id.id
+                self.discount_id = self.partner_id.discount_id.id
 
                 if self.partner_id.modality == 'credit':
                     self.readonly_rtn = True

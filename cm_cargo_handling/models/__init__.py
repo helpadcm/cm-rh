@@ -6,6 +6,7 @@ from . import station
 from . import airport
 from . import rent_product
 from . import product_product
+from . import discount_list
 from . import res_company_inherit
 from . import pricelist_handling
 from . import cm_prepago

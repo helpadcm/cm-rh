@@ -25,7 +25,7 @@ class partnerInherit(models.Model):
     fare_classes_ids = fields.Many2many('fare.clases',string="Clases Tarifarias",tracking=True)
     client_account = fields.Char(string="Cuenta de Cliente",tracking=True)
     modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad", default="counted",tracking=True)
-    #discount_default_id = fields.Many2one('cargo.discount.list',string="Descuento",tracking=True)
+    discount_id = fields.Many2one('cargo.discount.list',string="Descuento",tracking=True)
 
     def write(self,vals):
         if vals.get('cargo_client'):
