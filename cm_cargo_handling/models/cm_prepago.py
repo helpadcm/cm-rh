@@ -136,11 +136,12 @@ class CmPrepago(models.Model):
                 raise ValidationError("El Pago ya fue procesado")
 
     @api.model_create_multi
-    def create(self,vals):
-        res = super(CmPrepago,self).create(vals)
-        res.name = "PP{:08}".format(res.id)
-        res.invoice_id.from_handling = True
-        return res
+    def create(self, vals_list):
+        records = super(CmPrepago, self).create(vals_list)
+        for record in records:
+            record.name = "PP{:08}".format(record.id)
+            record.invoice_id.from_handling = True
+        return records
 
 
     # @api.onchange('payment_type')
