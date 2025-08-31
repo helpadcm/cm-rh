@@ -35,6 +35,8 @@ class CmPrepago(models.Model):
     amount_usd = fields.Float(string="Importe USD",compute="_compute_amount_currency")
     amount_hnl = fields.Float(string="Importe HNL",compute="_compute_amount_currency")
     guia_ids = fields.Char(string="Guías",compute="_compute_guia")
+    rtn = fields.Char(string="RTN")
+    client_name = fields.Char(string="Nombre del cliente")
 
     @api.depends("cargo_handling_id")
     def _compute_guia(self):
@@ -114,6 +116,11 @@ class CmPrepago(models.Model):
                     'card_digits': cash.card_digits,
                     # 'payment_method_id': cash.payment_method_id.id,
                 }
+                if cash.rtn:
+                    cash.invoice_id.rtn_name = cash.rtn
+                if cash.client_name:
+                    cash.invoice_id.partner_name = cash.client_name
+                    
                 pay_id = self.env.get("account.payment").create(vals)
                 pay_id.action_post()
                 # Obtener las líneas de débito y crédito del pago y la factura
@@ -141,6 +148,10 @@ class CmPrepago(models.Model):
         for record in records:
             record.name = "PP{:08}".format(record.id)
             record.invoice_id.from_handling = True
+            if record.rtn:
+                record.invoice_id.rtn_name = record.rtn
+            if record.client_name:
+                record.invoice_id.partner_name = record.client_name
         return records
 
 

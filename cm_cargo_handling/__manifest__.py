@@ -10,6 +10,7 @@
 	'data':[
 		'security/groups.xml',
 		'security/ir.model.access.csv',
+		'data/cron.xml',
 		'data/sequences.xml',
 		'data/paperformat.xml',
 		'wizards/wizard_reception.xml',

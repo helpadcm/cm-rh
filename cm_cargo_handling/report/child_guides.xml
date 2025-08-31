@@ -1,12 +1,12 @@
 <odoo>
     <template id="child_guide">
         <t t-call="web.html_container">
-            <div class="page" style="font-size:15px sans-serif;">
-                <t t-foreach="data.get('guides_values')" t-as="guide">
+            <t t-foreach="data.get('guides_values')" t-as="guide">
+                <div class="page" style="font-size:15px sans-serif;">
                     <div style="border-top: 1px dashed black; margin: 15px 0; page-break-after: avoid; clear: both;"></div>
 
-                    <div style="width:100%; height: 47%; overflow: hidden;">
-                        <table style="height:140px;border-collapse: collapse;width:100%;">
+                    <div style="width:100%; height: 50%; overflow: hidden;">
+                        <table style="height:140px;border-collapse: collapse;width:100%;table-layout: fixed;">
                             <tr>
                                 <td style="width:20%;border:1px solid black">
                                     <table style="border-collapse: collapse;width:100%;">
@@ -93,7 +93,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="text-align:center; width:100%;height:50px;padding-left:2%;padding-right:2%">
-                                                    <img t-att-src="guide.get('barcode')" style="width:100%; height:40px;"/>
+                                                    <img t-att-src="guide.get('barcode')" style="width:100%; height:auto;"/>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -273,6 +273,10 @@
                                                 <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Peso</td>
                                                 <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('weight'))"/> LBS</td>
                                             </tr>
+                                            <tr t-if="guide.get('uom_name') != 'Unidades'">
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Volumen</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('volumen'))"/></td>
+                                            </tr>
                                             <tr t-if="guide.get('uom_name') == 'Unidades'">
                                                 <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Unidades</td>
                                                 <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('qty'))"/></td>
@@ -323,8 +327,8 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td style="font-size:11px;padding:5px;height:85px;overflow:hidden" colspan="2">
-                                        <div style="width:100%;overflow:hidden">
+                                    <td style="font-size:11px;" colspan="2">
+                                        <div style="width:100%;">
                                             <p>DESCRIPCION DEL CONTENIDO: <span t-esc="guide.get('description')"/></p>
                                             <p>CATEGORIA DE PRODUCTO: <span t-esc="guide.get('category')"/></p>
                                         </div>
@@ -333,8 +337,8 @@
                             </table>
                         </div>
                     </div>
-                </t>
-            </div>
+                </div>
+            </t>
         </t>
     </template>
 </odoo>

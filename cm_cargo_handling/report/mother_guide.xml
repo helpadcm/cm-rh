@@ -3,7 +3,7 @@
     <template id="guide_mother">
         <t t-call="web.html_container">
             <div class="page" style="font-size:15px sans-serif;">
-                <div style="height:48%;">
+                <div style="height:50%;">
                     <table style="height:140px;border-collapse: collapse;width:100%;">
                         <tr>
                             <td style="width:20%;border:1px solid black">

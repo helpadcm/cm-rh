@@ -224,7 +224,9 @@ class saleOrderHandling(models.Model):
                 "default_invoice_id":record.move_id.id, 
                 "default_user_id": self.env.user.id, 
                 "default_communication": record.move_id.name, 
-                'default_cargo_handling_id': record.id
+                'default_cargo_handling_id': record.id,
+                'default_rtn': record.rtn,
+                'default_client_name': record.client_name
             }
 
             res={
@@ -546,7 +548,8 @@ class saleOrderHandling(models.Model):
                 'weight': line.weight_piece,
                 'qty': line.weight_or_qty,
                 'product_id': line.product_id.id,
-                'modality': self.modality
+                'modality': self.modality,
+                'volumen': line.volumen
             }
             if self.content_description_ids:
                 vals.update({'content_description_ids': [(6, 0, self.content_description_ids.ids)]})

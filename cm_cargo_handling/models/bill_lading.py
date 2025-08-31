@@ -41,6 +41,7 @@ class BillLading(models.Model):
 
     weight = fields.Float(string="Peso LBS")
     qty = fields.Float(string="Cantidad")
+    volumen = fields.Float(string="Volumen")
     product_id = fields.Many2one('product.product',string="Producto")
 
 ##################################  MANIFEST FIELDS  ##############################################

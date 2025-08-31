@@ -41,11 +41,11 @@
     </record>
 
     <report
-			id="cargo_manifest_report_xlsx"
-			model="cargo.manifest"
-			string="Cargo manifest Excel"
-			report_type="xlsx"
-			name="cargo_manifest.report_cargo_manifest.xlsx"
-			file="cargo_manifest.report_cargo_manifest.xlsx"
-		/>
+        id="cargo_manifest_report_xlsx"
+        model="cargo.manifest"
+        string="Cargo manifest Excel"
+        report_type="xlsx"
+        name="cargo_manifest.report_cargo_manifest.xlsx"
+        file="cargo_manifest.report_cargo_manifest.xlsx"
+    />
 </odoo>

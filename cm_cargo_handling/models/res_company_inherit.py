@@ -76,3 +76,20 @@ class contactListInherit(models.Model):
                 else:
                     self.code = f"{self.phone}-{last_number + 1}"
                 self.list_number = (last_number + 1)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        res = super(contactListInherit, self).create(vals_list)
+        for record in res:
+            record.generate_code()
+        return res
+
+    @api.model
+    def _clean_incomplete_records(self):
+        domain = ['|', '|',('name', '=', False),('phone', '=', False),('identity', '=', False)]
+        records_ids = self.search(domain)
+        
+        if records_ids:
+            records_ids.unlink()
+
+        return True
