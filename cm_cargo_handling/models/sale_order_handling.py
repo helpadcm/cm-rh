@@ -119,7 +119,7 @@ class saleOrderHandling(models.Model):
     volumen = fields.Float(string="Volumen",tracking=True)
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico",tracking=True)
     uom_name = fields.Char(string="Nombre unidad de medida")
-    discount_id = fields.Many2one('cargo.discount.list',string="Descuento")
+    discount_id = fields.Many2one('cargo.discount',string="Descuento")
 
     def action_desechar(self):
         for record in self:

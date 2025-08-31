@@ -2,7 +2,7 @@
 from odoo import api, exceptions, models, fields, _
 
 class discountList(models.Model):
-    _name = 'cargo.discount.list'
+    _name = 'cargo.discount'
     _description = "Lista de Descuentos"
 
     name = fields.Char(string="Nombre")
