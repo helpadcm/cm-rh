@@ -17,7 +17,7 @@
     <menuitem 
         action="action_invoice_wizard_menu" 
         name="Reporte de Facturas"
-        parent="account.menu_finance_reports"  
+        parent="account.menu_finance_configuration"
         id="report_invoice_menuitem" 
         sequence="0"/>
 

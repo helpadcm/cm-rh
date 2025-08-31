@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
 	'name'		:'Reports CM Airlines',
-	'version'	:'17.1',
+	'version'	:'17.0',
     'license': 'LGPL-3',
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
 	'description'	:"""Module for reports in cmairlines.""",
-	'depends':['base','sale','cm_cai','cm_sales','settlement','report_xlsx','account'],
+	'depends':['base','sale','cm_cai','cm_sales','settlement','report_xlsx'],
 	'data':[
 		'security/ir.model.access.csv',
 		'data/paperformat.xml',
