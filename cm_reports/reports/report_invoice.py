@@ -167,6 +167,12 @@ class ReportBook(models.AbstractModel):
 		
 		fdate = datetime.strptime(str(invoice.invoice_date), DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
 
+		cai = ''
+		if invoice.move_type == 'out_invoice':
+			cai = invoice.cai_number
+		elif invoice.move_type == 'in_invoice':
+			cai = invoice.cai_id.name
+
 		res={
 			'symbol': invoice.company_id.currency_id.symbol,
 			'title_name': invoice.name,
@@ -180,6 +186,8 @@ class ReportBook(models.AbstractModel):
 			'amount_0': taxes.get('amount_0')*rate,
 			'amount_15': taxes.get('amount_15')*rate,
 			'amount_18': taxes.get('amount_18')*rate,
+			'cai': cai or '',
+			'rtn': invoice.partner_id.vat or '',
 			'user_id': invoice.user_id.name,
 			'sub': False,
 		}
