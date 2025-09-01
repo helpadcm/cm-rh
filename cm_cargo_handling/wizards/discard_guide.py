@@ -15,6 +15,9 @@ class wizard_desechar_charge(models.TransientModel):
         active_id = self.env.context.get('active_id')
         for record in self:
             for guide in record.guia_ids:
+                if guide.state != 'created':
+                    raise ValidationError("Solo se pueden desechar guias en estado creada")
+
                 if guide.order_id.payment_state == 'not_paid':
                     move_id = guide.order_id.move_id
                     if move_id.state == 'draft':
@@ -28,5 +31,19 @@ class wizard_desechar_charge(models.TransientModel):
             
         if active_model == 'sale.order.handling':
             order_id = self.env[active_model].browse(active_id)
+            if order_id.move_id:
+                if order_id.move_id.state == 'draft':
+                    order_id.move_id.button_cancel()
+                
+                if order_id.move_id.state == 'posted' and order_id.move_id.payment_state == 'not_paid':
+                    order_id.move_id.button_draft()
+                    order_id.move_id.button_cancel()
+
+                    if order_id.move_id.prepago_ids:
+                        for prep in order_id.move_id.prepago_ids:
+                            prep.action_cancel()
+
+                if order_id.move_id.payment_state in ['partial','paid','in_payment']:
+                    raise ValidationError("La factura ya cuenta con un pago, antes de desechar o cancelar la orden debe desconciliar los pagos")
+
             order_id.state = 'canceled'
-            

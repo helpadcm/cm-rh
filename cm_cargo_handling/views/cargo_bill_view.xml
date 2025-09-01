@@ -54,6 +54,8 @@
                         <group class="oe_subtotal_footer">
                             <field name="weight"/>
                             <field name="qty"/>
+                            <field name="amount_total"/>
+                            <field name="amount_total_lps"/>
                             <field name="cargo_manifest_id" invisible="1"/>
                         </group>
                         <notebook>

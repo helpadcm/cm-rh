@@ -81,8 +81,11 @@ class CmPrepago(models.Model):
 
     def post(self):
         for record in self:
-            if record.invoice_id.prestate2=="paid":
+            if record.invoice_id.prestate2 == "paid":
                 raise ValidationError("La Factura ya fue Pagada")
+
+            if record.cargo_handling_id:
+                record.cargo_handling_id.with_context({"create": True}).create_guides()
             record.state="posted"
 
     def cancel_to_pay(self):
@@ -140,7 +143,7 @@ class CmPrepago(models.Model):
             if not record.payment_create:
                 record.state="cancel"
             else:
-                raise ValidationError("El Pago ya fue procesado")
+                raise ValidationError("El Pago de la factura ya fue procesado")
 
     @api.model_create_multi
     def create(self, vals_list):

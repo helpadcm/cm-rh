@@ -43,6 +43,8 @@ class BillLading(models.Model):
     qty = fields.Float(string="Cantidad")
     volumen = fields.Float(string="Volumen")
     product_id = fields.Many2one('product.product',string="Producto")
+    amount_total = fields.Float(string="Total")
+    amount_total_lps = fields.Float(string="Total (Lps)")
 
 ##################################  MANIFEST FIELDS  ##############################################
     cargo_manifest_id = fields.Many2one('cargo.manifest', string="Manifiesto de Carga")

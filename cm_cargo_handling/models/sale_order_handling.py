@@ -59,9 +59,11 @@ class saleOrderHandling(models.Model):
     date = fields.Datetime(string="Fecha de registro",default=default_date)
     local_currency_id = fields.Many2one('res.currency',string="Moneda Local")
     external_currency_id = fields.Many2one('res.currency',string="Moneda Extranjera")
-    weight_or_qty = fields.Float(string="Cantidad",tracking=True)
+    weight_or_qty = fields.Float(string="Cantidad", tracking=True, default=1)
     local_price = fields.Float(string="Precio Lps", compute="calculate_amounts", store=True)
     external_price = fields.Float(string="Precio USD", compute="calculate_amounts", store=True)
+    tax_price = fields.Float(string="Impuestos USD", compute="calculate_amounts", store=True)
+    total_amount_piece = fields.Float(string="Monto Total Pieza", compute="calculate_amounts", store=True)
     state = fields.Selection(states, string="Estado", default="quote", tracking=True)
     cart_ids = fields.One2many('cart.order.handling', 'order_id', string="Carrito de ordenes")
     listprice_domain = fields.Binary(string="Dominio de lista de precios", compute="update_pricelist")
@@ -331,12 +333,14 @@ class saleOrderHandling(models.Model):
         if self.sender_id:
             self.id_sender = self.sender_id.identity
             self.sender_phone = self.sender_id.phone
+            self.sender_name = self.sender_id.name
 
     @api.onchange('receiver_id')
     def get_data_receiver(self):
         if self.receiver_id:
             self.id_receiver = self.receiver_id.identity
             self.receiver_phone = self.receiver_id.phone
+            self.receiver_name = self.receiver_id.name
 
     @api.depends('origin_id', 'destination_id', 'partner_id')
     def update_pricelist(self):
@@ -367,7 +371,7 @@ class saleOrderHandling(models.Model):
             self.by_size = self.product_id.by_size
             self.uom_name = self.product_id.uom_id.name
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id','volumen', 'additional_costs')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -400,8 +404,17 @@ class saleOrderHandling(models.Model):
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
+                if rec.volumen > 0:
+                    price += rec.volumen
+
+                if rec.additional_costs > 0:
+                    price += rec.additional_costs
+
+                tax_amount = price * 0.15
                 rec.external_price = price
-                rec.local_price = rec.external_currency_id._convert(price, rec.local_currency_id, self.env.company, rec.date, True)
+                rec.tax_price = tax_amount
+                rec.total_amount_piece = price + tax_amount
+                rec.local_price = rec.external_currency_id._convert((rec.total_amount_piece), rec.local_currency_id, self.env.company, rec.date, True)
 
     def add_cart(self):
         if self.cart_ids:
@@ -417,6 +430,12 @@ class saleOrderHandling(models.Model):
         if self.weight_or_qty == 0 and self.weight_piece == 0:
             raise ValidationError("La cantidad debe ser mayor de cero")
 
+        if not self.piece_description:
+            raise ValidationError("Debe agregar una descripcion de la pieza a ingresar")
+
+        if not self.product_id:
+            raise ValidationError("Debe agregar un producto")
+
         if self.weight_or_qty > 0 or self.weight_piece > 0:
             pieces = 1
             if self.piece_type == 'uniform':
@@ -429,8 +448,8 @@ class saleOrderHandling(models.Model):
                 'local_currency_id': self.local_currency_id.id,
                 'external_currency_id': self.external_currency_id.id,
                 'weight_or_qty': self.weight_or_qty,
-                'local_price': self.local_price * pieces,
-                'external_price': self.external_price * pieces,
+                'local_price': (self.local_price * pieces),
+                'external_price': (self.external_price * pieces) - self.additional_costs - self.volumen,
                 'partner_id': self.partner_id.id,
                 'pieces_qty': pieces,
                 'piece_description': self.piece_description,
@@ -444,6 +463,8 @@ class saleOrderHandling(models.Model):
             self.volumen = 0
             self.local_price = 0 
             self.external_price = 0
+            self.tax_price = 0
+            self.total_amount_piece = 0
         return True
 
     def create_order(self):
@@ -495,6 +516,7 @@ class saleOrderHandling(models.Model):
             'rtn_name': self.rtn or invoice_partner_id.vat,
             'move_type': 'out_invoice',
             'invoice_user_id': self.user_id.id,
+            'modality': self.modality,
             'journal_id': journal_id.id,
             'invoice_date': (datetime.now() - timedelta(hours=6)).date(),
             'currency_id': self.external_currency_id.id,
@@ -513,14 +535,19 @@ class saleOrderHandling(models.Model):
             'tax_ids': [(6, 0, self.product_id.taxes_id.ids)]
         }
         self.env['account.move.line'].create(line_vals)
+
         if self.modality in ['counted','credit']:
+            if self.modality == 'credit' and not self.created_invoice:
+                self.with_context({"create": True}).create_guides()
             self.allow_create_guides = True
 
         self.created_invoice = True
 
     def create_guides(self):
-        if self.modality == 'counted' and self.move_id.prestate2 != 'paid':
-            raise ValidationError('Modalidad Contado: Debe realizar el pago de la factura antes de crear las guias')
+        create = self.env.context.get('create')
+        if not create:
+            if self.modality == 'counted' and self.move_id.prestate2 != 'paid':
+                raise ValidationError('Modalidad Contado: Debe realizar el pago de la factura antes de crear las guias')
 
         if not self.cart_ids:
             raise ValidationError("No hay nada agregado al carrito")
@@ -549,7 +576,10 @@ class saleOrderHandling(models.Model):
                 'qty': line.weight_or_qty,
                 'product_id': line.product_id.id,
                 'modality': self.modality,
-                'volumen': line.volumen
+                'volumen': line.volumen,
+                'amount_total': self.amount_total,
+                'amount_total_lps': self.amount_total_lps
+
             }
             if self.content_description_ids:
                 vals.update({'content_description_ids': [(6, 0, self.content_description_ids.ids)]})
