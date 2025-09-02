@@ -157,7 +157,8 @@ class accountMoveSync(models.Model):
                         finalize = False
                         continue
 
-                    exist_invoice = self.exist_number(inv['move_name'], inv['id'])
+                    move_name = inv['move_name']
+                    exist_invoice = self.exist_number(move_name, inv['id'])
                     create_invoice = True
                     if exist_invoice:
                         if exist_invoice.state == 'draft':
@@ -169,6 +170,10 @@ class accountMoveSync(models.Model):
                             exist_invoice.unlink()
                         else:
                             create_invoice = False
+                    else:
+                        move_id = self.search([('name','=',move_name)])
+                        if move_id and move_id.payment_state in ['paid','partial']:
+                            move_name = move_name + '#'
 
                     if create_invoice:
                         invoice_values = {
@@ -184,8 +189,8 @@ class accountMoveSync(models.Model):
                             'move_type': inv['type'],
                             'journal_id': journal_id.id,
                             'state': 'draft',
-                            'name': inv.get('move_name') if inv.get('move_name') else 'Borrador',
-                            'internal_number': inv.get('move_name') if inv.get('move_name') else 'Borrador',
+                            'name': move_name if move_name else 'Borrador',
+                            'internal_number': move_name if move_name else 'Borrador',
                             'amount_total': inv.get('amount_total', 0.0)
                         }
 
