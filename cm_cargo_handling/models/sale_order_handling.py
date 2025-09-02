@@ -371,7 +371,7 @@ class saleOrderHandling(models.Model):
             self.by_size = self.product_id.by_size
             self.uom_name = self.product_id.uom_id.name
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id','volumen', 'additional_costs')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id','volumen', 'additional_costs','uom_name')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -389,13 +389,13 @@ class saleOrderHandling(models.Model):
                         price = rec.product_id.big_amount
 
                 if line_id:
-                    if rec.weight_or_qty > 0:
+                    if rec.weight_or_qty > 0 and rec.uom_name == 'Unidades':
                         if rec.weight_or_qty <= line_id.qty_min:
                             price += line_id.price
                         else:
                             price += line_id.min_price * rec.weight_or_qty
                     
-                    if rec.weight_piece > 0:
+                    if rec.weight_piece > 0 and rec.uom_name != 'Unidades':
                         if rec.weight_piece <= line_id.qty_min:
                             price += line_id.price
                         else:
