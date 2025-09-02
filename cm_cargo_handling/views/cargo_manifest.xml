@@ -7,7 +7,7 @@
             <field name="arch" type="xml">
                 <form string="Manifiesto de Carga">
                     <header>
-                        <button name="send" type="object" string="Enviar" class="oe_highlight" invisible="state != 'draft'"/>
+                        <button name="send" type="object" string="Enviar" class="oe_highlight" invisible="state != 'draft'" confirm="¿Esta seguro de querer enviar este manifiesto?"/>
                         <button name="%(action_wizard_receive_cargo_manifest)d" class="oe_highlight" type="action" invisible="state != 'sent'" string="Recibir"/>
                         <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':False}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_add" string="Agregar Guia de Carga"/>
                         <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':True}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_remove" string="Remover Guia de Carga"/>

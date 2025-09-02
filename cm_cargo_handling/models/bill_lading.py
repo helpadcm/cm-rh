@@ -75,6 +75,20 @@ class BillLading(models.Model):
         for line in self:
             line.state = 'received'
 
+    def show_invoice(self):
+        if not self.order_id.move_id:
+            raise ValidationError("No hay factura creada para esta guia")
+
+        return {
+            'name': _('Factura de encomienda'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': self.order_id.move_id.id,
+            'target': 'current',
+            'context': {},
+        }
+
     def abandoned_cargo(self):
         for line in self:
             line.state = 'abandoned'

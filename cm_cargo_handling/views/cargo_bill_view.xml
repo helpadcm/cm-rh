@@ -16,6 +16,9 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box"> 
+                            <button name="show_invoice" type="object" class="oe_stat_button" icon="fa-copy" invisible="not order_id.move_id">Factura</button>
+                        </div>
                         <widget name="web_ribbon" title="Por Cobrar" invisible="modality != 'upon_delivery'"/>
                         <widget name="web_ribbon" title="Contado" invisible="modality != 'counted'"/>
                         <widget name="web_ribbon" title="Credito" invisible="modality != 'credit'"/>
@@ -125,7 +128,6 @@
                         <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
                         <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
-                        <filter name="group_payment_state" string="Estado de pago" domain="[]" context="{'group_by':'payment_state'}"/>
                         <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
                     </group>
                 </search>

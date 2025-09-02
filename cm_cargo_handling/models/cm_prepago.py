@@ -85,6 +85,10 @@ class CmPrepago(models.Model):
                 raise ValidationError("La Factura ya fue Pagada")
 
             if record.cargo_handling_id:
+                if record.cargo_handling_id.modality == 'counted' and not record.cargo_handling_id.move_id:
+                    move_id = record.cargo_handling_id.create_invoices()
+                    record.invoice_id = move_id.id
+
                 record.cargo_handling_id.with_context({"create": True}).create_guides()
             record.state="posted"
 

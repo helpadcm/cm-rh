@@ -8,7 +8,8 @@
                 <form string="Servicios Adicionales">
                     <header>
                         <button name="create_order" class="oe_highlight" type="object" string="Validar" invisible="state != 'quote'"/>
-                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura" invisible="state != 'order' or modality not in ['counted','credit'] or move_id != False"/>
+                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura/Guias" invisible="state != 'order' or modality not in ['credit'] or move_id != False"/>
+                        <button name="register_payment" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear/Pagar Factura" invisible="state != 'order' or modality not in ['counted'] or move_id != False"/>
                         <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
                         <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit'] or residual == 0 or state in ['canceled']"/>
                         <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order' or created_guides or created_invoice"/>
@@ -76,38 +77,6 @@
                                         <field name="observations" readonly="state != 'quote'"/>
                                     </group>
                                 </group>
-                            </page>
-                            <page string="Servicios Adicionales" >
-                                <field name="additional_services_ids" readonly="state != 'quote'">
-                                    <tree string="Caption">
-                                        <field name="additional_service"/>
-                                        <field name="type_service" column_invisible="1"/>
-                                        <field name="currency_id" column_invisible="1"/>
-                                        <field name="total" sum="Total"/>
-                                    </tree>
-                                    <form string="Servicios Adicionales">
-                                        <sheet>
-                                            <group>
-                                                <group>
-                                                    <field name="additional_service" options="{'no_create': True}" required='1'/>
-                                                    <field name="total" sum="Total"/>
-                                                    <field name="type_service" invisible="1"/>
-                                                    <field name="currency_id" invisible="1"/>
-                                                </group>
-                                                <group>
-                                                    <field name="rent_product" invisible="type_service != 'rent'" readonly="1"/>
-                                                    <field name="by_value" invisible="type_service != 'value'" readonly="1"/>
-                                                    <field name="fixed_value" invisible="type_service != 'fixed'" readonly="1"/>                                                    
-                                                    <field name="by_weight" invisible="type_service != 'weight'" readonly="1"/>
-                                                    <field name="weight" invisible="type_service != 'weight'"/>
-                                                    <field name="commercial_value" invisible="type_service != 'value'"/>
-                                                    <field name="date_send" invisible="type_service != 'date'"/>
-                                                    <field name="size_id" invisible="type_service != 'rent'"/>
-                                                </group>
-                                            </group>
-                                        </sheet>
-                                    </form>
-                                </field>
                             </page>
                             <page name="cart" string="Carrito">
                                 <group string="Calculos" col="3">
@@ -195,6 +164,38 @@
                                         <field name="amount_total_lps" class="oe_subtotal_footer_separator" string='Total(Lps)' widget="monetary" options="{'currency_field': 'local_currency_id'}"/>
                                     </group>
                                 </group>
+                            </page>
+                            <page string="Servicios Adicionales" >
+                                <field name="additional_services_ids" readonly="state != 'quote'">
+                                    <tree string="Caption">
+                                        <field name="additional_service"/>
+                                        <field name="type_service" column_invisible="1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="total" sum="Total"/>
+                                    </tree>
+                                    <form string="Servicios Adicionales">
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="additional_service" options="{'no_create': True}" required='1'/>
+                                                    <field name="total" sum="Total"/>
+                                                    <field name="type_service" invisible="1"/>
+                                                    <field name="currency_id" invisible="1"/>
+                                                </group>
+                                                <group>
+                                                    <field name="rent_product" invisible="type_service != 'rent'" readonly="1"/>
+                                                    <field name="by_value" invisible="type_service != 'value'" readonly="1"/>
+                                                    <field name="fixed_value" invisible="type_service != 'fixed'" readonly="1"/>                                                    
+                                                    <field name="by_weight" invisible="type_service != 'weight'" readonly="1"/>
+                                                    <field name="weight" invisible="type_service != 'weight'"/>
+                                                    <field name="commercial_value" invisible="type_service != 'value'"/>
+                                                    <field name="date_send" invisible="type_service != 'date'"/>
+                                                    <field name="size_id" invisible="type_service != 'rent'"/>
+                                                </group>
+                                            </group>
+                                        </sheet>
+                                    </form>
+                                </field>
                             </page>
                             <page name="bill_ladings" string="Guias de carga" invisible="1">
                                 <field name="bill_lading_ids">
@@ -293,12 +294,12 @@
                     <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
                     <separator/>
                     <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
                         <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
                         <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
-                        <filter name="group_payment_state" string="Estado de pago" domain="[]" context="{'group_by':'payment_state'}"/>
                         <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
                         <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
                     </group>

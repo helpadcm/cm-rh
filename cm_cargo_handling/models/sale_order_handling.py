@@ -14,6 +14,7 @@ class saleOrderHandling(models.Model):
     _name = 'sale.order.handling'
     _description = "Ordenes de venta encomiendas"
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = "name desc"
 
     @api.model
     def user_default(self):
@@ -162,14 +163,14 @@ class saleOrderHandling(models.Model):
                 if not rec.id_receiver.isdigit():
                     raise ValidationError("El campo identidad debe contener solo valores numéricos.")
 
-                if len(rec.id_receiver) < 10:
+                if len(rec.id_receiver) < 5:
                     raise ValidationError("Los numeros de identidad deben tener minimo 10 digitos")
 
             if rec.id_sender:
                 if not rec.id_sender.isdigit():
                     raise ValidationError("El campo identidad debe contener solo valores numéricos.")
 
-                if len(rec.id_sender) < 10:
+                if len(rec.id_sender) < 5:
                     raise ValidationError("Los numeros de identidad deben tener minimo 10 digitos")
 
             if rec.sender_phone:
@@ -219,6 +220,9 @@ class saleOrderHandling(models.Model):
 
     def register_payment(self):
         for record in self:
+            if record.modality == 'counted':
+                record.create_invoices()
+
             if record.move_id.state == 'draft':
                 record.move_id.action_post()
 
@@ -504,6 +508,9 @@ class saleOrderHandling(models.Model):
         if not self.cart_ids:
             raise ValidationError("No hay nada en el carrito para facturar")
 
+        if not self.partner_id:
+            raise ValidationError("No ha agregado cliente")
+
         journal_id = self.env['account.journal'].search([('code','=','INV')])
 
         invoice_partner_id = self.partner_id
@@ -555,6 +562,9 @@ class saleOrderHandling(models.Model):
         total_pieces = sum(self.cart_ids.mapped('pieces_qty'))
         if self.pieces_qty != total_pieces:
             raise ValidationError("La cantidad de piezas detallada en el carrito debe ser igual a la cantidad de piezas descrita en los calculos")
+
+        if not self.partner_id:
+            raise ValidationError("No ha agregado cliente")
 
         len_cart = len(self.cart_ids)
         cont = 1
