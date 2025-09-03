@@ -67,21 +67,27 @@ class reportHandling(models.AbstractModel):
             description_list.append(car.piece_description)
             category_list.append(car.product_id.name)
 
+        id_sender = order_id.id_sender
+        id_receiver = order_id.id_receiver
+        if order_id.discount_id.code == 'COMAIL':
+            id_sender = ''
+            id_receiver = ''
+
         values = {
             'company': order_id.user_id.company_id,
             'print_guides': data.get('print_guides'),
             'address_send': order_id.destination_id.address_send or order_id.destination_id.address,
             'destination_code': order_id.destination_id.ref,
             'order': order_id.name,
-            'sender_name': order_id.sender_id.name,
+            'sender_name': order_id.sender_id.name or order_id.sender_name,
             'sender_phone': order_id.sender_phone,
-            'id_sender': order_id.id_sender,
+            'id_sender': id_sender,
             'origin': order_id.origin_id.ref,
             'origin_name': order_id.origin_id.name,
             'date': self.change_format2(order_id.date),
-            'receiver_name': order_id.receiver_id.name,
+            'receiver_name': order_id.receiver_id.name or order_id.receiver_name,
             'receiver_phone': order_id.receiver_phone,
-            'id_receiver': order_id.id_receiver,
+            'id_receiver': id_receiver,
             'user_name': order_id.user_id.name,
             'observations': order_id.observations or '',
             'guides': ', '.join([guide.name for guide in order_id.bill_lading_ids]),

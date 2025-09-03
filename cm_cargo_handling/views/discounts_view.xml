@@ -13,6 +13,7 @@
                                 <field name="porcentage"/>
                             </group>
                             <group>
+                                <field name="code"/>
                                 <field name="is_active" />
                             </group>
                             <field name="user_ids" widget="many2many_tags" options="{'no_create': True}"/>
@@ -28,6 +29,7 @@
             <field name="model">cargo.discount</field>
             <field name="arch" type="xml">
                 <tree string="Listado de Descuentos">
+                    <field name="code"/>
                     <field name="name"/>
                     <field name="porcentage"/>
                     <field name="is_active"/>

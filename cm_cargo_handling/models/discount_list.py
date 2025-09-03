@@ -10,3 +10,4 @@ class discountList(models.Model):
     porcentage = fields.Float(string="Porcentaje")
     user_ids = fields.Many2many('res.users',string="Para Usuarios")
     product_ids = fields.Many2many('product.product', string="Para Productos")
+    code = fields.Char(string="Código")

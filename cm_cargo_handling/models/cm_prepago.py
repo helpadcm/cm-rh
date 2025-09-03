@@ -80,6 +80,7 @@ class CmPrepago(models.Model):
             pay.cancel_to_pay()
 
     def post(self):
+        active_model = self.env.context.get('active_model')
         for record in self:
             if record.invoice_id.prestate2 == "paid":
                 raise ValidationError("La Factura ya fue Pagada")
@@ -89,7 +90,8 @@ class CmPrepago(models.Model):
                     move_id = record.cargo_handling_id.create_invoices()
                     record.invoice_id = move_id.id
 
-                record.cargo_handling_id.with_context({"create": True}).create_guides()
+                if active_model != 'cargo.bill':
+                    record.cargo_handling_id.with_context({"create": True}).create_guides()
             record.state="posted"
 
     def cancel_to_pay(self):
