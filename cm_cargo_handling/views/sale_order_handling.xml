@@ -8,8 +8,8 @@
                 <form string="Servicios Adicionales">
                     <header>
                         <button name="create_order" class="oe_highlight" type="object" string="Validar" invisible="state != 'quote'"/>
-                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura/Guias" invisible="state != 'order' or modality not in ['credit'] or move_id != False"/>
-                        <button name="register_payment" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear/Pagar Factura" invisible="state != 'order' or modality not in ['counted'] or move_id != False"/>
+                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura/Guias" invisible="state != 'order' or modality not in ['credit'] or move_id != False or allow_create_guides"/>
+                        <button name="register_payment" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear/Pagar Factura" invisible="state != 'order' or modality not in ['counted'] or move_id != False or allow_create_guides"/>
                         <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
                         <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit'] or residual == 0 or state in ['canceled']"/>
                         <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order' or created_guides or created_invoice"/>

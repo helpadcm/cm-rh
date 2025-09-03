@@ -186,9 +186,9 @@ class saleOrderHandling(models.Model):
         if self.volumen_list_id:
             self.volumen = self.volumen_list_id.volumen
 
-    @api.onchange('modality', 'default_client')
+    @api.onchange('modality', 'default_client','discount_id')
     def allow_create_handling(self):
-        if self.modality == 'upon_delivery':
+        if self.modality == 'upon_delivery' or self.discount_id.code in ['COMAIL','G10']:
             self.allow_create_guides = True
         else:
             self.allow_create_guides = False
@@ -553,7 +553,7 @@ class saleOrderHandling(models.Model):
     def create_guides(self):
         create = self.env.context.get('create')
         if not create:
-            if self.modality == 'counted' and self.move_id.prestate2 != 'paid':
+            if self.modality == 'counted' and self.move_id.prestate2 != 'paid' and self.discount_id.code not in ['COMAIL','G10']:
                 raise ValidationError('Modalidad Contado: Debe realizar el pago de la factura antes de crear las guias')
 
         if not self.cart_ids:
