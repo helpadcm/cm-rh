@@ -96,12 +96,13 @@ class GeneralLegderReport(models.AbstractModel):
 		sheet.write(pos, 9, _('Isv 15'), format211)
 		sheet.write(pos, 10, _('Monto Isv 18'), format211)
 		sheet.write(pos, 11, _('Isv 18'), format211)
-		sheet.write(pos, 12, _('Total'), format211)
-		sheet.write(pos, 13, _('CAI'), format211)
-		sheet.write(pos, 14, _('RTN'), format211)
+		sheet.write(pos, 12, _('Otros Importes'), format211)
+		sheet.write(pos, 13, _('Total'), format211)
+		sheet.write(pos, 14, _('CAI'), format211)
+		sheet.write(pos, 15, _('RTN'), format211)
 		if option.get('life_date'):
-			sheet.write(pos, 15, _('Serial'), format211)
-			sheet.write(pos, 16,_('Fecha'), format211)
+			sheet.write(pos, 16, _('Serial'), format211)
+			sheet.write(pos, 17,_('Fecha'), format211)
 		pos+=1
 		#CUENTAS Y LINEAS DE CUENTA
 		
@@ -115,9 +116,10 @@ class GeneralLegderReport(models.AbstractModel):
 				sheet.write_number(pos, 9, float(o.get('isv_15',0)), format411)
 				sheet.write_number(pos, 10, float(o.get('amount_18',0)), format411)
 				sheet.write_number(pos, 11, float(o.get('isv_18',0)), format411)
-				sheet.write_number(pos, 12, float(o.get('amount_total',0)), format411)
-				sheet.write(pos, 13, o.get('cai'), format21)
-				sheet.write(pos, 14, o.get('rtn', ''), format21)
+				sheet.write_number(pos, 12, float(o.get('amount_other', 0)), format411)
+				sheet.write_number(pos, 13, float(o.get('amount_total',0)), format411)
+				sheet.write(pos, 14, o.get('cai'), format21)
+				sheet.write(pos, 15, o.get('rtn', ''), format21)
 			else:
 				#sheet.write(pos, 0, o.get('title_name'), format21)
 			
@@ -131,9 +133,10 @@ class GeneralLegderReport(models.AbstractModel):
 				sheet.write_number(pos, 9, float(o.get('isv_15',0)), format41)
 				sheet.write_number(pos, 10, float(o.get('amount_18',0)), format41)
 				sheet.write_number(pos, 11, float(o.get('isv_18',0)), format41)
-				sheet.write_number(pos, 12, float(o.get('amount_total',0)), format41)
-				sheet.write(pos, 13, o.get('cai'), format21)
-				sheet.write(pos, 14, o.get('rtn', ''), format21)
+				sheet.write_number(pos, 12, float(o.get('amount_other', 0)), format41)
+				sheet.write_number(pos, 13, float(o.get('amount_total',0)), format41)
+				sheet.write(pos, 14, o.get('cai'), format21)
+				sheet.write(pos, 15, o.get('rtn', ''), format21)
 			pos+=1
 			
 			if o.get('tlines'):
@@ -148,9 +151,10 @@ class GeneralLegderReport(models.AbstractModel):
 						sheet.write_number(pos, 9, float(oo.get('isv_15',0)), format411)
 						sheet.write_number(pos, 10, float(oo.get('amount_18',0)), format411)
 						sheet.write_number(pos, 11, float(oo.get('isv_18',0)), format411)
-						sheet.write_number(pos, 12, float(oo.get('amount_total',0)), format411)
-						sheet.write(pos, 13, oo.get('cai'), format21)
-						sheet.write(pos, 14, oo.get('rtn', ''), format21)
+						sheet.write_number(pos, 12, float(oo.get('amount_other', 0)), format411)
+						sheet.write_number(pos, 13, float(oo.get('amount_total',0)), format411)
+						sheet.write(pos, 14, oo.get('cai'), format21)
+						sheet.write(pos, 15, oo.get('rtn', ''), format21)
 					else:
 						#sheet.write(pos, 0, o.get('title_name'), format21)
 			
@@ -164,9 +168,10 @@ class GeneralLegderReport(models.AbstractModel):
 						sheet.write_number(pos, 9, float(oo.get('isv_15',0)), format41)
 						sheet.write_number(pos,10, float(oo.get('amount_18',0)), format41)
 						sheet.write_number(pos, 11, float(oo.get('isv_18',0)), format41)
-						sheet.write_number(pos, 12, float(oo.get('amount_total',0)), format41)
-						sheet.write(pos, 13, oo.get('cai'), format21)
-						sheet.write(pos, 14, oo.get('rtn', ''), format21)
+						sheet.write_number(pos, 12, float(oo.get('amount_other', 0)), format41)
+						sheet.write_number(pos, 13, float(oo.get('amount_total',0)), format41)
+						sheet.write(pos, 14, oo.get('cai'), format21)
+						sheet.write(pos, 15, oo.get('rtn', ''), format21)
 				
 					pos+=1
 					if oo.get('lines'):
@@ -181,9 +186,10 @@ class GeneralLegderReport(models.AbstractModel):
 							sheet.write_number(pos, 9, float(a.get('isv_15',0)), format41)
 							sheet.write_number(pos, 10, float(a.get('amount_18',0)), format41)
 							sheet.write_number(pos, 11, float(a.get('isv_18',0)), format41)
-							sheet.write_number(pos, 12, float(a.get('amount_total',0)), format41)
-							sheet.write(pos, 13, a.get('cai'), format21)
-							sheet.write(pos, 14, a.get('rtn', ''), format21)
+							sheet.write_number(pos, 12, float(a.get('amount_other', 0)), format41)
+							sheet.write_number(pos, 13, float(a.get('amount_total',0)), format41)
+							sheet.write(pos, 14, a.get('cai'), format21)
+							sheet.write(pos, 15, a.get('rtn', ''), format21)
 							pos+=1
 			
 			
@@ -199,7 +205,8 @@ class GeneralLegderReport(models.AbstractModel):
 					sheet.write_number(pos, 9, float(a.get('isv_15',0)), format41)
 					sheet.write_number(pos, 10, float(a.get('amount_18',0)), format41)
 					sheet.write_number(pos, 11, float(a.get('isv_18',0)), format41)
-					sheet.write_number(pos, 12, float(a.get('amount_total',0)), format41)
-					sheet.write(pos, 13, a.get('cai'), format21)
-					sheet.write(pos, 14, a.get('rtn', ''), format21)
+					sheet.write_number(pos, 12, float(a.get('amount_other', 0)), format41)
+					sheet.write_number(pos, 13, float(a.get('amount_total',0)), format41)
+					sheet.write(pos, 14, a.get('cai'), format21)
+					sheet.write(pos, 15, a.get('rtn', ''), format21)
 					pos+=1

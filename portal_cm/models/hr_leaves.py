@@ -29,6 +29,14 @@ class HrLeavesInh(models.Model):
     # def get_return_open_route(self):
     #     for rec in self:
 
+    def _get_leaves_on_public_holiday(self):
+        if self.code != 'PFLY':
+            res = super(HrLeavesInh, self)._get_leaves_on_public_holiday()
+            return res
+        else:
+            return False
+
+
     def action_approve(self, check_state=True):
         res = super(HrLeavesInh, self).action_approve(check_state)
         if self.holiday_status_id.code == 'VAC':

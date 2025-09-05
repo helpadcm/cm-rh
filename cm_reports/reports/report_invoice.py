@@ -144,12 +144,18 @@ class ReportBook(models.AbstractModel):
 		amount_0 = 0
 		amount_15 = 0
 		amount_18 = 0
+		amount_other = 0
 		rate = self.get_currency_rate(invoice.currency_id, invoice.invoice_date, self.env.user.company_id)
 
 		for line in invoice.invoice_line_ids:
-			if len(line.tax_ids) == 0:
-				amount_0 += line.price_subtotal
-			else:
+			if line.sub_invoice:
+				amount_other += line.TAAmount + line.TDAmount + line.TIAmount
+				if line.donate:
+					amount_other += line.price_subtotal
+				elif len(line.tax_ids) == 0:
+					amount_0 += line.price_subtotal + line.YQAmount + line.YRAmount + line.YZAmount
+
+			if line.tax_ids:
 				for tax in line.tax_ids:
 					base_amount = line.price_subtotal
 					tax_results = line.tax_ids.compute_all(base_amount, currency=line.move_id.currency_id, quantity=line.quantity)
@@ -168,7 +174,8 @@ class ReportBook(models.AbstractModel):
 			'amount_0': amount_0 * rate,
 			'amount_15': amount_15 * rate,
 			'amount_18': amount_18 * rate,
-			'amount': (valisv_15 + valisv_18 + amount_0 + amount_15 + amount_18) * rate
+			'amount_other': amount_other * rate,
+			'amount': (valisv_15 + valisv_18 + amount_0 + amount_15 + amount_18 + amount_other) * rate
 		}
 		return res
 
@@ -199,6 +206,7 @@ class ReportBook(models.AbstractModel):
 			'amount_0': taxes.get('amount_0')*rate,
 			'amount_15': taxes.get('amount_15')*rate,
 			'amount_18': taxes.get('amount_18')*rate,
+			'amount_other': taxes.get('amount_other') * rate,
 			'cai': cai or '',
 			'rtn': invoice.partner_id.vat or '',
 			'user_id': invoice.invoice_user_id.station_id.name or '',
@@ -233,12 +241,13 @@ class ReportBook(models.AbstractModel):
 		final = []
 		month_name = []
 		if group_by == 'partner':
-			amount_total=0.0
-			amount_15=0.0
-			isv_15=0.0
-			amount_18=0.0
-			isv_18=0.0
-			amount_0=0.0
+			amount_total = 0.0
+			amount_15 = 0.0
+			isv_15 = 0.0
+			amount_18 = 0.0
+			isv_18 = 0.0
+			amount_0 = 0.0
+			amount_other = 0.0
 			for invoice in obj_invoice.search([('id','in',docids),('state','not in',['draft'])],order="name asc"):
 				lines=[]
 				vinvoice=self.get_line(invoice,date_format=date_format)
@@ -249,6 +258,7 @@ class ReportBook(models.AbstractModel):
 					data[partner_ids.index(invoice.partner_id.id)]['amount_18'] += vinvoice.get('amount_18',0)
 					data[partner_ids.index(invoice.partner_id.id)]['isv_18'] += vinvoice.get('isv_18',0)
 					data[partner_ids.index(invoice.partner_id.id)]['amount_0'] += vinvoice.get('amount_0',0)
+					data[partner_ids.index(invoice.partner_id.id)]['amount_other'] += vinvoice.get('amount_other', 0)
 					if show_detail:
 						data[partner_ids.index(invoice.partner_id.id)]['lines'].append(vinvoice)
 				else:
@@ -261,6 +271,7 @@ class ReportBook(models.AbstractModel):
 						'amount_0':vinvoice.get('amount_0',0),
 						'amount_18':vinvoice.get('amount_18',0),
 						'isv_18':vinvoice.get('isv_18',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'sub':True,
 					}
 					if show_detail:
@@ -271,6 +282,7 @@ class ReportBook(models.AbstractModel):
 				isv_15 += vinvoice.get('isv_15',0)
 				amount_0 += vinvoice.get('amount_0',0)
 				amount_18 += vinvoice.get('amount_18',0)
+				amount_other += vinvoice.get('amount_other', 0)
 				isv_18 += vinvoice.get('isv_18',0)
 
 			valt = {
@@ -281,6 +293,7 @@ class ReportBook(models.AbstractModel):
 				'amount_18':amount_18,
 				'isv_18':isv_18,
 				'amount_0':amount_0,
+				'amount_other': amount_other,
 				'sub':True,
 			}
 			data.append(valt)
@@ -291,6 +304,7 @@ class ReportBook(models.AbstractModel):
 			amount_18 = 0.0
 			isv_18 = 0.0
 			amount_0 = 0.0
+			amount_other = 0.0
 			for invoice in obj_invoice.search([('id','in',docids),('state','not in',['draft'])],order="name asc"):
 				vinvoice = self.get_line(invoice,date_format = date_format)
 				if self.get_mes(invoice.invoice_date) in month_ids:
@@ -300,6 +314,7 @@ class ReportBook(models.AbstractModel):
 					data[month_ids.index(self.get_mes(invoice.invoice_date))]['amount_18'] += vinvoice.get('amount_18',0)
 					data[month_ids.index(self.get_mes(invoice.invoice_date))]['isv_18'] += vinvoice.get('isv_18',0)
 					data[month_ids.index(self.get_mes(invoice.invoice_date))]['amount_0'] += vinvoice.get('amount_0',0)
+					data[month_ids.index(self.get_mes(invoice.date_invoice))]['amount_other'] += vinvoice.get('amount_other', 0)
 					if show_detail:
 						data[month_ids.index(self.get_mes(invoice.invoice_date))]['lines'].append(self.get_line(invoice,date_format=date_format))
 				else:
@@ -312,6 +327,7 @@ class ReportBook(models.AbstractModel):
 						'amount_0': vinvoice.get('amount_0',0),
 						'amount_18': vinvoice.get('amount_18',0),
 						'isv_18': vinvoice.get('isv_18',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'sub': True,
 					}
 					if show_detail:
@@ -322,6 +338,7 @@ class ReportBook(models.AbstractModel):
 				isv_15 += vinvoice.get('isv_15',0)
 				amount_0 += vinvoice.get('amount_0',0)
 				amount_18 += vinvoice.get('amount_18',0)
+				amount_other += vinvoice.get('amount_other', 0)
 				isv_18 += vinvoice.get('isv_18',0)
 			valt = {
 				'title_name':"TOTAL",
@@ -331,32 +348,36 @@ class ReportBook(models.AbstractModel):
 				'amount_18':amount_18,
 				'isv_18':isv_18,
 				'amount_0':amount_0,
+				'amount_other': amount_other,
 				'sub':True,
 			}
 			data.append(valt)
 		elif group_by == 'month_partner':
-			amount_total=0.0
-			amount_15=0.0
-			isv_15=0.0
-			amount_18=0.0
-			isv_18=0.0
-			amount_0=0.0
+			amount_total = 0.0
+			amount_15 = 0.0
+			isv_15 = 0.0
+			amount_18 = 0.0
+			isv_18 = 0.0
+			amount_0 = 0.0
+			amount_other = 0.0
 			for invoice in obj_invoice.search([('id','in',docids),('state','not in',['draft'])],order="name asc"):
 				vinvoice=self.get_line(invoice,date_format=date_format)
 				if self.get_mes(invoice.invoice_date) in month_ids:
-					mid=month_ids.index(self.get_mes(invoice.invoice_date))
-					data[mid]['amount_total']+=vinvoice.get('amount_total',0)
-					data[mid]['amount_15']+=vinvoice.get('amount_15',0)
-					data[mid]['isv_15']+=vinvoice.get('isv_15',0)
-					data[mid]['amount_18']+=vinvoice.get('amount_18',0)
-					data[mid]['isv_18']+=vinvoice.get('isv_18',0)
-					data[mid]['amount_0']+=vinvoice.get('amount_0',0)
+					mid = month_ids.index(self.get_mes(invoice.invoice_date))
+					data[mid]['amount_total'] += vinvoice.get('amount_total',0)
+					data[mid]['amount_15'] += vinvoice.get('amount_15',0)
+					data[mid]['isv_15'] += vinvoice.get('isv_15',0)
+					data[mid]['amount_18'] += vinvoice.get('amount_18',0)
+					data[mid]['isv_18'] += vinvoice.get('isv_18',0)
+					data[mid]['amount_other'] += vinvoice.get('amount_other', 0)
+					data[mid]['amount_0'] += vinvoice.get('amount_0',0)
 					if invoice.partner_id.id in data[mid]['partner_ids']:
 						iposition=data[mid]['partner_ids'].index(invoice.partner_id.id)
 						data[mid]['tlines'][iposition]['amount_total']+=vinvoice.get('amount_total',0)
 						data[mid]['tlines'][iposition]['amount_15']+=vinvoice.get('amount_15',0)
 						data[mid]['tlines'][iposition]['isv_15']+=vinvoice.get('isv_15',0)
 						data[mid]['tlines'][iposition]['amount_18']+=vinvoice.get('amount_18',0)
+						data[mid]['tlines'][iposition]['amount_other'] += vinvoice.get('amount_other', 0)
 						data[mid]['tlines'][iposition]['isv_18']+=vinvoice.get('isv_18',0)
 						data[mid]['tlines'][iposition]['amount_0']+=vinvoice.get('amount_0',0)
 						if show_detail:
@@ -370,6 +391,7 @@ class ReportBook(models.AbstractModel):
 							'isv_15':vinvoice.get('isv_15',0),
 							'amount_0':vinvoice.get('amount_0',0),
 							'amount_18':vinvoice.get('amount_18',0),
+							'amount_other': vinvoice.get('amount_other', 0),
 							'isv_18':vinvoice.get('isv_18',0),
 							'sub':show_detail,
 						}
@@ -385,6 +407,7 @@ class ReportBook(models.AbstractModel):
 						'isv_15':vinvoice.get('isv_15',0),
 						'amount_0':vinvoice.get('amount_0',0),
 						'amount_18':vinvoice.get('amount_18',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'isv_18':vinvoice.get('isv_18',0),
 						'sub':show_detail,
 					}
@@ -398,6 +421,7 @@ class ReportBook(models.AbstractModel):
 						'amount_0':vinvoice.get('amount_0',0),
 						'amount_18':vinvoice.get('amount_18',0),
 						'isv_18':vinvoice.get('isv_18',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'sub':True,
 						'tlines':[val1],
 						'partner_ids':[invoice.partner_id.id],
@@ -410,25 +434,28 @@ class ReportBook(models.AbstractModel):
 				isv_15+=vinvoice.get('isv_15',0)
 				amount_0+=vinvoice.get('amount_0',0)
 				amount_18+=vinvoice.get('amount_18',0)
+				amount_other += vinvoice.get('amount_other', 0)
 				isv_18+=vinvoice.get('isv_18',0)
 			valt={
-			'title_name':"TOTAL",
-			'amount_total':amount_total,
-			'amount_15':amount_15,
-			'isv_15':isv_15,
-			'amount_18':amount_18,
-			'isv_18':isv_18,
-			'amount_0':amount_0,
-			'sub':True,
+				'title_name':"TOTAL",
+				'amount_total':amount_total,
+				'amount_15':amount_15,
+				'isv_15':isv_15,
+				'amount_18':amount_18,
+				'isv_18':isv_18,
+				'amount_other': amount_other,
+				'amount_0':amount_0,
+				'sub':True,
 			}
 			data.append(valt)
 		elif group_by == 'partner_month':
-			amount_total=0.0
-			amount_15=0.0
-			isv_15=0.0
-			amount_18=0.0
-			isv_18=0.0
-			amount_0=0.0
+			amount_total = 0.0
+			amount_15 = 0.0
+			isv_15 = 0.0
+			amount_18 = 0.0
+			amount_other = 0.0
+			isv_18 = 0.0
+			amount_0 = 0.0
 			for invoice in obj_invoice.search([('id','in',docids),('state','not in',['draft'])],order="name asc"):
 				vinvoice=self.get_line(invoice,date_format=date_format)
 				if invoice.partner_id.id in partner_ids:
@@ -437,6 +464,7 @@ class ReportBook(models.AbstractModel):
 					data[mid]['amount_15']+=vinvoice.get('amount_15',0)
 					data[mid]['isv_15']+=vinvoice.get('isv_15',0)
 					data[mid]['amount_18']+=vinvoice.get('amount_18',0)
+					data[mid]['amount_other'] += vinvoice.get('amount_other', 0)
 					data[mid]['isv_18']+=vinvoice.get('isv_18',0)
 					data[mid]['amount_0']+=vinvoice.get('amount_0',0)
 
@@ -448,6 +476,7 @@ class ReportBook(models.AbstractModel):
 						data[mid]['tlines'][iposition]['amount_18']+=vinvoice.get('amount_18',0)
 						data[mid]['tlines'][iposition]['isv_18']+=vinvoice.get('isv_18',0)
 						data[mid]['tlines'][iposition]['amount_0']+=vinvoice.get('amount_0',0)
+						data[mid]['tlines'][iposition]['amount_other'] += vinvoice.get('amount_other', 0)
 						if show_detail:
 							data[mid]['tlines'][data[mid]['month_ids'].index(self.get_mes(invoice.invoice_date))]['lines'].append(self.get_line(invoice,date_format=date_format))
 					else:
@@ -457,6 +486,7 @@ class ReportBook(models.AbstractModel):
 							'amount_total':vinvoice.get('amount_total',0),
 							'amount_15':vinvoice.get('amount_15',0),
 							'isv_15':vinvoice.get('isv_15',0),
+							'amount_other': vinvoice.get('amount_other', 0),
 							'amount_0':vinvoice.get('amount_0',0),
 							'amount_18':vinvoice.get('amount_18',0),
 							'isv_18':vinvoice.get('isv_18',0),
@@ -473,6 +503,7 @@ class ReportBook(models.AbstractModel):
 						'amount_total':vinvoice.get('amount_total',0),
 						'amount_15':vinvoice.get('amount_15',0),
 						'isv_15':vinvoice.get('isv_15',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'amount_0':vinvoice.get('amount_0',0),
 						'amount_18':vinvoice.get('amount_18',0),
 						'isv_18':vinvoice.get('isv_18',0),
@@ -485,6 +516,7 @@ class ReportBook(models.AbstractModel):
 						'amount_total':vinvoice.get('amount_total',0),
 						'amount_15':vinvoice.get('amount_15',0),
 						'isv_15':vinvoice.get('isv_15',0),
+						'amount_other': vinvoice.get('amount_other', 0),
 						'amount_0':vinvoice.get('amount_0',0),
 						'amount_18':vinvoice.get('amount_18',0),
 						'isv_18':vinvoice.get('isv_18',0),
@@ -498,6 +530,7 @@ class ReportBook(models.AbstractModel):
 				amount_total+=vinvoice.get('amount_total',0)
 				amount_15+=vinvoice.get('amount_15',0)
 				isv_15+=vinvoice.get('isv_15',0)
+				amount_other += vinvoice.get('amount_other', 0)
 				amount_0+=vinvoice.get('amount_0',0)
 				amount_18+=vinvoice.get('amount_18',0)
 				isv_18+=vinvoice.get('isv_18',0)
@@ -509,16 +542,18 @@ class ReportBook(models.AbstractModel):
 			'amount_18':amount_18,
 			'isv_18':isv_18,
 			'amount_0':amount_0,
+			'amount_other': amount_other,
 			'sub':True,
 			}
 			data.append(valt)
 		else:
-			amount_total=0.0
-			amount_15=0.0
-			isv_15=0.0
-			amount_18=0.0
-			isv_18=0.0
-			amount_0=0.0
+			amount_total = 0.0
+			amount_15 = 0.0
+			isv_15 = 0.0
+			amount_18 = 0.0
+			isv_18 = 0.0
+			amount_0 = 0.0
+			amount_other = 0.0
 			for invoice in obj_invoice.search([('id','in',docids),('state','not in',['draft'])],order="name asc"):
 				vinvoice = self.get_line(invoice,date_format=date_format)
 				amount_total += vinvoice.get('amount_total',0)
@@ -526,6 +561,7 @@ class ReportBook(models.AbstractModel):
 				isv_15 += vinvoice.get('isv_15',0)
 				amount_0 += vinvoice.get('amount_0',0)
 				amount_18 += vinvoice.get('amount_18',0)
+				amount_other += vinvoice.get('amount_other', 0)
 				isv_18 += vinvoice.get('isv_18',0)
 				if show_detail:
 					data.append(vinvoice)
@@ -536,6 +572,7 @@ class ReportBook(models.AbstractModel):
 			'isv_15':isv_15,
 			'amount_18':amount_18,
 			'isv_18':isv_18,
+			'amount_other': amount_other,
 			'amount_0':amount_0,
 			'sub':True,
 			}
