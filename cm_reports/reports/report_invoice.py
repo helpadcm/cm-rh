@@ -127,12 +127,25 @@ class ReportBook(models.AbstractModel):
 		res= "%02.f/%s"%(a.month,str(a.year))
 		return res
 
+	def get_currency_rate(self, currency_id, invoice_date, company_id):
+		currency_rate = 1
+		if currency_id:
+			if currency_id.id != company_id.currency_id.id:
+				rate_list = currency_id._get_rates(company_id, invoice_date)
+				rate = rate_list.get(currency_id.id, 1.0) 
+				currency_rate = 1 / rate
+			else:
+				currency_rate = 1
+		return currency_rate
+
 	def get_taxes(self, invoice):
 		valisv_15 = 0
 		valisv_18 = 0
 		amount_0 = 0
 		amount_15 = 0
 		amount_18 = 0
+		rate = self.get_currency_rate(invoice.currency_id, invoice.invoice_date, self.env.user.company_id)
+
 		for line in invoice.invoice_line_ids:
 			if len(line.tax_ids) == 0:
 				amount_0 += line.price_subtotal
@@ -150,12 +163,12 @@ class ReportBook(models.AbstractModel):
 					if tax.amount == 0:
 						amount_0 += base_amount
 		res={
-			'isv_15': valisv_15,
-			'isv_18': valisv_18,
-			'amount_0': amount_0,
-			'amount_15': amount_15,
-			'amount_18': amount_18,
-			'amount': valisv_15 + valisv_18 + amount_0 + amount_15 + amount_18
+			'isv_15': valisv_15 * rate,
+			'isv_18': valisv_18 * rate,
+			'amount_0': amount_0 * rate,
+			'amount_15': amount_15 * rate,
+			'amount_18': amount_18 * rate,
+			'amount': (valisv_15 + valisv_18 + amount_0 + amount_15 + amount_18) * rate
 		}
 		return res
 
@@ -176,7 +189,7 @@ class ReportBook(models.AbstractModel):
 		res={
 			'symbol': invoice.company_id.currency_id.symbol,
 			'title_name': invoice.name,
-			'name': invoice.name if invoice.move_type == 'out_invoice' else invoice.ref,
+			'name': invoice.pnrcode or '' if invoice.move_type == 'out_invoice' else invoice.ref,
 			'subtitle_name': invoice.partner_id.name,
 			'ref': invoice.name,
 			'date': fdate,
@@ -188,7 +201,7 @@ class ReportBook(models.AbstractModel):
 			'amount_18': taxes.get('amount_18')*rate,
 			'cai': cai or '',
 			'rtn': invoice.partner_id.vat or '',
-			'user_id': invoice.user_id.name,
+			'user_id': invoice.invoice_user_id.station_id.name or '',
 			'sub': False,
 		}
 		return res

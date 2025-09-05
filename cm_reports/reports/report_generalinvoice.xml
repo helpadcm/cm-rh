@@ -62,9 +62,9 @@
 							<tr  >
 								<th style="background-color: #cdc9c9;text-align:center;width:3%"></th>
 								<th style="background-color: #cdc9c9;text-align:center;width:12%">Número</th>
-								<th style="background-color: #cdc9c9;text-align:center;width:11%">Nombre</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:11%">PNR</th>
 								<th style="background-color: #cdc9c9;text-align:center;width:11%">Empresa</th>
-								<th style="background-color: #cdc9c9;text-align:center;width:8%">Usuario</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:8%">Estacion</th>
 								<th style="background-color: #cdc9c9;text-align:center;width:6%">Fecha</th>
 								<th style="background-color: #cdc9c9;text-align:center;width:9%">Monto <br/>Exonerado</th>
 								<th style="background-color: #cdc9c9;text-align:center;width:9%">Monto <br/>Isv 15</th>

@@ -31,6 +31,17 @@
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
     </record>
 
+    <record id="cash_receipt_report_id" model="ir.actions.report">
+        <field name="name">Recibo de Caja</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.report_cash_receipt</field>
+        <field name="report_file">cm_cargo_handling.report_cash_receipt</field>
+        <field name="binding_type">report</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
+    </record>
+
     <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
         <field name="name">Manifiesto de Carga XLSX</field>
         <field name="model">cargo.manifest</field>

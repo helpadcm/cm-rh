@@ -40,6 +40,7 @@
 		'report/main_template.xml',
 		'report/report_cargo_manifest.xml',
 		'report/invoice_guide.xml',
+		'report/report_cash_receipt.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,
