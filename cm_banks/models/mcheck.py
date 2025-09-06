@@ -379,7 +379,8 @@ class mcheck(models.Model):
 	def update_sequence(self,journal_id, doc_type):
 		sequence_id = journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == doc_type)
 		if sequence_id:
-			return sequence_id.next_by_id()
+			if self.number == 'Borrador':
+				return sequence_id.next_by_id()
 		else:
 			raise ValidationError('No existe una secuencia configurada para el tipo %s en el diario %s, configure una para poder validar'%(doc_type, journal_id.name))
 

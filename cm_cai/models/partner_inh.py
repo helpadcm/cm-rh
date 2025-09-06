@@ -33,18 +33,20 @@ class journalInh(models.Model):
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
 
-class paymentInh(models.Model):
-    _inherit = "account.payment"
+# class paymentInh(models.Model):
+#     _inherit = "account.payment"
 
-    def action_post(self):
-        res = super(paymentInh, self).action_post()
-        for rec in self:
-            if rec.partner_type in ['supplier','customer']:    
-                if rec.move_id.name in ['Borrador','/']:
-                    sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
-                    if sequence_id:
-                        rec.name = sequence_id.next_by_id()
-                    else:
-                        rec.name = rec.journal_id.sequence_id.next_by_id()
-            rec.move_id.internal_number = rec.move_id.name
-        return res
+#     def action_post(self):
+#         res = super(paymentInh, self).action_post()
+#         for rec in self:
+#             print ("############################")
+#             print (rec.partner_type)
+#             if rec.partner_type in ['supplier','customer']:    
+#                 if rec.move_id.name in ['Borrador','/']:
+#                     sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
+#                     if sequence_id:
+#                         rec.name = sequence_id.next_by_id()
+#                     else:
+#                         rec.name = rec.journal_id.sequence_id.next_by_id()
+#             rec.move_id.internal_number = rec.move_id.name
+#         return res

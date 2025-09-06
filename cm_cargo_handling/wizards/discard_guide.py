@@ -15,8 +15,8 @@ class wizard_desechar_charge(models.TransientModel):
         active_id = self.env.context.get('active_id')
         for record in self:
             for guide in record.guia_ids:
-                if guide.state != 'created':
-                    raise ValidationError("Solo se pueden desechar guias en estado creada")
+                if guide.state not in ['created','received']:
+                    raise ValidationError("Solo se pueden desechar guias en estado creada y recibida")
 
                 if guide.order_id.payment_state == 'not_paid':
                     move_id = guide.order_id.move_id

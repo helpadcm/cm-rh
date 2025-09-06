@@ -59,7 +59,7 @@ class moveInh(models.Model):
     @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
     def _compute_name(self):
         for rec in self:
-            if rec.move_type in ['out_invoice','out_refund']:
+            if rec.move_type in ['out_invoice','out_refund','entry']:
                 if rec.state == 'draft':
                     rec.name = _('/')
             else:
@@ -102,18 +102,18 @@ class moveInh(models.Model):
                             inv.write({'internal_number': new_name})
                         else:
                             inv.write({'name': inv.internal_number})
-            if inv.move_type in ['entry']:
-                model = False
-                if self.env.context.get('params'):
-                    params = self.env.context.get('params')
-                    model = params.get('model')
 
-                if model and model == 'account.move':
+            if inv.move_type in ['entry']:
+                def_move_type = False
+                if self.env.context.get('default_move_type'):
+                    def_move_type = self.env.context.get('default_move_type')
+
+                if def_move_type and def_move_type == 'entry':
                     if inv.internal_number != 'Borrador':
                         inv.write({'name': inv.internal_number})
                     else:
-                        if inv.name == 'Borrador':
-                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                        if inv.name in ['Borrador','/']:
+                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.date).next_by_id()
                             inv.write({'name': new_name, 'internal_number': new_name})
                 else:
                     if inv.internal_number != 'Borrador':
@@ -129,7 +129,6 @@ class moveInh(models.Model):
                         inv.write({'internal_number': new_name})
                 else:
                     inv.write({'name': inv.internal_number})
-        # print (a)
         return res
 
     @api.depends("currency_id",'invoice_date')

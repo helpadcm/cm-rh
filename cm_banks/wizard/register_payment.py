@@ -55,7 +55,24 @@ class account_payment_inherit_wizard(models.TransientModel):
             if self.partner_type == 'customer':
                 if self.journal_id.sequence_id:
                     sequence_id = self.journal_id.sequence_id
-                    next_number = sequence_id.get_next_char(sequence_id.number_next_actual)
+                    # next_number = sequence_id.get_next_char(sequence_id.number_next_actual)
+                    date = self.payment_date or fields.Date.context_today(sequence_id)
+                    number_next = None
+
+                    # Buscar si la secuencia usa rango de fechas
+                    if sequence_id.use_date_range:
+                        date_range = sequence_id.date_range_ids.filtered(
+                            lambda r: r.date_from <= date <= r.date_to
+                        )
+                        if date_range:
+                            number_next = date_range.number_next_actual
+
+                    # Si no usa rango de fechas o no encontró rango válido
+                    if not number_next:
+                        number_next = sequence_id.number_next_actual
+
+                    # Devuelve el número formateado
+                    next_number = sequence_id.get_next_char(number_next)
                     self.next_number = next_number
             else:
                 if self.journal_id.sequence_ids:
@@ -155,10 +172,10 @@ class account_payment_inherit_wizard(models.TransientModel):
                             'amount_currency': write_off_amount_currency,
                             'balance': self.currency_id._convert(write_off_amount_currency, self.company_id.currency_id, self.company_id, self.payment_date),
                         })
-        if self.journal_id.sequence_id:
-            sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.pay_method_type)
-            if sequence_id:
-                sequence_id.next_by_id()
+        # if self.journal_id.sequence_id:
+        #     sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.pay_method_type)
+        #     if sequence_id:
+        #         sequence_id.next_by_id()
         return payment_vals
 
 class write_off_line(models.TransientModel):
