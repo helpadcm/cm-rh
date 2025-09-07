@@ -21,8 +21,8 @@
 			# 'views/account_financial_report.xml',
 			# 'views/report_financial.xml',
 			# 'views/report_aged_inherit.xml',
-			# 'views/reports_reports.xml',
 			'report/report_generalledger.xml',
+			'report/report_reports.xml',
 			
 			],
 	'license': 'LGPL-3',

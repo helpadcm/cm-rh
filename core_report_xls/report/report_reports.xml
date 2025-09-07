@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_general_ledger_xlsx" model="ir.actions.report">
+            <field name="name">Libro Mayor XLSX</field>
+            <field name="model">account.account</field>
+            <field name="report_type">xlsx</field>
+            <field name="report_name">core_report_xls.report_generalledger_xls</field>
+            <field name="report_file">core_report_xls.report_generalledger_xls</field>
+        </record>
+    </data>
+</odoo>
+
