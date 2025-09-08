@@ -13,6 +13,9 @@
                     <field name="prestate2" widget="statusbar" invisible="1"/>
                     <field name="from_handling" widget="statusbar" invisible="1"/>
                 </field>
+                <field name="ref" position="after">
+                    <field name="order_handling_id" invisible="not from_handling" readonly="1"/>
+                </field>
                 <notebook position="inside">
                     <page string="Pagos de Caja" invisible="not from_handling">
                         <group>

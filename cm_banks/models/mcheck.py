@@ -682,8 +682,8 @@ class mcheck(models.Model):
 		default['date'] = datetime.now()
 		default['was_unreconcilied'] = False
 		encabezado = super(mcheck, self).copy(default)
-		for line in self.mcheck_ids:
-			a = self.env['mcheck.mcheck_name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type })
+		# for line in self.mcheck_ids:
+		# 	a = self.env['mcheck.mcheck_name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type })
 		return encabezado
 
 	def cancel_payment(self,anullation_date):

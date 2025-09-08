@@ -504,6 +504,12 @@ class saleOrderHandling(models.Model):
         if state_type:
             self.state = state_type
 
+    def add_order_invoice(self):
+        for rec in self:
+            if rec.move_id:
+                rec.from_handling = True
+                rec.move_id.order_handling_id = rec.id
+
     def create_invoices(self):
         if not self.cart_ids:
             raise ValidationError("No hay nada en el carrito para facturar")
@@ -522,7 +528,9 @@ class saleOrderHandling(models.Model):
             'partner_name': self.client_name or invoice_partner_id.name,
             'rtn_name': self.rtn or invoice_partner_id.vat,
             'move_type': 'out_invoice',
+            'order_handling_id': self.id,
             'invoice_user_id': self.user_id.id,
+            'from_handling': True,
             'modality': self.modality,
             'journal_id': journal_id.id,
             'invoice_date': (datetime.now() - timedelta(hours=6)).date(),
@@ -545,6 +553,7 @@ class saleOrderHandling(models.Model):
 
         if self.modality in ['counted','credit']:
             if self.modality == 'credit' and not self.created_invoice:
+                self.move_id.action_post()
                 self.with_context({"create": True}).create_guides()
             self.allow_create_guides = True
 

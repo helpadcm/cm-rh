@@ -134,6 +134,7 @@
 				<search>
 					<field name="number"/>
 					<field name="journal_id"/>
+					<field name="name"/>
 					<group expand="1" string="Group By">
 						<filter string="Fecha" name="date_group"  context="{'group_by':'date'}"/>
 						<filter string="Estado" name="state_group" context="{'group_by':'state'}"/>

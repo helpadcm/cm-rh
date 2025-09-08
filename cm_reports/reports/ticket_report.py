@@ -127,7 +127,7 @@ class ReportHandling(models.AbstractModel):
                         'gravado':self.set_precision(gravado),
                         'exento':self.set_precision(exento),
                         'donate':self.set_precision(donate),
-                        'description':i.name,
+                        'description': i.name or '',
                         'yq':i.YQAmount,
                         'rate':i.TAAmount + i.TIAmount + i.TDAmount,
                         'yryz':i.YRAmount + i.YZAmount,

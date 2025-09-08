@@ -445,7 +445,7 @@ class banks_deposits(models.Model):
 	def unreconciliate_deposit(self):
 		for deposit in self:
 			if deposit.move_id:
-				deposit.move_id.button_cancel()
+				deposit.move_id.button_draft()
 				deposit.move_id.unlink()
 		res = {
 			'state': 'draft',
@@ -467,8 +467,8 @@ class banks_deposits(models.Model):
 		default['number'] = 'Borrador'
 		default['was_unreconcilied'] = False
 		encabezado = super(banks_deposits, self).copy(default)
-		for line in self.mcheck_ids:
-			a = self.env['banks.deposit.name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type})
+		# for line in self.mcheck_ids:
+		# 	a = self.env['banks.deposit.name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type})
 		return encabezado
 
 	def unlink(self):

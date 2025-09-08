@@ -53,11 +53,11 @@ class ReportGeneralLedger(models.AbstractModel):
             stament3=""
            
             if group_ledger == 'analytic':
-            	stament1="aaa.id AS analytic_id, MIN(fan.analytic_account) AS analytic_name"
+            	stament1=", aaa.id AS analytic_id, MIN(fan.analytic_account) AS analytic_name"
             	stament2=""
             	stament3=", aaa.id"
             if group_ledger == 'partner':
-            	stament1="p.id AS partner_id, p.name AS partner_name"
+            	stament1=", p.id AS partner_id, p.name AS partner_name"
             	stament3=", p.id"
 
             sql = (f"""SELECT 0 AS lid, l.account_id AS account_id, '' AS ldate,
@@ -65,9 +65,10 @@ class ReportGeneralLedger(models.AbstractModel):
                 MIN(fan.analytic_account) AS analytic_name,
                 'Initial Balance' AS lname, COALESCE(SUM(l.debit),0.0) AS debit, 
                 COALESCE(SUM(l.credit),0.0) AS credit, 
-                COALESCE(SUM(l.debit),0) - COALESCE(SUM(l.credit), 0) as balance, 
+                COALESCE(SUM(l.debit),0) - COALESCE(SUM(l.credit), 0) as balance
                 {stament1},
                 '' AS lpartner_id,\
+                MIN(l.ref) AS lref,
                 '' AS move_name, '' AS move_id, '' AS currency_code,\
                 NULL AS currency_id,\
                 '' AS invoice_id, '' AS invoice_type, '' AS invoice_number,\

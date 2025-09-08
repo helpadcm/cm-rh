@@ -19,8 +19,8 @@
                                 <!-- <field name="apply_percentage_payment" sum="Total"/> -->
                                 <field name="account_id" options="{'no_create': True}" domain="[('use_4_retention', '=', True)]"/>
                                 <field name="percentage" column_invisible="1"/>
-                                <field name="amount" readonly="1"/>
-                                <field name="amount_currency" readonly="1" force_save="1"/>
+                                <field name="amount" readonly="0"/>
+                                <field name="amount_currency" readonly="0" force_save="1"/>
                             </tree>
                         </field>
                     </page>

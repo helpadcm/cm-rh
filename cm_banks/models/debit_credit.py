@@ -333,7 +333,9 @@ class debit_credit(models.Model):
 					
 					lines_array.append(lines_col)
 				mline_data = {}
-				# mline_data['analytic_account_id'] = self.account_analytic_id.id
+				if self.account_analytic_id.id:
+					distribution_analytic = {str(self.account_analytic_id.id): 100.0}
+					mline_data['analytic_distribution'] = distribution_analytic
 				mline_data['move_id'] = move_id.id
 				mline_data['name'] = mcheck.name
 				if mcheck.doc_type == 'debit':

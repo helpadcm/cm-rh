@@ -11,6 +11,7 @@ class account_invoice_inherit(models.Model):
     amount_prepago  = fields.Monetary(string="Monto Prepagado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
     amount_dffprepago  = fields.Monetary(string="Importe Adeudado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
     from_handling = fields.Boolean(string="Desde Cargo")
+    order_handling_id = fields.Many2one('sale.order.handling',string="Orden de carga")
 
     def print_invoice(self):
         order_id = self.env['sale.order.handling'].search([('move_id','=',self.id)])
