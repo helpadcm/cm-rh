@@ -507,7 +507,7 @@ class saleOrderHandling(models.Model):
     def add_order_invoice(self):
         for rec in self:
             if rec.move_id:
-                rec.from_handling = True
+                rec.move_id.from_handling = True
                 rec.move_id.order_handling_id = rec.id
 
     def create_invoices(self):
