@@ -74,13 +74,13 @@ class AccountPaymentRegisterRetentionLine(models.TransientModel):
     percentage = fields.Float(string='Porcentaje (%)', required=True)
     # apply_percentage_payment = fields.Float(string="Porcentaje del pago")
     name = fields.Char(string="Descripcion")
-    amount = fields.Monetary(string='Monto', compute='_compute_amount')
+    amount = fields.Monetary(string='Monto')
     currency_id = fields.Many2one(related='wizard_id.currency_id', readonly=True)
     amount_currency = fields.Float(string='Amount Currency')
     company_currency_id = fields.Many2one(related='wizard_id.company_id.currency_id', string="Moneda de la empresa", readonly=True)
-    base_amount = fields.Float(string='Base Amount',compute='_compute_amount')
+    base_amount = fields.Float(string='Base Amount')
 
-    @api.depends('invoice_line_id', 'percentage')
+    @api.onchange('invoice_line_id', 'percentage')
     def _compute_amount(self):
         for line in self:
             wizard = line.wizard_id
