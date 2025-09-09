@@ -8,7 +8,7 @@ class account_payment_inherit_wizard(models.TransientModel):
 
     next_number = fields.Char(string='Siguiente Numero', help='El numero siguiente del cheque o transferencia', default="Borrador")
     writeoff_amount = fields.Float(string="Diferencia", compute='_compute_writeoff_amount')
-    write_off_lines = fields.One2many('account.payment.writeoffline', 'register_id', string="Write off lines")
+    write_off_lines = fields.One2many('account.payment.writeoffline.wizard', 'register_id', string="Write off lines")
     analytic_account_id	=	fields.Many2one('account.analytic.account',string="Cuenta Analitica")
     invoice_compute = fields.Many2many('account.move.line', string="move lines")
     # payment_line_ids = fields.One2many('account.payment.line', 'register_id',string="Lineas de pago")
@@ -148,6 +148,7 @@ class account_payment_inherit_wizard(models.TransientModel):
                         write_off_amount_currency = -self.payment_difference
 
                     if self.write_off_lines:
+                        distribution_lines = []
                         for line in self.write_off_lines:
                             if self.payment_type == 'inbound':
                                 amount = line.debit
@@ -155,14 +156,17 @@ class account_payment_inherit_wizard(models.TransientModel):
                                 amount = -line.credit
 
                             values = {
-                                'name': line.description,
+                                'description': line.description,
                                 'account_id': line.account_id.id,
                                 'partner_id': line.partner_id.id or self.partner_id.id,
                                 'currency_id': self.currency_id.id,
+                                'credit': line.credit,
+                                'debit': line.debit, 
                                 'amount_currency': amount,
-                                'balance': self.currency_id._convert(amount, self.company_id.currency_id, self.company_id, self.payment_date),    
+                                'analytic_account_id': line.analytic_account_id.id,
                             }
-                            payment_vals['write_off_line_vals'].append(values)
+                            distribution_lines.append((0, 0, values))
+                        payment_vals['write_off_line'] = distribution_lines
                     else:
                         payment_vals['write_off_line_vals'].append({
                             'name': self.writeoff_label,
@@ -172,14 +176,10 @@ class account_payment_inherit_wizard(models.TransientModel):
                             'amount_currency': write_off_amount_currency,
                             'balance': self.currency_id._convert(write_off_amount_currency, self.company_id.currency_id, self.company_id, self.payment_date),
                         })
-        # if self.journal_id.sequence_id:
-        #     sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.pay_method_type)
-        #     if sequence_id:
-        #         sequence_id.next_by_id()
         return payment_vals
 
 class write_off_line(models.TransientModel):
-    _name = "account.payment.writeoffline"
+    _name = "account.payment.writeoffline.wizard"
     _description = "Write off lines"
 
     account_id = fields.Many2one('account.account', string="Cuenta", required=True)

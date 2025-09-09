@@ -20,3 +20,4 @@ cm_banks.access_template_docid_select,access_template_docid_select,cm_banks.mode
 cm_banks.access_anullation_date_wizard,access_anullation_date_wizard,cm_banks.model_anullation_date_wizard,base.group_user,1,1,1,1
 cm_banks.access_banks_deposit,access_banks_deposit,cm_banks.model_banks_deposit,group_deposit,1,1,1,1
 cm_banks.access_banks_deposit_name,access_banks_deposit_name,cm_banks.model_banks_deposit_name,group_deposit,1,1,1,1
+cm_banks.access_account_payment_writeoffline_wizard,access_account_payment_writeoffline_wizard,cm_banks.model_account_payment_writeoffline_wizard,base.group_user,1,1,1,1

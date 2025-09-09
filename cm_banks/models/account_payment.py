@@ -41,7 +41,161 @@ class ap_account_payment(models.Model):
 				if self.analytic_account_id:
 					distribution_line = {str(self.analytic_account_id.id): 100.0}
 					line.update({'analytic_distribution': distribution_line})
+
+		total_credit = 0
+		total_debit = 0
+		total_amount_currency = 0
+		for payment in self:
+			lines_list = []
+			total_writeoff_company = 0.0
+			total_writeoff_currency = 0.0
+			total_debit = 0
+			total_credit = 0
+			company_currency = payment.company_id.currency_id
+			payment_currency = payment.currency_id
+			if payment.write_off_line:
+				for line in payment.write_off_line:
+					if not line.account_id:
+						continue
+
+
+					amount_currency = line.amount_currency
+					if payment.payment_type == 'outbound':
+						amount_currency = -abs(amount_currency)
+					else:
+						amount_currency = abs(amount_currency)
+
+					if company_currency.id == payment_currency.id:
+						credit = line.credit
+						debit = line.debit
+					else:
+						credit = payment_currency._convert(line.credit,company_currency,payment.company_id,payment.date)
+						debit = payment_currency._convert(line.debit,company_currency,payment.company_id,payment.date)
+
+					total_debit += debit
+					total_credit += credit
+
+					vals = {
+						'name': line.description,
+						'date_maturity': payment.date,
+						'amount_currency': amount_currency,
+						'currency_id': payment.currency_id.id,
+						'debit': debit,
+						'credit': credit,
+						'partner_id': payment.partner_id.id,
+						'account_id': line.account_id.id,
+					}
+
+					if line.analytic_account_id:
+						distribution_line = {str(line.analytic_account_id.id): 100.0}
+						vals.update({'analytic_distribution': distribution_line})
+
+					lines_list.append(vals)
+					
+					total_writeoff_company += debit - credit
+					total_writeoff_currency += amount_currency
+
+				for line in res:
+					# Nota: destination_account_id es la cuenta CXP/CXC original
+					if line.get('account_id') == payment.destination_account_id.id:
+						if payment.payment_type == 'outbound':  # Pago a proveedor
+							line['amount_currency'] += abs(total_writeoff_currency)
+							line['credit'] += total_credit
+							line['debit'] += total_debit
+
+						elif payment.payment_type == 'inbound':  # Pago de cliente
+							line['amount_currency'] -= abs(total_writeoff_currency)
+							line['credit'] += total_debit
+
+						break
+
+				res.extend(lines_list)
 		return res
+
+	def _synchronize_from_moves(self, changed_fields):
+		"""
+		Permitir múltiples cuentas por cobrar/pagar cuando el pago tiene write_off_lines personalizados.
+		"""
+		if self._context.get('skip_account_move_synchronization'):
+			return super()._synchronize_from_moves(changed_fields)
+
+		for pay in self.with_context(skip_account_move_synchronization=True):
+
+			if pay.move_id.statement_line_id:
+				continue
+
+			move = pay.move_id
+			move_vals_to_write = {}
+			payment_vals_to_write = {}
+
+			if 'journal_id' in changed_fields and pay.journal_id.type not in ('bank', 'cash'):
+				raise UserError(_("A payment must always belongs to a bank or cash journal."))
+
+			if 'line_ids' in changed_fields:
+				all_lines = move.line_ids
+				liquidity_lines, counterpart_lines, writeoff_lines = pay._seek_for_lines()
+
+				if len(liquidity_lines) != 1:
+					raise UserError(_(
+						"Journal Entry %s is not valid. In order to proceed, the journal items must "
+						"include one and only one outstanding payments/receipts account.",
+						move.display_name,
+					))
+
+				if len(counterpart_lines) != 1:
+					if not (pay.write_off_line):
+						raise UserError(_(
+							"Journal Entry %s is not valid. In order to proceed, the journal items must "
+							"include one and only one receivable/payable account (with an exception of "
+							"internal transfers).",
+							move.display_name,
+						))
+					else:
+						account_write_ids = set(pay.write_off_line.mapped('account_id').ids)
+						account_counterpart_ids = set(counterpart_lines.mapped('account_id').ids)
+						counterpart_account_id = list(account_counterpart_ids - account_write_ids)
+						counterpart_lines = counterpart_lines.filtered(lambda line: line.account_id.id == counterpart_account_id[0])
+
+				if any(line.currency_id != all_lines[0].currency_id for line in all_lines):
+					raise UserError(_(
+						"Journal Entry %s is not valid. In order to proceed, the journal items must "
+						"share the same currency.",
+						move.display_name,
+					))
+
+				if any(line.partner_id != all_lines[0].partner_id for line in all_lines):
+					raise UserError(_(
+						"Journal Entry %s is not valid. In order to proceed, the journal items must "
+						"share the same partner.",
+						move.display_name,
+					))
+
+				if counterpart_lines:
+					if counterpart_lines.account_id.account_type == 'asset_receivable':
+						partner_type = 'customer'
+					else:
+						partner_type = 'supplier'
+
+					liquidity_amount = liquidity_lines.amount_currency
+
+					move_vals_to_write.update({
+						'currency_id': liquidity_lines.currency_id.id,
+						'partner_id': liquidity_lines.partner_id.id,
+					})
+					payment_vals_to_write.update({
+						'amount': abs(liquidity_amount),
+						'partner_type': partner_type,
+						'currency_id': liquidity_lines.currency_id.id,
+						'destination_account_id': counterpart_lines.account_id.id,
+						'partner_id': liquidity_lines.partner_id.id,
+					})
+					if liquidity_amount > 0.0:
+						payment_vals_to_write.update({'payment_type': 'inbound'})
+					elif liquidity_amount < 0.0:
+						payment_vals_to_write.update({'payment_type': 'outbound'})
+
+			move.write(move._cleanup_write_orm_values(move, move_vals_to_write))
+			pay.write(move._cleanup_write_orm_values(pay, payment_vals_to_write))
 
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -333,3 +487,17 @@ class ap_account_payment(models.Model):
 			'company_id': self.company_id.id,
 			'journal_id': journal.id,
 		}
+
+class write_off_line(models.Model):
+	_name = "account.payment.writeoffline"
+	_description = "Distribucion de pagos"
+
+	account_id = fields.Many2one('account.account',string="Account",required=True)
+	description = fields.Char(string="Description")
+	debit = fields.Float(string="Debit")
+	credit = fields.Float(string="Credit")
+	amount_currency=fields.Float(string="Credit")
+	currency_id = fields.Many2one('res.currency',string='Currency')
+	payment_id = fields.Many2one('account.payment',string="Payment")
+	partner_id	= fields.Many2one('res.partner',string="Partner")
+	analytic_account_id = fields.Many2one('account.analytic.account',string="Analytic Account")
