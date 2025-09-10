@@ -472,6 +472,9 @@ class saleOrderHandling(models.Model):
         return True
 
     def create_order(self):
+        if self.partner_id.default_client and self.modality == 'credit':
+            raise ValidationError("El cliente consumidor final no puede validarse con modalidad de credito")
+
         if not self.sender_id or not self.id_sender or not self.sender_phone:
             raise ValidationError("No ha ingresado los datos necesarios del remitente (Nombre, Identidad, Telefono)")
 

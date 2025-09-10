@@ -69,7 +69,7 @@ class ReportGeneralLedger(models.AbstractModel):
                 {stament1},
                 '' AS lpartner_id,\
                 MIN(l.ref) AS lref,
-                '' AS move_name, '' AS move_id, '' AS currency_code,\
+                '' AS move_name, '' AS move_id, c.symbol AS currency_code,\
                 NULL AS currency_id,\
                 '' AS invoice_id, '' AS invoice_type, '' AS invoice_number,\
                 '' AS partner_name\
@@ -86,7 +86,7 @@ class ReportGeneralLedger(models.AbstractModel):
                     LIMIT 1
                 ) AS fan ON true
                 {stament2}
-                WHERE l.account_id IN %s""" + filters + f""" GROUP BY l.account_id {stament3}""")
+                WHERE l.account_id IN %s""" + filters + f""" GROUP BY l.account_id, c.symbol {stament3}""")
             params = (tuple(accounts.ids),) + tuple(init_where_params)
             cr.execute(sql, params)
             for row in cr.dictfetchall():
@@ -158,9 +158,11 @@ class ReportGeneralLedger(models.AbstractModel):
             res['move_lines'] = self.merge_move(move_lines[account.id],initmove_lines[account.id],group_ledger,init_balance,consolidate)
             # res['move_lines'] = move_lines[account.id]
             for line in res.get('move_lines'):
-                res['debit'] += line['debit']
-                res['credit'] += line['credit']
-                res['balance'] = line['balance']
+                if line['lid']!=-1:
+                    res['debit'] += float(line['debit'])
+                    res['credit'] += float(line['credit'])
+                    res['balance'] = res['debit']-res['credit']
+                res.update({'amount_currency':res.get('amount_currency',0) + line.get('amount_currency',0), 'currency_code': line.get('currency_code')})
             if display_account == 'all':
                 account_res.append(res)
             if display_account == 'movement' and res.get('move_lines'):

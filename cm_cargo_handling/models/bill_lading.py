@@ -17,6 +17,7 @@ class BillLading(models.Model):
     name = fields.Char(string="Guia #", default="Guia Borrador")
     partner_id = fields.Many2one('res.partner', string='Cliente')
     modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad")
+    discount_code = fields.Char(string="Codigo Descuento", related="order_id.discount_id.code")
     # Sender
     sender_name = fields.Char(string="Remitente", tracking=True)
     id_sender = fields.Char(string="Identidad Remitente", tracking=True)
@@ -60,11 +61,12 @@ class BillLading(models.Model):
     def deliver_cargo(self):
         for line in self:
             if line.modality in ['upon_delivery', 'counted']:
-                if line.order_id.payment_state != 'paid':
-                    raise UserError(
-                            "La modalidad de la guia de carga es por cobrar o de contado y la factura "
-                            "no se encuentra pagada, Se debe pagar la factura para entregar la encomienda"
-                            )
+                if line.order_id.discount_id.code not in ['COMAIL','G10']:
+                    if line.order_id.payment_state != 'paid':
+                        raise UserError(
+                                "La modalidad de la guia de carga es por cobrar o de contado y la factura "
+                                "no se encuentra pagada, Se debe pagar la factura para entregar la encomienda"
+                                )
                 line.state = 'delivered'
                 line.order_id.state = 'invoiced'
             else:

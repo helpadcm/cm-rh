@@ -100,8 +100,8 @@ class ap_account_payment(models.Model):
 					if line.get('account_id') == payment.destination_account_id.id:
 						if payment.payment_type == 'outbound':  # Pago a proveedor
 							line['amount_currency'] += abs(total_writeoff_currency)
-							line['credit'] += total_credit
-							line['debit'] += total_debit
+							# line['credit'] += total_credit
+							line['debit'] += total_credit
 
 						elif payment.payment_type == 'inbound':  # Pago de cliente
 							line['amount_currency'] -= abs(total_writeoff_currency)

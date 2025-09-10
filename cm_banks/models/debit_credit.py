@@ -338,6 +338,7 @@ class debit_credit(models.Model):
 					mline_data['analytic_distribution'] = distribution_analytic
 				mline_data['move_id'] = move_id.id
 				mline_data['name'] = mcheck.name
+				mline_data['account_id'] = mcheck.journal_id.default_account_id.id
 				if mcheck.doc_type == 'debit':
 					mline_data['credit'] = totald-totalc#correct
 					mline_data['debit'] = 0
