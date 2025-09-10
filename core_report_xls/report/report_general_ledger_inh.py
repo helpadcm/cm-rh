@@ -61,7 +61,7 @@ class ReportGeneralLedger(models.AbstractModel):
             	stament3=", p.id"
 
             sql = (f"""SELECT 0 AS lid, l.account_id AS account_id, '' AS ldate,
-                '' AS lcode, 0.0 AS amount_currency, 
+                '' AS lcode, COALESCE(SUM(l.amount_currency),0.0) AS amount_currency, 
                 MIN(fan.analytic_account) AS analytic_name,
                 'Initial Balance' AS lname, COALESCE(SUM(l.debit),0.0) AS debit, 
                 COALESCE(SUM(l.credit),0.0) AS credit, 
@@ -161,7 +161,7 @@ class ReportGeneralLedger(models.AbstractModel):
                 if line['lid']!=-1:
                     res['debit'] += float(line['debit'])
                     res['credit'] += float(line['credit'])
-                    res['balance'] = res['debit']-res['credit']
+                    res['balance'] = res['debit'] - res['credit']
                 res.update({'amount_currency':res.get('amount_currency',0) + line.get('amount_currency',0), 'currency_code': line.get('currency_code')})
             if display_account == 'all':
                 account_res.append(res)
@@ -310,7 +310,7 @@ class ReportGeneralLedger(models.AbstractModel):
                 for initfil in inifilters:
                     init_cre = initfil.get('credit',0.0)
                     init_deb = initfil.get('debit',0.0)
-                    init_bal = init_deb-init_cre
+                    init_bal = init_deb - init_cre
                     lname = initfil.get('lname','')
                 line = self.init_data(init_bal, init_deb, init_cre, partner.id, None, None, pname, lname)
                 res.append(line)
@@ -335,7 +335,7 @@ class ReportGeneralLedger(models.AbstractModel):
                 for initfil in inifilters:
                     init_cre = initfil.get('credit',0.0)
                     init_deb = initfil.get('debit',0.0)
-                    init_bal = init_deb-init_cre
+                    init_bal = init_deb - init_cre
                     lname = initfil.get('lname','')
                 line = self.init_data(init_bal,init_deb,init_cre,None,analytic.id,None,pname,lname)
                 res.append(line)

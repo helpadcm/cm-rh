@@ -17,6 +17,11 @@ class ResUsersInherit(models.Model):
 
 	station_id  = fields.Many2one('cargo.station',string="Estacion")
 
+class paymentInherit(models.Model):
+    _inherit = 'account.payment'
+
+    user_id = fields.Many2one('res.users', string='Usuario', default=lambda self: self.env.user, tracking=True)
+
 class partnerInherit(models.Model):
     _inherit = 'res.partner'
     _rec_names_search = ['complete_name', 'email', 'ref', 'vat', 'company_registry', 'client_account', 'phone']

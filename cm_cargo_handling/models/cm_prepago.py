@@ -115,6 +115,7 @@ class CmPrepago(models.Model):
                     'journal_id': cash.journal_id.id,
                     'amount': cash.amount,
                     'communication': cash.communication,
+                    'ref': cash.communication,
                     'company_id': cash.company_id.id,
                     'user_id': cash.user_id.id,
                     'partner_id': cash.partner_id.id,
