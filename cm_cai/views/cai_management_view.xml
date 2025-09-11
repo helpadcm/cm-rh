@@ -34,8 +34,8 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Sequencias">
-                            <field name="line_ids">
+                        <page string="Sequencias" invisible="document_type == 'purchase'">
+                            <field name="line_ids" invisible="document_type == 'purchase'">
                                 <tree editable="bottom">
                                     <field name="sequence_id" required="1" options="{'no_create': True}"/>
                                     <field name="number_from"/>

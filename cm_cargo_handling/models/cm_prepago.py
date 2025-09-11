@@ -111,6 +111,7 @@ class CmPrepago(models.Model):
                     #'state':cash.state,
                     'reconciled_invoice_ids': [(6,0,[cash.invoice_id.id])],
                     'currency_id': cash.currency_id.id,
+                    'from_cargo': True,
                     #'obs':cash.obs,
                     'journal_id': cash.journal_id.id,
                     'amount': cash.amount,

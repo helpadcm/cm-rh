@@ -91,6 +91,20 @@ class BillLading(models.Model):
             'context': {},
         }
 
+    def show_order(self):
+        if not self.order_id:
+            raise ValidationError("No hay orden creada para esta guia")
+
+        return {
+            'name': _('Orden de Venta'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order.handling',
+            'view_mode': 'form',
+            'res_id': self.order_id.id,
+            'target': 'current',
+            'context': {},
+        }
+
     def abandoned_cargo(self):
         for line in self:
             line.state = 'abandoned'

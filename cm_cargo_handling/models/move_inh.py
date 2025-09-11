@@ -54,7 +54,6 @@ class account_invoice_inherit(models.Model):
                 for payment in self.env.get("account.payment").browse(payment_ids):
                     payment.partner_id = partner_id
                     payment.partner_id_for_parents = partner_id
-                print (payment_ids,record.invoice_id.number)
                 for acl in self.env.get("account.move.line").search([('payment_id','in',payment_ids)]):
                     acl.partner_id = partner_id
                     acl.move_id.partner_id = partner_id

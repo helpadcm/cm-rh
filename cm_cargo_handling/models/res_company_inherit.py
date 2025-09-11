@@ -21,6 +21,19 @@ class paymentInherit(models.Model):
     _inherit = 'account.payment'
 
     user_id = fields.Many2one('res.users', string='Usuario', default=lambda self: self.env.user, tracking=True)
+    from_cargo = fields.Boolean(string="Desde venta de carga")
+
+    def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
+        res = super(paymentInherit, self)._prepare_move_line_default_vals(write_off_line_vals=None, force_balance=None)
+        if self.journal_id.code == 'EFU' and self.from_cargo:
+            for line in res:
+                if line.get('debit') > 0:
+                    analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
+                    if analytic_account_id:
+                        distribution_line = {str(analytic_account_id.id): 100.0}
+                        line.update({'analytic_distribution': distribution_line})
+                    break
+        return res
 
 class partnerInherit(models.Model):
     _inherit = 'res.partner'
