@@ -488,6 +488,15 @@ class ap_account_payment(models.Model):
 			'journal_id': journal.id,
 		}
 
+	def add_analytic_account(self):
+		if self.move_id and self.journal_id.code == 'EFU':
+			for line in self.move_id.line_ids:
+				if line.debit > 0:
+					analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
+					if analytic_account_id:
+						distribution_line = {str(analytic_account_id.id): 100.0}
+						line.analytic_distribution = distribution_line
+
 class write_off_line(models.Model):
 	_name = "account.payment.writeoffline"
 	_description = "Distribucion de pagos"

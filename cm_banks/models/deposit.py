@@ -490,6 +490,14 @@ class banks_deposits(models.Model):
 		else:
 			return super(banks_deposits, self).unlink()	
 
+	def add_account(self):
+		if self.move_id:
+			for line in self.move_id.line_ids:
+				if line.credit > 0:
+					account_id = self.env['account.account'].search([('code','=','102.02')])
+					if account_id:
+						line.account_id = account_id.id
+
 class banks_deposit_name(models.Model):
 	_name = 'banks.deposit.name'
 	_description = "Lineas de deposito"
