@@ -18,6 +18,14 @@ class account_payment_inherit_wizard(models.TransientModel):
                 ('otros','Otros')], string='Tipo de transaccion')
 
     @api.model
+    def _get_batch_communication(self, batch_result):
+        if self.payment_type == 'outbound':
+            labels = set(line.move_id.ref or line.move_id.name for line in batch_result['lines'])
+        else:
+            labels = set(line.move_id.payment_reference or line.name or line.move_id.ref or line.move_id.name for line in batch_result['lines'])
+        return ', '.join(sorted(labels))
+
+    @api.model
     def default_get(self, fields):
         rec = super(account_payment_inherit_wizard, self).default_get(fields)
         context = dict(self._context or {})

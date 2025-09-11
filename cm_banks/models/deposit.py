@@ -355,6 +355,7 @@ class banks_deposits(models.Model):
 					if select_journal_currency_id == currency_id:#si el currency de 
 						totald_curr += lines_col['debit']
 						total_acumulado_no_curr -= lines.amount	#nueva opcion convertir al final la suma
+						lines_col['currency_id'] = currency_id
 					else:
 						lines_col['amount_currency'] = (lines.amount * (1/select_journal_currency_rate))*select_journal_currency_rate
 						if dep.pay_comp_currency:
@@ -375,6 +376,12 @@ class banks_deposits(models.Model):
 					if select_journal_currency_id == currency_id:
 						totalc_curr += lines_col['credit']
 						total_acumulado_no_curr += lines.amount	#nueva opcion convertir al final la suma
+						if lines.account_id.currency_id:
+							lines_col['currency_id'] = lines.account_id.currency_id.id
+							lines_col['amount_currency'] = -self._from_to_company_currency(lines.amount, lines.account_id.currency_id.id, False, dep.date)
+						else:
+							lines_col['currency_id'] = currency_id
+							lines_col['amount_currency'] = -lines.amount
 					else:
 						lines_col['amount_currency'] = (lines.amount * (1/select_journal_currency_rate))*(-1)*select_journal_currency_rate
 						if dep.pay_comp_currency:
