@@ -303,6 +303,7 @@ class ReportGeneralLedger(models.AbstractModel):
                 init_bal = 0.0
                 init_deb = 0.0
                 init_cre = 0.0
+                amount_currency = 0.0
                 lname = ''
                 pname = partner.name
                 if not partner.id:
@@ -310,9 +311,10 @@ class ReportGeneralLedger(models.AbstractModel):
                 for initfil in inifilters:
                     init_cre = initfil.get('credit',0.0)
                     init_deb = initfil.get('debit',0.0)
+                    amount_currency = initfil.get('amount_currency',0.0)
                     init_bal = init_deb - init_cre
                     lname = initfil.get('lname','')
-                line = self.init_data(init_bal, init_deb, init_cre, partner.id, None, None, pname, lname)
+                line = self.init_data(init_bal, init_deb, init_cre, partner.id, None, None, pname, lname, amount_currency)
                 res.append(line)
                 filters = filter(lambda line: line['partner_id'] == partner.id, move_lines)
                 bal = init_bal
@@ -325,9 +327,10 @@ class ReportGeneralLedger(models.AbstractModel):
             analytic_ids=list(set(map(lambda line: line.get('analytic_id'), move_lines+initmove_lines)))
             for analytic in self.env.get('account.analytic.account').browse(analytic_ids):
                 inifilters= filter(lambda line: line['analytic_id'] == analytic.id, initmove_lines)
-                init_bal=0.0
-                init_deb=0.0
-                init_cre=0.0
+                init_bal = 0.0
+                init_deb = 0.0
+                init_cre = 0.0
+                amount_currency = 0.0
                 lname = ''
                 pname = analytic.name
                 if not analytic.id:
@@ -335,9 +338,10 @@ class ReportGeneralLedger(models.AbstractModel):
                 for initfil in inifilters:
                     init_cre = initfil.get('credit',0.0)
                     init_deb = initfil.get('debit',0.0)
+                    amount_currency = initfil.get('amount_currency',0.0)
                     init_bal = init_deb - init_cre
                     lname = initfil.get('lname','')
-                line = self.init_data(init_bal,init_deb,init_cre,None,analytic.id,None,pname,lname)
+                line = self.init_data(init_bal, init_deb, init_cre, None, analytic.id, None, pname, lname, amount_currency)
                 res.append(line)
                 filters= filter(lambda line: line['analytic_id'] == analytic.id, move_lines)
                 bal = init_bal
@@ -350,7 +354,7 @@ class ReportGeneralLedger(models.AbstractModel):
         return res
 
     @api.model
-    def init_data(self, bal, deb, cre, partner_id, analytic_id, account_id, name, lname):
+    def init_data(self, bal, deb, cre, partner_id, analytic_id, account_id, name, lname, amount_currency):
         res={	
             'lid': 0, 
             'lpartner_id': '', 
@@ -368,7 +372,7 @@ class ReportGeneralLedger(models.AbstractModel):
             'partner_name': name, 
             'currency_code': None, 
             'lref': '', 
-            'amount_currency': 0.0, 
+            'amount_currency': amount_currency, 
             'balance': bal,
             'invoice_number': '', 
             'lcode': '', 'ldate': ''}
