@@ -151,8 +151,8 @@
                                 <table style="width:100%;border:1px solid #000000;border-collapse: collapse">
                                     <th style="background-color:rgb(218, 218, 218);text-align:center;font-size:85%;border:1px solid #000000" colspan="2">Remitente</th>
                                     <tr>
-                                        <td style="padding:15px;width:60%"><span t-esc="o.get('sender_name')"/></td>
-                                        <td style="padding:15px">ID: <span t-esc="o.get('id_sender')"/></td>
+                                        <td style="padding:13px;width:60%"><span t-esc="o.get('sender_name')"/></td>
+                                        <td style="padding:13px">ID: <span t-esc="o.get('id_sender')"/></td>
                                     </tr>
                                 </table>
                             </td>
@@ -162,8 +162,8 @@
                                 <table style="width:100%;border:1px solid #000000;border-top:0px;border-collapse: collapse">
                                     <th style="background-color:rgb(218, 218, 218);text-align:center;font-size:85%;border:1px solid #000000;border-top:0px" colspan="2"><strong>Destinatario</strong></th>
                                     <tr>
-                                        <td style="padding:15px;width:60%"><span t-esc="o.get('receiver_name')"/></td>
-                                        <td t-if="o.get('id_receiver')" style="padding:15px;">ID: <span t-esc="o.get('id_receiver')"/></td>
+                                        <td style="padding:13px;width:60%"><span t-esc="o.get('receiver_name')"/></td>
+                                        <td t-if="o.get('id_receiver')" style="padding:13px;">ID: <span t-esc="o.get('id_receiver')"/></td>
                                         <td t-if="not o.get('id_receiver')" style="padding:15px;"/>
                                     </tr>
                                 </table>
