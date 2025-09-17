@@ -36,11 +36,14 @@ class ReportHandling(models.AbstractModel):
         info_invoice = []
         origins = []
         for invoice in account_invoice.with_context(lang='es_CR'):
-            dic_total=self.get_gravado_total(self.get_lines(invoice.invoice_line_ids.filtered("sub_invoice")))
-            dic_exento=self.excento(invoice.invoice_line_ids.filtered("sub_invoice"))
-            city_state=invoice.company_id.city 
+            filtered_lines = invoice.invoice_line_ids.filtered("sub_invoice")
+            info_lines = self.get_lines(filtered_lines)
+            dic_total = self.get_gravado_total(info_lines)
+            dic_exento = self.excento(filtered_lines)
+
+            city_state = invoice.company_id.city 
             if  invoice.company_id.state_id:
-                city_state+=", " + invoice.company_id.state_id.name
+                city_state += ", " + invoice.company_id.state_id.name
             rate = invoice.currency_rate
             text_amount = invoice.amount_in_words
             info_invoice.append( {
@@ -70,9 +73,6 @@ class ReportHandling(models.AbstractModel):
 	        'amount_tax': invoice.amount_tax,
             'base_imponible': invoice.amount_untaxed,
             'rate': rate,
-            # 'conv_base': invoice.currency_id.with_context({'date':invoice.invoice_date}).compute(invoice.amount_untaxed,invoice.company_id.currency_id),
-            # 'amount_tax_conv': self.addComa(self.set_precision(invoice.amount_tax * invoice.currency_id.compute(1,invoice.company_id.currency_id))),
-            # 'invoice_line_ids': invoice.invoice_line_ids.filtered("sub_invoice"),
             'name_company': invoice.company_id.name,
             'street_company': invoice.company_id.street,
             'street2_company': invoice.company_id.street2,
@@ -83,33 +83,22 @@ class ReportHandling(models.AbstractModel):
             'exento': dic_exento.get('excento'),
             'conv_exento': dic_exento.get('conv_excento'),
             'amount_total': invoice.amount_total,
-            # 'conv_amount_total': invoice.currency_id.with_context({'date':invoice.invoice_date}).compute((invoice.amount_total + float(self.excento(invoice.invoice_line_ids).get('excento'))),invoice.company_id.currency_id),
             'origen': invoice.ref,
             'rtn_cliente': invoice.rtn_name or invoice.partner_id.vat,
-            'agente': invoice.user_id.name,
+            'agente': invoice.invoice_user_id.name or '',
             'subtotal': invoice.amount_untaxed - float(dic_total.get('suma_otros'))- 0,
             'discount': 0,
             'pnr': invoice.pnrcode,
-            'lines': self.get_lines(invoice.invoice_line_ids.filtered("sub_invoice")),
+            'lines': info_lines,
             'gravado_total': dic_total.get('suma_gravado'),
             'suma_otros': dic_total.get('suma_otros'),
             'name_currency': invoice.currency_id.name,
 	        'company_currency': invoice.company_id.currency_id.name,
-            # 'number_order': invoice.order_number,
-            # 'constancy_number': invoice.constancy_number,
             'exempt_purchase': invoice.purchase_order_exempt,
             'exonerated_record': invoice.record_exonerated,
             'reg_sag': invoice.sag_record
             })
         return {'info_invoice':info_invoice,'info':info}
-    
-    def get_origin(self,origen):
-        for info_sales in self.env.get('sale.order').search([('name','=',origen)]):
-                agente = info_sales.user_id.name
-                for line in info_sales.order_line:
-                    for lading in line.bill_lading_id:
-                        origen = lading.origin_id.name
-        return origen
 
     def get_lines(self,lines):
         invoice_data = []
@@ -140,27 +129,20 @@ class ReportHandling(models.AbstractModel):
                         }
                         )              
         return invoice_data
+        
+    def excento(self,lines):
+        excento = 0.00
+        for line in lines:
+            if line.donate:
+                continue
+            if not line.tax_ids:
+                excento += line.price_unit+line.YQAmount+line.YRAmount+line.YZAmount
+        return {'excento':self.set_precision(excento),'conv_excento':self.set_precision(excento)}
 
     def change_format(self,date):
         if date:
             formato_fecha = "%d/%m/%Y"
             fecha = datetime.strftime(date,formato_fecha)
-            return fecha
-
-    def addComa(self,snum ):
-        #"Adicionar comas como separadores de miles a n. n debe ser de tipo string"
-        s = str(snum);
-        i = s.index('.') # Se busca la posición del punto decimal
-        while i > 3:
-            i = i - 3
-            s = s[:i] +  ',' + s[i:]
-        return s
-
-    def change_format2(self,date):
-        if date:
-            formato_fecha = "%d/%m/%Y %H:%M:%S"
-            fecha_inicial = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-            fecha = datetime.strftime(fecha_inicial,formato_fecha)
             return fecha
 
     def get_gravado_total(self,info):
@@ -186,14 +168,6 @@ class ReportHandling(models.AbstractModel):
         suma_total_gravado = suma_gravado + suma_yq
         return {'suma_gravado':suma_total_gravado,'suma_otros':suma_total_otros}
 
-    def excento(self,lines):
-        excento = 0.00
-        for line in lines:
-            if line.donate:
-                continue
-            if not line.tax_ids:
-                excento += line.price_unit+line.YQAmount+line.YRAmount+line.YZAmount
-        return {'excento':self.set_precision(excento),'conv_excento':self.set_precision(excento)}
 
     def set_precision(self,num):
         return "{0:.2f}".format(num)
