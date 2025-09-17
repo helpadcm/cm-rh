@@ -41,6 +41,9 @@
 		'report/report_cargo_manifest.xml',
 		'report/invoice_guide.xml',
 		'report/report_cash_receipt.xml',
+		'report/invoice_format_handling.xml',
+		'report/main_template_invoice.xml',
+		'report/guide_invoice.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,
