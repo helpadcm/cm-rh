@@ -7,4 +7,11 @@
         id="report_invoice_menuitem" 
         sequence="5"/>
 
+    <menuitem 
+        action="action_account_status_wizard_menu" 
+        name="Reporte Estado de Cuenta"
+        parent="account.menu_finance_reports"
+        id="report_account_status_menuitem" 
+        sequence="6"/>
+
 </odoo>

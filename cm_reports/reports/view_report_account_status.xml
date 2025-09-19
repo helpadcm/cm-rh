@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_account_status">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>	
+                <t t-foreach="data" t-as="o">
+                    <div class="page" style="page-break-before:always;">
+                        <table style="align:center;width:100%">
+                            <tbody>
+                                <tr style="height: 20px;padding:0px;border:0px;border-collapse: collapse" >
+                                    <td style="width:20%;" rowspan="4">
+                                        <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:230px;height:120px" alt="Logo"/>
+                                    </td>
+                                    <td style="width:40%;">
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td style="text-align:left;font-size:15px"><strong><span t-field="company.name"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:left;font-size:13px"><strong>RTN: <span t-field="company.company_registry"/></strong></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:40%">
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td style="text-align:left;font-size:13px"><strong><span t-field="company.street"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:left;font-size:13px"><strong><span t-field="company.street2"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:left;font-size:13px"><strong><span t-field="company.city"/> <span t-field="company.zip"/> <span t-field="company.country_id"/></strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:left;font-size:13px"><strong><span t-field="company.phone"/></strong></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <table style="width:100%;margin-top:1%;border:2px solid black;border-collapse: collapse">
+                            <tr>
+                                <td style="width:50%;padding:3px;font-size:12px;background-color: #DDDDDD;text-align:center"><strong>ESTADO DE CUENTA</strong></td>
+                                <td style="width:50%;padding:3px;font-size:12px"><span t-esc="o.get('partner').name"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%;font-size:12px;background-color: #DDDDDD;text-align:center"><strong>Valores Expresados en Dolares USD</strong></td>
+                                <td style="width:50%;font-size:12px;padding:3px"><span t-esc="o.get('partner').street"/></td>
+                            </tr>
+                            <tr>
+                                <td style="width:50%;font-size:12px">Quincena: <span t-esc="vals.get('fortnight')"/></td>
+                                <td style="width:50%;font-size:12px">Fecha Maxima Pago: <span t-esc="vals.get('maximum_payment')"/></td>
+                            </tr>
+                        </table>
+
+                        <table style="width:100%;margin-top:1%;border-collapse: collapse">
+                            <tr>
+                                <td style="width:10%;padding:3px;font-size:12px;text-align:center"><strong>Fecha</strong></td>
+                                <td style="width:10%;padding:3px;font-size:12px;text-align:center"><strong>Reserva</strong></td>
+                                <td style="width:20%;padding:3px;font-size:12px;text-align:center"><strong>Concepto</strong></td>
+                                <td style="width:20%;padding:3px;font-size:12px;text-align:right"><strong>Facturado</strong></td>
+                                <td style="width:20%;padding:3px;font-size:12px;text-align:right"><strong>Pagado</strong></td>
+                                <td style="width:20%;padding:3px;font-size:12px;text-align:right"><strong>Saldo</strong></td>
+                            </tr>
+                            <t t-foreach="o.get('datas')" t-as="line">
+                                <tr>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:center"><span t-esc="line.get('date')"/></td>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:center"><span t-esc="line.get('pnr')"/></td>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:center"><span t-esc="line.get('concept')"/></td>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:right"><span t-esc="'{0:,.2f}'.format(line.get('invoiced_amount'))"/></td>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:right"><span t-esc="'{0:,.2f}'.format(line.get('paid_amount'))"/></td>
+                                    <td style="border-top:1px solid #C0C0C0;font-size:11px;padding:3px;text-align:right"><span t-esc="'{0:,.2f}'.format(line.get('balance'))"/></td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="background-color: #C0C0C0;font-size:11px;padding:3px;text-align:center" colspan="3"><strong>TOTAL</strong></td>
+                                <td style="background-color: #C0C0C0;font-size:11px;padding:3px;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(o.get('total_invoiced'))"/></strong></td>
+                                <td style="background-color: #C0C0C0;font-size:11px;padding:3px;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(o.get('total_payed'))"/></strong></td>
+                                <td style="background-color: #C0C0C0;font-size:11px;padding:3px;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(o.get('total_balance'))"/></strong></td>
+                            </tr>
+                        </table>
+
+                        <table style="width:45%;margin-top:1%;border-collapse: collapse">
+                            <tr>
+                                <td style="border-top:1px solid black;border-bottom:1px solid black;width:70%;padding:3px;font-size:12px;text-align:left"><strong>Saldo Total</strong></td>
+                                <td style="border-top:1px solid black;border-bottom:1px solid black;width:30%;padding:3px;font-size:12px;text-align:right"><strong><span t-esc="o.get('currency_id').symbol"/> <span t-esc="'{0:,.2f}'.format(o.get('total_balance'))"/></strong></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding:3px;font-size:12px;text-align:center"><strong>:::<span t-esc="company.to_word(o.get('total_balance'), o.get('currency_id').name)"/>:::</strong></td>
+                            </tr>
+                        </table>
+
+                        <table style="width:45%;margin-top:1%;border-collapse: collapse">
+                            <tr>
+                                <td style="width:35%;padding:3px;font-size:12px;background-color: #DDDDDD;"><strong>BANCO</strong></td>
+                                <td style="width:35%;padding:3px;font-size:12px;background-color: #DDDDDD;"><strong>MONEDA</strong></td>
+                                <td style="width:30%;padding:3px;font-size:12px;background-color: #DDDDDD;"><strong>CUENTA</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>Bac Honduras</strong></td>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>USD</strong></td>
+                                <td style="width:30%;padding:3px;font-size:12px;"><strong>730134921</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>Bac Honduras</strong></td>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>HNL</strong></td>
+                                <td style="width:30%;padding:3px;font-size:12px;"><strong>730049441</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>Banco Ficohsa</strong></td>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>USD</strong></td>
+                                <td style="width:30%;padding:3px;font-size:12px;"><strong>01-107-51646</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>Banco Ficohsa</strong></td>
+                                <td style="width:35%;padding:3px;font-size:12px;"><strong>HNL</strong></td>
+                                <td style="width:30%;padding:3px;font-size:12px;"><strong>08-102-332041</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+                <div class="footer" style="border-top:1px solid black">
+                    <div class="text-center">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
