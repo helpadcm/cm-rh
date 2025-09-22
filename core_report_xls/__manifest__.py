@@ -6,7 +6,7 @@
 	'description'	:"""
 			Core Reports Xls
 	""",
-	'depends'	:['account', 'report_xlsx','cm_banks','account_fiscal_year_period','accounting_pdf_reports'],
+	'depends'	:['account', 'report_xlsx','cm_banks','account_fiscal_year_period','accounting_pdf_reports','cm_cai'],
 	    'qweb': [
      
     ],
