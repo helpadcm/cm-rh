@@ -93,6 +93,17 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="account_move_inh_tree">
+            <field name="name">account.move.tree.inh</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree"/>
+            <field name="arch" type="xml">
+                <field name="amount_residual_signed" position="after">
+                    <field name="balance_usd" sum="Total USD" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="account_journal_inh_form">
             <field name="name">account.journal.form.inh</field>
             <field name="model">account.journal</field>

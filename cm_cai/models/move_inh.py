@@ -21,6 +21,7 @@ class moveInh(models.Model):
     max_number_cai = fields.Char(string="Número Minímo",copy=False)
     internal_number = fields.Char(string="Numero interno",copy=False,default='Borrador')
     modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad")
+    balance_usd = fields.Monetary(string="Adeudado USD", compute="_calculate_usd_balance", store=True, currency_field='currency_id')
 
     cai_id = fields.Many2one('management.cai', string='Numero de Cai')
 
@@ -49,6 +50,11 @@ class moveInh(models.Model):
                         sequence_field=record._fields[record._sequence_field]._description_string(self.env),
                         model=self.env['ir.model']._get(record._name).display_name,
                     ))
+
+    @api.depends('amount_residual_signed')
+    def _calculate_usd_balance(self):
+        for rec in self:
+            rec.balance_usd = rec.amount_residual_signed / rec.currency_rate
 
     def button_draft(self):
         self.write({'internal_number': self.name})
