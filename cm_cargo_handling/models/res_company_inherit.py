@@ -56,17 +56,13 @@ class partnerInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        active_model = self.env.context.get('active_model')
-        if active_model == 'hr.payslip':
-            return self.browse()
-        else:
-            res = super(partnerInherit, self).create(vals_list)
-            for partner in res:
-                if partner.cargo_client and not partner.client_account:
-                    sequence_id = self.env.ref('cm_cargo_handling.sequence_client_account')
-                    if sequence_id:
-                        partner.client_account = sequence_id.next_by_id()
-            return res
+        res = super(partnerInherit, self).create(vals_list)
+        for partner in res:
+            if partner.cargo_client and not partner.client_account:
+                sequence_id = self.env.ref('cm_cargo_handling.sequence_client_account')
+                if sequence_id:
+                    partner.client_account = sequence_id.next_by_id()
+        return res
 
     def _get_complete_name(self):
         res = super(partnerInherit, self)._get_complete_name()

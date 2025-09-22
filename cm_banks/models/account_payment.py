@@ -510,3 +510,41 @@ class write_off_line(models.Model):
 	payment_id = fields.Many2one('account.payment',string="Payment")
 	partner_id	= fields.Many2one('res.partner',string="Partner")
 	analytic_account_id = fields.Many2one('account.analytic.account',string="Analytic Account")
+
+class account_payment_line(models.Model):
+	_name = "account.payment.line"
+	_description = "Lineas de pago"
+
+	move_line_id = fields.Many2one('account.move.line',string="Move lines",required=True)
+	account_id = fields.Many2one('account.account',string="Account",required=True)
+	date_original = fields.Date(string='Date')
+	date_due = fields.Date(string='Date due')
+	amount_original = fields.Monetary(currency_field='currency_id',string="Amount original")
+	amount_unreconcilied = fields.Monetary(currency_field='currency_id',string="Amount unreconcilied")
+	reconcile = fields.Boolean(string="Concilied full")
+	amount = fields.Monetary(currency_field='currency_id',string="amount")
+	payment_id = fields.Many2one('account.payment',string="Payment",ondelete="cascade")
+	currency_id = fields.Many2one('res.currency',string='Currency')
+	move_name = fields.Char(string='Move name')
+	chqmanalitics=fields.Many2one("account.analytic.account",string="Check Misc Analiticos")
+
+	# @api.onchange('move_line_id','amount_original','amount_unreconcilied')
+	# def _onchange_move(self):
+	# 	if self.move_line_id:
+	# 		self.account_id = self.move_line_id.account_id.id
+	# 		self.amount_original=self.move_line_id.invoice_id.amount_total
+	# 		self.date_original=self.move_line_id.date
+	# 		self.date_due=self.move_line_id.invoice_id.date_due
+	# 		self.amount_unreconcilied=self.move_line_id.invoice_id.residual
+
+	# @api.onchange('reconcile')
+	# def _onchange_reconcile(self):
+	# 	if self.reconcile:
+	# 		self.amount = self.amount_unreconcilied
+
+	# @api.onchange('amount')
+	# def _onchange_amount(self):
+	# 	if self.amount == self.amount_unreconcilied:
+	# 		self.reconcile = True
+	# 	else:
+	# 		self.reconcile = False
