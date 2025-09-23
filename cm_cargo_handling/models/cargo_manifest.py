@@ -31,11 +31,12 @@ class Cargo_manifest(models.Model):
     @api.depends('cargo_bill_landing_ids')
     def _get_total_weight(self):
         sum_weight = 0
-        sum_vol_weight = 0
-        for line in self.cargo_bill_landing_ids:
-            sum_weight += line.bill_landing_id.weight
-        
-        self.total_weight = sum_weight
+        for rec in self:
+            if rec.cargo_bill_landing_ids:
+                sum_weight = sum(rec.cargo_bill_landing_ids.mapped('weight'))
+
+            rec.total_weight = sum_weight
+            
 
     @api.onchange('bill_landing_barcode')
     def onchange_bill_landing_barcode(self):
@@ -71,8 +72,12 @@ class Cargo_manifest(models.Model):
 
         cbl=[]
         for line in self.cargo_bill_landing_ids:
+
             if not line.bill_landing_id:
                 continue
+                
+            if line.bill_landing_id.state == 'desechada':
+                raise ValidationError(f"""La Guia {line.bill_landing_id.name} esta en estado desechada, debe eliminarla del manifiesto antes de enviar""")
             
             line.bill_landing_id.state = 'sent'
             cbl.append(line.bill_landing_id.id)
@@ -107,6 +112,7 @@ class Cargo_manifest_bill_landing(models.Model):
     destination_id = fields.Many2one(related='bill_landing_id.destination_id')
     observations = fields.Text(related='bill_landing_id.observations',string="Observaciones")
     description = fields.Text(related='bill_landing_id.content_description',string="Descripcion")
+    modality = fields.Selection(related='bill_landing_id.modality', string="Modalidad")
     # international_number = fields.Char(related='bill_landing_id.international_number')
     
     def unlink(self):

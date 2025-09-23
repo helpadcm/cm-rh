@@ -146,6 +146,13 @@ class BillLading(models.Model):
         else:
             return self.order_id.register_payment()
 
+    def delivery_order_gua(self):
+        guides_ids = self.search([('destination_id.ref','=','GUA-ATO')])
+        if guides_ids:
+            for guide in guides_ids:
+                if guide.product_id.default_code == '890':
+                    guide.state = 'delivered'
+
 class cargo_bill_logs(models.Model):
     _name='cargo.bill_logs'
     _order="create_date desc"

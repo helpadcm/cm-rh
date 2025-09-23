@@ -50,8 +50,9 @@
                                 <field name="cargo_bill_landing_ids" readonly="state != 'draft'">
                                     <tree string="Cargo bills" create="false" edit="false" editable="bottom">
                                         <field name="bill_landing_id" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}' />
+                                        <field name="modality"/>
                                         <field name="sender_name"/>
-                                        <field name="weight"/>
+                                        <field name="weight" sum="Total Peso"/>
                                         <field name="destination_id"/>
                                         <field name="description"/>
                                         <field name="observations"/>
@@ -93,7 +94,7 @@
                     <field name="reception_date"/>
                     <field name="shipping_airport"/>
                     <field name="reception_airport"/>
-                    <!-- <field name="total_weight"/> -->
+                    <field name="total_weight"/>
                     <field name="state"/>
                 </tree>
             </field>

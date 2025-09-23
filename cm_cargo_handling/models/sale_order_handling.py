@@ -641,6 +641,11 @@ class saleOrderHandling(models.Model):
         res = super(saleOrderHandling, self).unlink()
         return res
 
+    def delete_orders(self):
+        draft_order_ids = self.search([('state','=','quote')])
+        if draft_order_ids:
+            draft_order_ids.unlink()
+
 class orderCartHandling(models.Model):
     _name = 'cart.order.handling'
     _description = "Carrito de ordenes"

@@ -21,5 +21,27 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
+
+        <record model="ir.cron" id="delete_quotes_order_cron">
+            <field name="name">Borrar Ordenes en cotizacion</field>
+            <field name="model_id" ref="cm_cargo_handling.model_sale_order_handling"/>
+            <field name="code">model.delete_orders()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+
+        <record model="ir.cron" id="delivery_guide_cron">
+            <field name="name">Entregar guias destino GUA</field>
+            <field name="model_id" ref="cm_cargo_handling.model_cargo_bill"/>
+            <field name="code">model.delivery_order_gua()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
     </data>
 </odoo>
