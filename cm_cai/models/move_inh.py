@@ -132,11 +132,12 @@ class moveInh(models.Model):
                     duplicate_invoice = ', '.join([inv_ref.name for inv_ref in inv.duplicated_ref_ids])
                     raise ValidationError (f"No se puede validar la factura, la referencia {inv.ref} ya existe en la(s) factura(s) {duplicate_invoice}")
 
-                if inv.internal_number == 'Borrador' or not inv.internal_number:
+                if inv.internal_number in ['Borrador','/'] or not inv.internal_number:
                     if inv.journal_id.sequence_id:
                         new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
                         inv.write({'payment_reference': new_name})
                         inv.write({'internal_number': new_name})
+                        inv.write({'name': new_name})
                 else:
                     inv.write({'name': inv.internal_number})
         return res
