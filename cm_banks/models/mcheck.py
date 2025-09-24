@@ -452,8 +452,8 @@ class mcheck(models.Model):
 					mline_obj = self.env['account.move.line']
 					flag2 = True
 					total_acumulado_no_curr = 0
+					context.update({'date':mcheck.date})
 					for lines in mcheck.mcheck_ids:
-						context.update({'date':mcheck.date})
 						lines_col = self.dict_col(lines)
 						lines_col['move_id']=move_id.id
 						
@@ -506,14 +506,19 @@ class mcheck(models.Model):
 							from_currency= to_currency = obj_company.currency_id.id 
 							if lines.account_id.currency_id.id:
 								to_currency = lines.account_id.currency_id.id
+							
 							if mcheck.journal_id.currency_id.id:
 								from_currency = mcheck.journal_id.currency_id.id			
+							
 							if not lines.account_id.currency_id.id:
 								lines_col['currency_id'] = select_journal_currency_id
 								# lines_col['amount_currency'] = False
 							else:
 								lines_col['currency_id'] = lines.account_id.currency_id.id or mcheck.journal_id.currency.id
-								lines_col['amount_currency'] = self.env.get("res.currency").compute(from_currency ,to_currency,lines.amount or 0.0)
+								currency_amount = self._from_to_company_currency(lines.amount, lines.account_id.currency_id.id, False, mcheck.date)
+								if lines.type == 'cr':
+									currency_amount = currency_amount * -1
+								lines_col['amount_currency'] = currency_amount
 						
 													
 						lines_col['move_id']=move_id.id
