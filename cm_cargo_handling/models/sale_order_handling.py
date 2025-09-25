@@ -220,7 +220,7 @@ class saleOrderHandling(models.Model):
 
     def register_payment(self):
         for record in self:
-            if record.modality == 'counted':
+            if record.modality == 'counted' and not record.move_id:
                 record.create_invoices()
 
             if record.move_id.state == 'draft':

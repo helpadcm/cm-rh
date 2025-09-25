@@ -10,7 +10,9 @@
                         <group col="2">
                             <group>
                                 <field name="name" required="1"/>
-                                <field name="porcentage"/>
+                                <field name="discount_by" required="1"/>
+                                <field name="porcentage" invisible="discount_by != 'percentage'"/>
+                                <field name="discount_weight" invisible="discount_by != 'weight'"/>
                             </group>
                             <group>
                                 <field name="code"/>
@@ -31,7 +33,9 @@
                 <tree string="Listado de Descuentos">
                     <field name="code"/>
                     <field name="name"/>
+                    <field name="discount_by"/>
                     <field name="porcentage"/>
+                    <field name="discount_weight"/>
                     <field name="is_active"/>
                 </tree>
             </field>
