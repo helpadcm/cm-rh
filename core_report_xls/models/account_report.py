@@ -1,6 +1,7 @@
 from odoo import models, fields
 from dateutil.relativedelta import relativedelta
 from itertools import chain
+from odoo.tools.misc import formatLang, format_date, xlsxwriter
 
 class AccountReport(models.Model):
     _inherit = "account.report"
@@ -22,11 +23,96 @@ class AccountReport(models.Model):
             domain.append(('partner_id.is_supplier','=',True))
         return domain
 
+    def _get_rounding_unit_names(self):
+        report_id = self.env.context.get('report_id')
+        currency_symbol = self.env.company.currency_id.symbol
+        if report_id:
+            asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
+            if asset_receivable_id.id == report_id:
+                base_USD = self.env.ref('base.USD')
+                base_USD = self.env.ref('base.USD')
+                currency_symbol = base_USD.symbol
+                
+        rounding_unit_names = [
+            ('decimals', '.%s' % currency_symbol),
+            ('units', '%s' % currency_symbol),
+            ('thousands', 'K%s' % currency_symbol),
+            ('millions', 'M%s' % currency_symbol),
+        ]
+
+        # We want to add 'lakhs' for Indian Rupee
+        if (self.env.company.currency_id == self.env.ref('base.INR')):
+            # We want it between 'thousands' and 'millions'
+            rounding_unit_names.insert(3, ('lakhs', 'L%s' % currency_symbol))
+
+        return dict(rounding_unit_names)
+
+    def _format_value(self, options, value, currency=None, blank_if_zero=False, figure_type=None, digits=1):
+        """ Formats a value for display in a report (not especially numerical). figure_type provides the type of formatting we want.
+        """
+        report_id = self.env.context.get('report_id')
+        if report_id:
+            asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
+            if asset_receivable_id.id == report_id:
+                base_USD = self.env.ref('base.USD')
+                currency = base_USD
+
+        if value is None:
+            return ''
+
+        if figure_type == 'none':
+            return value
+
+        if isinstance(value, str) or figure_type == 'string':
+            return str(value)
+
+        if figure_type == 'monetary':
+            if options.get('multi_currency'):
+                digits = None
+                currency = currency or self.env.company.currency_id
+            else:
+                digits = (currency or self.env.company.currency_id).decimal_places
+                currency = None
+        elif figure_type == 'integer':
+            currency = None
+            digits = 0
+        elif figure_type == 'boolean':
+            return _("Yes") if bool(value) else _("No")
+        elif figure_type in ('date', 'datetime'):
+            return format_date(self.env, value)
+        else:
+            currency = None
+
+        if self.is_zero(value, currency=currency, figure_type=figure_type, digits=digits):
+            if blank_if_zero:
+                return ''
+            # don't print -0.0 in reports
+            value = abs(value)
+
+        if self._context.get('no_format'):
+            return value
+
+        formatted_amount = formatLang(self.env, value, digits=digits, currency_obj=currency, rounding_method='HALF-UP', rounding_unit=options.get('rounding_unit'))
+
+        if figure_type == 'percentage':
+            return f"{formatted_amount}%"
+
+        return formatted_amount
 
 class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
     _inherit = "account.aged.partner.balance.report.handler"
 
+    def _report_custom_engine_aged_receivable(self, expressions, options, date_scope, current_groupby, next_groupby, offset=0, limit=None, warnings=None):
+        return self._aged_partner_report_custom_engine_common(options, 'asset_receivable', current_groupby, next_groupby, offset=offset, limit=limit)
+
     def _aged_partner_report_custom_engine_common(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
+        if internal_type == 'asset_receivable':
+            return self._aged_partner_report_custom_engine_common_custom(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
+        else:
+            res = super(AgedPartnerBalanceCustomHandlerInh, self)._aged_partner_report_custom_engine_common(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
+            return res
+    
+    def _aged_partner_report_custom_engine_common_custom(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
         report = self.env['account.report'].browse(options['report_id'])
         report._check_groupby_fields((next_groupby.split(',') if next_groupby else []) + ([current_groupby] if current_groupby else []))
 
@@ -42,6 +128,9 @@ class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
             (minus_days(date_to, 61), minus_days(date_to, 90)),
             (minus_days(date_to, 91), False),
         ]
+
+        base_USD = self.env.ref('base.USD')
+        company_currency = self.env.company.currency_id
 
         def build_result_dict(report, query_res_lines):
             rslt = {f'period{i}': 0 for i in range(len(periods))}
@@ -78,7 +167,7 @@ class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
                     'account_name': None,
                     'expected_date': None,
                     'total': sum(rslt[f'period{i}'] for i in range(len(periods))),
-                    'has_sublines': False,
+                    'has_sublines': False
                 })
 
             return rslt
@@ -106,9 +195,58 @@ class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
             f"""
                 CASE WHEN period_table.period_index = {i}
                 THEN %s * (
-                    SUM(ROUND(account_move_line.balance * currency_table.rate, currency_table.precision))
-                    - COALESCE(SUM(ROUND(part_debit.amount * currency_table.rate, currency_table.precision)), 0)
-                    + COALESCE(SUM(ROUND(part_credit.amount * currency_table.rate, currency_table.precision)), 0)
+                    SUM(
+                        CASE 
+                            WHEN account_move_line.currency_id IS NOT NULL 
+                                AND account_move_line.currency_id != {company_currency.id}
+                            THEN account_move_line.amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * account_move_line.balance
+                        END
+                    )
+                    - COALESCE(SUM(
+                        CASE WHEN part_debit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                                THEN part_debit.debit_amount_currency
+                                ELSE (
+                                    SELECT rate
+                                    FROM res_currency_rate r
+                                    WHERE r.currency_id = {base_USD.id}
+                                    AND r.company_id = account_move_line.company_id
+                                    AND r.name <= account_move_line.date
+                                    ORDER BY r.name DESC
+                                    LIMIT 1
+                                ) * part_debit.amount
+                            END
+                        END
+                    ), 0)
+                    + COALESCE(SUM(
+                        CASE WHEN part_credit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                                THEN part_credit.credit_amount_currency
+                                ELSE (
+                                    SELECT rate
+                                    FROM res_currency_rate r
+                                    WHERE r.currency_id = {base_USD.id}
+                                    AND r.company_id = account_move_line.company_id
+                                    AND r.name <= account_move_line.date
+                                    ORDER BY r.name DESC
+                                    LIMIT 1
+                                ) * part_credit.amount
+                            END
+                        END
+                    ), 0)
                 )
                 ELSE 0 END AS period{i}
             """
@@ -122,9 +260,58 @@ class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
             SELECT
                 {select_from_groupby}
                 %s * (
-                    SUM(account_move_line.amount_currency)
-                    - COALESCE(SUM(part_debit.debit_amount_currency), 0)
-                    + COALESCE(SUM(part_credit.credit_amount_currency), 0)
+                    SUM(
+                        CASE 
+                            WHEN account_move_line.currency_id IS NOT NULL 
+                                AND account_move_line.currency_id != {company_currency.id}
+                            THEN account_move_line.amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * account_move_line.balance
+                        END
+                    )
+                    - COALESCE(SUM(
+                        CASE WHEN part_debit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                                THEN part_debit.debit_amount_currency
+                                ELSE (
+                                    SELECT rate
+                                    FROM res_currency_rate r
+                                    WHERE r.currency_id = {base_USD.id}
+                                    AND r.company_id = account_move_line.company_id
+                                    AND r.name <= account_move_line.date
+                                    ORDER BY r.name DESC
+                                    LIMIT 1
+                                ) * part_debit.amount
+                            END
+                        END
+                    ), 0)
+                    + COALESCE(SUM(
+                        CASE WHEN part_credit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                                THEN part_credit.credit_amount_currency
+                                ELSE (
+                                    SELECT rate
+                                    FROM res_currency_rate r
+                                    WHERE r.currency_id = {base_USD.id}
+                                    AND r.company_id = account_move_line.company_id
+                                    AND r.name <= account_move_line.date
+                                    ORDER BY r.name DESC
+                                    LIMIT 1
+                                ) * part_credit.amount
+                            END
+                        END
+                    ), 0)
                 ) AS amount_currency,
                 ARRAY_AGG(DISTINCT account_move_line.partner_id) AS partner_id,
                 ARRAY_AGG(account_move_line.payment_id) AS payment_id,
@@ -182,13 +369,77 @@ class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
 
             HAVING
                 (
-                    SUM(ROUND(account_move_line.debit * currency_table.rate, currency_table.precision))
-                    - COALESCE(SUM(ROUND(part_debit.amount * currency_table.rate, currency_table.precision)), 0)
+                    SUM(
+                        CASE 
+                            WHEN account_move_line.currency_id IS NOT NULL 
+                                AND account_move_line.currency_id != {company_currency.id}
+                            THEN account_move_line.amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * account_move_line.debit
+                        END
+                    )
+                    - COALESCE(SUM(
+                        CASE WHEN part_debit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                            THEN part_debit.debit_amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * part_debit.amount
+                            END
+                        END
+                    ), 0)
                 ) != 0
                 OR
                 (
-                    SUM(ROUND(account_move_line.credit * currency_table.rate, currency_table.precision))
-                    - COALESCE(SUM(ROUND(part_credit.amount * currency_table.rate, currency_table.precision)), 0)
+                    SUM(
+                        CASE 
+                            WHEN account_move_line.currency_id IS NOT NULL 
+                                AND account_move_line.currency_id != {company_currency.id}
+                            THEN account_move_line.amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * account_move_line.credit
+                        END
+                    )
+                    - COALESCE(SUM(
+                        CASE WHEN part_credit.amount IS NOT NULL THEN
+                            CASE 
+                                WHEN account_move_line.currency_id IS NOT NULL 
+                                    AND account_move_line.currency_id != {company_currency.id}
+                            THEN part_credit.credit_amount_currency
+                            ELSE (
+                                SELECT rate
+                                FROM res_currency_rate r
+                                WHERE r.currency_id = {base_USD.id}
+                                AND r.company_id = account_move_line.company_id
+                                AND r.name <= account_move_line.date
+                                ORDER BY r.name DESC
+                                LIMIT 1
+                            ) * part_credit.amount
+                            END
+                        END
+                    ), 0)
                 ) != 0
             {tail_query}
         """
