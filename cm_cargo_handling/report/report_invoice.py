@@ -27,7 +27,6 @@ class reportInvHandling(models.AbstractModel):
 
     def get_data(self, data):
         order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
-
         print_inv = False
         if order_id.move_id:
             print_inv = True
@@ -64,6 +63,8 @@ class reportInvHandling(models.AbstractModel):
             description_list.append(car.piece_description)
             category_list.append(car.product_id.name)
 
+        invoice_date = order_id.move_id.invoice_date or order_id.date
+
         values = {
             'company': order_id.user_id.company_id,
             'print_guides': data.get('print_guides'),
@@ -94,15 +95,15 @@ class reportInvHandling(models.AbstractModel):
 
             'weight': order_id.weight,
             'subtotal': order_id.total,
-            'conv_subtotal': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, order_id.date, order_id.total),
+            'conv_subtotal': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.total),
             'gravado': gravado,
-            'conv_gravado': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, order_id.date, gravado),
+            'conv_gravado': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, gravado),
             'excento': excento,
-            'conv_excento': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, order_id.date, excento),
+            'conv_excento': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, excento),
             'taxes': order_id.amount_tax,
-            'conv_taxes': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, order_id.date, order_id.amount_tax),
+            'conv_taxes': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.amount_tax),
             'total': order_id.amount_total,
-            'conv_total': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, order_id.date, order_id.amount_total),
+            'conv_total': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.amount_total),
             'name_currency': order_id.external_currency_id.name,
             'exonerado': 0,
             'discount': 0,

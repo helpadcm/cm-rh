@@ -284,8 +284,14 @@ class saleOrderHandling(models.Model):
             subtotal = total_dls + additional_cost + total_volumen
             
             if rec.discount_id:
-                total_discount = subtotal * (rec.discount_id.porcentage/100)
-                subtotal -= total_discount
+                discount_amount = 0
+                if rec.discount_id:
+                    line_id = rec.product_id.price_list_ids.filtered(lambda line: line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
+                    if rec.discount_id.discount_by == 'weight':
+                        total_discount = rec.discount_id.discount_weight * line_id.min_price
+                    else:
+                        total_discount = subtotal * (rec.discount_id.porcentage/100)
+                    subtotal -= total_discount
             
             rec.weight = total_lbs
             rec.discount = total_discount
@@ -375,7 +381,7 @@ class saleOrderHandling(models.Model):
             self.by_size = self.product_id.by_size
             self.uom_name = self.product_id.uom_id.name
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id','volumen', 'additional_costs','uom_name')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id', 'volumen', 'additional_costs', 'uom_name', 'discount_id')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -393,6 +399,8 @@ class saleOrderHandling(models.Model):
                         price = rec.product_id.big_amount
 
                 if line_id:
+                    discount_amount = 0
+
                     if rec.weight_or_qty > 0 and rec.uom_name == 'Unidades':
                         if rec.weight_or_qty <= line_id.qty_min:
                             price += line_id.price
@@ -401,9 +409,9 @@ class saleOrderHandling(models.Model):
                     
                     if rec.weight_piece > 0 and rec.uom_name != 'Unidades':
                         if rec.weight_piece <= line_id.qty_min:
-                            price += line_id.price
+                            price += (line_id.price - discount_amount)
                         else:
-                            price += line_id.min_price * rec.weight_piece
+                            price += ((line_id.min_price * rec.weight_piece) - discount_amount)
 
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")

@@ -63,6 +63,8 @@ class invHandling(models.AbstractModel):
                 description_list.append(car.piece_description)
                 category_list.append(car.product_id.name)
 
+            invoice_date = order.move_id.invoice_date or order.date
+
             values = {
                 'company': order.user_id.company_id,
                 'address_send': order.destination_id.address_send or order.destination_id.address,
@@ -92,15 +94,15 @@ class invHandling(models.AbstractModel):
 
                 'weight': order.weight,
                 'subtotal': order.total,
-                'conv_subtotal': self.conv_amount(order.external_currency_id, order.local_currency_id, order.date, order.total),
+                'conv_subtotal': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.total),
                 'gravado': gravado,
-                'conv_gravado': self.conv_amount(order.external_currency_id, order.local_currency_id, order.date, gravado),
+                'conv_gravado': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, gravado),
                 'excento': excento,
-                'conv_excento': self.conv_amount(order.external_currency_id, order.local_currency_id, order.date, excento),
+                'conv_excento': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, excento),
                 'taxes': order.amount_tax,
-                'conv_taxes': self.conv_amount(order.external_currency_id, order.local_currency_id, order.date, order.amount_tax),
+                'conv_taxes': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.amount_tax),
                 'total': order.amount_total,
-                'conv_total': self.conv_amount(order.external_currency_id, order.local_currency_id, order.date, order.amount_total),
+                'conv_total': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.amount_total),
                 'name_currency': order.external_currency_id.name,
                 'exonerado': 0,
                 'discount': 0,
