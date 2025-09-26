@@ -23,450 +23,450 @@ class AccountReport(models.Model):
             domain.append(('partner_id.is_supplier','=',True))
         return domain
 
-    def _get_rounding_unit_names(self):
-        report_id = self.env.context.get('report_id')
-        currency_symbol = self.env.company.currency_id.symbol
-        if report_id:
-            asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
-            if asset_receivable_id.id == report_id:
-                base_USD = self.env.ref('base.USD')
-                base_USD = self.env.ref('base.USD')
-                currency_symbol = base_USD.symbol
+    # def _get_rounding_unit_names(self):
+    #     report_id = self.env.context.get('report_id')
+    #     currency_symbol = self.env.company.currency_id.symbol
+    #     if report_id:
+    #         asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
+    #         if asset_receivable_id.id == report_id:
+    #             base_USD = self.env.ref('base.USD')
+    #             base_USD = self.env.ref('base.USD')
+    #             currency_symbol = base_USD.symbol
                 
-        rounding_unit_names = [
-            ('decimals', '.%s' % currency_symbol),
-            ('units', '%s' % currency_symbol),
-            ('thousands', 'K%s' % currency_symbol),
-            ('millions', 'M%s' % currency_symbol),
-        ]
+    #     rounding_unit_names = [
+    #         ('decimals', '.%s' % currency_symbol),
+    #         ('units', '%s' % currency_symbol),
+    #         ('thousands', 'K%s' % currency_symbol),
+    #         ('millions', 'M%s' % currency_symbol),
+    #     ]
 
-        # We want to add 'lakhs' for Indian Rupee
-        if (self.env.company.currency_id == self.env.ref('base.INR')):
-            # We want it between 'thousands' and 'millions'
-            rounding_unit_names.insert(3, ('lakhs', 'L%s' % currency_symbol))
+    #     # We want to add 'lakhs' for Indian Rupee
+    #     if (self.env.company.currency_id == self.env.ref('base.INR')):
+    #         # We want it between 'thousands' and 'millions'
+    #         rounding_unit_names.insert(3, ('lakhs', 'L%s' % currency_symbol))
 
-        return dict(rounding_unit_names)
+    #     return dict(rounding_unit_names)
 
-    def _format_value(self, options, value, currency=None, blank_if_zero=False, figure_type=None, digits=1):
-        """ Formats a value for display in a report (not especially numerical). figure_type provides the type of formatting we want.
-        """
-        report_id = self.env.context.get('report_id')
-        if report_id:
-            asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
-            if asset_receivable_id.id == report_id:
-                base_USD = self.env.ref('base.USD')
-                currency = base_USD
+    # def _format_value(self, options, value, currency=None, blank_if_zero=False, figure_type=None, digits=1):
+    #     """ Formats a value for display in a report (not especially numerical). figure_type provides the type of formatting we want.
+    #     """
+    #     report_id = self.env.context.get('report_id')
+    #     if report_id:
+    #         asset_receivable_id = self.env.ref('account_reports.aged_receivable_report')
+    #         if asset_receivable_id.id == report_id:
+    #             base_USD = self.env.ref('base.USD')
+    #             currency = base_USD
 
-        if value is None:
-            return ''
+    #     if value is None:
+    #         return ''
 
-        if figure_type == 'none':
-            return value
+    #     if figure_type == 'none':
+    #         return value
 
-        if isinstance(value, str) or figure_type == 'string':
-            return str(value)
+    #     if isinstance(value, str) or figure_type == 'string':
+    #         return str(value)
 
-        if figure_type == 'monetary':
-            if options.get('multi_currency'):
-                digits = None
-                currency = currency or self.env.company.currency_id
-            else:
-                digits = (currency or self.env.company.currency_id).decimal_places
-                currency = None
-        elif figure_type == 'integer':
-            currency = None
-            digits = 0
-        elif figure_type == 'boolean':
-            return _("Yes") if bool(value) else _("No")
-        elif figure_type in ('date', 'datetime'):
-            return format_date(self.env, value)
-        else:
-            currency = None
+    #     if figure_type == 'monetary':
+    #         if options.get('multi_currency'):
+    #             digits = None
+    #             currency = currency or self.env.company.currency_id
+    #         else:
+    #             digits = (currency or self.env.company.currency_id).decimal_places
+    #             currency = None
+    #     elif figure_type == 'integer':
+    #         currency = None
+    #         digits = 0
+    #     elif figure_type == 'boolean':
+    #         return _("Yes") if bool(value) else _("No")
+    #     elif figure_type in ('date', 'datetime'):
+    #         return format_date(self.env, value)
+    #     else:
+    #         currency = None
 
-        if self.is_zero(value, currency=currency, figure_type=figure_type, digits=digits):
-            if blank_if_zero:
-                return ''
-            # don't print -0.0 in reports
-            value = abs(value)
+    #     if self.is_zero(value, currency=currency, figure_type=figure_type, digits=digits):
+    #         if blank_if_zero:
+    #             return ''
+    #         # don't print -0.0 in reports
+    #         value = abs(value)
 
-        if self._context.get('no_format'):
-            return value
+    #     if self._context.get('no_format'):
+    #         return value
 
-        formatted_amount = formatLang(self.env, value, digits=digits, currency_obj=currency, rounding_method='HALF-UP', rounding_unit=options.get('rounding_unit'))
+    #     formatted_amount = formatLang(self.env, value, digits=digits, currency_obj=currency, rounding_method='HALF-UP', rounding_unit=options.get('rounding_unit'))
 
-        if figure_type == 'percentage':
-            return f"{formatted_amount}%"
+    #     if figure_type == 'percentage':
+    #         return f"{formatted_amount}%"
 
-        return formatted_amount
+    #     return formatted_amount
 
-class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
-    _inherit = "account.aged.partner.balance.report.handler"
+# class AgedPartnerBalanceCustomHandlerInh(models.AbstractModel):
+#     _inherit = "account.aged.partner.balance.report.handler"
 
-    def _report_custom_engine_aged_receivable(self, expressions, options, date_scope, current_groupby, next_groupby, offset=0, limit=None, warnings=None):
-        return self._aged_partner_report_custom_engine_common(options, 'asset_receivable', current_groupby, next_groupby, offset=offset, limit=limit)
+#     def _report_custom_engine_aged_receivable(self, expressions, options, date_scope, current_groupby, next_groupby, offset=0, limit=None, warnings=None):
+#         return self._aged_partner_report_custom_engine_common(options, 'asset_receivable', current_groupby, next_groupby, offset=offset, limit=limit)
 
-    def _aged_partner_report_custom_engine_common(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
-        if internal_type == 'asset_receivable':
-            return self._aged_partner_report_custom_engine_common_custom(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
-        else:
-            res = super(AgedPartnerBalanceCustomHandlerInh, self)._aged_partner_report_custom_engine_common(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
-            return res
+#     def _aged_partner_report_custom_engine_common(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
+#         if internal_type == 'asset_receivable':
+#             return self._aged_partner_report_custom_engine_common_custom(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
+#         else:
+#             res = super(AgedPartnerBalanceCustomHandlerInh, self)._aged_partner_report_custom_engine_common(options, internal_type, current_groupby, next_groupby, offset=0, limit=None)
+#             return res
     
-    def _aged_partner_report_custom_engine_common_custom(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
-        report = self.env['account.report'].browse(options['report_id'])
-        report._check_groupby_fields((next_groupby.split(',') if next_groupby else []) + ([current_groupby] if current_groupby else []))
+#     def _aged_partner_report_custom_engine_common_custom(self, options, internal_type, current_groupby, next_groupby, offset=0, limit=None):
+#         report = self.env['account.report'].browse(options['report_id'])
+#         report._check_groupby_fields((next_groupby.split(',') if next_groupby else []) + ([current_groupby] if current_groupby else []))
 
-        def minus_days(date_obj, days):
-            return fields.Date.to_string(date_obj - relativedelta(days=days))
+#         def minus_days(date_obj, days):
+#             return fields.Date.to_string(date_obj - relativedelta(days=days))
 
-        date_to = fields.Date.from_string(options['date']['date_to'])
-        periods = [
-            (False, fields.Date.to_string(date_to)),
-            (minus_days(date_to, 1), minus_days(date_to, 15)),
-            (minus_days(date_to, 16), minus_days(date_to, 30)),
-            (minus_days(date_to, 31), minus_days(date_to, 60)),
-            (minus_days(date_to, 61), minus_days(date_to, 90)),
-            (minus_days(date_to, 91), False),
-        ]
+#         date_to = fields.Date.from_string(options['date']['date_to'])
+#         periods = [
+#             (False, fields.Date.to_string(date_to)),
+#             (minus_days(date_to, 1), minus_days(date_to, 15)),
+#             (minus_days(date_to, 16), minus_days(date_to, 30)),
+#             (minus_days(date_to, 31), minus_days(date_to, 60)),
+#             (minus_days(date_to, 61), minus_days(date_to, 90)),
+#             (minus_days(date_to, 91), False),
+#         ]
 
-        base_USD = self.env.ref('base.USD')
-        company_currency = self.env.company.currency_id
+#         base_USD = self.env.ref('base.USD')
+#         company_currency = self.env.company.currency_id
 
-        def build_result_dict(report, query_res_lines):
-            rslt = {f'period{i}': 0 for i in range(len(periods))}
-            for query_res in query_res_lines:
-                for i in range(len(periods)):
-                    period_key = f'period{i}'
-                    rslt[period_key] += query_res[period_key]
+#         def build_result_dict(report, query_res_lines):
+#             rslt = {f'period{i}': 0 for i in range(len(periods))}
+#             for query_res in query_res_lines:
+#                 for i in range(len(periods)):
+#                     period_key = f'period{i}'
+#                     rslt[period_key] += query_res[period_key]
 
-            if current_groupby == 'id':
-                query_res = query_res_lines[0] # We're grouping by id, so there is only 1 element in query_res_lines anyway
-                currency = self.env['res.currency'].browse(query_res['currency_id'][0]) if len(query_res['currency_id']) == 1 else None
-                expected_date = len(query_res['expected_date']) == 1 and query_res['expected_date'][0] or len(query_res['due_date']) == 1 and query_res['due_date'][0]
-                rslt.update({
-                    'invoice_date': query_res['invoice_date'][0] if len(query_res['invoice_date']) == 1 else None,
-                    'due_date': query_res['due_date'][0] if len(query_res['due_date']) == 1 else None,
-                    'amount_currency': query_res['amount_currency'],
-                    'currency_id': query_res['currency_id'][0] if len(query_res['currency_id']) == 1 else None,
-                    'currency': currency.display_name if currency else None,
-                    'account_name': query_res['account_name'][0] if len(query_res['account_name']) == 1 else None,
-                    'expected_date': expected_date or None,
-                    'total': None,
-                    'has_sublines': query_res['aml_count'] > 0,
+#             if current_groupby == 'id':
+#                 query_res = query_res_lines[0] # We're grouping by id, so there is only 1 element in query_res_lines anyway
+#                 currency = self.env['res.currency'].browse(query_res['currency_id'][0]) if len(query_res['currency_id']) == 1 else None
+#                 expected_date = len(query_res['expected_date']) == 1 and query_res['expected_date'][0] or len(query_res['due_date']) == 1 and query_res['due_date'][0]
+#                 rslt.update({
+#                     'invoice_date': query_res['invoice_date'][0] if len(query_res['invoice_date']) == 1 else None,
+#                     'due_date': query_res['due_date'][0] if len(query_res['due_date']) == 1 else None,
+#                     'amount_currency': query_res['amount_currency'],
+#                     'currency_id': query_res['currency_id'][0] if len(query_res['currency_id']) == 1 else None,
+#                     'currency': currency.display_name if currency else None,
+#                     'account_name': query_res['account_name'][0] if len(query_res['account_name']) == 1 else None,
+#                     'expected_date': expected_date or None,
+#                     'total': None,
+#                     'has_sublines': query_res['aml_count'] > 0,
 
-                    # Needed by the custom_unfold_all_batch_data_generator, to speed-up unfold_all
-                    'partner_id': query_res['partner_id'][0] if query_res['partner_id'] else None,
-                })
-            else:
-                rslt.update({
-                    'invoice_date': None,
-                    'due_date': None,
-                    'amount_currency': None,
-                    'currency_id': None,
-                    'currency': None,
-                    'account_name': None,
-                    'expected_date': None,
-                    'total': sum(rslt[f'period{i}'] for i in range(len(periods))),
-                    'has_sublines': False
-                })
+#                     # Needed by the custom_unfold_all_batch_data_generator, to speed-up unfold_all
+#                     'partner_id': query_res['partner_id'][0] if query_res['partner_id'] else None,
+#                 })
+#             else:
+#                 rslt.update({
+#                     'invoice_date': None,
+#                     'due_date': None,
+#                     'amount_currency': None,
+#                     'currency_id': None,
+#                     'currency': None,
+#                     'account_name': None,
+#                     'expected_date': None,
+#                     'total': sum(rslt[f'period{i}'] for i in range(len(periods))),
+#                     'has_sublines': False
+#                 })
 
-            return rslt
+#             return rslt
 
-        # Build period table
-        period_table_format = ('(VALUES %s)' % ','.join("(%s, %s, %s)" for period in periods))
-        params = list(chain.from_iterable(
-            (period[0] or None, period[1] or None, i)
-            for i, period in enumerate(periods)
-        ))
-        period_table = self.env.cr.mogrify(period_table_format, params).decode(self.env.cr.connection.encoding)
+#         # Build period table
+#         period_table_format = ('(VALUES %s)' % ','.join("(%s, %s, %s)" for period in periods))
+#         params = list(chain.from_iterable(
+#             (period[0] or None, period[1] or None, i)
+#             for i, period in enumerate(periods)
+#         ))
+#         period_table = self.env.cr.mogrify(period_table_format, params).decode(self.env.cr.connection.encoding)
 
-        # Build query
-        tables, where_clause, where_params = report._query_get(options, 'strict_range', domain=[('account_id.account_type', '=', internal_type)])
+#         # Build query
+#         tables, where_clause, where_params = report._query_get(options, 'strict_range', domain=[('account_id.account_type', '=', internal_type)])
 
-        currency_table = report._get_query_currency_table(options)
-        always_present_groupby = "period_table.period_index, currency_table.rate, currency_table.precision"
-        if current_groupby:
-            select_from_groupby = f"account_move_line.{current_groupby} AS grouping_key,"
-            groupby_clause = f"account_move_line.{current_groupby}, {always_present_groupby}"
-        else:
-            select_from_groupby = ''
-            groupby_clause = always_present_groupby
-        select_period_query = ','.join(
-            f"""
-                CASE WHEN period_table.period_index = {i}
-                THEN %s * (
-                    SUM(
-                        CASE 
-                            WHEN account_move_line.currency_id IS NOT NULL 
-                                AND account_move_line.currency_id != {company_currency.id}
-                            THEN account_move_line.amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * account_move_line.balance
-                        END
-                    )
-                    - COALESCE(SUM(
-                        CASE WHEN part_debit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                                THEN part_debit.debit_amount_currency
-                                ELSE (
-                                    SELECT rate
-                                    FROM res_currency_rate r
-                                    WHERE r.currency_id = {base_USD.id}
-                                    AND r.company_id = account_move_line.company_id
-                                    AND r.name <= account_move_line.date
-                                    ORDER BY r.name DESC
-                                    LIMIT 1
-                                ) * part_debit.amount
-                            END
-                        END
-                    ), 0)
-                    + COALESCE(SUM(
-                        CASE WHEN part_credit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                                THEN part_credit.credit_amount_currency
-                                ELSE (
-                                    SELECT rate
-                                    FROM res_currency_rate r
-                                    WHERE r.currency_id = {base_USD.id}
-                                    AND r.company_id = account_move_line.company_id
-                                    AND r.name <= account_move_line.date
-                                    ORDER BY r.name DESC
-                                    LIMIT 1
-                                ) * part_credit.amount
-                            END
-                        END
-                    ), 0)
-                )
-                ELSE 0 END AS period{i}
-            """
-            for i in range(len(periods))
-        )
+#         currency_table = report._get_query_currency_table(options)
+#         always_present_groupby = "period_table.period_index, currency_table.rate, currency_table.precision"
+#         if current_groupby:
+#             select_from_groupby = f"account_move_line.{current_groupby} AS grouping_key,"
+#             groupby_clause = f"account_move_line.{current_groupby}, {always_present_groupby}"
+#         else:
+#             select_from_groupby = ''
+#             groupby_clause = always_present_groupby
+#         select_period_query = ','.join(
+#             f"""
+#                 CASE WHEN period_table.period_index = {i}
+#                 THEN %s * (
+#                     SUM(
+#                         CASE 
+#                             WHEN account_move_line.currency_id IS NOT NULL 
+#                                 AND account_move_line.currency_id != {company_currency.id}
+#                             THEN account_move_line.amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * account_move_line.balance
+#                         END
+#                     )
+#                     - COALESCE(SUM(
+#                         CASE WHEN part_debit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                                 THEN part_debit.debit_amount_currency
+#                                 ELSE (
+#                                     SELECT rate
+#                                     FROM res_currency_rate r
+#                                     WHERE r.currency_id = {base_USD.id}
+#                                     AND r.company_id = account_move_line.company_id
+#                                     AND r.name <= account_move_line.date
+#                                     ORDER BY r.name DESC
+#                                     LIMIT 1
+#                                 ) * part_debit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                     + COALESCE(SUM(
+#                         CASE WHEN part_credit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                                 THEN part_credit.credit_amount_currency
+#                                 ELSE (
+#                                     SELECT rate
+#                                     FROM res_currency_rate r
+#                                     WHERE r.currency_id = {base_USD.id}
+#                                     AND r.company_id = account_move_line.company_id
+#                                     AND r.name <= account_move_line.date
+#                                     ORDER BY r.name DESC
+#                                     LIMIT 1
+#                                 ) * part_credit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                 )
+#                 ELSE 0 END AS period{i}
+#             """
+#             for i in range(len(periods))
+#         )
 
-        tail_query, tail_params = report._get_engine_query_tail(offset, limit)
-        query = f"""
-            WITH period_table(date_start, date_stop, period_index) AS ({period_table})
+#         tail_query, tail_params = report._get_engine_query_tail(offset, limit)
+#         query = f"""
+#             WITH period_table(date_start, date_stop, period_index) AS ({period_table})
 
-            SELECT
-                {select_from_groupby}
-                %s * (
-                    SUM(
-                        CASE 
-                            WHEN account_move_line.currency_id IS NOT NULL 
-                                AND account_move_line.currency_id != {company_currency.id}
-                            THEN account_move_line.amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * account_move_line.balance
-                        END
-                    )
-                    - COALESCE(SUM(
-                        CASE WHEN part_debit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                                THEN part_debit.debit_amount_currency
-                                ELSE (
-                                    SELECT rate
-                                    FROM res_currency_rate r
-                                    WHERE r.currency_id = {base_USD.id}
-                                    AND r.company_id = account_move_line.company_id
-                                    AND r.name <= account_move_line.date
-                                    ORDER BY r.name DESC
-                                    LIMIT 1
-                                ) * part_debit.amount
-                            END
-                        END
-                    ), 0)
-                    + COALESCE(SUM(
-                        CASE WHEN part_credit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                                THEN part_credit.credit_amount_currency
-                                ELSE (
-                                    SELECT rate
-                                    FROM res_currency_rate r
-                                    WHERE r.currency_id = {base_USD.id}
-                                    AND r.company_id = account_move_line.company_id
-                                    AND r.name <= account_move_line.date
-                                    ORDER BY r.name DESC
-                                    LIMIT 1
-                                ) * part_credit.amount
-                            END
-                        END
-                    ), 0)
-                ) AS amount_currency,
-                ARRAY_AGG(DISTINCT account_move_line.partner_id) AS partner_id,
-                ARRAY_AGG(account_move_line.payment_id) AS payment_id,
-                ARRAY_AGG(DISTINCT move.invoice_date) AS invoice_date,
-                ARRAY_AGG(DISTINCT COALESCE(account_move_line.date_maturity, account_move_line.date)) AS report_date,
-                ARRAY_AGG(DISTINCT account_move_line.expected_pay_date) AS expected_date,
-                ARRAY_AGG(DISTINCT account.code) AS account_name,
-                ARRAY_AGG(DISTINCT COALESCE(account_move_line.date_maturity, account_move_line.date)) AS due_date,
-                ARRAY_AGG(DISTINCT account_move_line.currency_id) AS currency_id,
-                COUNT(account_move_line.id) AS aml_count,
-                ARRAY_AGG(account.code) AS account_code,
-                {select_period_query}
+#             SELECT
+#                 {select_from_groupby}
+#                 %s * (
+#                     SUM(
+#                         CASE 
+#                             WHEN account_move_line.currency_id IS NOT NULL 
+#                                 AND account_move_line.currency_id != {company_currency.id}
+#                             THEN account_move_line.amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * account_move_line.balance
+#                         END
+#                     )
+#                     - COALESCE(SUM(
+#                         CASE WHEN part_debit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                                 THEN part_debit.debit_amount_currency
+#                                 ELSE (
+#                                     SELECT rate
+#                                     FROM res_currency_rate r
+#                                     WHERE r.currency_id = {base_USD.id}
+#                                     AND r.company_id = account_move_line.company_id
+#                                     AND r.name <= account_move_line.date
+#                                     ORDER BY r.name DESC
+#                                     LIMIT 1
+#                                 ) * part_debit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                     + COALESCE(SUM(
+#                         CASE WHEN part_credit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                                 THEN part_credit.credit_amount_currency
+#                                 ELSE (
+#                                     SELECT rate
+#                                     FROM res_currency_rate r
+#                                     WHERE r.currency_id = {base_USD.id}
+#                                     AND r.company_id = account_move_line.company_id
+#                                     AND r.name <= account_move_line.date
+#                                     ORDER BY r.name DESC
+#                                     LIMIT 1
+#                                 ) * part_credit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                 ) AS amount_currency,
+#                 ARRAY_AGG(DISTINCT account_move_line.partner_id) AS partner_id,
+#                 ARRAY_AGG(account_move_line.payment_id) AS payment_id,
+#                 ARRAY_AGG(DISTINCT move.invoice_date) AS invoice_date,
+#                 ARRAY_AGG(DISTINCT COALESCE(account_move_line.date_maturity, account_move_line.date)) AS report_date,
+#                 ARRAY_AGG(DISTINCT account_move_line.expected_pay_date) AS expected_date,
+#                 ARRAY_AGG(DISTINCT account.code) AS account_name,
+#                 ARRAY_AGG(DISTINCT COALESCE(account_move_line.date_maturity, account_move_line.date)) AS due_date,
+#                 ARRAY_AGG(DISTINCT account_move_line.currency_id) AS currency_id,
+#                 COUNT(account_move_line.id) AS aml_count,
+#                 ARRAY_AGG(account.code) AS account_code,
+#                 {select_period_query}
 
-            FROM {tables}
+#             FROM {tables}
 
-            JOIN account_journal journal ON journal.id = account_move_line.journal_id
-            JOIN account_account account ON account.id = account_move_line.account_id
-            JOIN account_move move ON move.id = account_move_line.move_id
-            JOIN {currency_table} ON currency_table.company_id = account_move_line.company_id
+#             JOIN account_journal journal ON journal.id = account_move_line.journal_id
+#             JOIN account_account account ON account.id = account_move_line.account_id
+#             JOIN account_move move ON move.id = account_move_line.move_id
+#             JOIN {currency_table} ON currency_table.company_id = account_move_line.company_id
 
-            LEFT JOIN LATERAL (
-                SELECT
-                    SUM(part.amount) AS amount,
-                    SUM(part.debit_amount_currency) AS debit_amount_currency,
-                    part.debit_move_id
-                FROM account_partial_reconcile part
-                WHERE part.max_date <= %s AND part.debit_move_id = account_move_line.id
-                GROUP BY part.debit_move_id
-            ) part_debit ON TRUE
+#             LEFT JOIN LATERAL (
+#                 SELECT
+#                     SUM(part.amount) AS amount,
+#                     SUM(part.debit_amount_currency) AS debit_amount_currency,
+#                     part.debit_move_id
+#                 FROM account_partial_reconcile part
+#                 WHERE part.max_date <= %s AND part.debit_move_id = account_move_line.id
+#                 GROUP BY part.debit_move_id
+#             ) part_debit ON TRUE
 
-            LEFT JOIN LATERAL (
-                SELECT
-                    SUM(part.amount) AS amount,
-                    SUM(part.credit_amount_currency) AS credit_amount_currency,
-                    part.credit_move_id
-                FROM account_partial_reconcile part
-                WHERE part.max_date <= %s AND part.credit_move_id = account_move_line.id
-                GROUP BY part.credit_move_id
-            ) part_credit ON TRUE
+#             LEFT JOIN LATERAL (
+#                 SELECT
+#                     SUM(part.amount) AS amount,
+#                     SUM(part.credit_amount_currency) AS credit_amount_currency,
+#                     part.credit_move_id
+#                 FROM account_partial_reconcile part
+#                 WHERE part.max_date <= %s AND part.credit_move_id = account_move_line.id
+#                 GROUP BY part.credit_move_id
+#             ) part_credit ON TRUE
 
-            JOIN period_table ON
-                (
-                    period_table.date_start IS NULL
-                    OR COALESCE(account_move_line.date_maturity, account_move_line.date) <= DATE(period_table.date_start)
-                )
-                AND
-                (
-                    period_table.date_stop IS NULL
-                    OR COALESCE(account_move_line.date_maturity, account_move_line.date) >= DATE(period_table.date_stop)
-                )
+#             JOIN period_table ON
+#                 (
+#                     period_table.date_start IS NULL
+#                     OR COALESCE(account_move_line.date_maturity, account_move_line.date) <= DATE(period_table.date_start)
+#                 )
+#                 AND
+#                 (
+#                     period_table.date_stop IS NULL
+#                     OR COALESCE(account_move_line.date_maturity, account_move_line.date) >= DATE(period_table.date_stop)
+#                 )
 
-            WHERE {where_clause}
+#             WHERE {where_clause}
 
-            GROUP BY {groupby_clause}
+#             GROUP BY {groupby_clause}
 
-            HAVING
-                (
-                    SUM(
-                        CASE 
-                            WHEN account_move_line.currency_id IS NOT NULL 
-                                AND account_move_line.currency_id != {company_currency.id}
-                            THEN account_move_line.amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * account_move_line.debit
-                        END
-                    )
-                    - COALESCE(SUM(
-                        CASE WHEN part_debit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                            THEN part_debit.debit_amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * part_debit.amount
-                            END
-                        END
-                    ), 0)
-                ) != 0
-                OR
-                (
-                    SUM(
-                        CASE 
-                            WHEN account_move_line.currency_id IS NOT NULL 
-                                AND account_move_line.currency_id != {company_currency.id}
-                            THEN account_move_line.amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * account_move_line.credit
-                        END
-                    )
-                    - COALESCE(SUM(
-                        CASE WHEN part_credit.amount IS NOT NULL THEN
-                            CASE 
-                                WHEN account_move_line.currency_id IS NOT NULL 
-                                    AND account_move_line.currency_id != {company_currency.id}
-                            THEN part_credit.credit_amount_currency
-                            ELSE (
-                                SELECT rate
-                                FROM res_currency_rate r
-                                WHERE r.currency_id = {base_USD.id}
-                                AND r.company_id = account_move_line.company_id
-                                AND r.name <= account_move_line.date
-                                ORDER BY r.name DESC
-                                LIMIT 1
-                            ) * part_credit.amount
-                            END
-                        END
-                    ), 0)
-                ) != 0
-            {tail_query}
-        """
+#             HAVING
+#                 (
+#                     SUM(
+#                         CASE 
+#                             WHEN account_move_line.currency_id IS NOT NULL 
+#                                 AND account_move_line.currency_id != {company_currency.id}
+#                             THEN account_move_line.amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * account_move_line.debit
+#                         END
+#                     )
+#                     - COALESCE(SUM(
+#                         CASE WHEN part_debit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                             THEN part_debit.debit_amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * part_debit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                 ) != 0
+#                 OR
+#                 (
+#                     SUM(
+#                         CASE 
+#                             WHEN account_move_line.currency_id IS NOT NULL 
+#                                 AND account_move_line.currency_id != {company_currency.id}
+#                             THEN account_move_line.amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * account_move_line.credit
+#                         END
+#                     )
+#                     - COALESCE(SUM(
+#                         CASE WHEN part_credit.amount IS NOT NULL THEN
+#                             CASE 
+#                                 WHEN account_move_line.currency_id IS NOT NULL 
+#                                     AND account_move_line.currency_id != {company_currency.id}
+#                             THEN part_credit.credit_amount_currency
+#                             ELSE (
+#                                 SELECT rate
+#                                 FROM res_currency_rate r
+#                                 WHERE r.currency_id = {base_USD.id}
+#                                 AND r.company_id = account_move_line.company_id
+#                                 AND r.name <= account_move_line.date
+#                                 ORDER BY r.name DESC
+#                                 LIMIT 1
+#                             ) * part_credit.amount
+#                             END
+#                         END
+#                     ), 0)
+#                 ) != 0
+#             {tail_query}
+#         """
 
-        multiplicator = -1 if internal_type == 'liability_payable' else 1
-        params = [
-            multiplicator,
-            *([multiplicator] * len(periods)),
-            date_to,
-            date_to,
-            *where_params,
-            *tail_params,
-        ]
-        self._cr.execute(query, params)
-        query_res_lines = self._cr.dictfetchall()
+#         multiplicator = -1 if internal_type == 'liability_payable' else 1
+#         params = [
+#             multiplicator,
+#             *([multiplicator] * len(periods)),
+#             date_to,
+#             date_to,
+#             *where_params,
+#             *tail_params,
+#         ]
+#         self._cr.execute(query, params)
+#         query_res_lines = self._cr.dictfetchall()
 
-        if not current_groupby:
-            return build_result_dict(report, query_res_lines)
-        else:
-            rslt = []
+#         if not current_groupby:
+#             return build_result_dict(report, query_res_lines)
+#         else:
+#             rslt = []
 
-            all_res_per_grouping_key = {}
-            for query_res in query_res_lines:
-                grouping_key = query_res['grouping_key']
-                all_res_per_grouping_key.setdefault(grouping_key, []).append(query_res)
+#             all_res_per_grouping_key = {}
+#             for query_res in query_res_lines:
+#                 grouping_key = query_res['grouping_key']
+#                 all_res_per_grouping_key.setdefault(grouping_key, []).append(query_res)
 
-            for grouping_key, query_res_lines in all_res_per_grouping_key.items():
-                rslt.append((grouping_key, build_result_dict(report, query_res_lines)))
+#             for grouping_key, query_res_lines in all_res_per_grouping_key.items():
+#                 rslt.append((grouping_key, build_result_dict(report, query_res_lines)))
 
-            return rslt
+#             return rslt
