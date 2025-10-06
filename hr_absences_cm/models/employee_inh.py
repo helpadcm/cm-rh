@@ -21,6 +21,7 @@ class HrEmployeeInh(models.Model):
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
     aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
+    years_old = fields.Integer(string="Años de antiguedad")
 
     @api.depends('vacation_details_ids','early_vacations')
     def get_available_vacations(self):
@@ -60,8 +61,12 @@ class HrEmployeeInh(models.Model):
                     rec.second_year = True
                     rec.first_year = True
                     self.create_vacations(rec,antique)
+
+                if antique != rec.years_old:
+                    rec.program_to_fly = tickets
                 
-                rec.program_to_fly = tickets
+                rec.years_old = antique
+                
 
     def create_vacations(self, employee_id, years):
         days_qty = 0

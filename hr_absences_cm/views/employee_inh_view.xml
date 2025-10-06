@@ -25,6 +25,7 @@
                                 <field name="program_to_fly" readonly="1"/>
                                 <field name="first_year" invisible="1"/>
                                 <field name="second_year" invisible="1"/>
+                                <field name="years_old" invisible="1"/>
                             </group>
                         </group>
                         <notebook>
