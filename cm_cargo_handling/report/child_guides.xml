@@ -342,6 +342,341 @@
                         </div>
                     </div>
                 </div>
+
+                <t t-if="data.get('discount_code') == 'COMAIL'">
+                    <div style="width:100%; height: 43%; overflow: hidden;padding-top:1%;margin-top:1%;border-top:1px dashed black">
+                        <table style="height:140px;border-collapse: collapse;width:100%;table-layout: fixed;">
+                            <tr>
+                                <td style="width:20%;border:1px solid black">
+                                    <table style="border-collapse: collapse;width:100%;">
+                                        <tr>
+                                            <td style="text-align:center;">
+                                                <table style="width:100%;">
+                                                    <tr>
+                                                        <td style="text-align:center;">
+                                                            <img t-if="data.get('company').logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:120.4px;margin:auto;margin-top:1%" alt="Logo"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;">
+                                                <table style="border-collapse: collapse;width:100%;height:100%;">
+                                                    <tr>
+                                                        <td style="padding-left:2px;"><strong>Telefono:</strong></td>
+                                                        <td style="text-align:right;padding-right:2px;"><strong><span style="font-size:15px;color:#920101;" t-esc="data.get('company').phone_attention"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding-left:2px;"><strong>WhatsApp:</strong></td>
+                                                        <td style="text-align:right;padding-right:2px;"><strong><span style="font-size:15px;color:#920101;" t-esc="data.get('company').whatsapp"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:center;"><span t-esc="data.get('company').name"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:center;">RTN: <span t-esc="data.get('company').vat"/></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="border:1px solid black;width:37%;" valign="top">
+                                    <table style="width:100%;border-collapse: collapse;">
+                                        <tbody>
+                                            <tr>
+                                                <td style="text-align:center;font-size:15px;border-bottom:1px solid black;padding:3px;background-color:#F5F5F5;"><strong>Guia de encomienda aérea (<span t-esc="guide.get('num_piece')"/>/<span t-esc="data.get('pieces')"/>)</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-size:17px;padding:3px"><b>Reclame su Encomienda en:</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-size:12px"><span t-esc="data.get('address_send')"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;font-size:13px"></td>
+                                            </tr>
+                                            <tr>
+                                                    <td style="text-align:center;font-size:13px"><br/></td>
+                                            </tr>
+                                            <tr style="padding-top:1px">
+                                                <td style="text-align:center;font-size:13px;border:1px solid black;background-color:#F5F5F5;"><strong>Este documento NO es una factura, exija su factura</strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td style="width:12%;border:1px solid black;background-color:rgb(218,218,218);text-align:center">
+                                    <table>
+                                        <tbody>
+                                            <tr><td></td></tr>
+                                            <tr>
+                                                <td style="text-align:center;">
+                                                    <strong><span style="font-size:40px" t-esc="data.get('destination_code')"/></strong>        
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td style="border:1px solid black;width:28%">
+                                    <table width="100%">
+                                        <tbody>
+                                            <tr><td></td></tr>
+                                            <tr>
+                                                <td style="text-align:center;">
+                                                    <strong><span style="font-size:28px" t-esc="guide.get('number')"/></strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size:13px"><p style="text-align:center;">Numero localizador</p></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center; width:100%;height:50px;padding-left:2%;padding-right:2%">
+                                                    <img t-att-src="guide.get('barcode')" style="width:100%; height:auto;"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="font-size:13px;text-align:center;">
+                                                    <b><u><span t-esc="data.get('company').entrust_website"/></u></b>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="width:100%;margin-top:4px">
+                            <table style="float:left;border:1px solid #000000;width:59%;border-collapse: collapse">
+                                <th style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center"><strong>DATOS DEL REMITENTE</strong></th>
+                                <th style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center"><strong>ORIGEN</strong></th>
+                                <tr>
+                                    <td style="width:60%">
+                                        <table style="width:100%;border-collapse: collapse">
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px;width:10%">Nombre</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('sender_name')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Telefono</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('sender_phone')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Identificacion</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('id_sender')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Correo</td>
+                                                    <td style="font-size:11px;padding-left:4px;"></td>
+                                                </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:40%">
+                                        <table style="width:100%;border-collapse: collapse">
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;width:30%;padding-left:4px">Estacion</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('origin')"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Fecha</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('date')"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px" rowspan="2">Agente</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('user_name')"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;padding:5px" colspan="2">
+                                        CONDICIONES: <span t-esc="data.get('company').conditions"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;padding-top:1px;padding-left:2px" colspan="2">
+                                        OBSERVACIONES: <span t-esc="data.get('observations')[0:150]"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;text-align:center;padding-top:30px" colspan="2">
+                                        X-----------------------------------------------------------
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;text-align:center" colspan="2">
+                                        Firma del remitente
+                                    </td>
+                                </tr>
+                            </table>
+                            <table style="float:left;width:40%;margin-left:10px">
+                                <t t-if="data.get('modality') == 'upon_delivery'">
+                                    <tr style="border:1px solid #000000">
+                                        <td style="background-color:rgb(218,218,218);border:1 px solid black;text-align:center;padding:5px" colspan="4">
+                                            <p style="font-size:35px">
+                                                <strong>SERVICIO <br/> POR COBRAR</strong> 
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <t t-if="data.get('modality') == 'credit'">
+                                    <tr style="border:1px solid #000000">
+                                        <td style="background-color:rgb(218,218,218);border:1 px solid black;text-align:center;padding:5px" colspan="4">
+                                            <p style="font-size:35px">
+                                                    <strong>SERVICIO <br/> AL CREDITO</strong> 
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <t t-foreach="data.get('image_description')" t-as="a">
+                                        <td style="width:30%;padding-left:3px;padding-right:3px;padding-top:3px;height:90px">
+                                            <img t-att-src="'data:image/png;base64,{0}'.format(a.img_info.decode('utf-8'))" style="width:100%;height:90px"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div style="clear: both; height: 4px;"></div> 
+
+                        <div style="width:100%;">
+                            <table style="float:left;border:1px solid #000000;width:59%;border-collapse: collapse;">
+                                <th style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center"><strong>DATOS DEL DESTINATARIO</strong></th>
+                                <th style="background-color:rgb(218, 218, 218);border-bottom:1px solid #000000;text-align:center"><strong>DESTINO</strong></th>
+                                <tr>
+                                    <td style="width:60%">
+                                        <table style="width:100%;border-collapse: collapse">
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px;width:10%">Nombre</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('receiver_name')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Telefono</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('receiver_phone')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Identificacion</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('id_receiver')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Correo</td>
+                                                    <td style="font-size:11px;padding-left:4px;"></td>
+                                                </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:40%">
+                                        <table style="width:100%;border-collapse: collapse">
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;width:30%;padding-left:4px">Estacion</td>
+                                                    <td style="font-size:11px;padding-left:4px"><span t-esc="data.get('destination_code')"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px" rowspan="2">Fecha</td>
+                                                    <td style="font-size:11px;padding-left:4px">_________________________</td>
+                                                </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;padding:5px" colspan="2">
+                                        <span t-esc="data.get('company').acuerdo"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size:11px;text-align:center;padding-top:30px">
+                                        X----------------------------------------------------------- <br/>
+                                        Firma del Receptor
+                                    </td>
+                                    <td style="font-size:11px;">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="font-size:11px;">
+                                                    Entregado por Agente
+                                                </td>
+                                                <td style="align:bottom">
+                                                    ________________
+                                                </td>
+                                            </tr>
+                                        </table>                                                    
+                                    </td>
+                                </tr>
+                            </table>
+                            <table style="float:left;width:40%;margin-left:10px;border:1px solid black;border-collapse: collapse">
+                                <tr>
+                                    <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;text-align:center;width:50%" colspan="2"><strong>DATOS DEL CONTENIDO</strong></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:40%">
+                                        <table style="width:100%;margin-top:2px;">
+                                            <tr t-if="guide.get('uom_name') != 'Unidades'">
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Peso</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('weight'))"/> LBS</td>
+                                            </tr>
+                                            <tr t-if="guide.get('uom_name') != 'Unidades'">
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Volumen</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('volumen'))"/></td>
+                                            </tr>
+                                            <tr t-if="guide.get('uom_name') == 'Unidades'">
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Unidades</td>
+                                                <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(guide.get('qty'))"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td style="width:60%">
+                                        <table style="width:100%;margin-top:2px;border-collapse: collapse">
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;width:45%;padding-left:4px">Subtotal</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="name_currency"/> <span t-esc="'{0:,.2f}'.format(float(data.get('subtotal')))"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Descuento</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(0))"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Gravado</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(data.get('gravado')))"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">I.S.V</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(data.get('taxes')))"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Total</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(data.get('total')))"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Total LPS</td>
+                                                <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(data.get('conv_total')))"/></td>
+                                            </tr>
+                                            <t t-if="payment_state == 'paid'">
+                                                <tr>
+                                                    <td style="width:45%;background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Importe adeudado</td>
+                                                    <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="data.get('name_currency')"/> 0.00</td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="payment_state != 'paid'">
+                                                <tr>
+                                                    <td style="widht:30%;background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Importe adeudado</td>
+                                                    <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="data.get('name_currency')"/> <span t-esc="'{0:,.2f}'.format(float(data.get('total')))"/></td>
+                                                </tr>
+                                            </t>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td style="font-size:11px;" colspan="2">
+                                        <div style="width:100%;">
+                                            <p>DESCRIPCION DEL CONTENIDO: <span t-esc="guide.get('description')"/></p>
+                                            <p>CATEGORIA DE PRODUCTO: <span t-esc="guide.get('category')"/></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
             </t>
         </t>
     </template>

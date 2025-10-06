@@ -69,9 +69,12 @@ class reportHandling(models.AbstractModel):
 
         id_sender = order_id.id_sender
         id_receiver = order_id.id_receiver
-        if order_id.discount_id.code == 'COMAIL':
-            id_sender = ''
-            id_receiver = ''
+        discount_code = ''
+        if order_id.discount_id:
+            discount_code = order_id.discount_id.code
+            if order_id.discount_id.code == 'COMAIL':
+                id_sender = ''
+                id_receiver = ''
 
         invoice_date = order_id.move_id.invoice_date or order_id.date
 
@@ -117,6 +120,7 @@ class reportHandling(models.AbstractModel):
             'name_currency': order_id.external_currency_id.name,
             'exonerado': 0,
             'discount': 0,
+            'discount_code': discount_code,
             'rate': order_id.move_id.currency_rate,
             'amount_text': order_id.move_id.amount_in_words,
 
