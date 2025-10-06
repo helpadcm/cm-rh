@@ -299,10 +299,9 @@ class saleOrderHandling(models.Model):
             rec.amount_untaxed = subtotal
             rec.total = subtotal
 
-
             taxes = rec.product_id.taxes_id.compute_all(subtotal, rec.external_currency_id, 1, product=rec.product_id, partner=False)
             if taxes:
-                rec.amount_tax = taxes['total_included'] - taxes['total_excluded']
+                rec.amount_tax = round((taxes['total_included'] - taxes['total_excluded']), 2)
                 total_included = taxes['total_included']
             
             rec.amount_total = total_included
@@ -422,7 +421,9 @@ class saleOrderHandling(models.Model):
                 if rec.additional_costs > 0:
                     price += rec.additional_costs
 
-                tax_amount = price * 0.15
+                taxes = rec.product_id.taxes_id.compute_all(price, rec.external_currency_id, 1, product=rec.product_id, partner=False)
+                # tax_amount = price * 0.15
+                tax_amount = round((taxes['total_included'] - taxes['total_excluded']), 2)
                 rec.external_price = price
                 rec.tax_price = tax_amount
                 rec.total_amount_piece = price + tax_amount
