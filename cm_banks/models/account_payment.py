@@ -58,19 +58,22 @@ class ap_account_payment(models.Model):
 					if not line.account_id:
 						continue
 
-
 					amount_currency = line.amount_currency
-					if payment.payment_type == 'outbound':
+					# if payment.payment_type == 'outbound':
+					# 	amount_currency = -abs(amount_currency)
+					# else:
+					# 	amount_currency = abs(amount_currency)
+					if line.credit != 0:
 						amount_currency = -abs(amount_currency)
-					else:
+					if line.debit != 0:
 						amount_currency = abs(amount_currency)
 
 					if company_currency.id == payment_currency.id:
 						credit = line.credit
 						debit = line.debit
 					else:
-						credit = payment_currency._convert(line.credit,company_currency,payment.company_id,payment.date)
-						debit = payment_currency._convert(line.debit,company_currency,payment.company_id,payment.date)
+						credit = payment_currency._convert(line.credit, company_currency, payment.company_id, payment.date)
+						debit = payment_currency._convert(line.debit, company_currency, payment.company_id, payment.date)
 
 					total_debit += debit
 					total_credit += credit
@@ -99,14 +102,20 @@ class ap_account_payment(models.Model):
 					# Nota: destination_account_id es la cuenta CXP/CXC original
 					if line.get('account_id') == payment.destination_account_id.id:
 						if payment.payment_type == 'outbound':  # Pago a proveedor
-							line['amount_currency'] += abs(total_writeoff_currency)
-							# line['credit'] += total_credit
-							line['debit'] += total_credit
+							if total_credit > 0:
+								line['amount_currency'] += abs(total_writeoff_currency)
+								line['debit'] += total_credit
+							if total_debit > 0:
+								line['amount_currency'] -= abs(total_writeoff_currency)
+								line['debit'] -= total_debit
 
 						elif payment.payment_type == 'inbound':  # Pago de cliente
-							line['amount_currency'] -= abs(total_writeoff_currency)
-							line['credit'] += total_debit
-
+							if total_debit > 0:
+								line['amount_currency'] -= abs(total_writeoff_currency)
+								line['credit'] += total_debit
+							if total_credit > 0:
+								line['amount_currency'] += abs(total_writeoff_currency)
+								line['credit'] -= total_credit
 						break
 
 				res.extend(lines_list)

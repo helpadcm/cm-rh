@@ -198,9 +198,10 @@ class account_payment_inherit_wizard(models.TransientModel):
                         distribution_lines = []
                         for line in self.write_off_lines:
                             if self.payment_type == 'inbound':
-                                amount = line.debit
+                                amount = line.debit - line.credit
+                                # amount = -line.credit
                             else:
-                                amount = -line.credit
+                                amount = line.debit - line.credit
 
                             values = {
                                 'description': line.description,
