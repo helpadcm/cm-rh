@@ -99,7 +99,6 @@ class ap_account_payment(models.Model):
 					total_writeoff_currency += amount_currency
 
 				for line in res:
-					# Nota: destination_account_id es la cuenta CXP/CXC original
 					if line.get('account_id') == payment.destination_account_id.id:
 						if payment.payment_type == 'outbound':  # Pago a proveedor
 							if total_credit > 0:
