@@ -103,7 +103,7 @@ class reportInvHandling(models.AbstractModel):
             'taxes': order_id.amount_tax,
             'conv_taxes': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.amount_tax),
             'total': order_id.amount_total,
-            'conv_total': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.amount_total),
+            'conv_total': order_id.move_id.amount_total_signed,
             'name_currency': order_id.external_currency_id.name,
             'exonerado': 0,
             'discount': 0,
