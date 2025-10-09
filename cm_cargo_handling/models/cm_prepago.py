@@ -91,7 +91,8 @@ class CmPrepago(models.Model):
                     record.invoice_id = move_id.id
 
                 if active_model != 'cargo.bill':
-                    record.cargo_handling_id.with_context({"create": True}).create_guides()
+                    if not record.cargo_handling_id.bill_lading_ids:
+                        record.cargo_handling_id.with_context({"create": True}).create_guides()
             record.state="posted"
 
     def cancel_to_pay(self):

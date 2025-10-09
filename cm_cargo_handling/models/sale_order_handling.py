@@ -84,7 +84,7 @@ class saleOrderHandling(models.Model):
     piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza", tracking=True, default="mix")
     additional_services_ids = fields.One2many('cargo.bill.additional.service', 'order_id', string="Servicios Adicionales")
     qty_guides = fields.Integer(string="Cant. Guias", compute="calculate_total_guides")
-    allow_create_guides = fields.Boolean(string="Crear guias?")
+    allow_create_guides = fields.Boolean(string="Crear guias?", copy=False)
     created_guides = fields.Boolean(string="Guias Creadas", copy=False)
     created_invoice = fields.Boolean(string="Factura Creada", copy=False)
     residual = fields.Monetary(string="Monto pendiente", currency_field='external_currency_id', related="move_id.amount_dffprepago")
