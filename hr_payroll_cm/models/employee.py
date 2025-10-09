@@ -26,6 +26,12 @@ class EmployeeMembersInh(models.Model):
 
     compensatory_day_string = fields.Char(related="employee_id.compensatory_day_string",string="Tiempo Compensatorio")
 
+class payslipInputInherit(models.Model):
+    _inherit = 'hr.payslip.input.type'
+
+    active = fields.Boolean(string="Activo", default=True)
+    entry_type = fields.Selection([('income', 'Ingreso'),('deduction', 'Deducción')], string="Tipo de entrada")
+
 class departmentInherit(models.Model):
     _inherit = 'hr.department'
 

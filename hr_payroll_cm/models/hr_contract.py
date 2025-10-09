@@ -1,6 +1,6 @@
 from odoo import fields, models
 from odoo.exceptions import ValidationError
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 import pytz
 
@@ -16,6 +16,7 @@ class Contract(models.Model):
 
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
     skip_rules_ids = fields.Many2many('hr.inc.ded.rules', string="Omitir reglas")
+    historical_salaries_ids = fields.One2many('historical.salaries.contract','contract_id',string="Historial de salarios")
 
     def get_historical(self, code):
         for rec in self:
@@ -51,17 +52,28 @@ class Contract(models.Model):
                         'amount': amount
                     })
 
-    def calculate_deductions(self, code):
+    def calculate_deductions(self, code, payslip=False):
         amount = 0
         if code not in self.skip_rules_ids.mapped('code'):
             if code in ['RAP','SSH']:
                 amount = self.calculate_rap(code)
             else:
-                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open')])
+                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('deduction_type_id.code','=',code)])
                 if deduction_ids:
                     for ded in deduction_ids:
                         if ded.deduction_type_id.code == code:
-                            amount += ded.monthly_amount
+                            if not ded.by_quotes:
+                                amount += ded.monthly_amount
+                            else:
+                                if not payslip:
+                                    raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
+
+                                line_id = ded.payment_plan_ids.filtered(lambda plan: plan.date == payslip.date_from)
+                                if line_id:
+                                    amount = line_id.amount
+                                    line_id.payslip_id = payslip.id
+                                    line_id.state = 'paid'
+
         return amount
 
     def get_transport_bonus(self, payslip):
@@ -160,6 +172,31 @@ class Contract(models.Model):
             else:
                 work_data[work_entry.work_entry_type_id.id] += work_entry._get_work_duration(date_start, date_stop)  # Number of hours
         return work_data
+
+    def add_salarial_historical(self):
+        last_date = (datetime.now() - timedelta(days=1)).date()
+        vals = {
+            'date': last_date,
+            'contract_id': self.id,
+            'amount': self.wage * 2,
+        }
+        if self.historical_salaries_ids:
+            line_id = self.historical_salaries_ids.filtered(lambda line: line.date == last_date)
+            if not line_id:
+                self.env['historical.salaries.contract'].create(vals)
+            else:
+                raise ValidationError(f"""Ya existe un registro en la fecha {last_date}""")
+        else:
+            self.env['historical.salaries.contract'].create(vals)
+
+class historicalSalaries(models.Model):
+    _name = "historical.salaries.contract"
+    _description = "Historial de salarios por contrato"
+
+    contract_id = fields.Many2one('hr.contract', string="Contrato")
+    date = fields.Date(string="Fecha")
+    amount = fields.Float(string="Sueldo Anterior")
+    employee_id = fields.Many2one('hr.employee',string="Empleado",related='contract_id.employee_id')
 
 class workEntryTypeInh(models.Model):
     _inherit = 'hr.work.entry.type'

@@ -1,8 +1,9 @@
 from math import ceil
 
+from datetime import date
 from dateutil.relativedelta import relativedelta
-
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 class HrSalaryAttachment(models.Model):
     _inherit = 'hr.salary.attachment'
@@ -11,16 +12,23 @@ class HrSalaryAttachment(models.Model):
         'Fecha de inicio de pago',
         compute='_compute_first_date_payment',
         help='Fecha de comienzo de pagos', )
+    payment_plan_ids = fields.One2many('deductions.payment.plan','deduction_id',string="Plan de pago")
+    payment_type = fields.Selection([('fortnight','Quincenal'),('monthly','Mensual')],string="Tipo de pago", default="fortnight")
+    monthly_type = fields.Selection([('first','Primera'),('second','Segunda')],string="Quincena", default="first")
+    quotes_number = fields.Integer(string="Cuotas")
+    by_quotes = fields.Boolean(string="Por Cuotas")
 
-
-    @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'first_date_payment')
+    @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'payment_plan_ids')
     def _compute_estimated_end(self):
         for record in self:
-            if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
-                payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
-                record._compute_date_estimated_end(payments)
+            if not record.payment_plan_ids:
+                if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
+                    payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
+                    record._compute_date_estimated_end(payments)
+                else:
+                    record.date_estimated_end = False
             else:
-                record.date_estimated_end = False
+                record.date_estimated_end = record.payment_plan_ids[len(record.payment_plan_ids)-1].date
 
     @staticmethod
     def _compute_number_of_payments(total_amount, monthly_amount):
@@ -54,3 +62,62 @@ class HrSalaryAttachment(models.Model):
             
             record.date_estimated_end = current_date
 
+    def create_plan(self):
+        if self.payment_plan_ids:
+            states = set(self.payment_plan_ids.mapped('state'))
+            if len(states) > 1:
+                raise ValidationError("No se puede regenerar el plan por que ya hay cuotas pagadas")
+            self.payment_plan_ids.unlink()
+
+        initial_date = self.date_start
+        if isinstance(initial_date, str):
+            year, month, day = map(int, initial_date.split("-"))
+            initial_date = date(year, month, day)
+
+        quote_amount = round(self.total_amount / self.quotes_number, 2)
+        plan = []
+
+        self.monthly_amount = quote_amount
+        
+        if self.payment_type == "monthly":
+            day = 1 if self.monthly_type == "first" else 16
+            init_date = date(initial_date.year, initial_date.month, day)
+        else:  # quincenal
+            day = 1 if initial_date.day < 16 else 16
+            init_date = date(initial_date.year, initial_date.month, day)
+
+        for i in range(self.quotes_number):
+            vals = {
+                "number": i + 1,
+                "amount": quote_amount,
+                'deduction_id': self.id,
+                "date": init_date
+            }
+            self.env['deductions.payment.plan'].create(vals)
+
+            if self.payment_type == "monthly":
+                # sumar un mes
+                init_date = init_date + relativedelta(months=1)
+                init_date = init_date.replace(day=1 if self.monthly_type == "first" else 16)
+            else:  # quincenal
+                if init_date.day == 1:
+                    init_date = init_date.replace(day=16)
+                else:
+                    init_date = (init_date + relativedelta(months=1)).replace(day=1)
+
+class paymentPlanDed(models.Model):
+    _name = 'deductions.payment.plan'
+    _description = 'Plan de pago deducciones'
+
+    deduction_id = fields.Many2one('hr.salary.attachment',string="Deduccion")
+    number = fields.Integer(string="# Cuota")
+    date = fields.Date(string="Fecha")
+    state = fields.Selection(related='payslip_id.state',string="Estado")
+    amount = fields.Float(string="Monto")
+    payslip_id = fields.Many2one('hr.payslip',string="Nomina")
+
+    def unlink(self):
+        for val in self:
+            if val.state == 'paid':
+                raise ValidationError("No puede eliminar un registro pagado")
+        return super(paymentPlanDed, self).unlink()

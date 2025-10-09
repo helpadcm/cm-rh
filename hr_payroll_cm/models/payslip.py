@@ -1,8 +1,8 @@
 import dateutil
 import pytz
 
-from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time, timedelta
@@ -223,6 +223,9 @@ class HrPayslipBonus(models.Model):
         for rec in self:
             rec.get_other_incomes()
         res = super(HrPayslipBonus, self).compute_sheet()
+        for line in self.line_ids:
+            if line.total == 0:
+                line.unlink()
         return res
 
     # def _get_worked_day_lines(self, domain=None, check_out_of_contract=True):
@@ -230,12 +233,16 @@ class HrPayslipBonus(models.Model):
     #     return res
 
     def get_other_incomes(self):
+        deduction_lines_ids = self.input_line_ids.filtered(lambda line: line.input_type_id.entry_type == 'deduction')
+        if deduction_lines_ids:
+            deduction_lines_ids.unlink()
+
         obj_payslip_input = self.env['hr.payslip.input']
         vals = {
             'payslip_id': self.id
         }
 
-        income_ids = self.env['hr.other.incomes'].search([('employee_id','=',self.employee_id.id),('start_date','>=',self.date_from),('end_date','<=',self.date_to),('state','=','in_progress')])
+        income_ids = self.env['hr.other.incomes'].search([('employee_id','=',self.employee_id.id),('state','=','in_progress')])
         if income_ids:
             if self.input_line_ids:
                 incomes = income_ids.mapped('input_type_id').ids
@@ -246,9 +253,16 @@ class HrPayslipBonus(models.Model):
             for income in income_ids:
                 vals.update({
                     'input_type_id': income.input_type_id.id,
-                    'amount': income.amount,
                     'name': income.name
                 })
+                if not income.by_quotes:
+                    income.payslip_id = self.id
+                    vals.update({'amount': income.amount})
+                else:
+                    line_id = income.payment_plan_ids.filtered(lambda plan: plan.date == self.date_from)
+                    if line_id:
+                        vals.update({'amount': line_id.amount})
+                        line_id.payslip_id = self.id
                 obj_payslip_input.create(vals)
 
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
@@ -339,3 +353,8 @@ class workedDaysInh(models.Model):
                         worked_days.amount = worked_days.payslip_id.contract_id.contract_wage
                 else:
                     worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0
+
+class payslipLineInh(models.Model):
+    _inherit = 'hr.payslip.line'
+
+    deduction_id = fields.Many2one('hr.salary.attachment',string="Deduccion")

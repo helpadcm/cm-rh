@@ -16,6 +16,9 @@
                     </div>
                 </button>
             </button>
+            <field name="state" position="before">
+                <button string="Agregar Historial de salario" groups="hr_payroll_cm.manager_rrhh_cm" name="add_salarial_historical" type="object" class="oe_highlight"/>
+            </field>
             <group name="contract_details_2" position="after">
                 <group>
                     <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
@@ -24,6 +27,16 @@
             <field name="country_code" position="after">
                 <field name="check_type" help="Campo utilizado para revision en nomina"/>
             </field>
+            <notebook position="inside">
+                <page name="historica_salaries" string="Historial Salarios">
+                    <field name="historical_salaries_ids">
+                        <tree create="0" edit="0">
+                            <field name="date" />
+                            <field name="amount" />
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
         </field>
     </record>
 

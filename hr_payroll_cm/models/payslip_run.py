@@ -6,8 +6,13 @@ months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Sep
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
+    @api.model
+    def get_journal_default(self):
+        journal_default_id = self.env['account.journal'].search([('code','=','VARIO')])
+        return journal_default_id.id
+
     type_lot = fields.Selection([('normal','Normal'),('fourteenth','Decimo Cuarto Mes'),('thirteenth','Decimo Tercer Mes')], string="Tipo de lote", default="normal")
-    journal_id = fields.Many2one('account.journal',string="Diario")
+    journal_id = fields.Many2one('account.journal',string="Diario", default=get_journal_default)
 
     @api.onchange('date_start', 'type_lot')
     def get_payslip_name(self):
