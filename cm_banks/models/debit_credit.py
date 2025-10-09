@@ -46,7 +46,7 @@ class debit_credit(models.Model):
 	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de la empresa)')
 	currency = fields.Float(string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Empresa')
-	was_unreconcilied = fields.Boolean(string='Desconciliar')
+	was_unreconcilied = fields.Boolean(string='Desconciliar',copy=False)
 	doc_type = fields.Selection([('debit','Debito'),('credit','Credito')], string='Tipo',default='debit')
 	tax_amount = fields.Float(string='Impuesto', digits='Account')
 	rest_credit = fields.Float(string='Debito Faltante',compute='_compute_rest_credit')
@@ -71,6 +71,8 @@ class debit_credit(models.Model):
 	    ], string='Estado', 
 	    help=' * The \'Draft\' status is used when a user is encoding a new and unconfirmed Voucher. \
 	                \n* The \'Validated \' when validated', tracking=True, default='draft')
+	for_founds = fields.Boolean(string="Para Fondos")
+	account_found_id = fields.Many2one('account.account',string="Cuenta de Fondos")
 
 	def _get_totald(self):
 		result = {}
@@ -333,12 +335,16 @@ class debit_credit(models.Model):
 					
 					lines_array.append(lines_col)
 				mline_data = {}
-				if self.account_analytic_id.id:
+				if mcheck.account_analytic_id.id:
 					distribution_analytic = {str(self.account_analytic_id.id): 100.0}
 					mline_data['analytic_distribution'] = distribution_analytic
 				mline_data['move_id'] = move_id.id
 				mline_data['name'] = mcheck.name
+
 				mline_data['account_id'] = mcheck.journal_id.default_account_id.id
+				if mcheck.for_founds:
+					mline_data['account_id'] = mcheck.account_found_id.id
+
 				if mcheck.doc_type == 'debit':
 					mline_data['credit'] = totald-totalc#correct
 					mline_data['debit'] = 0

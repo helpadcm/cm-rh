@@ -33,6 +33,8 @@
 								<field name="currency" invisible="same_currency" force_save="1" readonly="1" />
 								<field name="analytic_account_ids" invisible="1"/>
 								<field name="user_id" invisible="1" readonly="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+								<field name="for_founds" readonly="state != 'draft'" />
+								<field name="account_found_id" required="for_founds" invisible="not for_founds" readonly="state != 'draft'" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
 							</group>
 						</group>
 

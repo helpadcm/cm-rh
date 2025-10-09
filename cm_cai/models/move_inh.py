@@ -383,6 +383,16 @@ class moveInh(models.Model):
 
         return output
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        moves = super().create(vals_list)
+        # Quitar seguidores internos automáticamente
+        for move in moves:
+            followers = move.message_follower_ids
+            if followers:
+                followers.unlink()
+        return moves
+
 class journalInh(models.Model):
     _inherit = "account.journal"
 
