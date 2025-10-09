@@ -21,6 +21,7 @@
                                 <field name="percentage" column_invisible="1"/>
                                 <field name="amount" readonly="0"/>
                                 <field name="amount_currency" readonly="0" force_save="1"/>
+                                <field name="base_amount" column_invisible="1"/>
                             </tree>
                         </field>
                     </page>

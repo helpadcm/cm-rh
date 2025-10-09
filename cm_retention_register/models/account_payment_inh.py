@@ -126,3 +126,11 @@ class AccountPayment(models.Model):
         retention.retention_id = retention_id.id
         payment.write({'retentions_applied':True})
         return retention_id
+
+    def action_cancel(self):
+        res = super(AccountPayment, self).action_cancel()
+        for payment in self:
+            if payment.apply_retentions:
+                for ret in self.retention_lines_detail:
+                    ret.write({'state': 'cancel'})
+        return res

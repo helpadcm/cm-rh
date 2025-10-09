@@ -36,7 +36,7 @@ class reporte_retencion(models.AbstractModel):
             form = data
         else:
             form = data.get('form')
-        domain = [('state','!=','draft')]
+        domain = [('state','=','close')]
         vals={}
         retentions = self.env['retentions']
         if form.get('date_start'):
@@ -210,23 +210,28 @@ class reporte_retencion(models.AbstractModel):
         description = ''
         concept = ''
         for i in lines:
+            base_amount = i.base_amount
+            if base_amount == 0:
+                base_amount = i.retention_id.invoice_id.amount_untaxed
+
             if i.account_id.retention_porcent == 1.0:
-                base_1+= i.base_amount
-                amount_1+=i.amount
+                base_1 += base_amount
+                amount_1 += i.amount
             elif i.account_id.retention_porcent == 10.0:
-                base_10+=i.base_amount
-                amount_10+=i.amount
+                base_10 += base_amount
+                amount_10 += i.amount
             elif i.account_id.retention_porcent == 12.5:
-                base_12+=i.base_amount
-                amount_12+=i.amount
+                base_12 += base_amount
+                amount_12 += i.amount
             elif i.account_id.retention_porcent == 25.0:
-                base_25+=i.base_amount
-                amount_25+=i.amount
+                base_25 += base_amount
+                amount_25 += i.amount
             tax+=i.amount
             if i.account_id.tax_description:
                 description += i.account_id.tax_description + ',  '
             if i.account_id.retention_concept:
                 concept += i.account_id.retention_concept + ',  '
+        
         amounts = {
             'base_1': base_1,
             'base_10': base_10,
