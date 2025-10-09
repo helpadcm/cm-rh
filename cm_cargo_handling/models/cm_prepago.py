@@ -82,6 +82,7 @@ class CmPrepago(models.Model):
     def post(self):
         active_model = self.env.context.get('active_model')
         for record in self:
+            
             if record.invoice_id.prestate2 == "paid":
                 raise ValidationError("La Factura ya fue Pagada")
 
