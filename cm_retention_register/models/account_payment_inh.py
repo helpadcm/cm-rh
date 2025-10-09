@@ -78,7 +78,7 @@ class AccountPayment(models.Model):
 
     def create_retention_detail(self, payment, retention):
         vals = {}
-        num = ""# self.env['ir.sequence'].next_by_code('retentions.number')
+        num = ""
         cai_shot = ""
         cai_range = ""
         min_number_shot = ""

@@ -211,6 +211,7 @@ class reporte_retencion(models.AbstractModel):
         concept = ''
         for i in lines:
             base_amount = i.base_amount
+            
             if base_amount == 0:
                 base_amount = i.retention_id.invoice_id.amount_untaxed
 
