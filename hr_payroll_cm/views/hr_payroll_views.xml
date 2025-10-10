@@ -22,6 +22,7 @@
                     </group>
                     <group>
                         <field name="quotes_number" readonly="state != 'open'"/>
+                        <field name="fixed_fee" readonly="state != 'open'"/>
                     </group>
                 </group>
             </xpath>

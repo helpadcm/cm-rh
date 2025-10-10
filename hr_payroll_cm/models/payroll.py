@@ -17,6 +17,9 @@ class HrSalaryAttachment(models.Model):
     monthly_type = fields.Selection([('first','Primera'),('second','Segunda')],string="Quincena", default="first")
     quotes_number = fields.Integer(string="Cuotas")
     by_quotes = fields.Boolean(string="Por Cuotas")
+    fixed_fee = fields.Float(string="Cuota fija")
+    total_amount = fields.Monetary('Monto Total',tracking=True,help='Total amount to be paid.',default=1)
+    monthly_amount = fields.Monetary('Monto a debitar', required=True, tracking=True, help='Amount to pay each month.',default=1)
 
     @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'payment_plan_ids')
     def _compute_estimated_end(self):
@@ -74,7 +77,15 @@ class HrSalaryAttachment(models.Model):
             year, month, day = map(int, initial_date.split("-"))
             initial_date = date(year, month, day)
 
-        quote_amount = round(self.total_amount / self.quotes_number, 2)
+        if self.fixed_fee > 0:
+            quote_amount = self.fixed_fee
+        else:
+            if self.quotes_number == 0:
+                raise ValidationError("El numero de cuotas no puede ser 0")
+                
+            quote_amount = round(self.total_amount / self.quotes_number, 2)
+
+        self.total_amount = self.quotes_number * quote_amount
         plan = []
 
         self.monthly_amount = quote_amount
@@ -104,6 +115,11 @@ class HrSalaryAttachment(models.Model):
                     init_date = init_date.replace(day=16)
                 else:
                     init_date = (init_date + relativedelta(months=1)).replace(day=1)
+
+    @api.onchange('deduction_type_id')
+    def get_deduction_name(self):
+        if self.deduction_type_id:
+            self.description = self.deduction_type_id.name
 
 class paymentPlanDed(models.Model):
     _name = 'deductions.payment.plan'
