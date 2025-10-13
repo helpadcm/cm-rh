@@ -62,7 +62,7 @@ class BillLading(models.Model):
         for line in self:
             if line.modality in ['upon_delivery', 'counted']:
                 if line.order_id.discount_id.code not in ['COMAIL','G10']:
-                    if line.order_id.move_id.prestate2 != 'paid':
+                    if line.order_id.move_id.prestate2 != 'paid' and line.order_id.move_id.payment_state != 'paid':
                         raise UserError(
                                 "La modalidad de la guia de carga es por cobrar o de contado y la factura "
                                 "no se encuentra pagada, Se debe pagar la factura para entregar la encomienda"

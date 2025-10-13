@@ -5,7 +5,7 @@ from odoo.exceptions import UserError,ValidationError
 class account_invoice_inherit(models.Model):
     _inherit = "account.move"
 
-    prestate2        =  fields.Selection([("open","Abierta"),("paid","PrePagada")],string="Pre Estado",default="open",compute="compute_amount_prepago",store=True)
+    prestate2 = fields.Selection([("open","Abierta"),("paid","PrePagada")],string="Pre Estado",default="open",compute="compute_amount_prepago",store=True)
     invoice_additional_charge = fields.Many2one('account.move', string="id cargo")
     prepago_ids     = fields.One2many("cm.prepago", "invoice_id",string="Prepagos")
     amount_prepago  = fields.Monetary(string="Monto Prepagado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
@@ -24,7 +24,7 @@ class account_invoice_inherit(models.Model):
         else:
             raise ValidationError("No hay orden de encomiendas ligada a esta factura")
 
-    @api.depends("prepago_ids.state","currency_id","amount_total","rtn_name","state")
+    @api.depends("prepago_ids.state","currency_id","amount_total","rtn_name","state",'payment_state')
     def compute_amount_prepago(self):
         for record in self:
             amount_prepago = 0
@@ -37,10 +37,14 @@ class account_invoice_inherit(models.Model):
                         ttamount += ffprepago
             record.amount_prepago = amount_prepago
             record.amount_dffprepago = record.amount_residual-ttamount
-            if round(amount_prepago,2) >= round(record.amount_total,2):
+            
+            if record.payment_state == 'paid':
                 record.prestate2 = "paid"
             else:
-                record.prestate2 = "open"
+                if round(amount_prepago,2) >= round(record.amount_total,2):
+                    record.prestate2 = "paid"
+                else:
+                    record.prestate2 = "open"
 
     def action_set_partner_pregago(self):
         for record in self.env.get("cm.prepago").search([]):
