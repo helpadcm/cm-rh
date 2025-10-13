@@ -125,6 +125,8 @@ class getRecordHours(models.TransientModel):
                     out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
                     entry_date_2 = self.convert_format(row.get('date'), turn_line_id.schedule2_in_id)
                     out_date_2 = self.convert_format(row.get('date'), turn_line_id.schedule2_out_id)
+
+
                     vals.update({
                         'schedule1_in_date': entry_date_1,
                         'schedule1_out_date': out_date_1,
@@ -247,6 +249,13 @@ class getRecordHours(models.TransientModel):
                             'extra_hours': extra_hours
                         })
 
+                    
+                    if turn_line_id.turn_type_a.code == 'FT' and turn_line_id.turn_type_b.code == 'FT':
+                        if extra_hours > 0:
+                            vals.update({'holiday_hours': oh, 'holiday_extra_hours': extra_hours, 'personal_action': 'wh'})
+                        else:
+                            vals.update({'holiday_hours': oh, 'personal_action': 'wh'})
+    
                     vals.update({
                         'bonus': bonus,
                         'total_hours': total_h
