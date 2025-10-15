@@ -25,6 +25,11 @@ class moveInh(models.Model):
 
     cai_id = fields.Many2one('management.cai', string='Numero de Cai')
 
+    @api.onchange('invoice_date')
+    def onchange_date(self):
+        if self.invoice_date:
+            self.date = self.invoice_date
+
     @api.constrains(lambda self: (self._sequence_field, self._sequence_date_field))
     def _constrains_date_sequence(self):
         # Make it possible to bypass the constraint to allow edition of already messed up documents.
