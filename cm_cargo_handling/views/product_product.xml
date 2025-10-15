@@ -30,7 +30,7 @@
                         <button name="add_values" type="object" string="Agregar Rutas/Montos" class="oe_highlight" invisible="not for_cargo"/>
                         <notebook>
                             <page string="Lista de precios" invisible="not for_cargo">
-                                <field name="price_list_ids" widget="one2many_search" invisible="not for_cargo">
+                                <field name="price_list_ids" invisible="not for_cargo">
                                     <tree editable="bottom">
                                         <field name="rute_id" />
                                         <field name="price" />
