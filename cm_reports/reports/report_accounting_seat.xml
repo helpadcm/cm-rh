@@ -41,7 +41,7 @@
                             </tbody>
                         </table>
                         
-                        <table style="width:100%;margin-top:4%">
+                        <table style="width:100%;margin-top:4%;border-collapse: collapse">
                             <style>
                                 td{
                                     font-size:11px;
@@ -66,20 +66,24 @@
                                     <t t-set="total_credit" t-value="total_credit+line.credit"/>
                                     <t t-set="total_secondary" t-value="total_secondary+line.amount_currency"/>
                                     <tr>
-                                        <td><span t-field="line.account_id.display_name"/></td>
-                                        <td t-if="line.analytic_distribution">
-                                            <t t-foreach="line.analytic_distribution.items()" t-as="dist">
-                                                <span t-esc="line.env['account.analytic.account'].browse(int(dist[0])).name"/>
-                                            </t>
-                                        </td>
-                                        <td t-if="not line.analytic_distribution">
+                                        <td style=""><span t-field="line.account_id.display_name"/></td>
+                                        <td>
                                             <br></br>
                                         </td>
-                                        <td><span t-field="line.name"/></td>
+                                        <td style=""><span t-field="line.name"/></td>
                                         <td style="text-align:right"><span t-esc="symbol+'{0:,.2f}'.format(line.debit)"/></td>
                                         <td style="text-align:right"><span t-esc="symbol+'{0:,.2f}'.format(line.credit)"/></td>
                                         <td style="text-align:right"><span t-esc="symbol_secondary+'{0:,.2f}'.format(line.amount_currency)"/></td>
                                     </tr>
+                                    <t t-if="line.analytic_distribution">
+                                        <t t-foreach="line.analytic_distribution.items()" t-as="dist">
+                                            <tr>
+                                                <td><br></br></td>
+                                                <td><span t-esc="line.env['account.analytic.account'].browse(int(dist[0])).name"/></td>
+                                                <td><span t-esc="round((dist[1]/100)*line.amount_currency, 2)"/></td>
+                                            </tr>
+                                        </t>
+                                    </t>
                                 </t>
                                 <tr style="border-top:1px solid black">
                                     <td style="border-top:1px solid black"></td>
