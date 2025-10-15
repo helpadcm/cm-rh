@@ -30,13 +30,25 @@
             <notebook position="inside">
                 <page name="historica_salaries" string="Historial Salarios">
                     <field name="historical_salaries_ids">
-                        <tree create="0" edit="0">
-                            <field name="date" />
-                            <field name="amount" />
+                        <tree editable="bottom" create="0">
+                            <field name="start_date" />
+                            <field name="end_date" />
+                            <field name="amount" readonly="1" force_save="1"/>
                         </tree>
                     </field>
                 </page>
             </notebook>
+        </field>
+    </record>
+
+    <record id="hr_contract_inherit_form" model="ir.ui.view">
+        <field name="name">contract.form.inh</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_payroll.hr_contract_form_inherit"/>
+        <field name="arch" type="xml">
+            <field name="schedule_pay" position="after">
+                <field name="monthly_wage"/>
+            </field>
         </field>
     </record>
 

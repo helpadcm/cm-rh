@@ -14,6 +14,20 @@
         </field>
     </record>
 
+    <record id="view_historical_salaries_tree" model="ir.ui.view">
+        <field name="name">historical.salaries.tree</field>
+        <field name="model">historical.salaries.contract</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" string="Historial Salarios">
+                <field name="employee_id" required="1"/>
+                <field name="contract_id" readonly="1" force_save="1"/>
+                <field name="start_date" required="1"/>
+                <field name="end_date" />
+                <field name="amount"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="view_historical_deductions_search" model="ir.ui.view">
         <field name="name">hr.historical.deductions.search</field>
         <field name="model">hr.historical.deductions</field>
@@ -28,10 +42,30 @@
         </field>
     </record>
 
+    <record id="view_historical_salaries_search" model="ir.ui.view">
+        <field name="name">hr.historical.salaries.search</field>
+        <field name="model">historical.salaries.contract</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda Historial">
+                <field name="contract_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Contrato" name="contract_group" context="{'group_by':'contract_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_historical_ded" model="ir.actions.act_window">
         <field name="name">Deducciones</field>
         <field name="res_model">hr.historical.deductions</field>
         <field name="view_mode">tree</field>
         <field name="context">{"search_default_name_group":1}</field>
+    </record>
+
+    <record id="action_historical_salaries" model="ir.actions.act_window">
+        <field name="name">Historial Salarios</field>
+        <field name="res_model">historical.salaries.contract</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{}</field>
     </record>
 </odoo>

@@ -160,8 +160,21 @@ class lotFormatXlsx(models.AbstractModel):
 
             if 'Salario Quincenal' not in incomes_name:
                 incomes_name.append('Salario Quincenal')
-            incomes.append({'rule_name': 'Salario Quincenal', 'amount': payslip.contract_id.wage, 'code': 'SQ'})
-            incomes.append({'rule_name': 'Salario Mensual', 'amount': payslip.contract_id.wage * 2, 'code': 'SM'})
+
+            fortnight_amount = payslip.contract_id.wage
+            if payslip.worked_days_line_ids:
+                line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
+                if line_id:
+                    fortnight_amount = line_id.amount
+
+            wage_amount = payslip.contract_id.wage * 2
+            if len(payslip.contract_id.historical_salaries_ids) > 0:
+                for line in payslip.contract_id.historical_salaries_ids:
+                    if payslip.date_to <= line.end_date:
+                        wage_amount = line.amount
+
+            incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
+            incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})
             
             if payslip.worked_days_line_ids:
                 for entry in payslip.worked_days_line_ids:
