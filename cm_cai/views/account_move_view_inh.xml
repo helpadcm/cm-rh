@@ -101,6 +101,9 @@
                 <field name="amount_residual_signed" position="after">
                     <field name="balance_usd" sum="Total USD" optional="hide"/>
                 </field>
+                <field name="amount_untaxed_signed" position="after">
+                    <field name="amount_untaxed" sum="Sub Total USD" optional="hide"/>
+                </field>
             </field>
         </record>
 
