@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+cm_airline_ticket_request.access_cm_ticket_request,access_cm_ticket_request,cm_airline_ticket_request.model_cm_ticket_request,base.group_user,1,1,1,1
+
+cm_airline_ticket_request.access_cm_ticket_request_line,access_cm_ticket_request_line,cm_airline_ticket_request.model_cm_ticket_request_line,base.group_user,1,1,1,1
+cm_airline_ticket_request.access_cm_ticket_request_external,access_cm_ticket_request_external,cm_airline_ticket_request.model_cm_ticket_request_external,base.group_user,1,1,1,1

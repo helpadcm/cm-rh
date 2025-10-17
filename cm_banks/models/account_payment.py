@@ -21,6 +21,7 @@ class ap_account_payment(models.Model):
 				('transference','Transferencia'),
 				('otros','Otros')], string='Tipo de Transaccion')
 	total_usd = fields.Float(string="USD")
+	payment_line_ids = fields.One2many('account.payment.line', 'payment_id',string="Lineas de pago")
 
 	@api.onchange('amount', 'date', 'currency_id')
 	def _compute_currency_amount(self):
@@ -53,6 +54,31 @@ class ap_account_payment(models.Model):
 			total_credit = 0
 			company_currency = payment.company_id.currency_id
 			payment_currency = payment.currency_id
+
+			# if payment.payment_line_ids:
+			# 	for line in res:
+			# 		if line.get('account_id') == payment.destination_account_id.id:
+			# 			if payment.payment_type == 'outbound':  # Pago a proveedor
+			# 				if total_credit > 0:
+			# 					line['amount_currency'] += abs(total_writeoff_currency)
+			# 					line['debit'] += total_credit
+			# 				if total_debit > 0:
+			# 					line['amount_currency'] -= abs(total_writeoff_currency)
+			# 					line['debit'] -= total_debit
+
+			# 			elif payment.payment_type == 'inbound':  # Pago de cliente
+			# 				if total_writeoff_company > 0:
+			# 					line['amount_currency'] -= abs(total_writeoff_currency)
+			# 					line['credit'] += total_writeoff_company
+			# 				else:
+			# 					if total_debit > 0:
+			# 						line['amount_currency'] -= abs(total_writeoff_currency)
+			# 						line['credit'] += total_debit
+			# 					if total_credit > 0:
+			# 						line['amount_currency'] += abs(total_writeoff_currency)
+			# 						line['credit'] -= total_credit
+			# 			break
+
 			if payment.write_off_line:
 				for line in payment.write_off_line:
 					if not line.account_id:

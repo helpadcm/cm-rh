@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="ticket_request_cm_form_view" model="ir.ui.view">
+            <field name="name">Solicitud de Boletos</field>
+            <field name="model">cm.ticket.request</field>
+            <field name="arch" type="xml">
+                <form string="Soicitud de Boletos">
+                    <header>
+                        <!-- <button name="create_order" class="oe_highlight" type="object" string="Validar" invisible="state != 'quote'"/>
+                        <button name="create_invoices" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear Factura/Guias" invisible="state != 'order' or modality not in ['credit'] or move_id != False or allow_create_guides"/>
+                        <button name="register_payment" context="{'state': 'invoiced'}" class="oe_highlight" type="object" string="Crear/Pagar Factura" invisible="state != 'order' or modality not in ['counted'] or move_id != False or allow_create_guides"/>
+                        <button name="create_guides" class="oe_highlight" type="object" string="Crear Guias" invisible="not allow_create_guides or state != 'order' or created_guides"/>
+                        <button name="register_payment" class="oe_highlight" type="object" string="Registrar Pago" invisible="not move_id or payment_state == 'paid' or modality in ['upon_delivery','credit'] or residual == 0 or state in ['canceled']"/>
+                        <button name="set_to_quote" context="{'state': 'quote'}" class="oe_highlight" type="object" string="Regresar a Cotizacion" invisible="state != 'order' or created_guides or created_invoice"/>
+                        <button name="action_desechar" invisible="state in ['quote','canceled']" class="oe_highlight" type="object" string="Cancelar Orden"/>
+						<button name='print_guides' type='object' string='Imprimir Factura/Guia' invisible="state == 'quote'"></button>
+                        <button name='print_invoice' invisible="payment_state != 'paid'" type='object' string='Imprimir Factura'></button> -->
+                        <field name="state" widget="statusbar"/>
+                  	</header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="user_id" options="{'no_create': True}" readonly="1"/>
+                                <field name="exit_only" />
+                                <field name="exit_route_id" required="1" options="{'no_create': True}"/>
+                                <field name="return_route_id" required="not exit_only" invisible="exit_only" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="date" readonly="1"/>
+                                <field name="request_date" required="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Listado">
+                                <field name="list_request_ids" context="{'default_user_id': user_id}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="ticket_request_tree_view" model="ir.ui.view">
+            <field name="name">Solicitud de Boletos</field>
+            <field name="model">cm.ticket.request</field>
+            <field name="arch" type="xml">
+                <tree string="Solicitud de Boletos">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="date" />
+                </tree>
+            </field>
+        </record>
+
+        <!-- <record id="order_handling_search_view" model="ir.ui.view">
+            <field name="name">Ordenes de venta search</field>
+            <field name="model">cm.ticket.request</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_id" filter_domain="[('sender_id', 'ilike', self)]"/>
+                    <field name="receiver_id" filter_domain="[('receiver_id', 'ilike', self)]"/>
+                    <field name="partner_id" filter_domain="[('partner_id', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="action_ticket_request_cm" model="ir.actions.act_window">            
+            <field name="name">Solicitud de Boletos</field>
+            <field name="res_model">cm.ticket.request</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval=""/>
+        </record>
+
+    </data>
+</odoo>

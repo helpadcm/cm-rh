@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="pax_form_view" model="ir.ui.view">
+            <field name="name">Solicitud</field>
+            <field name="model">cm.ticket.request.line</field>
+            <field name="arch" type="xml">
+                <form string="Soicitud de Boletos">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="user_external" />
+                                <field name="employee_id" required="not user_external" invisible="user_external" options="{'no_create': True}"/>
+                                <field name="external_user_id" required="user_external" invisible="not user_external" options="{'no_create': True}"/>
+                                <field name="email" />
+                                <field name="phone" />
+                                <field name="birthdate" />
+                                <field name="user_id" invisible="1" options="{'no_create': True}"/>
+                                <field name="name" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="id_number" />
+                                <field name="nationality" />
+                                <field name="class_name" />
+                                <field name="more_luggage" />
+                            </group>
+                        </group>
+                        <label for="description" string="Breve descripcion acerca de la razon del pase o descuento"/>
+                        <field name="description" />
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="pax_tree_view" model="ir.ui.view">
+            <field name="name">Solicitudes</field>
+            <field name="model">cm.ticket.request.line</field>
+            <field name="arch" type="xml">
+                <tree string="Solicitudes">
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="phone" />
+                </tree>
+            </field>
+        </record>
+
+        <!-- <record id="order_handling_search_view" model="ir.ui.view">
+            <field name="name">Ordenes de venta search</field>
+            <field name="model">cm.ticket.request.line</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_id" filter_domain="[('sender_id', 'ilike', self)]"/>
+                    <field name="receiver_id" filter_domain="[('receiver_id', 'ilike', self)]"/>
+                    <field name="partner_id" filter_domain="[('partner_id', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="pax_request_cm" model="ir.actions.act_window">            
+            <field name="name">Solicitudes</field>
+            <field name="res_model">cm.ticket.request.line</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval=""/>
+        </record>
+
+    </data>
+</odoo>
