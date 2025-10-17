@@ -61,8 +61,9 @@
         <field name="arch" type="xml">
             <tree string="Otros ingresos">
                 <field name="employee_id"/>
-                <field name="name"/>
                 <field name="input_type_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
                 <field name="amount" sum="Total"/>
                 <field name="state"/>
             </tree>
@@ -79,13 +80,14 @@
                 <group expand="1" string="Group By">
                     <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
                     <filter string="Tipo de Ingreso" name="input_type_group" context="{'group_by':'input_type_id'}"/>
+                    <filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="action_other_incomes" model="ir.actions.act_window">
-        <field name="name">Otros ingresos</field>
+        <field name="name">Ingresos Salariales</field>
         <field name="res_model">hr.other.incomes</field>
         <field name="view_mode">tree,form</field>
     </record>

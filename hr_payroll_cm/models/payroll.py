@@ -21,6 +21,11 @@ class HrSalaryAttachment(models.Model):
     total_amount = fields.Monetary('Monto Total',tracking=True,help='Total amount to be paid.',default=1)
     monthly_amount = fields.Monetary('Monto a debitar', required=True, tracking=True, help='Amount to pay each month.',default=1)
 
+    @api.onchange('payment_plan_ids')
+    def onchange_amount(self):
+        if self.payment_plan_ids:
+            self.total_amount = sum(self.payment_plan_ids.mapped('amount'))
+
     @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'payment_plan_ids')
     def _compute_estimated_end(self):
         for record in self:

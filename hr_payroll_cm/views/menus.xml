@@ -60,7 +60,7 @@
 
     <menuitem
         id="other_incomes_menuitem"
-        name="Otros Ingresos"
+        name="Ingresos Salariales"
         parent="hr_payroll.menu_hr_payroll_employees_root"
         sequence="40"
         action="action_other_incomes"/>

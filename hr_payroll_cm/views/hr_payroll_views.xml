@@ -33,7 +33,7 @@
                             <tree editable="bottom" create="false">
                                 <field name="number" readonly="1"/>
                                 <field name="date" readonly="1"/>
-                                <field name="amount" readonly="1" sum="Total"/>
+                                <field name="amount" sum="Total"/>
                                 <field name="state" readonly="1"/>
                             </tree>
                         </field>
