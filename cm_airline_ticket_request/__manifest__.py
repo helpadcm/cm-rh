@@ -10,7 +10,7 @@
 	'data':[
 		# 'security/groups.xml',
 		'security/ir.model.access.csv',
-		# 'data/sequences.xml',
+		'data/sequence.xml',
 		'views/external_request.xml',
 		'views/ticket_request.xml',
 		'views/pax_list.xml',
