@@ -25,15 +25,15 @@ class companyInherit(models.Model):
     def to_word(self,number, mi_moneda):
         valor = number
         number = int(number)
-        decimal_value = valor - number
+        decimal_value = round((valor - number), 2)
 
-        if decimal_value >= 0.5:
-            centavos = math.ceil(round(decimal_value, 2) * 100)
-        else:
-            if (round(decimal_value,2)) == 0.29:
-               centavos = 29
-            else:
-                centavos = int((round(valor-number,2)) * 100)
+        # if decimal_value >= 0.5:
+        #     centavos = math.ceil(round(decimal_value, 2) * 100)
+        # else:
+        #     if (round(decimal_value,2)) == 0.29:
+        #        centavos = 29
+        #     else:
+        centavos = int((round(valor-number,2)) * 100)
 
         #else:
         #    centavos = (round(valor-number,2)) * 100
