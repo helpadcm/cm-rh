@@ -44,11 +44,30 @@
 		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
 	</record>
 
+	<record id="report_check_check_list" model="ir.actions.report">
+		<field name="name">Reporte de Cheques</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.report_check_list</field>
+		<field name="report_file">cm_reports.report_check_list</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_check_list"/>
+		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
+	</record>
+
 	<record id="report_invoice_export_general_invoice_xls" model="ir.actions.report">
 		<field name="name">Reporte de Facturas XLSX</field>
 		<field name="model">account.move</field>
 		<field name="report_type">xlsx</field>
 		<field name="report_name">cm_reports.general_invoice_xls</field>
 		<field name="report_file">cm_reports.general_invoice_xls</field>
+	</record>
+
+	<record id="report_check_check_list_xls" model="ir.actions.report">
+		<field name="name">Listado de Cheques XLS</field>
+		<field name="model">account.move</field>
+		<field name="report_type">xlsx</field>
+		<field name="report_name">cm_reports.check_list_xls</field>
+		<field name="report_file">cm_reports.check_list_xls</field>
 	</record>
 </odoo>

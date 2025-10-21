@@ -6,18 +6,20 @@
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
 	'description'	:"""Module for reports in cmairlines.""",
-	'depends':['base','sale','cm_cai','cm_sales','settlement','report_xlsx','cm_cargo_handling'],
+	'depends':['base','sale','cm_cai','cm_sales','settlement','report_xlsx','cm_cargo_handling','cm_banks'],
 	'data':[
 		'security/ir.model.access.csv',
 		'data/paperformat.xml',
 		'wizard/invoice_report_view.xml',
 		'wizard/view_wizard_account_status.xml',
+		'wizard/view_wizard_check_list.xml',
 		'views/company_inh_view.xml',
 		'views/menus.xml',
 		'reports/report_ticket.xml',
 		'reports/report_accounting_seat.xml',
 		'reports/report_generalinvoice.xml',
 		'reports/view_report_account_status.xml',
+		'reports/report_check_list.xml',
 		'reports/report_reports.xml'
 	],
 	'assets': {

@@ -14,4 +14,10 @@
         id="report_account_status_menuitem" 
         sequence="6"/>
 
+    <menuitem id="report_check_list_menuitem" 
+        name="Reporte de Cheques"
+        parent="account.menu_finance_reports"
+        action="action_check_list_wizard_menu"
+        sequence="7"/>
+
 </odoo>
