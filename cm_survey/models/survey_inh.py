@@ -17,19 +17,23 @@ class survey_inherit(models.Model):
         results = []
         if survey_input_ids:
             for result in survey_input_ids:
-                if result.partner_id:
+                if result.user_input_line_ids:
+                    first_question = result.user_input_line_ids[0]
+                    second_question = result.user_input_line_ids[1]
                     total_points = sum(result.user_input_line_ids.mapped('answer_score'))
                     vals = {
                         'survey_id': self.id,
                         'partner_id': result.partner_id.id,
+                        'name': first_question.display_name,
+                        'position': second_question.display_name,
                         'points': total_points,
                         'percentage': result.scoring_percentage
                     }
-                    if result.partner_id.id in partner_ids:
+                    if first_question.display_name in partner_ids:
                         if vals.get('points') < total_points:
-                            results[partner_ids.index(result.partner_id.id)]['points'] = total_points
+                            results[partner_ids.index(first_question.display_name)]['points'] = total_points
                     else:
-                        partner_ids.append(result.partner_id.id)
+                        partner_ids.append(first_question.display_name)
                         results.append(vals)
 
         if results:
@@ -43,5 +47,7 @@ class survey_results(models.Model):
 
     survey_id = fields.Many2one('survey.survey',string="Encuesta")
     partner_id = fields.Many2one('res.partner',string="Participante")
+    name = fields.Char(string="Nombre")
+    position = fields.Char(string="Puesto")
     points = fields.Integer(string="Puntos")
     percentage = fields.Float(string="Porcentaje(%)")
