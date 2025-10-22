@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<record id="survey_form_inh_view" model="ir.ui.view">
+			<field name="name">survey.form_inherit</field>
+			<field name="model">survey.survey</field>
+			<field name="inherit_id" ref="survey.survey_survey_view_form"/>
+			<field name="arch" type="xml">
+                <button name="action_archive" position="after">
+                    <button name="get_results" invisible="not show_ranking" string="Actualizar Ranking" type="object" class="oe_highlight"/>
+                </button>
+                <field name="user_id" position="after">
+                    <field name="show_ranking" />
+                </field>
+				<notebook position="inside">
+                    <page string="Ranking" invisible="not show_ranking">
+                        <field name="result_ids" readonly="1">
+                            <tree>
+                                <field name="partner_id" />
+                                <field name="percentage" />
+                                <field name="points" />
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+			</field>
+		</record>
+	</data>
+</odoo>
