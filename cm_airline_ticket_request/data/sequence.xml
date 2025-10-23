@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
 	    <record id="sequence_ticket_request_cm" model="ir.sequence">
             <field name="name">Request Ticket</field>
             <field name="code">request.ticket.cm</field>        

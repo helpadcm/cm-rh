@@ -9,24 +9,30 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="user_external" />
-                                <field name="employee_id" required="not user_external" invisible="user_external" options="{'no_create': True}"/>
-                                <field name="external_user_id" required="user_external" invisible="not user_external" options="{'no_create': True}"/>
-                                <field name="email" />
-                                <field name="phone" />
-                                <field name="birthdate" />
+                                <field name="user_external" readonly="state != 'draft'"/>
+                                <field name="employee_id" required="not user_external" invisible="user_external" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                                <field name="external_user_id" required="user_external" invisible="not user_external" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                                <field name="email" readonly="state != 'draft'"/>
+                                <field name="phone" readonly="state != 'draft'"/>
+                                <field name="birthdate" readonly="state != 'draft'"/>
                                 <field name="user_id" invisible="1" options="{'no_create': True}"/>
                                 <field name="name" invisible="1"/>
+                                <field name="split" invisible="state in ['finalized','canceled']"/>
                             </group>
                             <group>
-                                <field name="id_number" />
-                                <field name="nationality" />
-                                <field name="class_name" />
-                                <field name="more_luggage" />
+                                <field name="id_number" readonly="state != 'draft'"/>
+                                <field name="nationality" readonly="state != 'draft'"/>
+                                <field name="class_name" readonly="state != 'draft'"/>
+                                <field name="more_luggage" readonly="state != 'draft'"/>
+                                <field name="pnr" invisible="state in ['send','draft']" readonly="state != 'received'"/>
+                                <field name="pnr_file" required="not only_pnr and state == 'received' and not split" invisible="only_pnr or state in ['draft','send']" filename="pnr_file_name" widget="binary"/>
+                                <field name="pnr_file_name" invisible="1"/>
+                                <field name="only_pnr" invisible="1"/>
+                                <field name="state" invisible="1"/>
                             </group>
                         </group>
                         <label for="description" string="Breve descripcion acerca de la razon del pase o descuento"/>
-                        <field name="description" />
+                        <field name="description" required="1" readonly="state != 'draft'"/>
                     </sheet>
                 </form>
             </field>
@@ -40,6 +46,7 @@
                     <field name="name"/>
                     <field name="email"/>
                     <field name="phone" />
+                    <field name="pnr" />
                 </tree>
             </field>
         </record>

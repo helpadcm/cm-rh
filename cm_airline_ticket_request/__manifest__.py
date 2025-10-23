@@ -8,7 +8,8 @@
 	'description'	:"""Module for registering flight ticket requests.""",
 	'depends':['base','mail','portal_cm'],
 	'data':[
-		# 'security/groups.xml',
+		'data/email_templates.xml',
+		'security/groups.xml',
 		'security/ir.model.access.csv',
 		'data/sequence.xml',
 		'views/external_request.xml',
