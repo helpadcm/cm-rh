@@ -19,6 +19,15 @@ class ReportAccountStatus(models.AbstractModel):
         }
         return docargs
 
+    @api.model
+    def render_xls(self, docids, data=None):
+        data, reports_vals = self.get_data(data)
+        docargs = {
+            'data': data,
+            'vals': reports_vals
+        }
+        return docargs
+
     def get_data(self,data):
         date_start = data.get('date_start')
         date_to = data.get('date_to')
@@ -77,6 +86,7 @@ class ReportAccountStatus(models.AbstractModel):
                 'concept': inv.internal_number or inv.name,
                 'invoiced_amount': inv.amount_total,
                 'paid_amount': payed_amount,
+                'company_id':inv.company_id,
                 'balance': balance_amount
             }
             if inv.partner_id.id in array_partner_id:
@@ -92,13 +102,15 @@ class ReportAccountStatus(models.AbstractModel):
                     'total_payed': payed_amount,
                     'total_balance': balance_amount,
                     'currency_id': inv.currency_id,
+                    'symbol': inv.currency_id.symbol,
+                    'company_id': inv.company_id,
                     'datas': [vals]
                 })
         start_date = datetime.strptime(date_start, '%Y-%m-%d')
         end_date = datetime.strptime(date_to, '%Y-%m-%d')
         ultimate_day = start_date + relativedelta(months=1, day=1 ,days=-1)
         report_vals = {
-            'date_from': date_start,
+            'date_from': start_date.strftime('%d/%m/%Y'),
             'fortnight': end_date.strftime('%Y-%m'),
             'maximum_payment': ultimate_day.strftime('%d/%m/%Y'),
             'date_to': end_date.strftime('%d/%m/%Y')
