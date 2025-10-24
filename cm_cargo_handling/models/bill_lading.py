@@ -69,9 +69,28 @@ class BillLading(models.Model):
                                 )
                 line.state = 'delivered'
                 line.order_id.state = 'invoiced'
+                self.create_log('delivered', 'Entregado')
             else:
                 line.state = 'delivered'
                 line.order_id.state = 'invoiced'
+                self.create_log('delivered', 'Entregado')
+
+    def create_log(self, state, obs):
+        log_obj = self.env['cargo.bill_logs']
+        manifest_id = self.cargo_manifest_id
+        if not manifest_id and self.bill_log_ids:
+            last_line_id = self.bill_log_ids[len(self.bill_log_ids) - 1]
+            manifest_id = last_line_id.manifest_id
+
+        if manifest_id:
+            res = {
+                'manifest_id': manifest_id.id,
+                'bill_landing_id': self.id,
+                'observations': obs,
+                'type': state
+            }
+            log_obj.create(res)
+
 
     def undelive_cargo(self):
         for line in self:
@@ -161,6 +180,6 @@ class cargo_bill_logs(models.Model):
     bill_landing_id = fields.Many2one('cargo.bill',string="Guia de carga")
     manifest_id =fields.Many2one('cargo.manifest', string="Manifiesto de Carga")
     observations = fields.Text(string="Observaciones")
-    type = fields.Selection([('added','Agregado'),('removed','Removido'),('sent','Enviado'),('received','Recibido'),('cancelled','Cancelado')], string="Estado")
+    type = fields.Selection([('added','Agregado'),('removed','Removido'),('sent','Enviado'),('received','Recibido'),('delivered','Entregado'),('cancelled','Cancelado')], string="Estado")
     shipping_airport_id = fields.Many2one(related='manifest_id.shipping_airport',string="CTI de envio")
     reception_airport_id = fields.Many2one(related='manifest_id.reception_airport',string="CTI de recepcion")

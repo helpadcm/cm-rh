@@ -120,6 +120,9 @@ class Cargo_manifest_bill_landing(models.Model):
             if val.bill_landing_id:
                 val.bill_landing_id.state = 'created'
                 val.bill_landing_id.cargo_manifest_id = False
+                if len(val.bill_landing_id.bill_log_ids) == 1:
+                    val.bill_landing_id.bill_log_ids.unlink()
+                    
         return super(Cargo_manifest_bill_landing, self).unlink()
         
     @api.model_create_multi
@@ -130,6 +133,7 @@ class Cargo_manifest_bill_landing(models.Model):
                 bl = rec.bill_landing_id
                 if not bl.cargo_manifest_id:
                     bl.cargo_manifest_id = rec.cargo_manifest_id.id
+                    bl.create_log('added', 'Agregado a Manifiesto')
                 else:
                     raise ValidationError(_('La guia de carfa %s ya fue escaneada') %(bl.name))
         return res

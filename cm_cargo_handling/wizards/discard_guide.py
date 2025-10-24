@@ -28,6 +28,7 @@ class wizard_desechar_charge(models.TransientModel):
 
                 guide.state = "desechada"
                 guide.lost_reason_id=record.lost_reason_id.id
+                guide.create_log('cancelled', 'Cancelada')
             
         if active_model == 'sale.order.handling':
             order_id = self.env[active_model].browse(active_id)
