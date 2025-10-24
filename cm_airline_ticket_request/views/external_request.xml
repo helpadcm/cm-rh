@@ -1,11 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <record id="external_request_form_view" model="ir.ui.view">
+            <field name="name">Personas Externas</field>
+            <field name="model">cm.ticket.request.external</field>
+            <field name="arch" type="xml">
+                <form string="Personas Externas">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="id_number" required="1"/>
+                                <field name="email" required="1"/>
+                                <field name="phone" />
+                            </group>
+                            <group>
+                                <field name="class_name" />
+                                <field name="nationality" />
+                                <field name="birthdate" />
+                                <field name="id_file" filename="id_file_name" widget="binary"/>
+                                <field name="id_file_name" invisible="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record id="external_request_tree_view" model="ir.ui.view">
             <field name="name">Personas Externas</field>
             <field name="model">cm.ticket.request.external</field>
             <field name="arch" type="xml">
-                <tree string="Externos" editable="bottom">
+                <tree string="Externos">
                     <field name="name" required="1"/>
                     <field name="id_number" required="1"/>
                     <field name="email" required="1"/>

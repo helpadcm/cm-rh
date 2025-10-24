@@ -5,7 +5,7 @@
             <field name="name">Solicitud</field>
             <field name="model">cm.ticket.request.line</field>
             <field name="arch" type="xml">
-                <form string="Soicitud de Boletos">
+                <form string="Soicitud de Boletos" create="false" delete="false">
                     <sheet>
                         <group>
                             <group>
@@ -17,18 +17,26 @@
                                 <field name="birthdate" readonly="state != 'draft'"/>
                                 <field name="user_id" invisible="1" options="{'no_create': True}"/>
                                 <field name="name" invisible="1"/>
-                                <field name="split" invisible="state in ['finalized','canceled']"/>
                             </group>
                             <group>
-                                <field name="id_number" readonly="state != 'draft'"/>
+                                <field name="id_number" required="1" readonly="state != 'draft'"/>
                                 <field name="nationality" readonly="state != 'draft'"/>
                                 <field name="class_name" readonly="state != 'draft'"/>
                                 <field name="more_luggage" readonly="state != 'draft'"/>
                                 <field name="pnr" invisible="state in ['send','draft']" readonly="state != 'received'"/>
-                                <field name="pnr_file" required="not only_pnr and state == 'received' and not split" invisible="only_pnr or state in ['draft','send']" filename="pnr_file_name" widget="binary"/>
-                                <field name="pnr_file_name" invisible="1"/>
                                 <field name="only_pnr" invisible="1"/>
+                                <field name="split" invisible="state in ['finalized','canceled']"/>
                                 <field name="state" invisible="1"/>
+                            </group>
+                        </group>
+                        <group string="Documentos">
+                            <group>
+                                <field name="id_file" readonly="state != 'draft'" filename="id_file_name" widget="binary"/>
+                                <field name="id_file_name" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="pnr_file" readonly="state != 'received'" required="not only_pnr and state == 'received' and not split" invisible="only_pnr or state in ['draft','send']" filename="pnr_file_name" widget="binary"/>
+                                <field name="pnr_file_name" invisible="1"/>
                             </group>
                         </group>
                         <label for="description" string="Breve descripcion acerca de la razon del pase o descuento"/>
@@ -42,42 +50,15 @@
             <field name="name">Solicitudes</field>
             <field name="model">cm.ticket.request.line</field>
             <field name="arch" type="xml">
-                <tree string="Solicitudes">
+                <tree string="Solicitudes" create="false" delete="false">
                     <field name="name"/>
                     <field name="email"/>
                     <field name="phone" />
                     <field name="pnr" />
+                    <field name="state" />
                 </tree>
             </field>
         </record>
-
-        <!-- <record id="order_handling_search_view" model="ir.ui.view">
-            <field name="name">Ordenes de venta search</field>
-            <field name="model">cm.ticket.request.line</field>
-            <field name="arch" type="xml">
-                <search string="Ordenes de venta">
-                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
-                    <field name="sender_id" filter_domain="[('sender_id', 'ilike', self)]"/>
-                    <field name="receiver_id" filter_domain="[('receiver_id', 'ilike', self)]"/>
-                    <field name="partner_id" filter_domain="[('partner_id', 'ilike', self)]"/>
-                    <separator/>
-                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
-                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
-                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
-                    <separator/>
-                    <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
-                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
-                    <group expand="0" string="Group By">
-                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
-                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
-                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
-                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
-                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
-                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
-                    </group>
-                </search>
-            </field>
-        </record> -->
 
         <record id="pax_request_cm" model="ir.actions.act_window">            
             <field name="name">Solicitudes</field>

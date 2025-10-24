@@ -38,7 +38,7 @@
                                                 <tr>
                                                     <td valign="top" style="font-size: 13px;">
                                                         <div>
-                                                            Se ha creado una nueva solicitud de boleto por <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('user')"/> de tipo <span t-out="ctx.get('type')"/>.
+                                                            Se ha creado una nueva solicitud de boleto por <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('user')"/> de tipo <span t-out="ctx.get('type')"/> código de programa <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('program_code')"/>.
                                                             <div style="margin: 16px 0px 16px 0px;">
                                                                 <a t-att-href="ctx.get('action_url')"
                                                                     style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver Solicitud</a>

@@ -35,7 +35,7 @@ class ticket_request(models.Model):
     list_routes_ids = fields.One2many('cm.routes.line','request_id',string="Listado Rutas",copy=True)
     only_pnr = fields.Boolean(string="Unico PNR",copy=False)
     pnr = fields.Char(string="PNR",copy=False)
-    notifications_select = fields.Selection([('applicant','Solicitante'),('passengers','Pasajeros')],default="applicant",string="Notificaciones")
+    notifications_select = fields.Selection([('applicant','Solicitante'),('passengers','Pasajeros')],default="applicant",string="Notificar a")
     pnr_file = fields.Binary(string="Doc PNR",copy=False)
     pnr_file_name = fields.Char(string="Nombre PNR",copy=False)
 
@@ -256,6 +256,7 @@ class ticket_request(models.Model):
             new_request_id = self.copy({
                 'name': 'Borrador',
                 'state': self.state,
+                'program_code': self.program_id.code,
                 'list_request_ids': [(5, 0, 0)],
                 'only_pnr': False,
                 'pnr': False,
@@ -267,8 +268,6 @@ class ticket_request(models.Model):
                 req.write({'request_id': new_request_id.id})
             next_number = sequence_id.next_by_id()
             new_request_id.write({'name': next_number, 'state': self.state})
-            print (new_request_id.name, new_request_id.state)
-            # print (a)
         else:
             raise ValidationError("No hay nada que dividir.")
 
@@ -308,6 +307,8 @@ class ticket_request_line(models.Model):
     split = fields.Boolean(string="Dividir")
     pnr_file = fields.Binary(string="Doc PNR",copy=False)
     pnr_file_name = fields.Char(string="Nombre PNR",copy=False)
+    id_file = fields.Binary(string="Doc ID",copy=False)
+    id_file_name = fields.Char(string="Nombre ID",copy=False)
     only_pnr = fields.Boolean(string="Unico PNR",related="request_id.only_pnr")
 
     @api.onchange('user_external','employee_id','external_user_id')
@@ -319,6 +320,9 @@ class ticket_request_line(models.Model):
             phone = self.external_user_id.phone
             birthdate = self.external_user_id.birthdate
             nationality = self.external_user_id.nationality
+            if self.external_user_id.id_file:
+                self.id_file = self.external_user_id.id_file
+                self.id_file_name = self.external_user_id.id_file_name
         else:
             user_name = self.employee_id.name
             identity = self.employee_id.identification_id
@@ -346,7 +350,12 @@ class external_resquest(models.Model):
     phone = fields.Char(string="Telefono")
     nationality = fields.Char(string="Nacionalidad")
     birthdate = fields.Date(string="Fecha de Nacimiento")
+    id_file = fields.Binary(string="Doc ID",copy=False)
+    id_file_name = fields.Char(string="Nombre ID",copy=False)
 
+    _sql_constraints = [
+        ('id_number_uniq', 'unique(id_number)', _('Ya existe otro registro con el mismo numero de Id/Pasaporte!'))
+    ]  
 
 class program_resquest(models.Model):    
     _name = 'cm.ticket.request.program'
