@@ -355,7 +355,7 @@ class external_resquest(models.Model):
 
     _sql_constraints = [
         ('id_number_uniq', 'unique(id_number)', _('Ya existe otro registro con el mismo numero de Id/Pasaporte!'))
-    ]  
+    ]
 
 class program_resquest(models.Model):    
     _name = 'cm.ticket.request.program'
