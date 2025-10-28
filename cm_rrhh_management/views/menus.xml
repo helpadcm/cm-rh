@@ -9,7 +9,7 @@
             groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh"
             sequence="10"/>
 
-<!-- ##################################  REQUESTS  ##################################################  -->
+<!-- ##################################   ##################################################  -->
 
         <menuitem
             id="general_rrrhh_menu"
@@ -24,15 +24,15 @@
             action="action_trainigns_rrhh_cm"
             sequence="1"/>
 
-        <!-- <menuitem
-            id="tickets_menuitem"
-            name="Boletos Solicitados"
-            parent="ticket_request_menu"
-            action="pax_request_cm"
-            groups="group_ticket_request_manager,group_ticket_request_admin"
+        <menuitem
+            id="puctuality_ranking_menuitem"
+            name="Ranking de Puntualidad"
+            parent="general_rrrhh_menu"
+            action="action_punctuality_ranking"
+            groups="hr_payroll_cm.manager_rrhh_cm"
             sequence="2"/>
-
-##################################  EXTERNAL  ################################################## 
+<!-- 
+##################################  EXTERNAL  ##################################################
 
         <menuitem
             id="external_request_menuitem"
@@ -41,22 +41,22 @@
             action="external_request_cm"
             sequence="2"/>
 
-##################################  CONFIGURATION  ################################################## 
+##################################  CONFIGURATION  ##################################################  -->
 
         <menuitem
-            id="conf_ticket_request_menu"
+            id="conf_rrhh_management_menu"
             name="Configuraciones"
-            parent="ticket_request_menu_root"
-            groups="group_ticket_request_admin"
+            parent="rrhh_management_menu_root"
+            groups="hr_payroll_cm.manager_rrhh_cm"
             sequence="3"/>
 
         <menuitem
-            id="conf_ticket_request_menuitem"
-            name="Programas"
-            parent="conf_ticket_request_menu"
-            groups="group_ticket_request_admin"
-            action="program_request_cm_action"
-            sequence="1"/> -->
+            id="calculate_punctuality_menuitem"
+            name="Calcular Puntualidad"
+            parent="conf_rrhh_management_menu"
+            groups="hr_payroll_cm.manager_rrhh_cm"
+            action="calculate_assists_action"
+            sequence="1"/>
     </data>
 
 </odoo>
