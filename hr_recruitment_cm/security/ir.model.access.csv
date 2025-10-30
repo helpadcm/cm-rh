@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 hr_recruitment_cm.access_hr_staff_requirement,access_hr_staff_requirement,hr_recruitment_cm.model_hr_staff_requirement,base.group_user,1,1,1,1
+hr_recruitment_cm.access_applicant_laboral_history,access_applicant_laboral_history,hr_recruitment_cm.model_applicant_laboral_history,base.group_user,1,1,1,1

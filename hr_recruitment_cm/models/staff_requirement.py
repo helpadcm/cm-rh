@@ -109,4 +109,23 @@ class staffRequirement(models.Model):
         self.env.context.update({'number': next_number})
         res = super(staffRequirement, self).copy(default)
         return res
+
+    def create_postulation(self):
+        stage_id = self.env['hr.recruitment.stage'].search([('sequence','=',0)])
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Postulación',
+            'res_model': 'hr.applicant',
+            'view_mode': 'form',
+            'context': {
+                'default_requirement_id': self.id,
+                'default_stage_id': stage_id.id,
+                'default_department_id': self.department_id.id,
+                'default_job_id': self.new_position.id,
+                'default_user_id': self.env.user.id,
+                'default_salary_proposed': self.salarial_range,
+            },
+            'target': 'new',
+        }
         

@@ -31,6 +31,7 @@
                         <button name="change_state" class="oe_highlight" context="{'state_type': 'in_progress'}" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="En Progreso" invisible="state != 'approval'"/>
                         <button name="change_state" class="oe_highlight" context="{'state_type': 'finalized'}" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Finalizar" invisible="state != 'in_progress'"/>
                         <button name="change_state" class="oe_highlight" context="{'state_type': 'refused'}" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Rechazar" invisible="state != 'approval'"/>
+                        <button name="create_postulation" class="oe_highlight" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Crear Postulacion" invisible="state != 'in_progress'"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>

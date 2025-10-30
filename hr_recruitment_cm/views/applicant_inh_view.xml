@@ -9,6 +9,118 @@
                 <field name="department_id" position="after">
                     <field name="requirement_id" domain="[('new_position','=',job_id),('state','=','in_progress')]" options="{'no_create': True}"/>
                 </field>
+                <field name="availability" position="replace">
+                </field>
+                <xpath expr="//form/sheet/group/group[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//form/sheet/group/group[2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <group name="recruitment_contract" position="inside">
+                    <field name="negotiable" />
+                </group>
+                <page name="application_summary" position="before">
+                    <page string="DATOS GENERALES">
+                        <group col="3">
+                            <group>
+                                <field name="identity" />
+                                <field name="birthday" />
+                                <field name="marital_status" />
+                                <field name="address" />
+                            </group>
+                            <group>
+                                <field name="immediate_availability" />
+                                <field name="age" readonly="1" force_save="1"/>
+                                <field name="email_from" />
+                                <field name="city" />
+                            </group>
+                            <group>
+                                <field name="availability" />
+                                <field name="partner_mobile" />
+                                <field name="children" />
+                            </group>
+                        </group>
+                        <group string="Ultimo Grado Academico">
+                            <group>
+                                <field name="academic_level" />
+                                <field name="graduation_year" />
+                            </group>
+                            <group>
+                                <field name="last_institute" />
+                                <field name="career_name" />
+                            </group>
+                        </group>
+                        <separator/>
+                        <group col="3">
+                            <group>
+                                <field name="currently_studying" />
+                                <field name="own_vehicle" />
+                                <field name="excel_level" />
+                            </group>
+                            <group>
+                                <field name="current_institute" invisible="not currently_studying"/>
+                                <field name="has_with" />
+                                <field name="banpais_relation" />
+                            </group>
+                            <group>
+                                <field name="career_promedy" invisible="not currently_studying"/>
+                                <field name="availability_travel" />
+                                <field name="vigent_licence" />
+                            </group>
+                        </group>
+                    </page>
+                    <page string="CUESTIONARIO">
+                        <label for="laboral_history_ids" string="Historial Laboral"/>
+                        <field name="laboral_history_ids">
+                            <tree>
+                                <field name="company_name" />
+                                <field name="position_name" />
+                                <field name="time_worked" />
+                                <field name="salary" />
+                            </tree>
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="company_name" />
+                                        <field name="time_worked" />
+                                        <field name="reason" />
+                                        <field name="tastes" />
+                                    </group>
+                                    <group>
+                                        <field name="position_name" />
+                                        <field name="salary" />
+                                        <field name="functions" />
+                                        <field name="no_tastes" />
+                                    </group>
+                                </group>
+                            </form>
+                        </field>
+                        <group>
+                            <group>
+                                <field name="unemployed" string="¿Desde cuando esta sin empleo y por que?"/>
+                                <field name="expectatives" string="¿Cual es su expectativa en CM Airlines?"/>
+                            </group>
+                            <group>
+                                <field name="knowledge_position" string="¿Que conocimientos tiene del puesto que solicita?"/>
+                                <field name="experience" string="¿Experiencia en otras areas?"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="banpais_situation" string="¿Cual es su situacion economica actual con el banco BANPAIS?"/>
+                                <field name="personal_experience" string="¿Tiene experiencia en el manejo de personal y cuantas personas?"/>
+                                <field name="free_time" string="¿Que hace en su tiempo libre?"/>
+                                <field name="plans" string="¿Cuales son sus planes a mediano y largo plazo?"/>
+                            </group>
+                            <group>
+                                <field name="disease" string="¿Padece o ha padecido de alguna enfermedad?"/>
+                                <field name="other_responsabilities" string="¿Que otras responsabilidades tiene aparte de trabajar?"/>
+                                <field name="with_life" string="¿Con quien vive?"/>
+                            </group>
+                        </group>
+                    </page>
+                </page>
             </field>
         </record>
     </data>
