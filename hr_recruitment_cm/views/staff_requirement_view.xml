@@ -32,6 +32,7 @@
                         <button name="change_state" class="oe_highlight" context="{'state_type': 'finalized'}" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Finalizar" invisible="state != 'in_progress'"/>
                         <button name="change_state" class="oe_highlight" context="{'state_type': 'refused'}" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Rechazar" invisible="state != 'approval'"/>
                         <button name="create_postulation" class="oe_highlight" groups="hr_recruitment.group_hr_recruitment_manager" type="object" string="Crear Postulacion" invisible="state != 'in_progress'"/>
+                        <button name="%(hr_recruitment_cm.action_send_form)d" context="{'default_requirement_id': id}" class="oe_highlight" groups="hr_recruitment.group_hr_recruitment_manager" type="action" string="Enviar Formulario" invisible="state != 'in_progress'"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -53,7 +54,7 @@
                         </div>
                         <group col="2">
                             <group>
-                                <field name="requested_by" readonly="1"/>                                
+                                <field name="requested_by" readonly="state != 'draft'"/>                                
                                 <field name="department_id" options="{'no_create': True}" readonly="1" force_save="1"/>
                                 <field name="aprobation_date" readonly="1" invisible="state == 'draft'"/>
                                 <field name="rotation" readonly="state != 'draft'"/>

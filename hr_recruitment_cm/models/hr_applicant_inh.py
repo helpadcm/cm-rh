@@ -31,10 +31,11 @@ class HrApplicantInh(models.Model):
     currently_studying = fields.Boolean(string="Estudia Actualmente")
     current_institute = fields.Char(string="En que Institucion")
     career_promedy = fields.Char(string="Carrera y Promedio")
-    own_vehicle = fields.Boolean(string="Vehiculo Propio")
+    own_vehicle = fields.Selection([('car','Carro'),('motorcycle','Moto'),('no','Ninguno')],string="Vehiculo Propio")
     has_with = fields.Selection([('own_house','Casa Propia'),('rent','Alquila')],string="Cuenta con")
     availability_travel = fields.Boolean(string="Disponibilidad para Viajar")
     excel_level = fields.Selection([('low','Bajo'),('medium','Medio'),('high','Alto')],string="Nivel de Excel")
+    english_level = fields.Selection([('low','Bajo'),('medium','Medio'),('high','Alto')],string="Nivel de Ingles")
     banpais_relation = fields.Boolean(string="Relacion BANPAIS")
     vigent_licence = fields.Boolean(string="Licencia Vigente")
     address = fields.Char(string="Direccion")
@@ -53,6 +54,10 @@ class HrApplicantInh(models.Model):
     free_time = fields.Text(string="Tiempo libre")
     with_life = fields.Text(string="Con quien vive")
     plans = fields.Text(string="Planes")
+
+    relations_ids = fields.One2many('applicant.relation.collaborator','applicant_id',string="Relaciones Colaboradores")
+    laboral_reference_ids = fields.One2many('applicant.laboral.reference','applicant_id',string="Referencias Laborales")
+    personal_reference_ids = fields.One2many('applicant.personal.reference','applicant_id',string="Referencias Personales")
 
     @api.model
     def default_get(self, fields_list):
@@ -90,3 +95,34 @@ class laboralHistory(models.Model):
     functions = fields.Text(string="Funciones que desempeño")
     tastes = fields.Text(string="Que le gusto")
     no_tastes = fields.Text(string="Que no le gusto")
+
+class relationCollaborator(models.Model):
+    _name = 'applicant.relation.collaborator'
+    _description = "Relacion colaboradores"
+
+    applicant_id = fields.Many2one('hr.applicant',string="Aplicante")
+    name = fields.Char(string="Nombre")
+    relationship = fields.Char(string="Parentesco")
+    currently_work = fields.Boolean(string="Trabaja Actualmente")
+    branch = fields.Char(string="Sucursal")
+    department = fields.Text(string="Departamento/Area")
+
+class laboralReference(models.Model):
+    _name = 'applicant.laboral.reference'
+    _description = "Referencias Laborales"
+
+    applicant_id = fields.Many2one('hr.applicant',string="Aplicante")
+    name = fields.Char(string="Nombre")
+    company = fields.Char(string="Empresa")
+    position = fields.Char(string="Puesto")
+    phone = fields.Char(string="Numero de telefono")
+
+class personalReference(models.Model):
+    _name = 'applicant.personal.reference'
+    _description = "Referencias personales"
+
+    applicant_id = fields.Many2one('hr.applicant',string="Aplicante")
+    name = fields.Char(string="Nombre")
+    relationship = fields.Char(string="Parentesco")
+    phone = fields.Char(string="Numero de telefono")
+    company = fields.Char(string="Empresa")

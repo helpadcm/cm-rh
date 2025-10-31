@@ -67,7 +67,7 @@ class staffRequirement(models.Model):
     @api.onchange('requested_by')
     def change_requested(self):
         if self.requested_by:
-            employee_id = self.env['hr.employee'].search([('user_id','=',self.env.user.id)])
+            employee_id = self.env['hr.employee'].search([('user_id','=',self.requested_by.id)])
             if employee_id:
                 self.department_id = employee_id.department_id.id
                 self.job_id = employee_id.job_id.id

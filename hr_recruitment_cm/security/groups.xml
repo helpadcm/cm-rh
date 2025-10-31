@@ -5,7 +5,7 @@
         <record id="requirement_staff_user_rule" model="ir.rule">
             <field name="name">Regla para usuario RRHH</field>
             <field ref="hr_recruitment_cm.model_hr_staff_requirement" name="model_id"/>
-            <field name="domain_force">[('create_uid','=',user.id)]</field>
+            <field name="domain_force">[('requested_by','=',user.id)]</field>
             <field name="groups" eval="[(4, ref('hr_recruitment.group_hr_recruitment_interviewer'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

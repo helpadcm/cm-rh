@@ -71,31 +71,65 @@
                         </group>
                     </page>
                     <page string="CUESTIONARIO">
-                        <label for="laboral_history_ids" string="Historial Laboral"/>
-                        <field name="laboral_history_ids">
-                            <tree>
-                                <field name="company_name" />
-                                <field name="position_name" />
-                                <field name="time_worked" />
-                                <field name="salary" />
-                            </tree>
-                            <form>
-                                <group>
-                                    <group>
+                        <notebook>
+                            <page string="Historial Laboral">
+                                <field name="laboral_history_ids">
+                                    <tree>
                                         <field name="company_name" />
-                                        <field name="time_worked" />
-                                        <field name="reason" />
-                                        <field name="tastes" />
-                                    </group>
-                                    <group>
                                         <field name="position_name" />
+                                        <field name="time_worked" />
                                         <field name="salary" />
-                                        <field name="functions" />
-                                        <field name="no_tastes" />
-                                    </group>
-                                </group>
-                            </form>
-                        </field>
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="company_name" />
+                                                <field name="time_worked" />
+                                                <field name="reason" />
+                                                <field name="tastes" />
+                                            </group>
+                                            <group>
+                                                <field name="position_name" />
+                                                <field name="salary" />
+                                                <field name="functions" />
+                                                <field name="no_tastes" />
+                                            </group>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Relaciones Colaboradores">
+                                <field name="relations_ids">
+                                    <tree editable="bottom">
+                                        <field name="name" />
+                                        <field name="relationship" />
+                                        <field name="currently_work" />
+                                        <field name="branch" />
+                                        <field name="department" />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Referencias Laborales">
+                                <field name="laboral_reference_ids">
+                                    <tree editable="bottom">
+                                        <field name="name" />
+                                        <field name="company" />
+                                        <field name="position" />
+                                        <field name="phone" />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Referencias Personales">
+                                <field name="personal_reference_ids">
+                                    <tree editable="bottom">
+                                        <field name="name" />
+                                        <field name="relationship" />
+                                        <field name="phone" />
+                                        <field name="company" />
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                         <group>
                             <group>
                                 <field name="unemployed" string="¿Desde cuando esta sin empleo y por que?"/>

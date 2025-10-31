@@ -1,0 +1,319 @@
+<odoo>
+    <template id="recruitment_public_form" name="Formulario Público Completo de Postulación">
+        <t t-call="website.layout">
+            <div class="container my-5">
+                <h2 class="text-center mb-4">Formulario de Postulación</h2>
+                <form action="/job/apply/submit" method="post" enctype="multipart/form-data" class="o_website_form">
+                    <input type="text" class="d-none" name="requirement" id="id_requirement" t-att-value="requirement_id"/>
+
+                    <div class="border rounded p-3 mb-3 row g-3">
+                        <h4>Datos Personales</h4>
+                        <div class="col-md-6"><label>Nombre Completo</label><input name="partner_name" class="form-control" required="required"/></div>
+                        <div class="col-md-6"><label>Correo Electrónico</label><input type="email" name="email_from" class="form-control" required="required"/></div>
+                        <div class="col-md-6"><label>Numero de Identidad</label><input name="identity" class="form-control" required="required"/></div>
+                        <div class="col-md-6"><label>Fecha de Nacimiento</label><input type="date" name="birthday" class="form-control" required="required"/></div>
+                        <div class="col-md-6"><label>Ciudad</label><input name="city" class="form-control"/></div>
+                        <div class="col-md-6"><label>Dirección</label><input name="address" class="form-control"/></div>
+                        <div class="col-md-6"><label>No. Celular</label><input name="partner_mobile" class="form-control" required="required"/></div>
+                        <div class="col-md-6"><label>Estado Civil</label>
+                            <select name="marital_status" class="form-select">
+                                <option value="">Seleccionar...</option>
+                                <option value="single">Soltero(a)</option>
+                                <option value="married">Casado(a)</option>
+                                <option value="free_union">Unión Libre</option>
+                                <option value="widower">Viudo(a)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6"><label>Hijo(s) Género y Edad</label><input name="children" class="form-control" required="required"/></div>
+                    </div>
+
+                    <br></br>
+
+                    <div class="border rounded p-3 mb-3 row g-3">
+                        <div class="col-md-6"><label>Aspiracion Salarial(Especificar en números)</label><input type="number" step="0.01" t-attf-name="salary_expected" class="form-control"/></div>
+                        <div class="col-md-6"><label>Negociable</label><input type="checkbox" name="negotiable"/></div>
+                        <div class="col-md-6"><label>Disponibilidad Inmediata</label><input type="checkbox" name="immediate_availability"/></div>
+                    </div>
+
+                    <br></br>
+
+                    <div class="border rounded p-3 mb-3 row g-3">
+                        <h4 class="mt-4">Ultimo Grado Academico</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label>Nivel Académico</label>
+                                <select name="academic_level" class="form-select" required="required">
+                                    <option value="1">Primaria Completa</option>
+                                    <option value="2">Secundaria Completa</option>
+                                    <option value="3">Diversificado</option>
+                                    <option value="4">Pregrado</option>
+                                    <option value="5">Postgrado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6"><label>Colegio/Universidad</label><input name="last_institute" class="form-control" required="required"/></div>
+                            <div class="col-md-6"><label>Año de Graduación</label><input name="graduation_year" class="form-control" required="required"/></div>
+                            <div class="col-md-6"><label>Nombre de la Carrera</label><input name="career_name" class="form-control" required="required"/></div>
+
+                            <div class="col-md-6"><label>Actualmente Estudia</label><input type="checkbox" id="currently_studying_id" name="currently_studying"/></div>
+                            <div id="currently_studying_div" class="row g-3">
+                                <div class="col-md-6"><label>En que colegio o Universidad</label><input name="current_institute" class="form-control"/></div>
+                                <div class="col-md-6"><label>Carrera y Promedio Cursado</label><input name="career_promedy" class="form-control"/></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br></br>
+
+                    <div class="border rounded p-3 mb-3 row g-3">
+                        <h4 class="mt-4">Información Adicional</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label>Cuenta con</label>
+                                <select name="has_with" class="form-select">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="own_house">Casa Propia</option>
+                                    <option value="rent">Alquila</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6"><label>Nivel de Ingles</label>
+                                <select name="english_level" class="form-select" required="required">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="low">Bajo</option>
+                                    <option value="medium">Medio</option>
+                                    <option value="high">Alto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6"><label>Nivel de Excel</label>
+                                <select name="excel_level" class="form-select" required="required">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="low">Bajo</option>
+                                    <option value="medium">Medio</option>
+                                    <option value="high">Alto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6"><label>Vechiculo Propio</label>
+                                <select name="own_vehicle" class="form-select" required="required">
+                                    <option value="car">Carro</option>
+                                    <option value="motorcycle">Moto</option>
+                                    <option value="no">Ninguno</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6"><label>Tiene alguna relacion financiera con el banco BANPAIS</label><input type="checkbox" name="banpais_relation"/></div>
+                            <div class="col-md-6"><label>Posee Licencia Vigente</label><input type="checkbox" name="vigent_licence"/></div>
+                            <div class="col-md-6"><label>Disponibilidad para Viajar</label><input type="checkbox" name="availability_travel"/></div>
+                        </div>
+                    </div>
+
+                    <br></br>
+
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>¿Padece o ha padecido de alguna enfermedad?</label><input type="checkbox" name="disease"/></div>
+                        <div class="col-12"><label>¿Desde cuando esta sin empleo y por que?</label><textarea name="unemployed" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Cual es su expectativa de CM Airlines?</label><textarea name="expectatives" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Experiencia en otras Areas?</label><textarea name="experience" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Que conocimientos tiene del puesto que solicita?</label><textarea name="knowledge_position" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Tiene experiencia en el manejo de personal, y cuantas personas?</label><textarea name="personal_experience" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Cual es su situacion economica actual con el banco BANPAIS?</label>
+                            <select name="banpais_situation" class="form-select" required="required">
+                                <option value="1">No tengo cuenta ni relación</option>
+                                <option value="2">Tengo una cuenta de ahorro</option>
+                                <option value="3">Tengo una cuenta de cheques</option>
+                                <option value="4">Tengo un crédito activo</option>
+                                <option value="5">Estoy en proceso de abrir una cuenta</option>
+                                <option value="6">Tengo mora o situación irregular</option>
+                            </select>
+                        </div>
+                        <div class="col-12"><label>¿Que otras responsabilidades tiene aparte de trabajar?</label><textarea name="other_responsabilities" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Que hace en su tiempo libre?</label><textarea name="free_time" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Con quien vive?</label><textarea name="with_life" class="form-control"></textarea></div>
+                        <div class="col-12"><label>¿Cuales son sus planes a mediano y largo plazo?</label><textarea name="plans" class="form-control"></textarea></div>
+                    </div>
+
+                    <br></br>
+
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#tab1"><strong>Historial Laboral (hasta 3)</strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab2"><strong>Relaciones</strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab3"><strong>Referencias Laborales</strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab4"><strong>Referencias Personales</strong></a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="container tab-pane fade show active" id="tab1">
+                            <t t-foreach="[1,2,3]" t-as="n">
+                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
+                                    <h6>Experiencia <t t-esc="n"/></h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label>Empresa</label>
+                                            <input t-attf-name="company_name_{{n}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Puesto</label>
+                                            <input t-attf-name="position_name_{{n}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Tiempo Laborado</label>
+                                            <input t-attf-name="time_worked_{{n}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Salario</label>
+                                            <input type="number" step="0.01" t-attf-name="salary_{{n}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <label>¿Cuales fueron las principales funciones que desempeño en sus trabajos anteriores?</label>
+                                            <textarea t-attf-name="functions_{{n}}" class="form-control"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label>¿Cual fue la razon por la cual abandono?</label>
+                                            <textarea t-attf-name="reason_{{n}}" class="form-control"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label>¿Que es lo que mas le gustó?</label>
+                                            <textarea t-attf-name="tastes_{{n}}" class="form-control"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <label>¿Que es lo que menos le ha gustado?</label>
+                                            <textarea t-attf-name="no_tastes_{{n}}" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="tab-pane fade" id="tab2">
+                            <t t-foreach="[1,2,3]" t-as="r">
+                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
+                                    <h6>Relacion Colaborador/Ex Colaborador <t t-esc="r"/></h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label>Nombre</label>
+                                            <input t-attf-name="relation_name_{{r}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Parentesco</label>
+                                            <input t-attf-name="relationship_name_{{r}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-6">
+                                            <label>Sucursal</label>
+                                            <input t-attf-name="branch_{{r}}" class="form-control"></input>
+                                        </div>
+                                        <div class="col-6">
+                                            <label>Departamento</label>
+                                            <input t-attf-name="department_{{r}}" class="form-control"></input>
+                                        </div>
+                                        <div class="col-md-6"><label>Trabaja Actualmente</label><input type="checkbox" t-attf-name="currently_work_{{r}}"/></div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="tab-pane fade" id="tab3">
+                            <t t-foreach="[1,2,3]" t-as="l">
+                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
+                                    <h6>Referencia Laboral <t t-esc="l"/></h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label>Nombre</label>
+                                            <input t-attf-name="laboral_name_{{l}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Empresa</label>
+                                            <input t-attf-name="lcompany_name_{{l}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Puesto</label>
+                                            <input t-attf-name="lposition_{{l}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-6">
+                                            <label>Numero de Telefono/Celular</label>
+                                            <input t-attf-name="lphone_{{l}}" class="form-control"></input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="tab-pane fade" id="tab4">
+                            <t t-foreach="[1,2,3]" t-as="p">
+                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
+                                    <h6>Referencia Personal <t t-esc="n"/></h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label>Nombre</label>
+                                            <input t-attf-name="p_personal_name_{{p}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Parentesco (pueden ser familiares o amistades)</label>
+                                            <input t-attf-name="p_relationship_{{p}}" class="form-control"/>
+                                        </div>
+                                        <div class="col-6">
+                                            <label>Numero de Telefono/Celular</label>
+                                            <input t-attf-name="p_phone_{{p}}" class="form-control"></input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Empresa</label>
+                                            <input t-attf-name="p_company_name_{{p}}" class="form-control"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <h4 class="mt-4">Puesto de su interes</h4>
+                        <div class="col-md-6">
+                            <label>Puesto</label>
+                            <select name="job_id" class="form-select" required="required">
+                                <t t-foreach="jobs" t-as="job">
+                                    <option t-att-value="job.id"><t t-esc="job.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="cv_file" class="form-label">Adjuntar Currículum (PDF o Word)</label>
+                            <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" class="form-control" required="required"/>
+                        </div>
+                    </div>
+
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2">Enviar Postulación</button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var currently_study_id = document.getElementById("currently_studying_id");
+                    var currently_study_div = document.getElementById("currently_studying_div")
+
+                    function setDefaultValues() {
+                        if (currently_study_id.checked) {
+                            currently_study_div.style.display = "block";
+                        } else{
+                            currently_study_div.style.display = "none";
+                        }
+
+                    }
+
+                    setDefaultValues();
+                    currently_study_id.addEventListener("change", setDefaultValues);
+                })
+            </script>
+        </t>
+    </template>
+
+    <template id="recruitment_thank_you" name="Gracias por Postularse">
+        <t t-call="website.layout">
+            <div class="container text-center my-5">
+                <h2>¡Gracias por su postulación, <t t-esc="applicant.partner_name"/>!</h2>
+                <p>Su información ha sido registrada correctamente.</p>
+            </div>
+        </t>
+    </template>
+</odoo>
