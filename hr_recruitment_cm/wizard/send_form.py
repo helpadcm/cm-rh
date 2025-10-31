@@ -44,7 +44,7 @@ class sendForm(models.TransientModel):
                                                             <div>
                                                                 Agradecemos sinceramente su interés en formar parte de CM Airlines. Como parte del proceso de selección, le solicitamos su apoyo completando el siguiente formulario:
                                                                 <div style="margin: 16px 0px 16px 0px;">
-                                                                    <a t-att-href={url}"
+                                                                    <a href="{url}"
                                                                         style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ir a Formulario</a>
                                                                 </div>
                                                                 <p>Esto nos permitirá recibir su información y los documentos necesarios para avanzar de manera ágil en el proceso.</p>
