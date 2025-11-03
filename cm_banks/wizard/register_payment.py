@@ -112,21 +112,21 @@ class account_payment_inherit_wizard(models.TransientModel):
                 pl.amount = pl.amount_unreconcilied
             pl.currency_id = currency_id
 
-    @api.depends('can_edit_wizard', 'amount', 'payment_line_ids')
-    def _compute_payment_difference(self):
-        for wizard in self:
-            if wizard.can_edit_wizard and wizard.payment_date:
-                batch_result = wizard._get_batches()[0]
-                lines_amount = 0.0
-                total_amount_residual_in_wizard_currency = wizard\
-                    ._get_total_amount_in_wizard_currency_to_full_reconcile(batch_result, early_payment_discount=False)[0]
+    # @api.depends('can_edit_wizard', 'amount', 'payment_line_ids')
+    # def _compute_payment_difference(self):
+    #     for wizard in self:
+    #         if wizard.can_edit_wizard and wizard.payment_date:
+    #             batch_result = wizard._get_batches()[0]
+    #             lines_amount = 0.0
+    #             total_amount_residual_in_wizard_currency = wizard\
+    #                 ._get_total_amount_in_wizard_currency_to_full_reconcile(batch_result, early_payment_discount=False)[0]
 
-                if wizard.payment_line_ids:
-                    lines_amount = sum(wizard.payment_line_ids.mapped('amount'))
+    #             if wizard.payment_line_ids:
+    #                 lines_amount = sum(wizard.payment_line_ids.mapped('amount'))
                     
-                wizard.payment_difference = total_amount_residual_in_wizard_currency - lines_amount
-            else:
-                wizard.payment_difference = 0.0
+    #             wizard.payment_difference = total_amount_residual_in_wizard_currency - lines_amount
+    #         else:
+    #             wizard.payment_difference = 0.0
 
     @api.depends('write_off_lines', 'payment_difference')
     def _compute_writeoff_amount(self):
