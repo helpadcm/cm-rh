@@ -9,7 +9,7 @@
             groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh"
             sequence="10"/>
 
-<!-- ##################################   ##################################################  -->
+<!-- ##################################  GENERAL MENU ##################################################  -->
 
         <menuitem
             id="general_rrrhh_menu"
@@ -31,17 +31,23 @@
             action="action_punctuality_ranking"
             groups="hr_payroll_cm.manager_rrhh_cm"
             sequence="2"/>
-<!-- 
-##################################  EXTERNAL  ##################################################
+
+<!-- ##################################  PAYROLL AND BENEFITS  ################################################## -->
 
         <menuitem
-            id="external_request_menuitem"
-            name="Externos"
-            parent="ticket_request_menu_root"
-            action="external_request_cm"
+            id="payroll_benefits_menuitem"
+            name="Nomina y Beneficios"
+            parent="rrhh_management_menu_root"
             sequence="2"/>
 
-##################################  CONFIGURATION  ##################################################  -->
+        <menuitem
+            id="request_loan_menuitem"
+            name="Solicitud de prestamo"
+            parent="payroll_benefits_menuitem"
+            action="action_request_loan"
+            sequence="1"/>
+
+<!-- ##################################  CONFIGURATION  ##################################################  -->
 
         <menuitem
             id="conf_rrhh_management_menu"

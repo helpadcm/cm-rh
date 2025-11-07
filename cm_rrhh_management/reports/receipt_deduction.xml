@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_deduction_receipt">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>	
+                <t t-set="symbol" t-value="company.currency_id.symbol"/>	
+                <div class="page" style="font-size:11px sans-serif;">
+                    <table style="width:100%">
+                        <tr>
+                            <td style="text-align:center;font-size:17px;"><strong><u>RECIBO POR L <span t-esc="'{0:,.2f}'.format(data.get('amount'))"/></u></strong></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-size:17px;"><strong><u>AUTORIZACIÓN DEDUCCIÓN POR PLANILLA PRESTAMO PERSONAL</u></strong></td>
+                        </tr>
+                    </table>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:17px; margin-top: 50px">
+                        Recibí de <strong>CM AIRLINES, S. de R. L. (la Empresa)</strong> la cantidad de <strong><span t-esc="data.get('amount_text')"/> (L <span t-esc="'{0:,.2f}'.format(data.get('amount'))"/>)</strong>
+                        en concepto de <strong>PRESTAMO INTERNO PERSONAL</strong> otorgado por la Empresa a mi favor, los cuales me obligo a pagar en  <span t-esc="data.get('fees')"/> meses (<span t-esc="int(data.get('fees')) * 2"/> quincenas) 
+                        a partir de la <span t-esc="data.get('initial_date')"/>, finalizando en la <span t-esc="data.get('final_date')"/>, con una deducción quincenal de <strong><span t-esc="data.get('fortnight_text')"/> (L <span t-esc="'{0:,.2f}'.format(data.get('fortnight_amount'))"/>)</strong>
+                        equivalente a <strong><span t-esc="data.get('monthly_amount_text')"/>  (L <span t-esc="'{0:,.2f}'.format(data.get('monthly_amount'))"/>)</strong> mensuales.
+                    </p>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:17px; margin-top: 30px">
+                        En virtud de lo anterior, expresamente AUTORIZO a la Empresa (CM Airlines, S. de R.L.), para que pueda llevar a cabo las deducciones antes establecidas de mi salario mensual. De igual forma, 
+                        si por cualquier causa, razón, motivo o circunstancia (sea causal de terminación justificada o injustificada) dejará de laborar para dicha Empresa, autorizo a esta, para que pueda llevar 
+                        a cabo la deducción del valor completo adeudado por mi persona a la fecha de mi terminación laboral, de los valores que por ley me puedan corresponder en concepto de derechos adquiridos, 
+                        prestaciones y/o indemnizaciones laborales. 
+                    </p>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:17px; margin-top: 30px">
+                        Finalmente, declaro desde ya tener por bien hechas las deducciones aquí establecidas por parte de la Empresa, liberándola de cualquier tipo de responsabilidad pasada, presente y/o futuro, por dicho concepto. 
+                    </p>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:17px; margin-top: 30px">
+                        Tegucigalpa M. D. C., <span t-esc="data.get('today_date')"/> 
+                    </p>
+
+                    <table style="width:40%;margin-top:120px;margin-left:30%">
+                        <tr>
+                            <td style="text-align:center;font-size:17px;border-bottom: 1px solid black"><br></br></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-size:17px;"><strong>IDENTIDAD No. <span t-esc="data.get('identity')"/></strong></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-size:17px;"><strong><span t-esc="data.get('employee')"/></strong></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-size:17px;"><strong>RECIBI CONFORME</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

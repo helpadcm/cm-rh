@@ -1,0 +1,275 @@
+<odoo>
+    <template id="portal_loan_request_cm" name="Ingreso de Horas">
+        <t t-call="portal.portal_layout">
+            <div class="tab-content">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Crear</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial</a>
+                    </li>
+                </ul>
+                <div class="container tab-pane fade show active" id="tab1">
+                    <div class="mb-3 alert alert-danger" style="display: none;" id="message_not_request_id">
+                        No tiene permiso para solicitar prestamos, debe tener al menos 6 meses desde su ultima solicitud o tener minimo 1 año de antiguedad
+                    </div>
+                    <div style="display: none;" id="form_view_id">
+                        <input type="number" class="d-none" name="years_old" id="id_years_old" t-att-value="years_old"/>
+                        <input type="text" class="d-none" name="show_form" id="id_show_form" t-att-value="show_form"/>
+
+                        <h2 class="text-center">Crear Solicitud de Prestamo</h2>
+                        <p class="text-center">Aqui puede solicitar un prestamo interno a la empresa, dicha solicitud debe reunir los requisitos necesarios los cuales seran evaluados para su aprobación.</p>
+
+                        <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                            <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                                <t t-esc="request.session.pop('flash_message')"/>
+                            </div>
+                        </div>
+
+                        <form action="/create_loan_request/submit" method="POST" class="mt-3">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                <!-- First Column -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Empleado</label>
+                                        <input type="text" class="form-control" disabled="disabled" name="employee_name" id="employee_name_id" t-att-value="employee_name"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Antigüedad</label>
+                                        <input type="text" class="form-control" disabled="disabled" name="seniority" id="seniority_id" t-att-value="seniority"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha de Ingreso</label>
+                                        <input type="date" class="form-control" disabled="disabled" name="income_date" id="income_date_id" t-att-value="income_date"/>
+                                    </div>
+                                </div>
+                                <!-- Second Column -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Monto a Solicitar</label>
+                                        <input type="number" class="form-control" name="amount_request" id="amount_request_id" required="required"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cuotas</label>
+                                        <select class="form-control" name="selection_fees" id="fees_id" required="required">
+                                            <option t-att-value="1">1 Mes</option>
+                                            <option t-att-value="2">2 Meses</option>
+                                            <option t-att-value="3">3 Meses</option>
+                                            <option t-att-value="4">4 Meses</option>
+                                            <option t-att-value="5">5 Meses</option>
+                                            <option t-att-value="6">6 Meses</option>
+                                            <option t-att-value="7">7 Meses</option>
+                                            <option t-att-value="8">8 Meses</option>
+                                            <option t-att-value="9">9 Meses</option>
+                                            <option t-att-value="10">10 Meses</option>
+                                            <option t-att-value="11">11Meses</option>
+                                            <option t-att-value="12">12 Meses</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Motivo del prestamo</label>
+                                        <input type="text" required="required" class="form-control" name="reason_request" id="reason_request_id"/>
+                                    </div>
+                                </div>
+                                <!-- Third Column -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Monto Mensual</label>
+                                        <input type="number" disabled="disabled" class="form-control" name="monthly_amount_request" id="monthly_amount_id"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Monto Quincenal</label>
+                                        <input type="number" disabled="disabled" class="form-control" name="fortnight_amount_request" id="fortnight_amount_request_id"/>
+                                    </div>
+                                    <div class="mb-3 alert alert-success" style="display: none;" id="sucess_message_div">
+                                        <label class="form-label">Información</label>
+                                        <input type="text" disabled="disabled" class="form-control" name="sucess_message_request" id="sucess_message_request_id"/>
+                                    </div>
+                                    <div class="mb-3 alert alert-danger" style="display: none;" id="error_message_div">
+                                        <label class="form-label">Información</label>
+                                        <input type="text" disabled="disabled" class="form-control" name="error_message_request" id="error_message_request_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab2" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-striped historical_table" >
+                            <thead>
+                                <tr>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Monto Solicitado</th>
+                                    <th class="header_historical">Cuotas</th>
+                                    <th class="header_historical">Monto Mensual</th>
+                                    <th class="header_historical">Monto Quincenal</th>
+                                    <th class="header_historical">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="historical_request" t-as="req">
+                                    <tr>
+                                        <td><t t-esc="req.date.strftime('%d/%m/%Y')"/></td>
+                                        <td><t t-esc="'{0:,.2f}'.format(req.amount)"/></td>
+                                        <td><t t-esc="req.fees"/></td>
+                                        <td><t t-esc="'{0:,.2f}'.format(req.monthly_amount)"/></td>
+                                        <td><t t-esc="'{0:,.2f}'.format(req.fortnight_amount)"/></td>
+                                        <td t-if="req.state == 'draft'">Borrador</td>
+                                        <td t-if="req.state == 'pending'">Pendiente de Aprobar</td>
+                                        <td t-if="req.state == 'approved'">Aprobado por Jefe</td>
+                                        <td t-if="req.state == 'assessment'">En Evaluacion</td>
+                                        <td t-if="req.state == 'finance'">Finanzas</td>
+                                        <td t-if="req.state == 'finalized'">Finalizado</td>
+                                        <td t-if="req.state == 'cancel'">Rechazado</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    const showFormInput = document.getElementById("id_show_form");
+                    const formDivInput = document.getElementById("form_view_id");
+                    const notFormDiv = document.getElementById("message_not_request_id");
+
+                    const amountInput = document.getElementById("amount_request_id");
+                    const feesInput = document.getElementById("fees_id");
+                    const monthlyInput = document.getElementById("monthly_amount_id");
+                    const fortnightInput = document.getElementById("fortnight_amount_request_id");
+                    const incomeDateInput = document.getElementById("income_date_id");
+
+                    const successDiv = document.getElementById("sucess_message_div");
+                    const errorDiv = document.getElementById("error_message_div");
+                    const successId = document.getElementById("sucess_message_request_id");
+                    const errorId = document.getElementById("error_message_request_id");
+                    const yearsOldInput = document.getElementById("id_years_old");
+
+                    function setDefaultValues() {
+                        const show_form = showFormInput.value;
+                        if (show_form === 'allow'){
+                            formDivInput.style.display = "block";
+                            notFormDiv.style.display = "none";
+                        }else{
+                            notFormDiv.style.display = "block";
+                            formDivInput.style.display = "none";
+                        }
+                    }
+
+                    function calculateAmounts() {
+                        const amount = parseFloat(amountInput.value) || 0;
+                        const fees_qty = parseInt(feesInput.value) || 0;
+                        const years_old = parseInt(yearsOldInput.value) || 0;
+
+                        if (amount &gt; 0 &amp;&amp; fees_qty &gt; 0) {
+                            const mensual = amount / fees_qty;
+                            const quincenal = mensual / 2;
+
+                            // Mostrar con 2 decimales
+                            monthlyInput.value = mensual.toFixed(2);
+                            fortnightInput.value = quincenal.toFixed(2);
+
+                            var max_amount = 0;
+                            if (years_old === 1){
+                                max_amount = 12000;
+                            }
+
+                            if (years_old === 2){
+                                max_amount = 15000;
+                            }
+
+                            if (years_old === 3){
+                                max_amount = 15000;
+                            }
+
+                            if (years_old &gt; 3){
+                                max_amount = 18000;
+                            }
+
+                            if (amount &gt; max_amount){
+                                errorId.value = "El monto máximo permitido " + max_amount;
+                                successId.value = "";
+                                errorDiv.style.display = "block";
+                                successDiv.style.display = "none";
+                            }else{
+                                successId.value = "Todo esta correcto";
+                                errorId.value = "";
+                                successDiv.style.display = "block";
+                                errorDiv.style.display = "none";
+                            }
+
+                        } else {
+                            // Limpiar si faltan datos
+                            monthlyInput.value = "";
+                            fortnightInput.value = "";
+                        }
+                    }
+
+                    // Asignar valores al cargar la página
+                    setDefaultValues();
+
+                    // Asignar valores cuando cambien los datos
+                    amountInput.addEventListener("input", calculateAmounts);
+                    feesInput.addEventListener("change", calculateAmounts);
+                });
+
+            </script>
+            <!-- Estilo del popup -->
+            <style>
+                .message {
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    margin-top: 10px;
+                    font-weight: bold;
+                }
+                .message.success {
+                    background-color: #d4edda;
+                    color: #155724;
+                    border: 1px solid #c3e6cb;
+                }
+                .message.error {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

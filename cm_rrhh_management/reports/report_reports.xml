@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="receipt_deduction_action" model="ir.actions.report">
+		<field name="name">Recibo de Deduccion</field>
+		<field name="model">rrhh.request.loan</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_rrhh_management.report_deduction_receipt</field>
+		<field name="report_file">cm_rrhh_management.report_deduction_receipt</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_rrhh_management.paperformat_ded_receipt"/>
+	</record>
+</odoo>

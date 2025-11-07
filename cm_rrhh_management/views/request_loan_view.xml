@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="request_loan_form_view" model="ir.ui.view">
+            <field name="name">Solicitudes de Prestamo</field>
+            <field name="model">rrhh.request.loan</field>
+            <field name="arch" type="xml">
+                <form string="Solicitudes de Prestamo">
+                    <header>
+                        <button name="change_state" context="{'state': 'pending'}" class="oe_highlight" type="object" string="Solicitar" invisible="state != 'draft'"/>
+                        <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'pending'"/>
+                        <button name="change_state" context="{'state': 'assessment'}" class="oe_highlight" type="object" string="A Evaluacion" invisible="state != 'approved'"/>
+                        <button name="change_state" context="{'state': 'finance'}" class="oe_highlight" type="object" string="Enviar a Finanzas" invisible="state != 'assessment'"/>
+                        <button name="change_state" context="{'state': 'payroll'}" class="oe_highlight" type="object" string="Aprobar prestamo" invisible="state != 'finance'"/>
+                        <button name="change_state" context="{'state': 'finalized'}" class="oe_highlight" type="object" string="Finalizar" invisible="state != 'payroll'"/>
+                        <button name="create_deduction" class="oe_highlight" type="object" string="Crear Deduccion" invisible="state != 'payroll' or deduction_id != False"/>
+                        <button name="change_state" context="{'state': 'cancel'}" class="oe_highlight" type="object" string="Rechazar" invisible="state not in ['assessment','approved']"/>
+                        <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'pending'"/>
+                        <button name="print_receipt" class="oe_highlight btn-info" type="object" string="Imprimir Recibo" invisible="not deduction_id"/>
+                        <field name="state" widget="statusbar"/>
+                  	</header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="employee_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="start_date" readonly="1" force_save="1"/>
+                                <field name="boss_id" string="Aprobador" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group>
+                                <field name="date" readonly="1"/>
+                                <field name="seniority" readonly="1" force_save="1"/>
+                                <field name="initial_deduction_date" required="state == 'payroll'" readonly="state != 'payroll'" invisible="state not in ['payroll','finalized']"/>
+                                <field name="deduction_id" invisible="state not in ['payroll','finalized']" readonly="1"/>
+                            </group>
+                        </group>
+
+                        <group string="Montos">
+                            <group>
+                                <field name="amount"/>
+                                <field name="monthly_amount" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="fees" required="1"/>
+                                <field name="fortnight_amount" readonly="1" force_save="1"/>
+                            </group>
+                        </group>
+                        <field name="reason" placeholder="Motivo del prestamo"/>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="request_loan_tree_view" model="ir.ui.view">
+            <field name="name">Solicitudes de prestamo</field>
+            <field name="model">rrhh.request.loan</field>
+            <field name="arch" type="xml">
+                <tree string="Solicitudes de prestamo">
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="date" />
+                    <field name="amount" sum="Total"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="request_loan_search_view" model="ir.ui.view">
+            <field name="name">Solicitud de prestamos search</field>
+            <field name="model">rrhh.request.loan</field>
+            <field name="arch" type="xml">
+                <search string="Solicitud de prestamos">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="employee_id" filter_domain="[('employee_id', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Pendiente de aprobar" name="pending_state_filter" domain="[('state','=','pending')]"/>
+                    <filter string="Aprobado por el jefe" name="approved_state_filter" domain="[('state','=','approved')]"/>
+                    <filter string="En Evaluacion" name="assessment_state_filter" domain="[('state','=','assessment')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_date" string="Fecha" domain="[]" context="{'group_by':'date'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_employee" string="Empleado" domain="[]" context="{'group_by':'employee_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_request_loan" model="ir.actions.act_window">            
+            <field name="name">Solicitudes de prestamo</field>
+            <field name="res_model">rrhh.request.loan</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval=""/>
+        </record>
+
+    </data>
+</odoo>
