@@ -120,6 +120,7 @@ class HrSalaryAttachment(models.Model):
                     init_date = init_date.replace(day=16)
                 else:
                     init_date = (init_date + relativedelta(months=1)).replace(day=1)
+            self.date_end = self.payment_plan_ids[len(self.payment_plan_ids) - 1].date
 
     @api.onchange('deduction_type_id')
     def get_deduction_name(self):
