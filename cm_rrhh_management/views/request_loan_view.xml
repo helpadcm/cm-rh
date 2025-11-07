@@ -9,12 +9,12 @@
                     <header>
                         <button name="change_state" context="{'state': 'pending'}" class="oe_highlight" type="object" string="Solicitar" invisible="state != 'draft'"/>
                         <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'pending'"/>
-                        <button name="change_state" context="{'state': 'assessment'}" class="oe_highlight" type="object" string="A Evaluacion" invisible="state != 'approved'"/>
-                        <button name="change_state" context="{'state': 'finance'}" class="oe_highlight" type="object" string="Enviar a Finanzas" invisible="state != 'assessment'"/>
-                        <button name="change_state" context="{'state': 'payroll'}" class="oe_highlight" type="object" string="Aprobar prestamo" invisible="state != 'finance'"/>
-                        <button name="change_state" context="{'state': 'finalized'}" class="oe_highlight" type="object" string="Finalizar" invisible="state != 'payroll'"/>
-                        <button name="create_deduction" class="oe_highlight" type="object" string="Crear Deduccion" invisible="state != 'payroll' or deduction_id != False"/>
-                        <button name="change_state" context="{'state': 'cancel'}" class="oe_highlight" type="object" string="Rechazar" invisible="state not in ['assessment','approved']"/>
+                        <button name="change_state" context="{'state': 'assessment'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="A Evaluacion" invisible="state != 'approved'"/>
+                        <button name="change_state" context="{'state': 'finance'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Enviar a Finanzas" invisible="state != 'assessment'"/>
+                        <button name="change_state" context="{'state': 'payroll'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_finance_area_rrhh" string="Aprobar prestamo" invisible="state != 'finance'"/>
+                        <button name="change_state" context="{'state': 'finalized'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Finalizar" invisible="state != 'payroll'"/>
+                        <button name="create_deduction" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Crear Deduccion" invisible="state != 'payroll' or deduction_id != False"/>
+                        <button name="change_state" context="{'state': 'cancel'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Rechazar" invisible="state not in ['assessment','approved']"/>
                         <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'pending'"/>
                         <button name="print_receipt" class="oe_highlight btn-info" type="object" string="Imprimir Recibo" invisible="not deduction_id"/>
                         <field name="state" widget="statusbar"/>
@@ -25,7 +25,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="employee_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="employee_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="start_date" readonly="1" force_save="1"/>
                                 <field name="boss_id" string="Aprobador" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
                             </group>
@@ -39,15 +39,15 @@
 
                         <group string="Montos">
                             <group>
-                                <field name="amount"/>
+                                <field name="amount" readonly="state != 'draft'"/>
                                 <field name="monthly_amount" readonly="1" force_save="1"/>
                             </group>
                             <group>
-                                <field name="fees" required="1"/>
+                                <field name="fees" required="1" readonly="state != 'draft'"/>
                                 <field name="fortnight_amount" readonly="1" force_save="1"/>
                             </group>
                         </group>
-                        <field name="reason" placeholder="Motivo del prestamo"/>
+                        <field name="reason" placeholder="Motivo del prestamo" readonly="state != 'draft'"/>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>

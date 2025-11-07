@@ -5,8 +5,7 @@
             id="rrhh_management_menu_root"
             name="Gestiones RRHH"
             web_icon="cm_rrhh_management,static/description/icon.jpg"
-            action="action_trainigns_rrhh_cm"
-            groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh"
+            groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh,group_finance_area_rrhh"
             sequence="10"/>
 
 <!-- ##################################  GENERAL MENU ##################################################  -->
@@ -15,6 +14,7 @@
             id="general_rrrhh_menu"
             name="General"
             parent="rrhh_management_menu_root"
+            groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh"
             sequence="1"/>
 
         <menuitem
@@ -38,6 +38,7 @@
             id="payroll_benefits_menuitem"
             name="Nomina y Beneficios"
             parent="rrhh_management_menu_root"
+            groups="group_payroll_area_rrhh,group_finance_area_rrhh"
             sequence="2"/>
 
         <menuitem
@@ -45,6 +46,7 @@
             name="Solicitud de prestamo"
             parent="payroll_benefits_menuitem"
             action="action_request_loan"
+            groups="group_payroll_area_rrhh,group_finance_area_rrhh"
             sequence="1"/>
 
 <!-- ##################################  CONFIGURATION  ##################################################  -->
