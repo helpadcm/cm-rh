@@ -17,7 +17,7 @@
 		'views/inh_models_view.xml',
 		'views/training_view.xml',
 		'views/punctuality_ranking_view.xml',
-		'views/portal_view.xml',
+		# 'views/portal_view.xml',
 		'views/request_home_view.xml',
 		'views/request_loan_view.xml',
 		'views/portal_loan_request.xml',
