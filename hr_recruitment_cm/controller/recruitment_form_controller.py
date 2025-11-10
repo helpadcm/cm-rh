@@ -51,6 +51,7 @@ class RecruitmentPublicForm(http.Controller):
             'experience': post.get('experience'),
             'knowledge_position': post.get('knowledge_position'),
             'personal_experience': post.get('personal_experience'),
+            'salary_expected': post.get('salary_expected'),
             'banpais_situation': post.get('banpais_situation'),
             'disease': post.get('disease') == 'on',
             'other_responsabilities': post.get('other_responsabilities'),
