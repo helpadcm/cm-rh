@@ -21,7 +21,7 @@
                                                 <tr>
                                                     <td valign="middle">
                                                         <span style="font-size: 10px;">Solicitud</span><br/>
-                                                        <span style="font-size: 20px; font-weight: bold;" t-out="object.employee_id.name or ''"/> Programa a volar
+                                                        <span style="font-size: 20px; font-weight: bold;" t-out="object.employee_id.name or ''"/> Solicitud de Vuelo
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -46,6 +46,9 @@
                                                             </t>
                                                             <t t-if="object.open_back">
                                                                 Ruta y fecha regreso: <t t-out="object.return_route_id.name or ''"/>, Open.<br/><br/>
+                                                            </t>
+                                                            <t t-if="object.holiday_status_id.code_zenith">
+                                                                Código: <t t-out="object.holiday_status_id.code_zenith or ''"/>.<br/><br/>
                                                             </t>
                                                             <table style="border:1px solid black;border-collapse: collapse;width:100%">
                                                                 <tr>
@@ -98,6 +101,61 @@
                                                                     </td>
                                                                     <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 3">
                                                                         <t t-out="object.beneficiary4.birthday or ''"/>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 4">
+                                                                        <t t-out="object.beneficiary5.name or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 4">
+                                                                        <t t-out="object.beneficiary5.identity or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 4">
+                                                                        <t t-out="object.beneficiary5.birthday or ''"/>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 5">
+                                                                        <t t-out="object.beneficiary6.name or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 5">
+                                                                        <t t-out="object.beneficiary6.identity or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 5">
+                                                                        <t t-out="object.beneficiary6.birthday or ''"/>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 6">
+                                                                        <t t-out="object.beneficiary7.name or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 6">
+                                                                        <t t-out="object.beneficiary7.identity or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 6">
+                                                                        <t t-out="object.beneficiary7.birthday or ''"/>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 7">
+                                                                        <t t-out="object.beneficiary8.name or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 7">
+                                                                        <t t-out="object.beneficiary8.identity or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 7">
+                                                                        <t t-out="object.beneficiary8.birthday or ''"/>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 8">
+                                                                        <t t-out="object.beneficiary9.name or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px" t-if="object.tickets_request &gt; 8">
+                                                                        <t t-out="object.beneficiary9.identity or ''"/>
+                                                                    </td>
+                                                                    <td style="border:1px solid black;padding:3px;text-align:center" t-if="object.tickets_request &gt; 8">
+                                                                        <t t-out="object.beneficiary9.birthday or ''"/>
                                                                     </td>
                                                                 </tr>
                                                             </table>

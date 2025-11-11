@@ -7,6 +7,7 @@ class HrLeavesType(models.Model):
     _inherit = 'hr.leave.type'
 
     code = fields.Char(string="Codigo")
+    code_zenith = fields.Char(string="Codigo Zenith")
 
 class HrLeavesInh(models.Model):
     _inherit = 'hr.leave'
@@ -21,6 +22,11 @@ class HrLeavesInh(models.Model):
     beneficiary2 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 2", tracking=True)
     beneficiary3 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 3", tracking=True)
     beneficiary4 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 4", tracking=True)
+    beneficiary5 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 5", tracking=True)
+    beneficiary6 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 6", tracking=True)
+    beneficiary7 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 7", tracking=True)
+    beneficiary8 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 8", tracking=True)
+    beneficiary9 = fields.Many2one('beneficiaries.detail.list',string="Beneficiario 9", tracking=True)
     char_date_from = fields.Char(string="Fecha inicial string")
     char_date_to = fields.Char(string="Fecha final string")
     # return_route_open = fields.Char(string="Ruta regreso Open", compute="get_return_open_route")
@@ -30,7 +36,7 @@ class HrLeavesInh(models.Model):
     #     for rec in self:
 
     def _get_leaves_on_public_holiday(self):
-        if self.code != 'PFLY':
+        if self.code not in ['PFLY','SCP','SCSE']:
             res = super(HrLeavesInh, self)._get_leaves_on_public_holiday()
             return res
         else:
@@ -71,23 +77,25 @@ class HrLeavesInh(models.Model):
             else:
                 hours_taken = self.number_of_days * 8
             self.employee_id.compensatory_hours -= hours_taken
-        elif self.holiday_status_id.code == 'PFLY':
-            if self.exit_only:
-                self.employee_id.program_to_fly -= (self.tickets_request/2)
-            else:
-                self.employee_id.program_to_fly -= self.tickets_request
+        elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
+            if self.company_id.id == 1 and self.holiday_status_id.code == 'PFLY':
+                if self.exit_only:
+                    self.employee_id.program_to_fly -= (self.tickets_request/2)
+                else:
+                    self.employee_id.program_to_fly -= self.tickets_request
             self.send_email()
         return res
 
     @api.model_create_multi
     def create(self, vals_list):
         res = super(HrLeavesInh, self).create(vals_list)
-        if res.code == 'PFLY':
+        if res.code in ['PFLY','SCP','SCSE']:
             employee_noti_id = self.env['hr.employee'].search([('notify_validate_turns','=',True)])
             if employee_noti_id:
+                request_type = res.holiday_status_id.name
                 mail = self.env['mail.mail'].create({
-                    'subject': "Solicitud Programa a volar creada por %s"%(res.employee_id.name),
-                    'body_html': "<p>Se ha creado una solicitud del programa a volar para que pueda ser revisada</p>",
+                    'subject': "Solicitud %s creada por %s"%(request_type,res.employee_id.name),
+                    'body_html': f"""<p>Se ha creado una solicitud de {request_type} para que pueda ser revisada</p>""",
                     'email_to': employee_noti_id.user_id.login,
                 })
                 mail.send()
@@ -151,7 +159,7 @@ class HrLeavesInh(models.Model):
                                                         date_to=conflicting_holiday_data['date_to'],
                                                         state=conflicting_holiday_data['state'])
                         conflicting_holidays_strings.append(conflicting_holidays_string)
-                    if holiday.code != 'PFLY':
+                    if holiday.code not in ['PFLY','SCP','SCSE']:
                         raise ValidationError(_("""\
     Ya programó tiempo personal que se sobrepone con este periodo:\n
     %s
@@ -165,7 +173,7 @@ class HrLeavesInh(models.Model):
                                                     date_to=conflicting_holiday_data['date_to'],
                                                     state=conflicting_holiday_data['state'])
                     conflicting_holidays_strings.append(conflicting_holidays_string)
-                if holiday.code != 'PFLY':
+                if holiday.code not in ['PFLY','SCP','SCSE']:
                     raise ValidationError(_(
                         "Un empleado ya programó un permiso que coincide con este periodo: %s",
                         "".join(conflicting_holidays_strings)))

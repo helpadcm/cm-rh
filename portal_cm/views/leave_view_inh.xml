@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <field name="time_type" position="after">
                 <field name="code"/>
+                <field name="code_zenith" />
             </field>
         </field>
     </record>
@@ -20,20 +21,31 @@
             </field>
             <div name="duration_warning" position="after">
                 <notebook>
-                    <page name="pfly" string="Programa Volar" invisible="code != 'PFLY'">
-                        <group>
+                    <page name="pfly" string="Programa Volar" invisible="code not in ['PFLY','SCP','SCSE']">
+                        <group string="Datos de solicitud">
                             <group>
-                                <field name="tickets_request" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
-                                <field name="exit_only" invisible="code != 'PFLY' or not exit_only" readonly="state not in ['draft','confirm']"/>
-                                <field name="open_back" invisible="code != 'PFLY' or not open_back" readonly="state not in ['draft','confirm']"/>
-                                <field name="exit_route_id" options="{'no_create': True}" invisible="code != 'PFLY'" readonly="state not in ['draft','confirm']"/>
-                                <field name="return_route_id" options="{'no_create': True}" invisible="code != 'PFLY' or not exit_only or not open_back" readonly="state not in ['draft','confirm']"/>
+                                <field name="tickets_request" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="exit_only" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="open_back" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
                             </group>
                             <group>
-                                <field name="beneficiary1" options="{'no_create': True}" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']"/>
-                                <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']"/>
-                                <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']"/>
-                                <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']"/>
+                                <field name="exit_route_id" options="{'no_create': True}" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="return_route_id" options="{'no_create': True}" invisible="code not in ['PFLY','SCP','SCSE'] or exit_only or open_back" readonly="state not in ['draft','confirm']"/>
+                            </group>
+                        </group>
+                        <group string="Beneficiarios">
+                            <group>
+                                <field name="beneficiary1" options="{'no_create': True}" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary3" options="{'no_create': True}" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary5" options="{'no_create': True}" invisible="tickets_request &lt; 5" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary7" options="{'no_create': True}" invisible="tickets_request &lt; 7" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary9" options="{'no_create': True}" invisible="tickets_request &lt; 9" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                            </group>
+                            <group>
+                                <field name="beneficiary2" options="{'no_create': True}" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary4" options="{'no_create': True}" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary6" options="{'no_create': True}" invisible="tickets_request &lt; 6" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
+                                <field name="beneficiary8" options="{'no_create': True}" invisible="tickets_request &lt; 8" readonly="state not in ['draft','confirm']" domain="[('employee_id','in',employee_ids)]"/>
                                 <field name="char_date_from" invisible="1"/>
                                 <field name="char_date_to" invisible="1"/>
                             </group>

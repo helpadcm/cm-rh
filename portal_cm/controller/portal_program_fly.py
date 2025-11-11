@@ -17,8 +17,11 @@ class CustomPortalAbsences(http.Controller):
         else:
             program_to_fly = employee_id.program_to_fly
 
-        history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','=','PFLY')], order="request_date_from desc")
+        history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','in',['PFLY','SCP','SCSE'])], order="request_date_from desc")
         routes_ids = request.env['flight.routes'].sudo().search([])
+
+        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','in',['PFLY','SCP','SCSE'])]
+        types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
 
         # Recuperar datos del formulario desde la sesión
         form_data = request.session.pop('form_data', {})
@@ -28,6 +31,7 @@ class CustomPortalAbsences(http.Controller):
             'beneficiaries_ids': employee_id.beneficiaries_ids,
             'program_to_fly': program_to_fly,
             'history_absences_ids': history_absences_ids,
+            'types_absences_ids': types_absences_ids,
             'routes': routes_ids,
             'form_data': form_data  # Pasar los datos al template
         }
@@ -69,7 +73,7 @@ class CustomPortalAbsences(http.Controller):
         if not employee_id:
             return "Error: No se encontró un empleado vinculado a este usuario. Verifique su configuración en Odoo."
 
-        type_value_id = request.env['hr.leave.type'].sudo().search([('code','=','PFLY')])
+        type_value_id = post.get("selection_absence_type")
         start_date = post.get("initial_date")
         end_date = post.get("final_date")
         exit_route_id = post.get("selection_exit_route")
@@ -81,6 +85,11 @@ class CustomPortalAbsences(http.Controller):
         beneficiary2 = post.get("selection_beneficiary2")
         beneficiary3 = post.get("selection_beneficiary3")
         beneficiary4 = post.get("selection_beneficiary4")
+        beneficiary5 = post.get("selection_beneficiary5")
+        beneficiary6 = post.get("selection_beneficiary6")
+        beneficiary7 = post.get("selection_beneficiary7")
+        beneficiary8 = post.get("selection_beneficiary8")
+        beneficiary9 = post.get("selection_beneficiary9")
         attachments = request.httprequest.files.getlist('attachments')
         notes = post.get("record_notes")
 
@@ -99,7 +108,7 @@ class CustomPortalAbsences(http.Controller):
         
         vals = {
             'employee_id': employee_id.id,
-            'holiday_status_id': int(type_value_id.id),
+            'holiday_status_id': int(type_value_id),
             'request_date_from': date_from,
             'holiday_type': 'employee',
             'tickets_request': tickets_request,
@@ -114,18 +123,115 @@ class CustomPortalAbsences(http.Controller):
         elif int(tickets_request) == 2:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
-            vals.update({'beneficiary1': int(beneficiary1), 'beneficiary2': int(beneficiary2)})
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2)
+            })
         elif int(tickets_request) == 3:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
             tickets.append(int(beneficiary3))
-            vals.update({'beneficiary1': int(beneficiary1), 'beneficiary2': int(beneficiary2), 'beneficiary3': int(beneficiary3)})
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3)
+            })
         elif int(tickets_request) == 4:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
             tickets.append(int(beneficiary3))
             tickets.append(int(beneficiary4))
-            vals.update({'beneficiary1': int(beneficiary1), 'beneficiary2': int(beneficiary2), 'beneficiary3': int(beneficiary3), 'beneficiary4': int(beneficiary4)})
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4)
+            })
+        elif int(tickets_request) == 5:
+            tickets.append(int(beneficiary1))
+            tickets.append(int(beneficiary2))
+            tickets.append(int(beneficiary3))
+            tickets.append(int(beneficiary4))
+            tickets.append(int(beneficiary5))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5)
+            })
+        elif int(tickets_request) == 6:
+            tickets.append(int(beneficiary1))
+            tickets.append(int(beneficiary2))
+            tickets.append(int(beneficiary3))
+            tickets.append(int(beneficiary4))
+            tickets.append(int(beneficiary5))
+            tickets.append(int(beneficiary6))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6)
+            })
+        elif int(tickets_request) == 7:
+            tickets.append(int(beneficiary1))
+            tickets.append(int(beneficiary2))
+            tickets.append(int(beneficiary3))
+            tickets.append(int(beneficiary4))
+            tickets.append(int(beneficiary5))
+            tickets.append(int(beneficiary6))
+            tickets.append(int(beneficiary7))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7)
+            })
+        elif int(tickets_request) == 8:
+            tickets.append(int(beneficiary1))
+            tickets.append(int(beneficiary2))
+            tickets.append(int(beneficiary3))
+            tickets.append(int(beneficiary4))
+            tickets.append(int(beneficiary5))
+            tickets.append(int(beneficiary6))
+            tickets.append(int(beneficiary7))
+            tickets.append(int(beneficiary8))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7), 
+                'beneficiary8': int(beneficiary8)
+            })
+        elif int(tickets_request) == 9:
+            tickets.append(int(beneficiary1))
+            tickets.append(int(beneficiary2))
+            tickets.append(int(beneficiary3))
+            tickets.append(int(beneficiary4))
+            tickets.append(int(beneficiary5))
+            tickets.append(int(beneficiary6))
+            tickets.append(int(beneficiary7))
+            tickets.append(int(beneficiary8))
+            tickets.append(int(beneficiary9))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7), 
+                'beneficiary8': int(beneficiary8), 
+                'beneficiary9': int(beneficiary9)
+            })
 
         validated = False
         if date_to.date() < date_from.date():

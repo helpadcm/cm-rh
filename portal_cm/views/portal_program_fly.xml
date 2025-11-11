@@ -32,6 +32,17 @@
 
                                 <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
 
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tipo de Boleto</label>
+                                            <select class="form-control" name="selection_absence_type" id="absence_type" required="required">
+                                                <t t-foreach="types_absences_ids" t-as="type">
+                                                    <option t-att-value="type.id" t-att-data-opt-code="type.code"><t t-esc="type.name"/></option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12" id="fly_div_id">
                                         <div class="mb-3">
                                             <label class="form-label">Boletos disponibles</label>
@@ -76,6 +87,51 @@
                                     <div class="col-12"  id="ben4">
                                         <label class="form-label" id="label4">Beneficiario 4</label>
                                         <select class="form-control" name="selection_beneficiary4" id="beneficiary4_id" required="required">
+                                            <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12"  id="ben5">
+                                        <label class="form-label" id="label5">Beneficiario 5</label>
+                                        <select class="form-control" name="selection_beneficiary5" id="beneficiary5_id" required="required">
+                                            <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12"  id="ben6">
+                                        <label class="form-label" id="label6">Beneficiario 6</label>
+                                        <select class="form-control" name="selection_beneficiary6" id="beneficiary6_id" required="required">
+                                            <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12"  id="ben7">
+                                        <label class="form-label" id="label7">Beneficiario 7</label>
+                                        <select class="form-control" name="selection_beneficiary7" id="beneficiary7_id" required="required">
+                                            <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12"  id="ben8">
+                                        <label class="form-label" id="label8">Beneficiario 8</label>
+                                        <select class="form-control" name="selection_beneficiary8" id="beneficiary8_id" required="required">
+                                            <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12"  id="ben9">
+                                        <label class="form-label" id="label9">Beneficiario 9</label>
+                                        <select class="form-control" name="selection_beneficiary9" id="beneficiary9_id" required="required">
                                             <t t-foreach="beneficiaries_ids" t-as="ben">
                                                 <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
                                             </t>
@@ -280,24 +336,45 @@
 
                 document.addEventListener("DOMContentLoaded", function () {
                     var create_beneficiary = document.getElementById("create_benficiary_id");
+                    var absence_type = document.getElementById("absence_type");
                     var beneficiaryForm = document.getElementById("beneficiaryForm");
                     var take_tickets = document.getElementById("tickets");
                     var ben1Container = document.getElementById("beneficiary1_id").closest(".col-12");
                     var ben2Container = document.getElementById("beneficiary2_id").closest(".col-12");
                     var ben3Container = document.getElementById("beneficiary3_id").closest(".col-12");
                     var ben4Container = document.getElementById("beneficiary4_id").closest(".col-12");
+                    var ben5Container = document.getElementById("beneficiary5_id").closest(".col-12");
+                    var ben6Container = document.getElementById("beneficiary6_id").closest(".col-12");
+                    var ben7Container = document.getElementById("beneficiary7_id").closest(".col-12");
+                    var ben8Container = document.getElementById("beneficiary8_id").closest(".col-12");
+                    var ben9Container = document.getElementById("beneficiary9_id").closest(".col-12");
                     var exit_only = document.getElementById("exit_only_id");
                     var open_back = document.getElementById("open_back_id");
                     var returnDiv = document.getElementById("return_div_id");
                     var finalDateDiv = document.getElementById("final_date_div");
                     var finalDate = document.getElementById("final_date_id");
+                    var flyDispDiv = document.getElementById("fly_div_id");
+                    var flyAvailable = document.getElementById("program_to_fly_id");
 
                     function setDefaultValues() {
+                        var selectedOption = absence_type.options[absence_type.selectedIndex];
+                        var type_code = selectedOption.getAttribute("data-opt-code");
+
+                        // Mostrar u ocultar Boletos Disponibles
+                        if (type_code === "PFLY"){
+                            flyDispDiv.style.display = "block";
+                            take_tickets.setAttribute("max", flyAvailable.value);
+                        }else{
+                            flyDispDiv.style.display = "none";
+                            take_tickets.setAttribute("max", 9);
+                        }
+
                         var ticketCount = parseInt(take_tickets.value, 10) || 0; 
                         ben1Container.style.display = "none";
                         ben2Container.style.display = "none";
                         ben3Container.style.display = "none";
                         ben4Container.style.display = "none";
+
 
                         if(create_beneficiary.checked){
                             beneficiaryForm.style.display = "block";
@@ -338,6 +415,36 @@
                         }else{
                             ben4Container.style.display = "none";
                         }
+
+                        if (ticketCount >= 5){
+                            ben5Container.style.display = "block";
+                        }else{
+                            ben5Container.style.display = "none";
+                        }
+
+                        if (ticketCount >= 6){
+                            ben6Container.style.display = "block";
+                        }else{
+                            ben6Container.style.display = "none";
+                        }
+
+                        if (ticketCount >= 7){
+                            ben7Container.style.display = "block";
+                        }else{
+                            ben7Container.style.display = "none";
+                        }
+
+                        if (ticketCount >= 8){
+                            ben8Container.style.display = "block";
+                        }else{
+                            ben8Container.style.display = "none";
+                        }
+
+                        if (ticketCount >= 9){
+                            ben9Container.style.display = "block";
+                        }else{
+                            ben9Container.style.display = "none";
+                        }
                     }
 
                     setDefaultValues();
@@ -345,6 +452,7 @@
                     take_tickets.addEventListener("change", setDefaultValues);
                     exit_only.addEventListener("change", setDefaultValues);
                     open_back.addEventListener("change", setDefaultValues);
+                    absence_type.addEventListener("change", setDefaultValues);
                 });
 
             </script>
