@@ -492,10 +492,10 @@ class banks_deposits(models.Model):
 
 	def add_account(self):
 		if self.move_id:
-			# account_id = self.env['account.account'].search([('code','=','102.02')])
-			# self.unreconciliate_deposit()
-			# line_id = self.mcheck_ids[0]
-			# line_id.account_id = account_id.id
+			account_id = self.env['account.account'].search([('code','=','102.02')])
+			self.unreconciliate_deposit()
+			line_id = self.mcheck_ids[0]
+			line_id.account_id = account_id.id
 			analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
 			if self.move_id:
 				for line in self.move_id.line_ids:
@@ -503,7 +503,7 @@ class banks_deposits(models.Model):
 						if analytic_account_id:
 							distribution_line = {str(analytic_account_id.id): 100.0}
 							line.analytic_distribution = distribution_line
-			# self.action_validate()
+			self.action_validate()
 
 class banks_deposit_name(models.Model):
 	_name = 'banks.deposit.name'
