@@ -19,6 +19,6 @@
         'views/sequence_inh.xml',
         'views/account_move_view_inh.xml',
         'views/menus.xml',
-        'reports/report_invoice_inherit.xml'
+        # 'reports/report_invoice_inherit.xml'
     ],
 }
