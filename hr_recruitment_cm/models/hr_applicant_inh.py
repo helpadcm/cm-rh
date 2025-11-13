@@ -59,6 +59,11 @@ class HrApplicantInh(models.Model):
     laboral_reference_ids = fields.One2many('applicant.laboral.reference','applicant_id',string="Referencias Laborales")
     personal_reference_ids = fields.One2many('applicant.personal.reference','applicant_id',string="Referencias Personales")
 
+    salary_proposed_extra = fields.Char("Proposed Salary Extra", help="Salary Proposed by the Organisation, extra advantages", tracking=True,groups=False)
+    salary_expected_extra = fields.Char("Expected Salary Extra", help="Salary Expected by Applicant, extra advantages", tracking=True,groups=False)
+    salary_proposed = fields.Float("Proposed Salary", group_operator="avg", help="Salary Proposed by the Organisation", tracking=True,groups=False)
+    salary_expected = fields.Float("Expected Salary", group_operator="avg", help="Salary Expected by Applicant", tracking=True,groups=False)
+
     @api.model
     def default_get(self, fields_list):
         res = super(HrApplicantInh, self).default_get(fields_list)
