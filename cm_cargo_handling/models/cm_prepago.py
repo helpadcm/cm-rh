@@ -99,7 +99,7 @@ class CmPrepago(models.Model):
     def cancel_to_pay(self):
         for cash in self:
             if cash.state!="posted" and not cash.payment_create:
-                cash.payment_create=True
+                cash.payment_create = True
 
     def post_to_pay(self):
         for cash in self:
@@ -151,6 +151,8 @@ class CmPrepago(models.Model):
     def action_cancel(self):
         for record in self:
             if not record.payment_create:
+                if record.invoice_id:
+                    record.invoice_id.message_post(body=f"""Prepago {record.name} cancelado.""")
                 record.state="cancel"
             else:
                 raise ValidationError("El Pago de la factura ya fue procesado")

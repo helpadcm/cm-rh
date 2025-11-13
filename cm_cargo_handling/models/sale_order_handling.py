@@ -296,6 +296,9 @@ class saleOrderHandling(models.Model):
             rec.weight = total_lbs
             rec.discount = total_discount
             rec.preliminar_price = total_dls + total_volumen
+
+            if subtotal < 0:
+                subtotal = 0
             rec.amount_untaxed = subtotal
             rec.total = subtotal
 

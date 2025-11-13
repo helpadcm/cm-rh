@@ -15,7 +15,7 @@
                     <field name="amount_hnl" sum="1"/>
                     <field name="amount_usd" sum="1"/>
                     <field name="state"/>
-                    <button name="action_cancel" type="object" string="Cancelar"/>
+                    <button name="action_cancel" type="object" string="Cancelar" groups="settlement.group_cash_register_auditor,base.group_no_one"/>
                     <button name="post_to_pay" type="object" string="Procesar" groups="base.group_no_one"/>          
                 </tree>
             </field>
