@@ -22,6 +22,8 @@ class GeneralLegderReport(models.AbstractModel):
 		{}
 		format41 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': False,'num_format': 'L #,###,##0.00'})
 		format411 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': True,'num_format': 'L #,###,##0.#0'})
+		format42 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': True,'num_format': '#,###,##0.00'})
+		format43 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': False,'num_format': '#,###,##0.00'})
 		format51 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': False,'num_format': 'L #,###,##0.#0'})
 		format511 = workbook.add_format({'font_size': 10, 'align': 'right', 'bold': True,'num_format': 'L #,###,##0.#0'})
 		format3 = workbook.add_format({'bottom': True, 'top': True, 'font_size': 12})
@@ -133,7 +135,7 @@ class GeneralLegderReport(models.AbstractModel):
 			sheet.write_number(pos, 9, float(account['credit']), format411)
 			sheet.write_number(pos, 10, float(account['balance']), format411)
 			if self.env.user.has_group('base.group_multi_currency'):
-				sheet.write_number(pos, 11, account.get('amount_currency') or 0, format211)
+				sheet.write_number(pos, 11, account.get('amount_currency') or 0, format42)
 				sheet.write(pos, 12, account.get('currency_code'), format211)
 			pos+=1
 			
@@ -151,7 +153,7 @@ class GeneralLegderReport(models.AbstractModel):
 					sheet.write_number(pos, 9, line['credit'], format41)
 					sheet.write_number(pos, 10, line['balance'], format41)
 					if self.env.user.has_group('base.group_multi_currency'):
-						sheet.write_number(pos, 11, line.get('amount_currency'), format21)
+						sheet.write_number(pos, 11, line.get('amount_currency'), format43)
 						sheet.write(pos, 12, line.get('currency_code'), format21)
 				if line['lid']==0:
 					#negrita
@@ -167,7 +169,7 @@ class GeneralLegderReport(models.AbstractModel):
 						sheet.write_number(pos, 9, line['credit'], format411)
 						sheet.write_number(pos, 10, line['balance'], format411)
 						if self.env.user.has_group('base.group_multi_currency'):
-							sheet.write_number(pos, 11, line.get('amount_currency'), format211)
+							sheet.write_number(pos, 11, line.get('amount_currency'), format42)
 							sheet.write(pos, 12, line.get('currency_code'), format211)
 				if line['lid']==-1:
 					#negrita
@@ -182,6 +184,6 @@ class GeneralLegderReport(models.AbstractModel):
 					sheet.write_number(pos, 9, line['credit'], format411)
 					sheet.write_number(pos, 10, line['balance'], format411)
 					if self.env.user.has_group('base.group_multi_currency'):
-						sheet.write_number(pos, 11, line.get('amount_currency'), format211)
+						sheet.write_number(pos, 11, line.get('amount_currency'), format42)
 						sheet.write(pos, 12, line.get('currency_code'), format211)
 				pos+=1
