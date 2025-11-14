@@ -63,7 +63,9 @@ class ReportGeneralLedger(models.AbstractModel):
             sql = (f"""SELECT 0 AS lid, l.account_id AS account_id, '' AS ldate,
                 '' AS lcode, COALESCE(SUM(l.amount_currency),0.0) AS amount_currency, 
                 MIN(fan.analytic_account) AS analytic_name,
-                'Initial Balance' AS lname, COALESCE(SUM(l.debit),0.0) AS debit, 
+                'Initial Balance' AS lname,
+                COALESCE(SUM(aal.amount), 0.0) AS balance_analytic,
+                COALESCE(SUM(l.debit),0.0) AS debit, 
                 COALESCE(SUM(l.credit),0.0) AS credit, 
                 COALESCE(SUM(l.debit),0) - COALESCE(SUM(l.credit), 0) as balance
                 {stament1},
@@ -114,6 +116,7 @@ class ReportGeneralLedger(models.AbstractModel):
         sql = ('''SELECT l.id AS lid, l.account_id AS account_id, 
             l.date AS ldate, j.code AS lcode, l.currency_id, 
             l.amount_currency, '' AS analytic_account_id,
+            COALESCE(aal.amount, 0.0) AS analytic_amount,
             MIN(fan.analytic_account) AS analytic_name,
             aaa.id AS analytic_id,
             l.partner_id AS partner_id,
@@ -137,7 +140,7 @@ class ReportGeneralLedger(models.AbstractModel):
             ) AS fan ON true
             WHERE l.account_id IN %s ''' + filters + ''' GROUP BY l.id, 
             l.account_id, l.date, j.code, l.currency_id, l.amount_currency, 
-            l.ref, l.name, m.name, c.symbol, p.name, aaa.id ORDER BY ''' + sql_sort)
+            l.ref, l.name, m.name, c.symbol, p.name, aaa.id, aal.amount ORDER BY ''' + sql_sort)
         params = (tuple(accounts.ids),) + tuple(where_params)
         cr.execute(sql, params)
 
@@ -334,21 +337,44 @@ class ReportGeneralLedger(models.AbstractModel):
                 lname = ''
                 pname = analytic.name
                 if not analytic.id:
-                    pname=_('Without Analytic')
+                    pname=_('Sin Analitica')
                 for initfil in inifilters:
-                    init_cre = initfil.get('credit',0.0)
-                    init_deb = initfil.get('debit',0.0)
+                    if initfil.get('debit') != 0 and initfil.get('credit') == 0:
+                        init_deb = abs(initfil.get('analytic_amount', 0))
+
+                    if initfil.get('credit') != 0 and initfil.get('debit') == 0:
+                        init_cre = abs(initfil.get('analytic_amount', 0))
+
+                    if initfil.get('credit') == 0 and initfil.get('debit') == 0:
+                        init_deb = 0
+                        init_cre = 0
+                    # init_cre = initfil.get('credit',0.0)
+                    # init_deb = initfil.get('debit',0.0)
                     amount_currency = initfil.get('amount_currency',0.0)
                     init_bal = init_deb - init_cre
                     lname = initfil.get('lname','')
+
                 line = self.init_data(init_bal, init_deb, init_cre, None, analytic.id, None, pname, lname, amount_currency)
                 res.append(line)
                 filters= filter(lambda line: line['analytic_id'] == analytic.id, move_lines)
                 bal = init_bal
                 for fil in filters:
+                    if fil.get('debit') != 0 and fil.get('credit') == 0:
+                        fil['debit'] = abs(fil.get('analytic_amount'))
+
+                    if fil.get('credit') != 0 and fil.get('debit') == 0:
+                        fil['credit'] = abs(fil.get('analytic_amount'))
+
+                    if fil.get('credit') == 0 and fil.get('debit') == 0:
+                        fil['credit'] = 0
+                        fil['debit'] = 0
+
+                    if fil.get('currency_code') == 'L':
+                        fil['amount_currency'] = 0
                     bal += fil.get('debit',0.0)-fil.get('credit',0.0)
                     fil['balance'] = bal
                     res.append(fil)
+
                 res.append(self.sum_total(bal,None,analytic.id,None))
 
         return res
