@@ -9,11 +9,16 @@
 
                 <!-- <button name="preview_invoice" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </button>
-
-                <button name="action_reverse" position="attributes">
-                    <attribute name="invisible">1</attribute>
                 </button> -->
+
+                <button name="action_register_payment" position="replace">
+                    <button name="action_register_payment" id="account_invoice_payment_btn"
+                    type="object" class="oe_highlight"
+                    invisible="state != 'posted' or payment_state not in ('not_paid', 'partial') or move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')"
+                    context="{'dont_redirect_to_payments': True, 'display_account_trust': True}"
+                    string="Registrar Pago" data-hotkey="g"
+                    groups="account.group_account_manager"/>
+                </button>
 
                 <field name="amount_residual" position="after">
                     <field name="currency_rate" readonly="1" force_save="1" invisible="same_currency == True"/>
