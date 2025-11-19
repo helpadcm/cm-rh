@@ -57,6 +57,7 @@
                                 <field name="currently_studying" />
                                 <field name="own_vehicle" />
                                 <field name="excel_level" />
+                                <field name="english_level" />
                             </group>
                             <group>
                                 <field name="current_institute" invisible="not currently_studying"/>
