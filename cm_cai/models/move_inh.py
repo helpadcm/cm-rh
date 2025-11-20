@@ -410,6 +410,13 @@ class moveInh(models.Model):
                 followers.unlink()
         return moves
 
+    def update_entry_name(self):
+        for inv in self:
+            if inv.move_type in ['entry']:
+                if inv.name in ['Borrador','/']:
+                    inv.name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.date).next_by_id()
+                inv.write({'internal_number': inv.name})
+
 class journalInh(models.Model):
     _inherit = "account.journal"
 
