@@ -192,7 +192,8 @@ class ap_account_payment(models.Model):
 						account_write_ids = set(pay.write_off_line.mapped('account_id').ids)
 						account_counterpart_ids = set(counterpart_lines.mapped('account_id').ids)
 						counterpart_account_id = list(account_counterpart_ids - account_write_ids)
-						counterpart_lines = counterpart_lines.filtered(lambda line: line.account_id.id == counterpart_account_id[0])
+						if counterpart_account_id:
+							counterpart_lines = counterpart_lines.filtered(lambda line: line.account_id.id == counterpart_account_id[0])
 
 				if any(line.currency_id != all_lines[0].currency_id for line in all_lines):
 					raise UserError(_(
