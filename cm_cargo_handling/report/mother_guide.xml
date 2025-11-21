@@ -278,6 +278,9 @@
                                             <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Peso</td>
                                             <td style="font-size:11px;padding-left:4px"><span t-esc="'{0:,.2f}'.format(data.get('weight'))"/> LBS</td>
                                         </tr>
+                                        <tr t-if="data.get('discount_name')">
+                                            <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px;text-align:center" colspan="2"><strong><span t-esc="data.get('discount_name')"/></strong></td>
+                                        </tr>
                                     </table>
                                 </td>
                                 <td style="width:60%">
@@ -288,7 +291,7 @@
                                         </tr>
                                         <tr>
                                             <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Descuento</td>
-                                            <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(0))"/></td>
+                                            <td style="font-size:11px;text-align:right;padding-right:4px"><span t-esc="'{0:,.2f}'.format(float(data.get('discount')))"/></td>
                                         </tr>
                                         <tr>
                                             <td style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:11px;padding-left:4px">Gravado</td>

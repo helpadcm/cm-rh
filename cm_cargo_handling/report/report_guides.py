@@ -69,13 +69,20 @@ class reportHandling(models.AbstractModel):
 
         id_sender = order_id.id_sender
         id_receiver = order_id.id_receiver
+        discount_amount = 0
         discount_code = ''
+        discount_name = False
         if order_id.discount_id:
             discount_code = order_id.discount_id.code
             if order_id.discount_id.code == 'COMAIL':
                 id_sender = ''
                 id_receiver = ''
+            if order_id.discount_id.code not in ['COMAIL','G10']:
+                discount_amount = order_id.discount
+                discount_name = order_id.discount_id.name
 
+        print ("/////////////////////////")
+        print (discount_name)
         invoice_date = order_id.move_id.invoice_date or order_id.date
 
         values = {
@@ -107,7 +114,7 @@ class reportHandling(models.AbstractModel):
             'print_invoice': print_inv,
 
             'weight': order_id.weight,
-            'subtotal': order_id.total,
+            'subtotal': order_id.preliminar_price + order_id.additional_costs,
             'conv_subtotal': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, order_id.total),
             'gravado': gravado,
             'conv_gravado': self.conv_amount(order_id.external_currency_id, order_id.local_currency_id, invoice_date, gravado),
@@ -119,8 +126,9 @@ class reportHandling(models.AbstractModel):
             'conv_total': order_id.move_id.amount_total_signed,
             'name_currency': order_id.external_currency_id.name,
             'exonerado': 0,
-            'discount': 0,
+            'discount': discount_amount,
             'discount_code': discount_code,
+            'discount_name': discount_name,
             'rate': order_id.move_id.currency_rate,
             'amount_text': order_id.move_id.amount_in_words,
 

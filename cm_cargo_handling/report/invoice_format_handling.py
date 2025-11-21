@@ -63,6 +63,13 @@ class invHandling(models.AbstractModel):
                 description_list.append(car.piece_description)
                 category_list.append(car.product_id.name)
 
+            discount_amount = 0
+            discount_name = False
+            if order.discount_id:
+                if order.discount_id.code not in ['COMAIL','G10']:
+                    discount_amount = order.discount
+                    discount_name = order.discount_id.name
+
             invoice_date = order.move_id.invoice_date or order.date
 
             values = {
@@ -93,7 +100,7 @@ class invHandling(models.AbstractModel):
                 'print_invoice': print_inv,
 
                 'weight': order.weight,
-                'subtotal': order.total,
+                'subtotal': order_id.preliminar_price + order_id.additional_costs,
                 'conv_subtotal': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.total),
                 'gravado': gravado,
                 'conv_gravado': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, gravado),
@@ -105,7 +112,8 @@ class invHandling(models.AbstractModel):
                 'conv_total': order.move_id.amount_total_signed,
                 'name_currency': order.external_currency_id.name,
                 'exonerado': 0,
-                'discount': 0,
+                'discount': discount_amount,
+                'discount_name': discount_name,
                 'rate': order.move_id.currency_rate,
                 'amount_text': order.move_id.amount_in_words,
 
