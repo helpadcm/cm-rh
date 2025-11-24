@@ -100,7 +100,7 @@ class invHandling(models.AbstractModel):
                 'print_invoice': print_inv,
 
                 'weight': order.weight,
-                'subtotal': order_id.preliminar_price + order_id.additional_costs,
+                'subtotal': order.preliminar_price + order.additional_costs,
                 'conv_subtotal': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.total),
                 'gravado': gravado,
                 'conv_gravado': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, gravado),
