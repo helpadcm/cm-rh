@@ -282,6 +282,21 @@ class account_payment_inherit_wizard(models.TransientModel):
     #         else:
     #             super(account_payment_inherit_wizard, wizard)._compute_amount()
 
+    def _post_payments(self, to_process, edit_mode=False):
+        """ Post the newly created payments.
+
+        :param to_process:  A list of python dictionary, one for each payment to create, containing:
+                            * create_vals:  The values used for the 'create' method.
+                            * to_reconcile: The journal items to perform the reconciliation.
+                            * batch:        A python dict containing everything you want about the source journal items
+                                            to which a payment will be created (see '_get_batches').
+        :param edit_mode:   Is the wizard in edition mode.
+        """
+        payments = self.env['account.payment']
+        for vals in to_process:
+            payments |= vals['payment']
+        payments.with_context({'from_register':True}).action_post()
+
 class write_off_line(models.TransientModel):
     _name = "account.payment.writeoffline.wizard"
     _description = "Write off lines"
