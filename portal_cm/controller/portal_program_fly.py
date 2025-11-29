@@ -20,7 +20,7 @@ class CustomPortalAbsences(http.Controller):
         history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','in',['PFLY','SCP','SCSE'])], order="request_date_from desc")
         routes_ids = request.env['flight.routes'].sudo().search([])
 
-        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','in',['PFLY','SCP','SCSE'])]
+        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','in',['PFLY','SCP','SCSE']),('company_id','=',employee_id.company_id.id)]
         types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
 
         # Recuperar datos del formulario desde la sesión

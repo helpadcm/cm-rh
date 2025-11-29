@@ -9,5 +9,14 @@
             <field name="prefix">LR-</field>
             <field name="padding">4</field>
         </record>
+
+        <record id="request_other_sequence" model="ir.sequence">
+            <field name="name">Sequence Other Request</field>
+            <field name="code">other.request</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">OR-</field>
+            <field name="padding">4</field>
+        </record>
     </data>
 </odoo>

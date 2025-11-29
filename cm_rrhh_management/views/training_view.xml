@@ -18,6 +18,7 @@
                                     <field name="initial_hour" required="1" placeholder="Hora de Inicio"/>
                                     <field name="final_hour" required="1" placeholder="Hora Fin"/>
                                 </div>
+                                <field name="company_id" readonly="1" options="{'no_create': True, 'no_open': True}" groups="base.group_multi_company"/>
                             </group>
                             <group>
                                 <field name="external_instructor" />

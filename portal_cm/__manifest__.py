@@ -9,7 +9,7 @@
         This module provides the necessary functionality for CM Airlines.
         - Portal actions.
         """,
-    'depends': ['portal','hr_turns_cm','hr_holidays', 'hr_absences_cm', 'hr_employee_cm','website'],
+    'depends': ['portal','hr_turns_cm','hr_holidays', 'hr_absences_cm', 'hr_employee_cm','website','cm_rrhh_management'],
     'data': [
         'data/cron.xml',
         'data/email_templates.xml',

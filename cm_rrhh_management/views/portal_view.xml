@@ -4,8 +4,8 @@
         <xpath expr="//div[@id='portal_common_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/cm_rrhh_management/static/src/img/requests_icon.png'"/>
-                <t t-set="title">Solicitudes</t>
-                <t t-set="text">Desde aqui podra realizar sus diferentes solicitudes</t>
+                <t t-set="title">Plan de Beneficios</t>
+                <t t-set="text">Desde aqui podra realizar sus diferentes solicitudes al area de talento humano</t>
                 <t t-set="url" t-value="'/requests_cm/request_home_cm'"/>
                 <t t-set="config_card" t-value="True"/>
             </t>

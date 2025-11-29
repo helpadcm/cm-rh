@@ -31,9 +31,13 @@ class HrLeavesInh(models.Model):
     char_date_to = fields.Char(string="Fecha final string")
     # return_route_open = fields.Char(string="Ruta regreso Open", compute="get_return_open_route")
 
-    # @api.depends('open_back', 'exit_route_id')
-    # def get_return_open_route(self):
-    #     for rec in self:
+    @api.constrains('tickets_request')
+    def _check_tickets_request(self):
+        for record in self:
+            if record.tickets_request > 9:   # 🔹 Máximo permitido
+                raise ValidationError("No puede solicitar mas de 9 boletos.")
+            if record.tickets_request < 0:     # 🔹 Mínimo permitido (opcional)
+                raise ValidationError("El valor no puede ser negativo.")
 
     def _get_leaves_on_public_holiday(self):
         if self.code not in ['PFLY','SCP','SCSE']:
@@ -78,22 +82,91 @@ class HrLeavesInh(models.Model):
                 hours_taken = self.number_of_days * 8
             self.employee_id.compensatory_hours -= hours_taken
         elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
-            if self.company_id.id == 1 and self.holiday_status_id.code == 'PFLY':
-                if self.exit_only:
-                    self.employee_id.program_to_fly -= (self.tickets_request/2)
-                else:
-                    self.employee_id.program_to_fly -= self.tickets_request
+            self.validate_beneficiaries()
+            if self.holiday_status_id.code == 'PFLY':
+                    
+                if self.company_id.id == 1:
+                    if self.tickets_request > self.employee_id.program_to_fly:
+                        raise ValidationError(f"""Los boletos disponibles para el empleado {self.employee_id.name} es de {self.employee_id.program_to_fly}""")
+
+                    if self.exit_only:
+                        self.employee_id.program_to_fly -= (self.tickets_request/2)
+                    else:
+                        self.employee_id.program_to_fly -= self.tickets_request
             self.send_email()
         return res
+
+    def validate_beneficiaries(self):
+        if self.tickets_request == 0:
+            raise ValidationError("La cantidad solicitada debe ser mayor que 0")
+
+        tickets = []
+        if int(self.tickets_request) == 1:
+            tickets.append(int(self.beneficiary1.id))
+        elif int(self.tickets_request) == 2:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+        elif int(self.tickets_request) == 3:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+        elif int(self.tickets_request) == 4:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+        elif int(self.tickets_request) == 5:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+            tickets.append(int(self.beneficiary5.id))
+        elif int(self.tickets_request) == 6:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+            tickets.append(int(self.beneficiary5.id))
+            tickets.append(int(self.beneficiary6.id))
+        elif int(self.tickets_request) == 7:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+            tickets.append(int(self.beneficiary5.id))
+            tickets.append(int(self.beneficiary6.id))
+            tickets.append(int(self.beneficiary7.id))
+        elif int(self.tickets_request) == 8:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+            tickets.append(int(self.beneficiary5.id))
+            tickets.append(int(self.beneficiary6.id))
+            tickets.append(int(self.beneficiary7.id))
+            tickets.append(int(self.beneficiary8.id))
+        elif int(tickets_request) == 9:
+            tickets.append(int(self.beneficiary1.id))
+            tickets.append(int(self.beneficiary2.id))
+            tickets.append(int(self.beneficiary3.id))
+            tickets.append(int(self.beneficiary4.id))
+            tickets.append(int(self.beneficiary5.id))
+            tickets.append(int(self.beneficiary6.id))
+            tickets.append(int(self.beneficiary7.id))
+            tickets.append(int(self.beneficiary8.id))
+            tickets.append(int(self.beneficiary9.id))
+
+        if len(set(tickets)) < int(self.tickets_request):
+            raise ValidationError('¡Esta seleccionando beneficiarios repetidos!')
 
     @api.model_create_multi
     def create(self, vals_list):
         res = super(HrLeavesInh, self).create(vals_list)
         if res.code in ['PFLY','SCP','SCSE']:
-            employee_noti_id = self.env['hr.employee'].search([('notify_validate_turns','=',True)])
+            employee_noti_id = self.env['hr.employee'].sudo().search([('notify_validate_turns','=',True)])
             if employee_noti_id:
                 request_type = res.holiday_status_id.name
-                mail = self.env['mail.mail'].create({
+                mail = self.env['mail.mail'].sudo().create({
                     'subject': "Solicitud %s creada por %s"%(request_type,res.employee_id.name),
                     'body_html': f"""<p>Se ha creado una solicitud de {request_type} para que pueda ser revisada</p>""",
                     'email_to': employee_noti_id.user_id.login,
@@ -102,12 +175,12 @@ class HrLeavesInh(models.Model):
         return res
 
     def send_email(self):
-        base_url = request.env['ir.config_parameter'].get_param('web.base.url')
+        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
         base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
         template_id = self.env.ref('portal_cm.rrhh_notification_pv_template')
         template_ctx = {'action_url': base_url}
         template_id.attachment_ids = [(6, 0, self.supported_attachment_ids.ids)]
-        template_id.with_context(**template_ctx).send_mail(self.id,force_send=True)
+        template_id.with_context(**template_ctx).sudo().send_mail(self.id,force_send=True)
 
     @api.constrains('date_from', 'date_to', 'employee_id')
     def _check_date(self):

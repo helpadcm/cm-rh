@@ -21,15 +21,20 @@ class TrainingsRRHH(models.Model):
     _description = "Control de capacitaciones"
     _inherit = ['mail.thread','mail.activity.mixin']
 
+    @api.model
+    def default_company(self):
+        return self.env.user.company_id.id
+
     name = fields.Char(string="Nombre", tracking=True)
     date = fields.Date(string="Fecha", tracking=True)
     external_instructor = fields.Boolean(string="Instructor Externo")
     instructor = fields.Char(string="Instructor", tracking=True)
-    instructor_ids = fields.Many2many('res.users',string="Instructores")
+    instructor_ids = fields.Many2many('hr.employee',string="Instructores")
     place = fields.Char(string="Lugar", tracking=True)
     initial_hour = fields.Selection(hours_array,string="Hora de Inicio", tracking=True)
     final_hour = fields.Selection(hours_array, string="Hora Final", tracking=True)
     participants_ids = fields.One2many('cm.rrhh.trainings.shares', 'training_id', string="Participantes", tracking=True)
+    company_id = fields.Many2one('res.company',string="Empresa",default=default_company)
 
 class TrainingsShares(models.Model):    
     _name = 'cm.rrhh.trainings.shares'
