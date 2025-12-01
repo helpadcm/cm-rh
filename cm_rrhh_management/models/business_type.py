@@ -10,6 +10,7 @@ class businessList(models.Model):
     email = fields.Char(string="Correo de contacto")
     business_type = fields.Selection([('hotel','Hotel'),('ferry','Ferry')],string="Tipo de negocio")
     phone = fields.Char(string="Telefono")
+    cc_email = fields.Char(string="CC Correos")
 
 class ferryRoutes(models.Model):    
     _name = 'cm.ferry.routes'

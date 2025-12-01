@@ -7,7 +7,7 @@
             <field name="subject">Solicitud</field>
             <!-- <field name="email_from">{{object.employee_id.user_id.login}}</field> -->
             <field name="email_to">{{object.business_id.email}}</field>
-            <field name="email_cc">{{object.employee_id.private_email}}</field>
+            <field name="email_cc">{{object.employee_id.private_email,object.business_id.cc_email}}</field>
             <field name="body_html" type="html">
                 <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
                     <tr>
