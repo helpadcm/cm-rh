@@ -191,6 +191,7 @@ class HrLeavesInh(models.Model):
         all_leaves = self.search([
             ('date_from', '<', max(self.mapped('date_to'))),
             ('date_to', '>', min(self.mapped('date_from'))),
+            ('code', 'not in', ['PFLY','SCP','SCSE']),
             ('employee_id', 'in', all_employees.ids),
             ('id', 'not in', self.ids),
             ('state', 'not in', ['cancel', 'refuse']),
@@ -250,6 +251,46 @@ class HrLeavesInh(models.Model):
                     raise ValidationError(_(
                         "Un empleado ya programó un permiso que coincide con este periodo: %s",
                         "".join(conflicting_holidays_strings)))
+
+    def _get_duration(self, check_leave_type=True, resource_calendar=None):
+        """
+        This method is factored out into a separate method from
+        _compute_duration so it can be hooked and called without necessarily
+        modifying the fields and triggering more computes of fields that
+        depend on number_of_hours or number_of_days.
+        """
+        self.ensure_one()
+        resource_calendar = resource_calendar or self.resource_calendar_id
+
+        if not self.date_from or not self.date_to or not resource_calendar:
+            return (0, 0)
+        hours, days = (0, 0)
+        if self.employee_id:
+            # We force the company in the domain as we are more than likely in a compute_sudo
+            domain = [('time_type', '=', 'leave'),
+                        ('holiday_id.code', 'not in', ['PFLY','SCP','SCSE']),
+                      ('company_id', 'in', self.env.companies.ids + self.env.context.get('allowed_company_ids', [])),
+                      # When searching for resource leave intervals, we exclude the one that
+                      # is related to the leave we're currently trying to compute for.
+                      ('holiday_id', '!=', self.id)]
+            if self.leave_type_request_unit == 'day' and check_leave_type:
+                # list of tuples (day, hours)
+                work_time_per_day_list = self.employee_id.list_work_time_per_day(self.date_from, self.date_to, calendar=resource_calendar, domain=domain)
+                days = len(work_time_per_day_list)
+                hours = sum(map(lambda t: t[1], work_time_per_day_list))
+            else:
+                work_days_data = self.employee_id._get_work_days_data_batch(self.date_from, self.date_to, domain=domain, calendar=resource_calendar)[self.employee_id.id]
+                hours, days = work_days_data['hours'], work_days_data['days']
+        else:
+            today_hours = resource_calendar.get_work_hours_count(
+                datetime.combine(self.date_from.date(), time.min),
+                datetime.combine(self.date_from.date(), time.max),
+                False)
+            hours = resource_calendar.get_work_hours_count(self.date_from, self.date_to)
+            days = hours / (today_hours or HOURS_PER_DAY)
+        if self.leave_type_request_unit == 'day' and check_leave_type:
+            days = ceil(days)
+        return (days, hours)
 
 class hrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
