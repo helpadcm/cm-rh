@@ -1,6 +1,7 @@
 from odoo import fields, models, api, _
 from odoo.http import request
 from odoo.tools.misc import format_date
+from math import ceil,floor
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 class HrLeavesType(models.Model):
