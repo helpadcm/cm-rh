@@ -62,10 +62,18 @@ class moveInh(models.Model):
             rec.balance_usd = rec.amount_residual_signed / rec.currency_rate
 
     def button_draft(self):
-        self.write({'internal_number': self.name})
+        invoice_name = 'Borrador'
+        if self.name != 'Borrador':
+            invoice_name = self.name
+
+        if self.internal_number != 'Borrador':
+            invoice_name = self.internal_number
+
+        self.write({'internal_number': invoice_name})
         res = super(moveInh, self).button_draft()
-        self.write({'name': 'Borrador'})
+        self.write({'name': invoice_name})
         return res
+
 
     @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
     def _compute_name(self):
