@@ -38,7 +38,7 @@ class CustomPortal(http.Controller):
 
         elif actual_date.day in second:
             if actual_date.day <= 10:
-                min_date = actual_date.replace(day=10).date() - relativedelta(months=1)
+                min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
                 max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
                 actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
                 actual_max_date = actual_date.replace(day=10).date()
