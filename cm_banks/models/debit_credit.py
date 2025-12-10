@@ -73,6 +73,7 @@ class debit_credit(models.Model):
 	                \n* The \'Validated \' when validated', tracking=True, default='draft')
 	for_founds = fields.Boolean(string="Para Fondos")
 	account_found_id = fields.Many2one('account.account',string="Cuenta de Fondos")
+	anulation_date = fields.Date(strnig="Fecha de Anulación")
 
 	def _get_totald(self):
 		result = {}
