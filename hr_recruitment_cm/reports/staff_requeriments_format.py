@@ -15,9 +15,6 @@ class staffRequirementReport(models.AbstractModel):
 
     def get_data(self, ids):
         rec_turn_ids = self.env['hr.staff.requirement'].search([('id','in',ids)])
-        print ("///////////////////////")
-        print (rec_turn_ids)
-        print (a)
         values = {
             'team_name': team_name,
             'turn': turn,

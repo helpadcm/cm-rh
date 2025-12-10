@@ -91,10 +91,10 @@ class RecruitmentPublicForm(http.Controller):
                     'branch': post.get(f'branch_{i}'),
                     'department': post.get(f'department_{i}')
                 })
-
+                
         for i in range(1, 4):
             laboral_name = post.get(f'laboral_name_{i}')
-            if relation_name:
+            if laboral_name:
                 request.env['applicant.laboral.reference'].sudo().create({
                     'applicant_id': applicant.id,
                     'name': laboral_name,
@@ -105,7 +105,7 @@ class RecruitmentPublicForm(http.Controller):
 
         for i in range(1, 4):
             p_personal_name = post.get(f'p_personal_name_{i}')
-            if relation_name:
+            if p_personal_name:
                 request.env['applicant.personal.reference'].sudo().create({
                     'applicant_id': applicant.id,
                     'name': p_personal_name,

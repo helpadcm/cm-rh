@@ -12,6 +12,7 @@
     'data': [
         'data/sequence.xml',
         'data/mail_templates.xml',
+        'data/paperformat.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',
         'wizard/send_form_view.xml',
@@ -20,6 +21,8 @@
         'views/staff_requirement_view.xml',
         'views/recruitment_form_templates.xml',
         'views/menus.xml',
+        'reports/recruitment_questionnaire.xml',
+        'reports/report_reports.xml'
         ],
     'installable': True,
     'application': False,
