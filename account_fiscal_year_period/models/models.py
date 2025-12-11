@@ -176,7 +176,15 @@ class AccountMonthPeriod(models.Model):
             if period:
                 return {'date_from':period['date_start'],'date_to':period['date_stop']}    
             else:          
-                return False          
+                return False
+
+    def write(self,vals):
+        if vals.get('special'):
+            self.fiscalyear_id.message_post(body=f"""Mes de {self.code} abierto""")
+        else:
+            self.fiscalyear_id.message_post(body=f"""Mes de {self.code} cerrado""")
+        res = super(AccountMonthPeriod, self).write(vals)
+        return res
                  
 class AccountMove(models.Model):
     _inherit = 'account.move'
