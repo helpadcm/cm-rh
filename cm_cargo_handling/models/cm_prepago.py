@@ -105,7 +105,7 @@ class CmPrepago(models.Model):
         for cash in self:
             if cash.state == "posted" and not cash.payment_create:
                 cash.payment_create=True
-                if cash.invoice_id.state != "posted" or cash.invoice_id.payment_state == 'paid':
+                if cash.invoice_id.state != "posted" or cash.invoice_id.payment_state in ['paid','in_payment']:
                     continue
 
                 vals={
