@@ -269,7 +269,7 @@ class HrPayslipRun(models.Model):
                     total_credit += l.get('amount')
                     t_total_credit += l.get('amount')
 
-            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
 
         for emp in employee_values:
@@ -295,7 +295,7 @@ class HrPayslipRun(models.Model):
 
                 # values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
 
-            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
 
         for ded in deduction_values:
@@ -317,7 +317,7 @@ class HrPayslipRun(models.Model):
 
                 # values.update({'credit': total_credit, 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
 
-            values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
 
         for dep in department_values:
@@ -350,18 +350,19 @@ class HrPayslipRun(models.Model):
                     total_credit = val.get('amount')
                     t_total_credit += val.get('amount')
 
-                values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+                values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
                 move_lines.append((0, 0, values))
         
         if not self.journal_id.default_account_id:
             raise ValidationError(f"Debe configurar una cuenta por defecto en el diario {self.journal_id.name}")
 
-        last_line = move_lines.append((0, 0, {
-            'name': self.name,
-            'account_id': self.journal_id.default_account_id.id,
-            'credit': t_total_debit - abs(t_total_credit),
-            'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
-        }))
+        if (t_total_debit - abs(t_total_credit)) > 0:
+            last_line = move_lines.append((0, 0, {
+                'name': self.name,
+                'account_id': self.journal_id.default_account_id.id,
+                'credit': t_total_debit - abs(t_total_credit),
+                'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
+            }))
 
         vals_move.update({'line_ids': move_lines})
         move_id = self.env['account.move'].create(vals_move)
