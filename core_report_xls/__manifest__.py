@@ -27,6 +27,11 @@
 			
 			],
 	'license': 'LGPL-3',
+	'assets': {
+        'web.assets_backend': [
+            'core_report_xls/static/src/components/**/*'
+        ]
+    },
 	'installable':True,
 	'auto_install':True,
 }

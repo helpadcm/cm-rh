@@ -345,11 +345,11 @@ class ReportGeneralLedger(models.AbstractModel):
 
                         if initfil.get('credit') != 0 and initfil.get('debit') == 0:
                             init_cre += abs(initfil.get('balance_analytic', 0))
-                        amount_currency = abs(initfil.get('amount_currency', 0))
+                        # amount_currency = abs(initfil.get('amount_currency', 0))
                     else:
                         init_cre += initfil.get('credit',0.0)
                         init_deb += initfil.get('debit',0.0)
-                        amount_currency = initfil.get('amount_currency',0.0)
+                    amount_currency = initfil.get('amount_currency',0.0)
                     lname = initfil.get('lname','')
                 init_bal = init_deb - init_cre
                 line = self.init_data(init_bal, init_deb, init_cre, None, analytic.id, None, pname, lname, amount_currency)
