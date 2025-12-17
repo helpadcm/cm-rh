@@ -130,9 +130,21 @@ class othersRequests(models.Model):
             template_id = self.env.ref('cm_rrhh_management.other_request_email_template')
         else:
             template_id = self.env.ref('cm_rrhh_management.ferry_request_email_template')
+        
+        email_cc = ','.join(filter(None, [
+            self.employee_id.private_email,
+            self.business_id.cc_email,
+        ]))
+
         template_ctx = {'action_url': base_url}
         template_id.attachment_ids = [(6, 0, self.attachment_ids.ids)]
-        template_id.with_context(**template_ctx).sudo().send_mail(self.id, force_send=True)
+        template_id.with_context(**template_ctx).sudo().send_mail(
+            self.id, 
+            force_send=True,
+            email_values={
+                'email_cc': email_cc,
+            }
+        )
 
     def convert_date(self, date):
         months = {

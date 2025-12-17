@@ -11,8 +11,8 @@
                     </li>
                 </ul>
                 <div class="container tab-pane fade show active" id="tab1">
-                    <div class="mb-3 alert alert-danger" style="display: none;" id="message_not_request_id">
-                        No tiene permiso para solicitar prestamos, debe tener al menos 6 meses desde su ultima solicitud o tener minimo 1 año de antiguedad
+                    <div class="mb-6 alert alert-danger" style="display: none;" id="message_not_request_id">
+                        <span id="id_message_form" t-esc="messsage_form" />
                     </div>
                     <div style="display: none;" id="form_view_id">
                         <input type="number" class="d-none" name="years_old" id="id_years_old" t-att-value="years_old"/>

@@ -60,7 +60,7 @@
                                 </field>
                             </page>
                         </notebook>
-                        <field name="observations" placeholder="Agregue sus observaciones referente a la solicitud" readonly="state != 'draft'"/>
+                        <field name="observations" placeholder="Agregue sus observaciones referente a la solicitud" readonly="state not in ['draft','to_approve']"/>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>

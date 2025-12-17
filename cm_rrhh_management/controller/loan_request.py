@@ -15,15 +15,25 @@ class loanRequestPortal(http.Controller):
         days = (datetime.now().date() - employee_id.date_start_contract).days
         years = math.ceil(days/365)
         show_form = 'allow'
+        messsage_form = ''
         if request_ids:
             last_request_id = request_ids[len(request_ids) - 1]
             if last_request_id.state == 'finalized':
                 months = (datetime.now().date() - last_request_id.date).days / 30
                 if months < 6:
                     show_form = 'not_allow'
+                    messsage_form = 'No tiene permiso para solicitar prestamos, debe tener al menos 6 meses desde su ultima solicitud.'
+            elif last_request_id.state in ['pending','approved','assessment','finance','payroll']:
+                messsage_form = 'Su ultima solicitud se encuentra en proceso, podra solicitar hasta que se complete.'
+                show_form = 'not_allow'
+            elif last_request_id.state in ['waiting']:
+                messsage_form = f"""Ya cuenta con una solicitud "EN ESPERA" con fecha estimada para el {last_request_id.estimated_date.strftime("%d/%m/%Y")}."""
+                show_form = 'not_allow'
+
 
         if years < 1:
             show_form = False
+            messsage_form = 'No tiene permiso para solicitar prestamos, debe tener minimo 1 año de antiguedad.'
 
         values = {
             'employee_name': employee_id.name,
@@ -31,7 +41,8 @@ class loanRequestPortal(http.Controller):
             'seniority': employee_id.seniority,
             'years_old': years,
             'historical_request': request_ids,
-            'show_form': show_form
+            'show_form': show_form,
+            'messsage_form': messsage_form
         }
         return request.render("cm_rrhh_management.portal_loan_request_cm", values)
 

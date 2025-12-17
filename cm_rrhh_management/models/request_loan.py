@@ -6,7 +6,7 @@ from odoo import api, models, fields, _
 from odoo.exceptions import UserError,ValidationError
 from datetime import datetime, timedelta, time
 
-state_list = [('draft','Borrador'),('pending','Pendiente de aprobar'),('approved','Aprobado por Jefe'),('assessment','En Evaluacion'),('finance','Finanzas'),('payroll','Asignar a Nomina'),('finalized','Finalizado'),('cancel','Rechazado')]
+state_list = [('draft','Borrador'),('pending','Pendiente de aprobar'),('approved','Aprobado por Jefe'),('assessment','En Evaluacion'),('waiting','En Espera'),('finance','Finanzas'),('payroll','Asignar a Nomina'),('finalized','Finalizado'),('cancel','Rechazado')]
 fees_list = [('1','1 Mes'),('2','2 Meses'),('3','3 Meses'),('4','4 Meses'),('5','5 Meses'),('6','6 Meses'),('7','7 Meses'),('8','8 Meses'),('9','9 Meses'),('10','10 Meses'),('11','11 Meses'),('12','12 Meses')]
 
 class requestLoan(models.Model):    
@@ -32,8 +32,9 @@ class requestLoan(models.Model):
     fees = fields.Selection(fees_list,string="Cuotas",tracking=True)
     state = fields.Selection(state_list, string="Estado",default="draft",tracking=True)
     initial_deduction_date = fields.Date(string="Inicio de Deduccion")
-    payment_id = fields.Many2one('account.payment',string="Pago")
+    payment_id = fields.Many2one('mcheck.mcheck',string="Pago")
     deduction_id = fields.Many2one('hr.salary.attachment',string="Deduccion")
+    estimated_date = fields.Date(string="Fecha estimada")
 
     @api.onchange('employee_id')
     def get_employee_data(self):
@@ -178,14 +179,24 @@ class requestLoan(models.Model):
     def create_payment(self):
         journal_id = self.env['account.journal'].search([('code','=','BPLPS')])
         vals = {
-            'partner_id': self.employee_id.user_id.partner_id.id,
-            'pay_method_type': 'check',
-            'partner_type': 'supplier',
-            'amount': self.amount,
-            'ref': f"""Desde prestamo interno numero {self.name}""",
-            'journal_id': journal_id.id
+            'journal_id': journal_id.id,
+            'date': datetime.now() - timedelta(hours=6),
+            'doc_type': 'transference',
+            'total': self.amount,
+            'reference': self.employee_id.name,
+            'name': f"""Prestamo interno a nombre de {self.employee_id.name} ({int(self.fees) * 2} cuotas)"""
         }
-        payment = self.env['account.payment'].create(vals)
+        payment = self.env['mcheck.mcheck'].create(vals)
+        account_id = self.env['account.account'].search([('code','=','105.01')])
+        line_values = {
+            'account_id': account_id.id,
+            'mcheck_id': payment.id,
+            'name': 'Prestamo Interno',
+            'amount': self.amount,
+            'type': 'dr',
+            'chqmanalitics': self.employee_id.analytic_account_id.id or False,
+        }
+        self.env['mcheck.mcheck_name'].create(line_values)
         self.payment_id = payment.id
 
     def unlink(self):
@@ -214,3 +225,15 @@ class requestLoan(models.Model):
     def print_receipt(self):
         datas = {'request_id': self.id}
         return self.env.ref('cm_rrhh_management.receipt_deduction_action').report_action(self, data = datas)
+
+    def show_payment(self):
+        if self.payment_id:
+            self.ensure_one()
+            return {
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'views': [[False, "form"]],
+                'res_model': 'mcheck.mcheck',
+                'target': 'current',
+                'res_id': self.payment_id.id
+            }
