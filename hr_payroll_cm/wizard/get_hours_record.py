@@ -40,6 +40,8 @@ class getRecordHours(models.TransientModel):
                 date_to_payslip = "%s-%s-%s"%(year, month, num_days)
                 if self.department_id:
                     if self.department_id.calculate_hours == 'one':
+                        if month == 12:
+                            month = 0
                         date_from_payslip = "%s-%s-%s"%(year, month+1, '01')
                         date_to_payslip = "%s-%s-%s"%(year, month+1, 15)
                         
@@ -78,7 +80,7 @@ class getRecordHours(models.TransientModel):
             emp_data = []
             header_data = employee_attendance_data['header']
             rows_data = employee_attendance_data['rows']
-            esperated_hours = self.get_esperated_hours(self.payslip_date_from, self.payslip_date_to)
+            esperated_hours = self.get_esperated_hours(self.payslip_date_from, self.date_to)
             name_rec = self.get_name_rec(self.payslip_date_from)
 
             rec_id = self.env['hr.employee.attendance.record'].create({
@@ -305,16 +307,32 @@ class getRecordHours(models.TransientModel):
     def get_esperated_hours(self, date_from, date_to):
         date = date_from
         esperated_hours = 0
-        if date_from.day == 1:
-            min_date = (date - relativedelta(months=1)).replace(day=25)
-            max_date = date.replace(day=10)
+        last_day_year = calendar.monthrange(date_from.year, date_from.month)[1]
+        if self.department_id.calculate_hours == 'one':
+            saturdays, sundays = self.count_weekends(self.date_from.year, self.date_from.month)
+            min_date = self.date_from
+            max_date = self.date_to
             diff = (max_date - min_date)
-            esperated_hours = (diff.days - 3) * 8
-        elif date_from.day == 16:
-            min_date = date.replace(day=10)
-            max_date = date.replace(day=25)
-            diff = (max_date - min_date)
-            esperated_hours = (diff.days - 3) * 8
+            saturdays_hours = saturdays * 4
+            month_hours = ((diff.days + 1) - saturdays - sundays) * 8
+            esperated_hours = saturdays_hours + month_hours
         else:
-            esperated_hours = 0
+            if date_from.day == 1:
+                min_date = (date - relativedelta(months=1)).replace(day=25)
+                max_date = date.replace(day=10)
+                diff = (max_date - min_date)
+                esperated_hours = (diff.days - 3) * 8
+            elif date_from.day == 16:
+                min_date = date.replace(day=10)
+                max_date = date.replace(day=25)
+                diff = (max_date - min_date)
+                esperated_hours = (diff.days - 3) * 8
+            else:
+                esperated_hours = 0
         return esperated_hours
+
+    def count_weekends(self, year, month):
+        cal = calendar.monthcalendar(year, month)
+        saturdays = sum(1 for week in cal if week[calendar.SATURDAY] != 0)
+        sundays = sum(1 for week in cal if week[calendar.SUNDAY] != 0)
+        return saturdays, sundays

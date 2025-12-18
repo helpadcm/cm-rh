@@ -225,7 +225,6 @@ class accountMoveSync(models.Model):
                                 analytic_account_id = self.env['account.analytic.account'].search([('number_odoo10', '=', line['account_analytic_id'][0])])
                                 if analytic_account_id:
                                     distribution_line = {str(analytic_account_id.id): 100.0}
-                                    lines_values.update({'analytic_distribution': distribution_line})
 
                             if line['account_id']:
                                 account = line['account_id'][1]

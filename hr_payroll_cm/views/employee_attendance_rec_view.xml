@@ -6,10 +6,9 @@
         <field name="arch" type="xml">
             <form string="Registro de Asistencia" create="false">
                 <header>
-                    <button string="Revisado" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'revised'}" type="object" class="oe_highlight"/>
-                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
-                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
-                    <field name="state" widget="statusbar" readonly="1"/>
+                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'finalized'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
+                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,finalized" readonly="1"/>
                 </header>
                 <sheet>
                     <h1>
@@ -192,14 +191,6 @@
         <field name="name">Registros de asistencias</field>
         <field name="res_model">hr.employee.attendance.record</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_period_group":1}</field>
-    </record>
-
-    <record id="action_hr_attendance_emp_revised" model="ir.actions.act_window">
-        <field name="name">Registros de asistencias Revisadas</field>
-        <field name="res_model">hr.employee.attendance.record</field>
-        <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_period_group":1}</field>
-        <field name="domain">[('state','!=','draft')]</field>
+        <field name="context">{"search_default_period_group":1,"search_default_draft_filter":1}</field>
     </record>
 </odoo>
