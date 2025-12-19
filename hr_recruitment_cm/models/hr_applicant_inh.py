@@ -87,6 +87,30 @@ class HrApplicantInh(models.Model):
         if self.birthday:
             self.age = (datetime.now().year - self.birthday.year)
 
+    def _get_employee_create_vals(self):
+        res = super(HrApplicantInh, self)._get_employee_create_vals()
+        marital = 'other'
+        if self.marital_status == 'single':
+            marital = 'single'
+        elif self.marital_status == 'married':
+            marital = 'married'
+        elif self.marital_status == 'free_union':
+            marital = 'cohabitant'
+        elif self.marital_status == 'widower':
+            marital = 'widower'
+
+        res.update({
+            'name': self.partner_name.upper() or self.partner_id.display_name.upper(),
+            'private_street': self.address,
+            'private_city': self.city,
+            'identification_id': self.identity,
+            'birthday': self.birthday,
+            'study_field': self.career_name,
+            'study_school': self.last_institute,
+            'marital': marital
+        })
+        return res
+
 class laboralHistory(models.Model):
     _name = 'applicant.laboral.history'
     _description = "Historial Academico"
