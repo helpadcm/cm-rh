@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="expenses_inh_form">
+            <field name="name">expenses.form.inh</field>
+            <field name="model">hr.expense</field>
+            <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/group[2]" position="inside">
+                    <field name="budget_account_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager"/>
+                </xpath>
+                <field name="price_unit" position="before">
+                    <field name="invoice_number" required="1"/>
+                </field>
+                <field name="description" position="attributes">
+                    <attribute name="required">1</attribute>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="product_expenses_inh_form">
+            <field name="name">product.expense.form.inh</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="hr_expense.product_product_expense_form_view"/>
+            <field name="arch" type="xml">
+                <field name="supplier_taxes_id" position="before">
+                    <field name="budget_account_id" options="{'no_create': True,'no_open': True}"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>
