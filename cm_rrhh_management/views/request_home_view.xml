@@ -27,13 +27,13 @@
                                 <t t-set="url" t-value="'/benefits/record_ferry_request'"/>
                                 <t t-set="config_card" t-value="True"/>
                             </t>
-                            <!-- <t t-call="portal.portal_docs_entry">
+                            <t t-call="portal.portal_docs_entry">
                                 <t t-set="icon" t-value="'/cm_rrhh_management/static/src/img/loan_icon.png'"/>
                                 <t t-set="title">Prestamos Internos</t>
                                 <t t-set="text">Puede solicitar su prestamo interno a la empresa</t>
                                 <t t-set="url" t-value="'/requests_cm/loan_request_cm'"/>
                                 <t t-set="config_card" t-value="True"/>
-                            </t> -->
+                            </t>
                         </div>
                     </div>
                 </div>

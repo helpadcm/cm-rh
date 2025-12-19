@@ -13,7 +13,7 @@
                         <button name="change_state" context="{'state': 'finance'}" class="oe_highlight btn-success" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Enviar a Finanzas" invisible="state not in ['assessment','waiting']"/>
                         <button name="change_state" context="{'state': 'waiting'}" class="btn btn-outline-warning" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Poner en espera" invisible="state != 'assessment'"/>
                         <button name="change_state" context="{'state': 'payroll'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_finance_area_rrhh" string="Aprobar prestamo" invisible="state != 'finance'"/>
-                        <button name="change_state" context="{'state': 'finalized'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Finalizar" invisible="state != 'payroll'"/>
+                        <button name="change_state" context="{'state': 'finalized'}" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Finalizar" invisible="1"/>
                         <button name="create_deduction" class="oe_highlight" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Crear Deduccion" invisible="state != 'payroll' or deduction_id != False"/>
                         <button name="change_state" context="{'state': 'cancel'}" class="oe_highlight btn-danger" type="object" groups="cm_rrhh_management.group_payroll_area_rrhh" string="Rechazar" invisible="state not in ['assessment','approved']"/>
                         <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'pending'"/>
@@ -31,8 +31,8 @@
                             <group>
                                 <field name="employee_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="start_date" readonly="1" force_save="1"/>
-                                <field name="boss_id" string="Aprobador" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
-                                <field name="estimated_date" readonly="state != 'waiting'" required="state == 'waiting'" invisible="state != 'waiting'"/> 
+                                <field name="boss_id" invisible="1" string="Aprobador" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="estimated_date" readonly="state not in ['waiting','assessment']" invisible="state not in ['waiting','assessment']"/> 
                             </group>
                             <group>
                                 <field name="date" readonly="1"/>
@@ -86,9 +86,10 @@
                     <field name="name" filter_domain="[('name', 'ilike', self)]"/>
                     <field name="employee_id" filter_domain="[('employee_id', 'ilike', self)]"/>
                     <separator/>
-                    <filter string="Pendiente de aprobar" name="pending_state_filter" domain="[('state','=','pending')]"/>
-                    <filter string="Aprobado por el jefe" name="approved_state_filter" domain="[('state','=','approved')]"/>
-                    <filter string="En Evaluacion" name="assessment_state_filter" domain="[('state','=','assessment')]"/>
+                    <filter string="En evaluacion" name="evaluation_state_filter" domain="[('state','=','assessment')]"/>
+                    <filter string="En espera" name="waiting_state_filter" domain="[('state','=','waiting')]"/>
+                    <filter string="Asignar a nomina" name="payroll_state_filter" domain="[('state','=','payroll')]"/>
+                    <filter string="Solicitudes pendientes" name="pending_state_filter" domain="[('state','in',['assessment','waiting'])]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_date" string="Fecha" domain="[]" context="{'group_by':'date'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
@@ -102,7 +103,7 @@
             <field name="name">Solicitudes de prestamo</field>
             <field name="res_model">rrhh.request.loan</field>
             <field name="view_mode">tree,form</field>
-            <field name="context">{}</field>         
+            <field name="context"></field>         
             <field name="domain" eval=""/>
         </record>
 

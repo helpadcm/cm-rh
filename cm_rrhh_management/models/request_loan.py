@@ -6,7 +6,7 @@ from odoo import api, models, fields, _
 from odoo.exceptions import UserError,ValidationError
 from datetime import datetime, timedelta, time
 
-state_list = [('draft','Borrador'),('pending','Pendiente de aprobar'),('approved','Aprobado por Jefe'),('assessment','En Evaluacion'),('waiting','En Espera'),('finance','Finanzas'),('payroll','Asignar a Nomina'),('finalized','Finalizado'),('cancel','Rechazado')]
+state_list = [('draft','Borrador'),('assessment','En Evaluacion'),('waiting','En Espera'),('finance','Finanzas'),('payroll','Asignar a Nomina'),('finalized','Finalizado'),('cancel','Rechazado')]
 fees_list = [('1','1 Mes'),('2','2 Meses'),('3','3 Meses'),('4','4 Meses'),('5','5 Meses'),('6','6 Meses'),('7','7 Meses'),('8','8 Meses'),('9','9 Meses'),('10','10 Meses'),('11','11 Meses'),('12','12 Meses')]
 
 class requestLoan(models.Model):    
@@ -67,21 +67,25 @@ class requestLoan(models.Model):
 
     def change_state(self):
         next_state = self.env.context.get('state')
-        if next_state == 'pending':
+        if next_state == 'assessment':
             if self.name == 'Borrador':
                 sequence_id = self.env.ref('cm_rrhh_management.request_loan_sequence')
                 if sequence_id:
                     self.name = sequence_id.next_by_id()
 
-        if next_state == 'pending':
-            self.send_email(next_state)
-        elif next_state == 'approved':
-            self.send_email(next_state)
+        # if next_state == 'pending':
+        #     self.send_email(next_state)
+        if next_state == 'assessment':
+            self.send_email('pending')
+            self.send_email('approved')
         elif next_state == 'finance':
             self.send_email(next_state)
         elif next_state == 'payroll':
             self.create_payment()
             self.send_email(next_state)
+        elif next_state == 'waiting':
+            if not self.estimated_date:
+                raise ValidationError("Para enviar la solicitud en espera debe agregar su fecha estimada")
 
         self.state = next_state
 
@@ -91,14 +95,14 @@ class requestLoan(models.Model):
         if state == 'pending':
             for_user = self.boss_id.name
             email_to = self.boss_id.user_id.login
-            message_txt = f"""El colaborador {self.employee_id.name} ha creado una solicitud de prestamo interno que necesita de su aprobación"""
+            message_txt = f"""Informativo: El colaborador {self.employee_id.name} ha creado una solicitud de prestamo interno."""
             subject = 'Solicitud de prestamo'
         elif state == 'approved':
             notify_employee_id = self.env['hr.employee'].search([('role_in_loans','=','evaluator_rrhh')])
             for_user = notify_employee_id.name
             email_to = notify_employee_id.user_id.login
-            message_txt = f"""Ha sido aprobada la solicitud de prestamo del colaborador {self.employee_id.name} que necesita de evaluación."""
-            subject = 'Solicitud de prestamo aprobada'
+            message_txt = f"""Ha sido creada una solicitud de prestamo del colaborador {self.employee_id.name} que necesita de evaluación."""
+            subject = 'Solicitud de prestamo creada'
         elif state == 'finance':
             notify_employee_id = self.env['hr.employee'].search([('role_in_loans','=','evaluator_finance')])
             for_user = notify_employee_id.name
@@ -106,6 +110,8 @@ class requestLoan(models.Model):
             message_txt = f"""La solicitud del colaborador {self.employee_id.name} ya ha sido evaluada y necesita de su aprobación."""
             subject = 'Solicitud de prestamo evaluada'
         elif state == 'payroll':
+            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            base_url += '/web#id=%d&view_type=form&model=%s' % (self.payment_id.id, self.payment_id._name)
             notify_employee_id = self.env['hr.employee'].search([('role_in_loans','=','check_creator')])
             for_user = notify_employee_id.name
             email_to = notify_employee_id.user_id.login
@@ -147,7 +153,7 @@ class requestLoan(models.Model):
                                                             {message}
                                                             <div style="margin: 16px 0px 16px 0px;">
                                                                 <a href="{url}"
-                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver solicitud</a>
+                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver registro</a>
                                                             </div>
                                                             <br/>Saludos<br/>
                                                         </div>
@@ -221,6 +227,7 @@ class requestLoan(models.Model):
         ded_id = self.env['hr.salary.attachment'].create(vals)
         ded_id.create_plan()
         self.deduction_id = ded_id.id
+        self.state = 'finalized'
 
     def print_receipt(self):
         datas = {'request_id': self.id}

@@ -19,10 +19,12 @@ class loanRequestPortal(http.Controller):
         if request_ids:
             last_request_id = request_ids[len(request_ids) - 1]
             if last_request_id.state == 'finalized':
-                months = (datetime.now().date() - last_request_id.date).days / 30
+                months = (datetime.now().date() - last_request_id.deduction_id.date_estimated_end).days / 30
                 if months < 6:
                     show_form = 'not_allow'
-                    messsage_form = 'No tiene permiso para solicitar prestamos, debe tener al menos 6 meses desde su ultima solicitud.'
+                    messsage_form = f"""No tiene permiso para solicitar prestamos, debe tener al menos 6 meses desde su ultima solicitud. 
+                            Su ultima solicitud finaliza el {last_request_id.deduction_id.date_estimated_end.strftime("%d/%m/%Y")} 
+                            intente de nuevo a partir del {(last_request_id.deduction_id.date_estimated_end + relativedelta(months=6)).strftime("%d/%m/%Y")}"""
             elif last_request_id.state in ['pending','approved','assessment','finance','payroll']:
                 messsage_form = 'Su ultima solicitud se encuentra en proceso, podra solicitar hasta que se complete.'
                 show_form = 'not_allow'
@@ -63,7 +65,7 @@ class loanRequestPortal(http.Controller):
         request_id = request.env['rrhh.request.loan'].sudo().create(vals)
         request_id.sudo().get_employee_data()
         request_id.sudo().calculate_amounts()
-        request_id.sudo().with_context({'state': 'pending'}).change_state()
+        request_id.sudo().with_context({'state': 'assessment'}).change_state()
 
         request.session['flash_message'] = "Solicitud Ingresada con Exito"
         request.session['flash_message_type'] = 'alert-success'
