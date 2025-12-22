@@ -44,6 +44,9 @@ class partnerInherit(models.Model):
     client_account = fields.Char(string="Cuenta de Cliente",tracking=True)
     modality = fields.Selection([('upon_delivery','Por Cobrar'),('credit','Credito'),('counted','Contado')], string="Modalidad", default="counted",tracking=True)
     discount_id = fields.Many2one('cargo.discount',string="Descuento")
+    no_credit = fields.Boolean(string="Sin valor de credito")
+    no_volumen = fields.Boolean(string="Sin cargos de volumen")
+    default_product_id = fields.Many2one('product.product',string="Producto por defecto")
 
     def write(self,vals):
         if vals.get('cargo_client'):

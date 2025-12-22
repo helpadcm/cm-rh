@@ -103,7 +103,7 @@
             <field name="arch" type="xml">
                 <form string="Registrar Pago" create="false" edit="false">
                     <header>
-                        <button string="Cancelar" name="action_cancel" type="object" class="btn-primary"/>
+                        <button string="Cancelar" name="action_cancel" type="object" class="btn-primary" groups="settlement.group_cash_register_auditor,base.group_no_one"/>
                     </header>
                     <sheet>
                         <group>

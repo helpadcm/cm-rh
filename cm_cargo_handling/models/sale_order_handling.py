@@ -106,6 +106,7 @@ class saleOrderHandling(models.Model):
 
     weight = fields.Float(string="Peso LBS", compute="calculate_totals", store=True)
     weight_piece = fields.Float(string="Peso(LBS)",tracking=True)
+    suitcase_weight = fields.Float(string="Peso en maleta",tracking=True)
     preliminar_price = fields.Float(string="Precio preliminar ($)", compute='calculate_totals', store=True)
     amount_tax = fields.Float(string="Isv", compute='calculate_totals', store=True)
     amount_untaxed = fields.Float(string="Base imponible", compute='calculate_totals', store=True)
@@ -123,6 +124,7 @@ class saleOrderHandling(models.Model):
     volumen_list_id = fields.Many2one('cargo.volumen.list',string="Listado Volumetrico",tracking=True)
     uom_name = fields.Char(string="Nombre unidad de medida")
     discount_id = fields.Many2one('cargo.discount',string="Descuento")
+    product_code = fields.Char(string="Codigo de producto")
 
     def action_desechar(self):
         for record in self:
@@ -252,7 +254,7 @@ class saleOrderHandling(models.Model):
         for rec in self:
             rec.qty_guides = sum(rec.cart_ids.mapped('pieces_qty'))
 
-    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids','discount_id')
+    @api.depends('cart_ids','product_id', 'origin_id', 'destination_id', 'modality', 'additional_services_ids','discount_id','partner_id')
     def calculate_totals(self):
         for rec in self:
             total_lbs = 0
@@ -262,17 +264,18 @@ class saleOrderHandling(models.Model):
             total_volumen = 0
             total_discount = 0
             if rec.origin_id:
-                additional_cost += rec.origin_id.internal_load_ori
+                if not rec.partner_id.no_credit:
+                    additional_cost += rec.origin_id.internal_load_ori
             if rec.destination_id:
-                additional_cost += rec.destination_id.internal_load_dest
+                if not rec.partner_id.no_credit:
+                    additional_cost += rec.destination_id.internal_load_dest
 
             if rec.additional_services_ids:
                 additional_cost += sum(rec.additional_services_ids.mapped('total'))
 
             if rec.modality in ['upon_delivery','credit']:
-                additional_cost += 1
-
-                
+                if not rec.partner_id.no_credit:
+                    additional_cost += 1
 
             rec.additional_costs = additional_cost
 
@@ -338,7 +341,7 @@ class saleOrderHandling(models.Model):
             vals_rtn = self.parent_id.vat
             self.client_name = self.parent_id.name
         self.rtn = vals_rtn
-
+        self.product_id = self.partner_id.default_product_id.id
     
     @api.onchange('sender_id')
     def get_data_sender(self):
@@ -382,6 +385,7 @@ class saleOrderHandling(models.Model):
             self.udm_id = self.product_id.uom_id.id
             self.by_size = self.product_id.by_size
             self.uom_name = self.product_id.uom_id.name
+            self.product_code = self.product_id.default_code
 
     @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id', 'volumen', 'additional_costs', 'uom_name', 'discount_id')
     def calculate_amounts(self):
@@ -452,6 +456,13 @@ class saleOrderHandling(models.Model):
         if not self.product_id:
             raise ValidationError("Debe agregar un producto")
 
+        if self.volumen != 0 and self.partner_id.no_volumen:
+            raise ValidationError(f"""No puede agregar volumen para encomiendas del clientes {self.partner_id.name}""")
+
+        if self.partner_id.default_product_id:
+            if self.product_id.id != self.partner_id.default_product_id.id:
+                raise ValidationError(f"""No puede agregar otro producto distinto a {self.partner_id.default_product_id.name} para el cliente {self.partner_id.name}""")
+
         if self.weight_or_qty > 0 or self.weight_piece > 0:
             pieces = 1
             if self.piece_type == 'uniform':
@@ -471,7 +482,7 @@ class saleOrderHandling(models.Model):
                 'piece_description': self.piece_description,
                 'piece_type': self.piece_type,
                 'volumen': self.volumen,
-                'weight_piece': self.weight_piece
+                'weight_piece': self.weight_piece or self.suitcase_weight
             })
             self.weight_or_qty = 0
             self.weight_piece = 0
