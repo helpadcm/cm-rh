@@ -58,7 +58,7 @@ class Airport(models.Model):
 		manifests = []
 		action = self.env.ref('cm_cargo_handling.action_cargo_manifest').read()[0]
 		if self.env.context.get('state') == 'sent':
-			manifests   =   self.env['cargo.manifest'].search([('state','=','sent'),('shipping_airport','in',self.ids)])
+			manifests   =   self.env['cargo.manifest'].search([('state','=','sent'),('reception_airport','in',self.ids)])
 		action['domain'] = [('id','in',manifests.ids)]
 		return action
 
