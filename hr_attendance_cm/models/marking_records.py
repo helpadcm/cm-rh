@@ -21,7 +21,12 @@ class markingRealEmployees(models.Model):
             rec.qty_marks = len(rec.marking_ids)
 
     def create_attendance(self):
-        marking_record_ids = self.search([('state','=','draft')])
+        active_ids = self.env.context.get('active_ids')
+        if not active_ids:
+            marking_record_ids = self.search([('state','=','draft')])
+        else:
+            marking_record_ids = self.search([('state','=','draft'),('id','in',active_ids)])
+
         marking_data = []
         attendance_obj = self.env['hr.attendance']
         for mark in marking_record_ids:
