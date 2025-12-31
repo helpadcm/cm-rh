@@ -15,10 +15,15 @@ class RecruitmentPublicForm(http.Controller):
 
         requirement_id = request.env['hr.staff.requirement'].sudo().browse(int(post.get('requirement')))
         """Guardar formulario de postulante"""
+        interviewer_ids = [(4, requirement_id.sudo().requested_by.id)]
+        if requirement_id.sudo().follower_ids:
+            for follower in requirement_id.sudo().follower_ids:
+                interviewer_ids.append((4, follower.id))
+
         vals = {
             'requirement_id': requirement_id.id,
             'department_id': requirement_id.sudo().department_id.id or False,
-            'interviewer_ids': [(4, requirement_id.sudo().requested_by.id)],
+            'interviewer_ids': interviewer_ids,
             'job_id': requirement_id.sudo().new_position.id or False,
             'name': f"""Postulacion { post.get('partner_name') }""",
             'partner_name': post.get('partner_name'),

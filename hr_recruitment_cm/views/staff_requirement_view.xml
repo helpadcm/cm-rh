@@ -61,6 +61,7 @@
                                 <field name="promotion" required="1" readonly="state != 'draft'"/>
                                 <field name="promotion_name" readonly="state != 'draft'" invisible="promotion != 'yes'" required="promotion != 'yes'"/>
                                 <field name="salarial_range" readonly="state != 'draft'"/>
+                                <field name="follower_ids" widget="many2many_tags" options="{'no_create':True}"/>
                                 <field name="requested_qty" readonly="state != 'draft'" invisible="1"/>
                                 <field name="hired_qty" readonly="1" invisible="1"/>
                                 <field name="manager_id" invisible="1"/>

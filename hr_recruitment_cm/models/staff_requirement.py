@@ -63,6 +63,7 @@ class staffRequirement(models.Model):
     hired_qty = fields.Integer(string="Cant. Contratada")
     description = fields.Text(string="Motivo")
     salarial_range = fields.Float(string="Rango Salarial",tracking=True)
+    follower_ids = fields.Many2many('res.users',string="Seguidores",tracking=True)
 
     @api.onchange('requested_by')
     def change_requested(self):
