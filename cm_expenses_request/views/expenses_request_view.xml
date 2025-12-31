@@ -45,6 +45,7 @@
                         <group col="3">
                             <group>
                                 <field name="need_tickets" readonly="state != 'draft'"/>
+                                <field name="reason_expense" required="1" readonly="state != 'draft'"/>
                             </group>
                             <group>
                                 <field name="need_transport" readonly="state != 'draft'"/>
@@ -86,7 +87,7 @@
                                 </field>
                             </page>
                             <page name="expenses" string="Gastos" invisible="state in ['draft','required','approved','canceled']">
-                                <field name="expenses_ids" context="{'default_employee_id': employee_id}" readonly="state in ['pending','finalized','canceled']">
+                                <field name="expenses_ids" context="{'default_employee_id': employee_id,'default_reason_expense': reason_expense}" readonly="state in ['pending','finalized','canceled']">
                                     <tree>
                                         <field name="name" />
                                         <field name="date" />

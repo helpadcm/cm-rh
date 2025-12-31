@@ -9,6 +9,7 @@ class expensesInh(models.Model):
     request_id = fields.Many2one('cm.expenses.request',string="Solicitud de viaticos")
     budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria")
     invoice_number = fields.Char(string="Número de factura")
+    reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
 
     def action_submit_expenses(self):
         if self.filtered(lambda expense: not expense.is_editable):
@@ -17,7 +18,7 @@ class expensesInh(models.Model):
         sheets = self.env['hr.expense.sheet'].create(self._get_default_expense_sheet_values())
         if req_id:
             sheets.write({'request_id': req_id.id})
-            sheets.write({'name': f"""Liquidación de viaticos {req_id.employee_id.name} de solicitud {req_id.name}"""})
+            sheets.write({'name': f"""Liq. de viaticos {req_id.employee_id.name} solicitud {req_id.name}"""})
             sheets.action_submit_sheet()
         return {
             'name': _('Nuevos reportes de gastos'),
@@ -29,12 +30,21 @@ class expensesInh(models.Model):
             'res_id': sheets.id if len(sheets) == 1 else False,
         }
 
-    @api.onchange('product_id')
+    @api.onchange('product_id','reason_expense')
     def _onchange_product_id_set_analytic(self):
         if self.employee_id and self.employee_id.analytic_account_id:
             analytic = self.employee_id.analytic_account_id.id
             self.analytic_distribution = {str(analytic): 100.0}
-        self.budget_account_id = self.product_id.budget_account_id.id
+
+        if self.product_id:
+            if self.reason_expense == 'tour':
+                if not self.product_id.budget_account_id:
+                    raise ValidationError(f"""No esta configurada una cuenta presupuestaria para giras en la categoria {self.name}""")
+                self.budget_account_id = self.product_id.budget_account_id.id
+            elif self.reason_expense == 'training':
+                if not self.product_id.training_budget_account_id:
+                    raise ValidationError(f"""No esta configurada una cuenta presupuestaria para capacitaciones en la categoria {self.name}""")
+                self.budget_account_id = self.product_id.training_budget_account_id.id
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -73,6 +83,12 @@ class expensesSheetInh(models.Model):
         total = 0
         for line in line_ids:
             total += line[2].get('price_unit')
+            expense_id = self.env['hr.expense'].browse(line[2].get('expense_id'))
+            if line[2].get('account_id') == expense_id.account_id.id:
+                if self.employee_id.department_id.analytic_account_id:
+                    analytic = self.employee_id.department_id.analytic_account_id.id
+                    line[2]['analytic_distribution'] = {str(analytic): 100.0}
+
         expense_name = self.name.split('\n')[0][:64]
         vals = {
             'name': f'{self.employee_id.name}',
@@ -130,7 +146,8 @@ class expensesSheetInh(models.Model):
 class productInh(models.Model):
     _inherit = 'product.product'
 
-    budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria")
+    budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria Giras")
+    training_budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria Capacitaciones")
 
 class debitCreditInh(models.Model):
     _inherit = 'debit.credit'

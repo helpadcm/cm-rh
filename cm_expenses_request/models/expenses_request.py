@@ -59,6 +59,7 @@ class expensesRequest(models.Model):
     need_tickets = fields.Boolean(string="Necesita boletos")
     need_transport = fields.Boolean(string="Necesita transporte")
     need_hotel = fields.Boolean(string="Necesita hotel")
+    reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
 
     @api.depends('request_details_ids','expenses_ids','refund_amount')
     def calculate_totals(self):
