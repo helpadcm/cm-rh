@@ -431,3 +431,14 @@ class journalInh(models.Model):
 
     sequence_id = fields.Many2one("ir.sequence", string="Secuencia")
     type_document = fields.Selection([('cn','Nota de Credito'),('dn','Nota de Debito'),('inv','Factura'),('ret','Retenciones'),('financing','Financiero')], string="Para Documento")
+
+class movelineInh(models.Model):
+    _inherit = "account.move.line"
+
+    @api.onchange('name','product_id')
+    def get_purchase_tax(self):
+        if self.move_type == 'in_invoice':
+            if self.name and not self.product_id:
+                purchase_tax_id = self.env['account.tax'].search([('type_tax_use','=','purchase'),('company_id','=',self.company_id.id)])
+                if purchase_tax_id:
+                    self.tax_ids = [(6, 0, purchase_tax_id.ids)]
