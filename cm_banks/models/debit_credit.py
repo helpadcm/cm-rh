@@ -73,7 +73,7 @@ class debit_credit(models.Model):
 	                \n* The \'Validated \' when validated', tracking=True, default='draft')
 	for_founds = fields.Boolean(string="Para Fondos")
 	account_found_id = fields.Many2one('account.account',string="Cuenta de Fondos")
-	anulation_date = fields.Date(strnig="Fecha de Anulación")
+	anulation_date = fields.Date(string="Fecha de Anulación")
 
 	def _get_totald(self):
 		result = {}
@@ -391,7 +391,7 @@ class debit_credit(models.Model):
 					nids = dcr_pool.search([('number', '=', self.number),('state' , '!=', 'draft')])
 					if len(nids) > 0:
 						raise UserError(_("El número debe ser único para los débitos o créditos, puede que tenga que comprobar la secuencia de su diario") )
-					self.update_sequence(mcheck.journal_id, mcheck.doc_type)
+					# self.update_sequence(mcheck.journal_id, mcheck.doc_type)
 					
 				else:
 					n = mcheck.number
@@ -470,8 +470,8 @@ class debit_credit(models.Model):
 		return {'result' : have_multi, 'seq_id' : seq_id}
 
 	def anulate_draft_voucher(self):
-		if not self.was_unreconcilied:
-			self.update_sequence(self.journal_id.id, self.doc_type)
+		# if not self.was_unreconcilied:
+		# 	self.update_sequence(self.journal_id.id, self.doc_type)
 		self.write({'state':'anulated', 'anulation_date' : self.date, 'was_unreconcilied':True})
 
 	def set_as_template(self):

@@ -269,6 +269,9 @@ class HrPayslipRun(models.Model):
                     total_credit += l.get('amount')
                     t_total_credit += l.get('amount')
 
+            if total_credit < 0:
+                total_credit =  total_credit * -1
+
             values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
 
@@ -294,6 +297,8 @@ class HrPayslipRun(models.Model):
                     t_total_credit += l.get('amount')
 
                 # values.update({'credit': (total_credit * -1), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            if total_credit < 0:
+                total_credit =  total_credit * -1
 
             values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
@@ -316,6 +321,8 @@ class HrPayslipRun(models.Model):
                     t_total_credit += l.get('amount')
 
                 # values.update({'credit': total_credit, 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
+            if total_credit < 0:
+                total_credit =  total_credit * -1
 
             values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
             move_lines.append((0, 0, values))
@@ -350,6 +357,9 @@ class HrPayslipRun(models.Model):
                     total_credit = val.get('amount')
                     t_total_credit += val.get('amount')
 
+                if total_credit < 0:
+                    total_credit =  total_credit * -1
+
                 values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
                 move_lines.append((0, 0, values))
         
@@ -357,10 +367,11 @@ class HrPayslipRun(models.Model):
             raise ValidationError(f"Debe configurar una cuenta por defecto en el diario {self.journal_id.name}")
 
         if (t_total_debit - abs(t_total_credit)) > 0:
+            credit_amount = t_total_debit - abs(t_total_credit)
             last_line = move_lines.append((0, 0, {
                 'name': self.name,
                 'account_id': self.journal_id.default_account_id.id,
-                'credit': t_total_debit - abs(t_total_credit),
+                'credit': credit_amount,
                 'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
             }))
 
