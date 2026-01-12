@@ -391,7 +391,7 @@ class debit_credit(models.Model):
 					nids = dcr_pool.search([('number', '=', self.number),('state' , '!=', 'draft')])
 					if len(nids) > 0:
 						raise UserError(_("El número debe ser único para los débitos o créditos, puede que tenga que comprobar la secuencia de su diario") )
-					# self.update_sequence(mcheck.journal_id, mcheck.doc_type)
+					self.update_sequence(mcheck.journal_id, mcheck.doc_type)
 					
 				else:
 					n = mcheck.number
