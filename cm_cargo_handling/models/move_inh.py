@@ -116,3 +116,64 @@ class account_invoice_inherit(models.Model):
             'target': 'current',
         }
 
+    def _post(self, soft=True):
+        res = super(account_invoice_inherit, self)._post(soft=False)
+        if res.move_type == 'out_invoice':
+            if res.partner_id.credit_ticket or res.partner_id.modality == 'credit':
+                if self.partner_id.available_credit < res.amount_residual:
+                    raise ValidationError(f"""El cliente {res.partner_id.name} no tiene credito disponible. Su saldo actual es de {res.partner_id.available_credit}""")
+                res.partner_id.available_credit -= res.amount_residual
+        return res
+
+    def button_draft(self):
+        res = super(account_invoice_inherit, self).button_draft()
+        if self.move_type == 'out_invoice':
+            if self.partner_id.credit_ticket or self.partner_id.modality == 'credit':
+                self.partner_id.available_credit += self.amount_residual
+        return res
+
+class AccountPartialReconcile(models.Model):
+    _inherit = 'account.partial.reconcile'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+
+        for rec in records:
+            invoice_line = rec.debit_move_id.move_id
+            payment_line = rec.credit_move_id.move_id
+
+            invoice = invoice_line if invoice_line.move_type == 'out_invoice' else payment_line
+            if not invoice or invoice.move_type != 'out_invoice':
+                continue
+
+            partner = invoice.partner_id
+            if partner.credit_ticket or partner.modality == 'credit':
+                rline = invoice.line_ids.filtered(lambda l: l.account_id.reconcile)
+
+                for line in rline:
+                    ratio = abs(rec.amount) / abs(line.balance)
+                    paid_usd = abs(line.amount_currency) * ratio
+                    partner.available_credit += round(paid_usd,2)
+
+        return records
+
+    def unlink(self):
+        for rec in self:
+            invoice_line = rec.debit_move_id.move_id
+            payment_line = rec.credit_move_id.move_id
+
+            invoice = invoice_line if invoice_line.move_type == 'out_invoice' else payment_line
+            if not invoice or invoice.move_type != 'out_invoice':
+                continue
+
+            partner = invoice.partner_id
+            if partner.credit_ticket or partner.modality == 'credit':
+                rline = invoice.line_ids.filtered(lambda l: l.account_id.reconcile)
+
+                for line in rline:
+                    ratio = abs(rec.amount) / abs(line.balance)
+                    paid_usd = abs(line.amount_currency) * ratio
+                    partner.available_credit -= round(paid_usd,2)
+
+        return super().unlink()

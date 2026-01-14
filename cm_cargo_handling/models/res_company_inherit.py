@@ -47,6 +47,9 @@ class partnerInherit(models.Model):
     no_credit = fields.Boolean(string="Sin valor de credito")
     no_volumen = fields.Boolean(string="Sin cargos de volumen")
     default_product_id = fields.Many2one('product.product',string="Producto por defecto")
+    credit_limit = fields.Float(string="Limite de Credito($)",tracking=True)
+    available_credit = fields.Float(string="Credito Disponible")
+    credit_ticket = fields.Boolean(string="Aplica a credito en boletos")
 
     def write(self,vals):
         if vals.get('cargo_client'):

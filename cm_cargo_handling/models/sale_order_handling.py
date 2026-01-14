@@ -495,6 +495,13 @@ class saleOrderHandling(models.Model):
         return True
 
     def create_order(self):
+        if self.modality == 'credit':
+            if self.partner_id.modality != 'credit':
+                raise ValidationError("El cliente seleccionado no esta configurado como cliente de credito, si hay algun error comuniquese con el o la encargada de creditos")
+
+            if self.partner_id.available_credit < self.amount_total:
+                raise ValidationError(f"""El cliente {self.partner_id.name} no tiene credito disponible para esta orden. Su saldo actual es de {self.partner_id.available_credit}""")
+
         if self.partner_id.default_client and self.modality == 'credit':
             raise ValidationError("El cliente consumidor final no puede validarse con modalidad de credito")
 

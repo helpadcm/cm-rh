@@ -56,16 +56,19 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <notebook position="inside">
-                    <page string="Encomiendas">
+                    <page string="Encomiendas y Boletos">
                         <group>
                             <group>
                                 <field name="cargo_client"/>
+                                <field name="credit_ticket"/>
                                 <field name="client_account" invisible="not cargo_client" readonly="0"/>
                                 <field name="modality" invisible="not cargo_client" readonly="0"/>
                             </group>
                             <group>
                                 <field name="fare_classes_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not cargo_client"/>
                                 <field name="discount_id" options="{'no_create': True}" invisible="not cargo_client"/>
+                                <field name="credit_limit" string="Limite de Credito($)"/>
+                                <field name="available_credit" string="Credito Disponible($)"/>
                             </group>
                         </group>
                         <group string="Configuraciones" groups="base.group_no_one">
