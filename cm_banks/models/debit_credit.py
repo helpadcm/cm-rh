@@ -213,10 +213,7 @@ class debit_credit(models.Model):
 		if self.journal_id and self.doc_type:
 			if self.journal_id.sequence_ids:
 				sequence_id = self.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == self.doc_type)
-				if sequence_id:
-					next_number = sequence_id.get_next_char(sequence_id.number_next_actual)
-					return { 'value' :{ 'number' : next_number,'number_calc' : next_number}}
-				else:
+				if not sequence_id:
 					msj=_("Advertencia! Por favor cree una secuencia bancaria con el codigo bancario '" + doc_type + "' o agregue una secuencia para este diario con el codigo bancario '" + doc_type + "'")
 					return { 'value' :{'msg' : msj}}
 
@@ -391,7 +388,7 @@ class debit_credit(models.Model):
 					nids = dcr_pool.search([('number', '=', self.number),('state' , '!=', 'draft')])
 					if len(nids) > 0:
 						raise UserError(_("El número debe ser único para los débitos o créditos, puede que tenga que comprobar la secuencia de su diario") )
-					self.update_sequence(mcheck.journal_id, mcheck.doc_type)
+					# self.update_sequence(mcheck.journal_id, mcheck.doc_type)
 					
 				else:
 					n = mcheck.number
