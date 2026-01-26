@@ -88,6 +88,7 @@ class HrPayslipRun(models.Model):
         employee_account_ids = self.env['account.account'].search([('calculate_type','=','employee')])
         deduction_account_ids = self.env['account.account'].search([('calculate_type','=','deduction')])
 
+
         one_line_list = []
         one_line_values = []
 
@@ -165,10 +166,10 @@ class HrPayslipRun(models.Model):
                                 })
 
                         if line.salary_rule_id.account_debit.id in deduction_account_ids.ids:
-                            if line.salary_rule_id.id in deduction_list:
-                                deduction_values[deduction_list.index(line.salary_rule_id.id)]['lines'].append(vals)
+                            if line.salary_rule_id.code in deduction_list:
+                                deduction_values[deduction_list.index(line.salary_rule_id.code)]['lines'].append(vals)
                             else:
-                                deduction_list.append(line.salary_rule_id.id)
+                                deduction_list.append(line.salary_rule_id.code)
                                 deduction_values.append({
                                     'name': line.salary_rule_id.name,
                                     'id': line.salary_rule_id.id,
@@ -223,10 +224,10 @@ class HrPayslipRun(models.Model):
                                 })
 
                         if line.salary_rule_id.account_credit.id in deduction_account_ids.ids:
-                            if line.salary_rule_id.id in deduction_list:
-                                deduction_values[deduction_list.index(line.salary_rule_id.id)]['lines'].append(vals)
+                            if line.salary_rule_id.code in deduction_list:
+                                deduction_values[deduction_list.index(line.salary_rule_id.code)]['lines'].append(vals)
                             else:
-                                deduction_list.append(line.salary_rule_id.id)
+                                deduction_list.append(line.salary_rule_id.code)
                                 deduction_values.append({
                                     'name': line.salary_rule_id.name,
                                     'id': line.salary_rule_id.id,
@@ -374,6 +375,11 @@ class HrPayslipRun(models.Model):
                 'credit': credit_amount,
                 'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
             }))
+
+        # for m in move_lines:
+        #     print ("//////////////////////////////")
+        #     print (m)
+        # print (a)
 
         vals_move.update({'line_ids': move_lines})
         move_id = self.env['account.move'].create(vals_move)
