@@ -118,11 +118,12 @@ class account_invoice_inherit(models.Model):
 
     def _post(self, soft=True):
         res = super(account_invoice_inherit, self)._post(soft=False)
-        if res.move_type == 'out_invoice':
-            if res.partner_id.credit_ticket or res.partner_id.modality == 'credit':
-                if self.partner_id.available_credit < res.amount_residual:
-                    raise ValidationError(f"""El cliente {res.partner_id.name} no tiene credito disponible. Su saldo actual es de {res.partner_id.available_credit}""")
-                res.partner_id.available_credit -= res.amount_residual
+        for rec in res:
+            if rec.move_type == 'out_invoice':
+                if rec.partner_id.credit_ticket or rec.partner_id.modality == 'credit':
+                    if rec.partner_id.available_credit < rec.amount_residual:
+                        raise ValidationError(f"""El cliente {rec.partner_id.name} no tiene credito disponible. Su saldo actual es de {rec.partner_id.available_credit}""")
+                    rec.partner_id.available_credit -= rec.amount_residual
         return res
 
     def button_draft(self):
