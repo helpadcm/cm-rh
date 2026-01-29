@@ -27,12 +27,12 @@
         'views/leave_view_inh.xml',
         'views/menus.xml',
         ],
-    'assets': {
-        'web.assets_frontend': [
-            'portal_cm/static/src/js/portal_absences.js',
-            'portal_cm/static/src/css/custom_styles.css',
-        ],
-    },
+    # 'assets': {
+    #     'web.assets_frontend': [
+    #         'portal_cm/static/src/js/portal_absences.js',
+    #         'portal_cm/static/src/css/custom_styles.css',
+    #     ],
+    # },
     'installable': True,
     'application': False,
     'auto_install': False,
