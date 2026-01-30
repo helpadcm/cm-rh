@@ -25,6 +25,7 @@ class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'
 
     compensatory_day_string = fields.Char(related="employee_id.compensatory_day_string",string="Tiempo Compensatorio")
+    available_vacations = fields.Float(related="employee_id.vacations_day",string="Vacaciones Disp.")
 
 class payslipInputInherit(models.Model):
     _inherit = 'hr.payslip.input.type'

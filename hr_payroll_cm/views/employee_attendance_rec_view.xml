@@ -99,7 +99,7 @@
                                             <field name="schedule2_out_date" readonly="1"/>
                                         </group>
                                         <group class="group_turn_note">
-                                            <field name="turn_note" readonly="1" class="high-priority"/>
+                                            <field name="turn_note" readonly="1" />
                                         </group>
                                     </group>
                                     <group col="3" string="MARCAJES DE RELOJ">

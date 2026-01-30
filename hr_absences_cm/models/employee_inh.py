@@ -147,7 +147,7 @@ class employeePublicHRInh(models.Model):
     compensatory_hours = fields.Float(string="Dias compensatorios Disp.")
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
-    vacations_day = fields.Float(string="Vacaciones Disp.")
+    vacations_day = fields.Float(string="Vacaciones Disp.",compute="get_available_vacations")
     early_vacations = fields.Float(string="Vacaciones Adelantadas")
     program_to_fly = fields.Float(string="Programa a Volar Disp.")
     first_year = fields.Boolean(string="1er Año")

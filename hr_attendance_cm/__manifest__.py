@@ -16,6 +16,7 @@
         'views/hr_attendance_device_views.xml',
         'views/hr_attendance_views.xml',
         'views/marking_records.xml',
+        'views/menus.xml'
         ],
     'installable': True,
     'application': False,

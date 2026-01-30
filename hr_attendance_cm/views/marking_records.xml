@@ -70,11 +70,4 @@
             </p>
         </field>
     </record>
-    
-    <menuitem
-            id="menuitem_real_marking"
-            name="Marcajes Reales"
-            parent="menu_hr_attendance_device"
-            sequence="2"
-            action="action_real_marking"/>
 </odoo>

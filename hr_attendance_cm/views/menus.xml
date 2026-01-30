@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+            id="menu_hr_attendance_device"
+            name="Dispositivos de Marcaje"
+            parent="hr_attendance.menu_hr_attendance_root"
+            sequence="40"/>
+
+    <menuitem
+            id="menuitem_hr_attendance_device"
+            name="Dispositivos"
+            parent="menu_hr_attendance_device"
+            sequence="1"
+            action="action_hr_attendance_device"/>
+
+    <menuitem
+            id="menuitem_real_marking"
+            name="Marcajes Reales"
+            parent="menu_hr_attendance_device"
+            sequence="2"
+            action="action_real_marking"/>
+
+    
+    <menuitem
+        id="menuitem_get_marking"
+        name="Obtener Marcajes"
+        parent="menu_hr_attendance_device"
+        sequence="3"
+        groups="get_attendance_clock_group"
+        action="action_get_markings"/>
+</odoo>

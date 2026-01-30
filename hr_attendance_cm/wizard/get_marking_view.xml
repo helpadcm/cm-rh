@@ -31,11 +31,4 @@
         <field name="context">{}</field>
     </record>
 
-    <menuitem
-        id="menuitem_get_marking"
-        name="Obtener Marcajes"
-        parent="menu_hr_attendance_device"
-        sequence="3"
-        groups="get_attendance_clock_group"
-        action="action_get_markings"/>
 </odoo>

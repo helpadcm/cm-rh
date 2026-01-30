@@ -82,6 +82,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='member_employees_ids']/tree/field[@name='job_id']" position="after">
                 <field name="compensatory_day_string"/>
+                <field name="available_vacations"/>
             </xpath>
         </field>
     </record>

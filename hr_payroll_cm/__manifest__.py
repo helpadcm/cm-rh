@@ -35,9 +35,6 @@
         'reports/markings_format.xml',
         'reports/report_reports.xml'
         ],
-    'assets': {
-        'web.assets_backend':['hr_payroll_cm/static/src/css/styles.css']
-    },
     'installable': True,
     'application': False,
     'auto_install': False,
