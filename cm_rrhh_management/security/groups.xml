@@ -68,6 +68,18 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+		<record id="finance_loans_request_rule" model="ir.rule">
+            <field name="name">Regla Finanzas en prestamos</field>
+            <field name="model_id" ref="cm_rrhh_management.model_rrhh_request_loan"/>
+            <field name="domain_force">[('state', 'in',['finance','payroll','finalized'])]</field>
+            <field name="groups" eval="[
+				(4, ref('cm_rrhh_management.group_finance_area_rrhh'))
+			]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
 		<record id="manager_training_rule" model="ir.rule">
             <field name="name">Regla Administrador Capacitaciones</field>
             <field name="model_id" ref="cm_rrhh_management.model_cm_rrhh_trainings"/>
