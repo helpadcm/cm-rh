@@ -124,10 +124,10 @@
                                         <td><t t-esc="'{0:,.2f}'.format(req.monthly_amount)"/></td>
                                         <td><t t-esc="'{0:,.2f}'.format(req.fortnight_amount)"/></td>
                                         <td t-if="req.state == 'draft'">Borrador</td>
-                                        <td t-if="req.state == 'pending'">Pendiente de Aprobar</td>
-                                        <td t-if="req.state == 'approved'">Aprobado por Jefe</td>
-                                        <td t-if="req.state == 'assessment'">En Evaluacion</td>
+                                        <td t-if="req.state == 'assessment'">En Evaluación</td>
+                                        <td t-if="req.state == 'waiting'">En Espera</td>
                                         <td t-if="req.state == 'finance'">Finanzas</td>
+                                        <td t-if="req.state == 'payroll'">Asignar a Nomina</td>
                                         <td t-if="req.state == 'finalized'">Finalizado</td>
                                         <td t-if="req.state == 'cancel'">Rechazado</td>
                                     </tr>
