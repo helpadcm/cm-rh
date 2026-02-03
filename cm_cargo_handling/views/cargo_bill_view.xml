@@ -12,7 +12,7 @@
                         <button name='abandoned_cargo' type='object' string='Marcar como abandono' groups='cm_cargo_handling.group_guia_cargar_admin' invisible="state != 'received'"></button>
                         <!-- <button name="action_desechar" string="Desechar" type="object" class="btn-primary" invisible="state not in ['created','sent']"/> -->
                         <button name="action_desechar" string="Desechar" type="object" class="btn-primary" invisible="1"/>
-                        <button name='pay_invoice' type='object' string='Crear/Pagar Factura' invisible="payment_state == 'paid' or state in ['delivered','canceled','abandoned'] or discount_code in ['COMAIL'] or amount_total == 0"></button>
+                        <button name='pay_invoice' type='object' string='Crear/Pagar Factura' invisible="payment_state == 'paid' or state in ['delivered','canceled','abandoned','desechada'] or discount_code in ['COMAIL'] or amount_total == 0"></button>
                         <button name='print_guides' invisible="payment_state != 'paid'" type='object' string='Imprimir Factura'></button>
                         <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
                     </header>

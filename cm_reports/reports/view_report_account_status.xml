@@ -56,7 +56,7 @@
                             </tr>
                             <tr>
                                 <td style="width:50%;font-size:12px">Quincena: <span t-esc="vals.get('fortnight')"/></td>
-                                <td style="width:50%;font-size:12px">Fecha Maxima Pago: <span t-esc="vals.get('maximum_payment')"/></td>
+                                <!-- <td style="width:50%;font-size:12px">Fecha Maxima Pago: <span t-esc="vals.get('maximum_payment')"/></td> -->
                             </tr>
                         </table>
 

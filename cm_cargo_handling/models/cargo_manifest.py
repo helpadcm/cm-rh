@@ -50,6 +50,14 @@ class Cargo_manifest(models.Model):
             barcode = barcode.replace("'","-")
             bill_landings = self.env['cargo.bill'].search([('name','=',barcode),('state','!=','delivered'),('id','not in',actual_ids),('cargo_manifest_id','=',False)])
             for bl in bill_landings:
+                if bl.state == 'desechada':
+                    raise ValidationError(f"""La guia {bl.name} esta en estado desechada por lo que no se puede manifestar""")
+                elif bl.state == 'delivered':
+                    raise ValidationError(f"""La guia {bl.name} esta en estado entregada por lo que no se puede manifestar""")
+                elif bl.state == 'canceled':
+                    raise ValidationError(f"""La guia {bl.name} esta en estado cancelada por lo que no se puede manifestar""")
+                elif bl.state == 'abandoned':
+                    raise ValidationError(f"""La guia {bl.name} esta en estado abandonada por lo que no se puede manifestar""")
                 # for invoice in bl.get_invoice_ids():
                 #     if invoice.modality == "counted":
                 #         if round(invoice.residual-invoice.amount_prepago,2) > 0.01:
@@ -117,8 +125,10 @@ class Cargo_manifest_bill_landing(models.Model):
     
     def unlink(self):
         for val in self:
-            if val.bill_landing_id:
-                val.bill_landing_id.state = 'created'
+            if val.bill_landing_id: 
+                if val.bill_landing_id.state in ['sent','received']:
+                    val.bill_landing_id.state = 'created'
+                
                 val.bill_landing_id.cargo_manifest_id = False
                 if len(val.bill_landing_id.bill_log_ids) == 1:
                     val.bill_landing_id.bill_log_ids.unlink()
