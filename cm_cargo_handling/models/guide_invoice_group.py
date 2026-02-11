@@ -67,7 +67,7 @@ class groupGuides(models.Model):
             if self.guide_ids:
                 self.guide_ids.unlink()
 
-            bill_landings = self.env['cargo.bill'].search([('group_invoice_id','=',False),('order_id.partner_id','=',self.partner_id.id)])
+            bill_landings = self.env['cargo.bill'].search([('group_invoice_id','=',False),('order_id.partner_id','=',self.partner_id.id),('order_id.state','not in',['quote','canceled'])])
             for bl in bill_landings:
                 if not bl.order_id.move_id:
                     vals = {'bill_id': bl.id}

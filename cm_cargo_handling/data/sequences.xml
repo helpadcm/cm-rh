@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="1">
 	    <record id="sequence_client_account" model="ir.sequence">
             <field name="name">Sequence Client Account</field>
             <field name="code">client.account.cargo</field>        
