@@ -12,13 +12,21 @@ class account_invoice_inherit(models.Model):
     amount_dffprepago  = fields.Monetary(string="Importe Adeudado",currency_field='currency_id',compute="compute_amount_prepago",store=True)
     from_handling = fields.Boolean(string="Desde Cargo")
     order_handling_id = fields.Many2one('sale.order.handling',string="Orden de carga")
+    group_invoice_id = fields.Many2one('cargo.invoice.group_guides',string="Facturacion de guias")
 
     def print_invoice(self):
         order_id = self.env['sale.order.handling'].search([('move_id','=',self.id)])
         if order_id:
-            data = {
-                'order_id': order_id.id,
-                'print_guides': False
+            if self.group_invoice_id:
+                data = {
+                    'order_id': order_id,
+                    'group_invoice_id': self.group_invoice_id.id,
+                    'print_guides': False
+                }
+            else:
+                data = {
+                    'order_id': order_id.id,
+                    'print_guides': False
                 }
             return self.env.ref('cm_cargo_handling.action_invoice_guide_format').report_action(self, data=data)
         else:

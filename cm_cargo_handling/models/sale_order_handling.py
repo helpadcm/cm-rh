@@ -556,37 +556,59 @@ class saleOrderHandling(models.Model):
         if self.parent_id:
             invoice_partner_id = self.parent_id
 
-        self.move_id = self.env['account.move'].create({
-            'partner_id': invoice_partner_id.id,
-            'partner_name': self.client_name or invoice_partner_id.name,
-            'rtn_name': self.rtn or invoice_partner_id.vat,
-            'move_type': 'out_invoice',
-            'order_handling_id': self.id,
-            'invoice_user_id': self.user_id.id,
-            'from_handling': True,
-            'modality': self.modality,
-            'journal_id': journal_id.id,
-            'invoice_date': (datetime.now() - timedelta(hours=6)).date(),
-            'currency_id': self.external_currency_id.id,
-            'state': 'draft',
-            'name': 'Borrador',
-            'internal_number': 'Borrador',
-        })
+        if not self.partner_id.grouping_invoice:
+            move_vals = {
+                'partner_id': invoice_partner_id.id,
+                'partner_name': self.client_name or invoice_partner_id.name,
+                'rtn_name': self.rtn or invoice_partner_id.vat,
+                'move_type': 'out_invoice',
+                'order_handling_id': self.id,
+                'invoice_user_id': self.user_id.id,
+                'from_handling': True,
+                'modality': self.modality,
+                'journal_id': journal_id.id,
+                'invoice_date': (datetime.now() - timedelta(hours=6)).date(),
+                'currency_id': self.external_currency_id.id,
+                'state': 'draft',
+                'name': 'Borrador',
+                'internal_number': 'Borrador',
+            }
 
-        line_vals = {
-            'product_id': self.product_id.id,
-            'partner_id': invoice_partner_id.id,
-            'name': self.product_id.name,
-            'account_id': self.product_id.property_account_income_id.id,
-            'price_unit': self.total,
-            'move_id': self.move_id.id,
-            'tax_ids': [(6, 0, self.product_id.taxes_id.ids)]
-        }
-        self.env['account.move.line'].create(line_vals)
+            self.move_id = self.env['account.move'].create(move_vals)
+
+            line_vals = {
+                'product_id': self.product_id.id,
+                'partner_id': invoice_partner_id.id,
+                'name': self.product_id.name,
+                'account_id': self.product_id.property_account_income_id.id,
+                'price_unit': self.total,
+                'move_id': self.move_id.id,
+                'tax_ids': [(6, 0, self.product_id.taxes_id.ids)]
+            }
+
+            self.env.cr.execute("""
+                SELECT account_budget_account_id
+                FROM account_account_account_budget_account_rel
+                WHERE account_account_id = %s
+            """, (self.product_id.property_account_income_id.id,))
+            rows = self.env.cr.fetchall()
+
+            budget_account_id = False
+            if len(rows) > 0:
+                try:
+                    budget_account_id = rows[0][0]
+                except:
+                    budget_account_id = False
+
+            if budget_account_id:
+                line_vals.update({'analytic_account_id': budget_account_id})
+
+            self.env['account.move.line'].create(line_vals)
 
         if self.modality in ['counted','credit']:
             if self.modality == 'credit' and not self.created_invoice:
-                self.move_id.action_post()
+                if not self.partner_id.grouping_invoice:
+                    self.move_id.action_post()
                 self.with_context({"create": True}).create_guides()
             self.allow_create_guides = True
 

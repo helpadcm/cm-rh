@@ -47,6 +47,8 @@ class BillLading(models.Model):
     amount_total = fields.Float(string="Total")
     amount_total_lps = fields.Float(string="Total (Lps)")
 
+    group_invoice_id = fields.Many2one('cargo.invoice.group_guides',string="Facturacion de guias")
+
 ##################################  MANIFEST FIELDS  ##############################################
     cargo_manifest_id = fields.Many2one('cargo.manifest', string="Manifiesto de Carga")
     bill_log_ids = fields.One2many('cargo.bill_logs', 'bill_landing_id', string="Bitacora")

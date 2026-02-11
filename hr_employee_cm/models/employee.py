@@ -24,7 +24,7 @@ class HrEmployee(models.Model):
 
     birthday_month = fields.Integer(string="Mes de nacimiento")
 
-    certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering')])
+    certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering'),('basic', 'Educación Básica')])
 
     format_identification_id = fields.Char(
         string="Formatted Identification Number",

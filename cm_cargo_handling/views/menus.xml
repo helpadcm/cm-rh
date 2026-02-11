@@ -82,12 +82,28 @@
             action="action_prepago_object2"/> 
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
+
+        <menuitem
+            id="cargo_handling_report_menu"
+            name="Reportes"
+            parent="cargo_handling_menu_root"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="3"/>
+
+        <menuitem
+            id="others_report_menuitem"
+            name="Reportes encomiendas"
+            parent="cargo_handling_report_menu"
+            action="action_wizard_handling_report"
+            sequence="1"/>
+
+<!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem
             id="cargo_handling_config"
             name="Configuracion"
             parent="cargo_handling_menu_root"
             groups="cm_cargo_handling.group_cargo_handling_manager"
-            sequence="3"/>
+            sequence="4"/>
 
         <menuitem
             id="airport_config_menu"
@@ -230,6 +246,16 @@
             parent="cargo_manifest_main_menu"
             sequence="3"
             action="cargo_manifest_action_python"/> -->
+
+
+    <!-- ###############################  OTHERS ########################################-->
+        <menuitem
+            id="invoice_group_guides_menuitem"
+            name="Facturacion de guias"
+            parent="account.menu_finance_receivables"
+            groups="cm_cargo_handling.group_guia_cargar_group_invoice"
+            sequence="200"
+            action="action_invoice_guide_groups"/>
     </data>
 
 </odoo>

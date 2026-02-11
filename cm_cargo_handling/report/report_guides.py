@@ -81,8 +81,6 @@ class reportHandling(models.AbstractModel):
                 discount_amount = order_id.discount
                 discount_name = order_id.discount_id.name
 
-        print ("/////////////////////////")
-        print (discount_name)
         invoice_date = order_id.move_id.invoice_date or order_id.date
 
         values = {

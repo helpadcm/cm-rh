@@ -19,6 +19,15 @@
             <field name="padding">6</field>
         </record>
 
+        <record id="sequence_guide_group_handling" model="ir.sequence">
+            <field name="name">Sequence Guide Groups</field>
+            <field name="code">guide.groups.invoice</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">IGG-</field>
+            <field name="padding">6</field>
+        </record>
+
         <record id="sequence_tracking_bill" model="ir.sequence">
             <field name="name">Sequence tracking bill</field>
             <field name="code">cargo.bill.tracking</field>        

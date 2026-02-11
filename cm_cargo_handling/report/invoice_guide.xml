@@ -9,7 +9,7 @@
                             <table style="width:25%;float:left">
                                 <tr>
                                     <td style="padding-left:10px;padding-right:10px;align:center;">
-                                        <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:180px;height:85px" alt="Logo"/>
+                                        <img t-att-src="image_data_uri(data.get('company').logo)" style="width:180px;height:85px" alt="Logo"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -36,7 +36,7 @@
                                     </td>
                                 </tr>
                             </table>
-                                <table style="float:left;width:34%;font-size:16px">
+                            <table style="float:left;width:34%;font-size:16px">
                                 <tr>
                                     <th style="padding-top:3px;font-size:18px"><strong> <b>Reclame su Encomienda en:</b></strong></th>
                                 </tr>
@@ -45,8 +45,6 @@
                                         <span t-esc="data.get('address_send')"/>
                                     </td>
                                 </tr>
-                            
-                            
                             </table>
                             <table style="float:left;width:38%;height:30%;margin-top:30px;border-collapse: collapse">
                                 <tr style="text-align:center;height:15px">
@@ -82,7 +80,7 @@
                                                 </t>
                                                 <t t-if="data.get('modality') == 'credit'">
                                                     <tr style="text-align:center">
-                                                        <td style="padding.3pxborder:1px solid #000000;font-size:80%;width:50%">Contado</td>
+                                                        <td style="padding:3px;border:1px solid #000000;font-size:80%;width:50%">Contado</td>
                                                         <td><input type="checkbox"/></td>
                                                     </tr>
                                                     <tr style="text-align:center">
@@ -176,23 +174,25 @@
                             <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;width:50%;font-size:85%"><strong>Descripción del envio</strong></th>
                             <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:85%;text-align:right;width:4%"><strong>Gravado</strong></th>
                             <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:85%;text-align:right;width:4%"><strong>Excento</strong></th>
-                            <tr>
-                                <td class="text-align:left;font-size:85%">
-                                    <span t-esc="data.get('order')"/>
-                                </td>
-                                <td class="text-align:left;font-size:85%">
-                                    <span t-esc="data.get('pieces')"/>
-                                </td>
-                                <td class="text-align:left;font-size:85%" style="white-space:nowrap">
-                                    <span t-esc="data.get('mother_description')[0:95]"/>
-                                </td>
-                                <td style="font-size:85%;text-align:right">
-                                    <span t-esc="'{0:,.2f}'.format(data.get('gravado'))"/>
-                                </td>
-                                <td style="font-size:85%;text-align:right">
-                                    <span t-esc="'{0:,.2f}'.format(data.get('excento'))"/>
-                                </td>
-                            </tr>
+                            <t t-foreach="data.get('guide_list')" t-as="l">
+                                <tr>
+                                    <td class="text-align:left;font-size:85%">
+                                        <span t-esc="l.get('order')"/>
+                                    </td>
+                                    <td class="text-align:left;font-size:85%">
+                                        <span t-esc="l.get('pieces')"/>
+                                    </td>
+                                    <td class="text-align:left;font-size:85%" style="white-space:nowrap">
+                                        <span t-esc="l.get('mother_description')[0:95]"/>
+                                    </td>
+                                    <td style="font-size:85%;text-align:right">
+                                        <span t-esc="'{0:,.2f}'.format(l.get('gravado'))"/>
+                                    </td>
+                                    <td style="font-size:85%;text-align:right">
+                                        <span t-esc="'{0:,.2f}'.format(l.get('excento'))"/>
+                                    </td>
+                                </tr>
+                            </t>
                         </table>
                         <div style="width:100%;margin-top:10px;">
                             <table style="width:100%;border-collapse: collapse">

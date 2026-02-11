@@ -62,6 +62,14 @@
         <field name="binding_model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
     </record>
 
+    <record id="cargo_volume_handling_xlsx" model="ir.actions.report">
+        <field name="name">Volumen en encomiendas XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_volume_handling_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_volume_handling_xlsx</field>
+    </record>
+
     <report
         id="cargo_manifest_report_xlsx"
         model="cargo.manifest"

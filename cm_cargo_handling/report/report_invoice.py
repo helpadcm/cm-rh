@@ -15,14 +15,19 @@ class reportInvHandling(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         # vals = self.get_data(data)
-        order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
-        docs = order_id
+        if data.get('group_invoice_id'):
+            info_vals = self.get_data_groups(data)
+            docs = 1
+        else:
+            order_id = self.env['sale.order.handling'].browse(data.get('order_id'))
+            info_vals = self.get_data(data)
+            docs = order_id
         return {
             'doc_ids': docids,
             'doc_model': 'cargo.bill',
             'docs': docs,
             'invoice_order': 'cm_cargo_handling.invoice_guide',
-            'data': self.get_data(data), # Función para obtener más datos
+            'data': info_vals, # Función para obtener más datos
         }
 
     def get_data(self, data):
@@ -71,6 +76,14 @@ class reportInvHandling(models.AbstractModel):
                 discount_name = order_id.discount_id.name
 
         invoice_date = order_id.move_id.invoice_date or order_id.date
+        guide_list = []
+        guide_list.append({
+            'order': order_id.name,
+            'pieces': order_id.pieces_qty,
+            'mother_description': ', '.join([desc for desc in set(description_list)]) or '',
+            'gravado': gravado,
+            'excento': excento,
+        })
 
         values = {
             'company': order_id.user_id.company_id,
@@ -99,6 +112,8 @@ class reportInvHandling(models.AbstractModel):
             'image_description': order_id.content_description_ids,
             'pieces': order_id.pieces_qty,
             'print_invoice': print_inv,
+
+            'guide_list': guide_list,
 
             'weight': order_id.weight,
             'subtotal': order_id.preliminar_price + order_id.additional_costs,
@@ -140,6 +155,94 @@ class reportInvHandling(models.AbstractModel):
             'invoice_exempt_purchase': order_id.move_id.purchase_order_exempt or '',
             'invoice_exonerated_record': order_id.move_id.record_exonerated or '',
             'invoice_reg_sag': order_id.move_id.sag_record or '',
+        }
+        return values
+
+    def get_data_groups(self, data):
+        group_invoice_id = self.env['cargo.invoice.group_guides'].browse(data.get('group_invoice_id'))
+
+        partner = group_invoice_id.partner_id
+
+        guide_list = []
+        discount_amount = 0
+        total_excento = 0
+        total_gravado = 0
+        subtotal = 0
+        for guide in group_invoice_id.guide_ids:
+            if guide.bill_id.product_id.taxes_id == 0.00:
+                excento = guide.bill_id.order_id.amount_untaxed
+                gravado = 0.00
+            else:
+                excento = 0.00
+                gravado = guide.bill_id.order_id.amount_untaxed
+            total_excento += excento
+            total_gravado += gravado
+            subtotal += guide.bill_id.order_id.preliminar_price + guide.bill_id.order_id.additional_costs
+
+            description_list = []
+            for car in guide.bill_id.order_id.cart_ids:
+                description_list.append(car.piece_description)
+
+            guide_list.append({
+                'order': guide.bill_id.name,
+                'pieces': guide.bill_id.order_id.pieces_qty,
+                'mother_description': ', '.join([desc for desc in set(description_list)]) or '',
+                'gravado': gravado,
+                'excento': excento,
+            })
+
+            if guide.bill_id.order_id.discount_id:
+                if guide.bill_id.order_id.discount_id.code not in ['COMAIL','G10']:
+                    discount_amount = guide.bill_id.order_id.discount
+
+        invoice_date = group_invoice_id.move_id.invoice_date
+
+        values = {
+            'company': group_invoice_id.move_id.company_id,
+            'address_send': 'Oficina de Encomiendas CM Airlines',
+
+            'guide_list': guide_list,
+
+            'sender_name': 'Varios',
+            'id_sender': '',
+            'origin_name': '',
+            'date': self.change_format2(group_invoice_id.date),
+            'receiver_name': 'Varios',
+            'id_receiver': '',
+            'user_name': group_invoice_id.move_id.invoice_user_id.name,
+            'modality': 'credit',
+
+            'subtotal': subtotal,
+            'taxes': group_invoice_id.move_id.amount_tax,
+            'total': group_invoice_id.move_id.amount_total,
+            'conv_total': group_invoice_id.move_id.amount_total_signed,
+            'name_currency': 'USD',
+            'exonerado': 0,
+            'discount': discount_amount,
+            'rate': group_invoice_id.move_id.currency_rate,
+            'amount_text': group_invoice_id.move_id.amount_in_words,
+            'excento': total_excento,
+            'gravado': total_gravado,
+
+            'invoice_date': self.change_format(group_invoice_id.move_id.invoice_date),
+            'invoice_number': group_invoice_id.move_id.name,
+            'invoice_payment_term': group_invoice_id.move_id.invoice_payment_term_id.name or '',
+            'invoice_date_due': self.change_format(group_invoice_id.move_id.invoice_date_due),
+            'invoice_partner_identity': partner.identity or '',
+            'invoice_partner_rtn': group_invoice_id.move_id.rtn_name or '',
+            'invoice_partner_name': group_invoice_id.move_id.partner_name or  partner.name,
+            'invoice_partner_stree': partner.street,
+            'invoice_partner_stree2': partner.street2,
+            'invoice_partner_city': partner.city,
+            'invoice_partner_state': partner.state_id.name,
+            'invoice_partner_country': partner.country_id.name,
+            'invoice_cai_shot': group_invoice_id.move_id.cai_number,
+            'invoice_expire_cai': self.change_format(group_invoice_id.move_id.expiration_cai_date),
+            'invoice_min_cai': group_invoice_id.move_id.min_number_cai,
+            'invoice_max_cai': group_invoice_id.move_id.max_number_cai,
+            'invoice_exempt_purchase': group_invoice_id.move_id.purchase_order_exempt or '',
+            'invoice_exonerated_record': group_invoice_id.move_id.record_exonerated or '',
+            'invoice_reg_sag': group_invoice_id.move_id.sag_record or '',
         }
         return values
 

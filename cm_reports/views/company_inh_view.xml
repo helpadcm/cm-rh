@@ -28,6 +28,7 @@
                     <field name="TIAmount" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
                     <field name="YZAmount" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
                     <field name="donate" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
+                    <field name="sub_invoice" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
                 </xpath>
             </field>
         </record>

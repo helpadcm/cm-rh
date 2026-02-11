@@ -1,0 +1,37 @@
+<odoo>
+    <data>
+        <record id="view_wizard_handling_report" model='ir.ui.view'>
+            <field name="name">Reportes de encomiendas</field>
+            <field name="model">handling.reports</field>
+            <field name="arch" type="xml">
+                <form string='Cancelar Manifiesto'>
+                    <group>
+                        <field name="report_opt" required="1"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="initial_date" required="1"/>
+                        </group>
+                        <group>
+                            <field name="final_date" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="print_report" class="oe_highlight" string="Imprimir" type="object"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_wizard_handling_report" model="ir.actions.act_window">
+            <field name="name">Reportes de encomiendas</field>
+            <field name="res_model">handling.reports</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wizard_handling_report"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

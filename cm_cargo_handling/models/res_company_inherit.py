@@ -50,6 +50,7 @@ class partnerInherit(models.Model):
     credit_limit = fields.Float(string="Limite de Credito($)",tracking=True)
     available_credit = fields.Float(string="Credito Disponible")
     credit_ticket = fields.Boolean(string="Aplica a credito en boletos")
+    grouping_invoice = fields.Boolean(string="Agrupar facturas") 
 
     def write(self,vals):
         if vals.get('cargo_client'):
