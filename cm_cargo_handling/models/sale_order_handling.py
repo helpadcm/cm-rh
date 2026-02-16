@@ -428,8 +428,8 @@ class saleOrderHandling(models.Model):
                             amount_extra_lbs = ((rec.weight_piece - line_id.qty_min) * line_id.min_price)
                     amount_pack_price = line_id.price
 
-                # elif not line_id and not rec.product_id.by_size:
-                #     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
+                elif not line_id and not rec.product_id.by_size:
+                    raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
                 if rec.volumen > 0:
                     price += rec.volumen
