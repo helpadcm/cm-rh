@@ -253,9 +253,12 @@ class ReportGeneralLedger(models.AbstractModel):
                          [('id', 'in', data['form']['journal_ids'])])]
 
         analytic_account_ids = False
+        analytic_account_names = False
         if data['form'].get('analytic_account_ids', False):
             analytic_account_ids = self.env['account.analytic.account'].search(
                 [('id', 'in', data['form']['analytic_account_ids'])])
+            analytic_account_names = ', '.join([ lt.name or '' for lt in analytic_account_ids ])
+            
 
         partner_ids = False
         if data['form'].get('partner_ids', False):
@@ -289,7 +292,7 @@ class ReportGeneralLedger(models.AbstractModel):
             'print_journal': codes,
             'accounts': accounts,
             'partner_ids': partner_ids,
-            'analytic_account_ids': analytic_account_ids,
+            'analytic_account_ids': analytic_account_names,
             'init_balance':cont,
         }
 

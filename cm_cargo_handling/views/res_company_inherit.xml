@@ -67,7 +67,7 @@
                             <group>
                                 <field name="fare_classes_ids" widget="many2many_tags" options="{'no_create': True}" invisible="1"/>
                                 <field name="grouping_invoice" invisible="modality != 'credit' or not cargo_client"/>
-                                <field name="discount_id" options="{'no_create': True}" invisible="not cargo_client"/>
+                                <field name="discount_id" domain="[('is_active','=',True),('available_for','=','clients')]" options="{'no_create': True}" invisible="not cargo_client"/>
                                 <field name="credit_limit" string="Limite de Credito($)"/>
                                 <field name="available_credit" string="Credito Disponible($)"/>
                             </group>

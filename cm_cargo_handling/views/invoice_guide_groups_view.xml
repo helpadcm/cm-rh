@@ -34,7 +34,7 @@
                         <notebook>
                             <page string="Guias">
                                 <field name="guide_ids" readonly="state != 'draft'">
-                                    <tree create="false" edit="false">
+                                    <tree create="false" edit="false" editable="bottom">
                                         <field name="bill_id"/>
                                         <field name="amount_lps" widget="monetary" options="{'currency_field': 'currency_hnl_id'}" sum="Total"/>
                                         <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total"/>

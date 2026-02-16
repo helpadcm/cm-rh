@@ -64,7 +64,7 @@ class saleOrderHandling(models.Model):
     local_price = fields.Float(string="Precio Lps", compute="calculate_amounts", store=True)
     external_price = fields.Float(string="Precio USD", compute="calculate_amounts", store=True)
     tax_price = fields.Float(string="Impuestos USD", compute="calculate_amounts", store=True)
-    total_amount_piece = fields.Float(string="Monto Total Pieza", compute="calculate_amounts", store=True)
+    total_amount_piece = fields.Float(string="Monto Total", compute="calculate_amounts", store=True)
     state = fields.Selection(states, string="Estado", default="quote", tracking=True)
     cart_ids = fields.One2many('cart.order.handling', 'order_id', string="Carrito de ordenes")
     listprice_domain = fields.Binary(string="Dominio de lista de precios", compute="update_pricelist")
@@ -125,6 +125,9 @@ class saleOrderHandling(models.Model):
     uom_name = fields.Char(string="Nombre unidad de medida")
     discount_id = fields.Many2one('cargo.discount',string="Descuento")
     product_code = fields.Char(string="Codigo de producto")
+
+    pack_price = fields.Float(string="Paq. Base", compute="calculate_amounts", store=True)
+    extra_lbs = fields.Float(string="Flete", compute="calculate_amounts", store=True)
 
     def action_desechar(self):
         for record in self:
@@ -263,6 +266,7 @@ class saleOrderHandling(models.Model):
             total_included = 0
             total_volumen = 0
             total_discount = 0
+            total_extra_lbs = 0
             if rec.origin_id:
                 if not rec.partner_id.no_credit:
                     additional_cost += rec.origin_id.internal_load_ori
@@ -283,6 +287,7 @@ class saleOrderHandling(models.Model):
                 total_lbs += line.weight_piece
                 total_dls += line.external_price
                 total_volumen += line.volumen
+                total_extra_lbs += line.extra_lbs
             
             subtotal = total_dls + additional_cost + total_volumen
             
@@ -293,7 +298,10 @@ class saleOrderHandling(models.Model):
                     if rec.discount_id.discount_by == 'weight':
                         total_discount = rec.discount_id.discount_weight * line_id.min_price
                     else:
-                        total_discount = subtotal * (rec.discount_id.porcentage/100)
+                        if rec.discount_id.code == 'COMAIL':
+                            total_discount = subtotal * (rec.discount_id.porcentage/100)
+                        else:
+                            total_discount = total_extra_lbs * (rec.discount_id.porcentage/100)
                     subtotal -= total_discount
             
             rec.weight = total_lbs
@@ -398,6 +406,8 @@ class saleOrderHandling(models.Model):
                     line_id = rec.pricelist_id.list_product_ids.filtered(lambda line: line.product_id.id == rec.product_id.id)
                 
                 price = 0
+                amount_pack_price = 0
+                amount_extra_lbs = 0
                 if rec.product_id.by_size:
                     if rec.options_size == 'little':
                         price = rec.product_id.little_amount
@@ -405,7 +415,6 @@ class saleOrderHandling(models.Model):
                         price = rec.product_id.big_amount
 
                 if line_id:
-                    discount_amount = 0
 
                     if rec.weight_or_qty > 0 and rec.uom_name == 'Unidades':
                         if rec.weight_or_qty <= line_id.qty_min:
@@ -414,10 +423,10 @@ class saleOrderHandling(models.Model):
                             price += line_id.min_price * rec.weight_or_qty
                     
                     if rec.weight_piece > 0 and rec.uom_name != 'Unidades':
-                        if rec.weight_piece <= line_id.qty_min:
-                            price += (line_id.price - discount_amount)
-                        else:
-                            price += ((line_id.min_price * rec.weight_piece) - discount_amount)
+                        price += line_id.price
+                        if rec.weight_piece > line_id.qty_min:
+                            amount_extra_lbs = ((rec.weight_piece - line_id.qty_min) * line_id.min_price)
+                    amount_pack_price = line_id.price
 
                 elif not line_id and not rec.product_id.by_size:
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
@@ -428,12 +437,13 @@ class saleOrderHandling(models.Model):
                 if rec.additional_costs > 0:
                     price += rec.additional_costs
 
-                taxes = rec.product_id.taxes_id.compute_all(price, rec.external_currency_id, 1, product=rec.product_id, partner=False)
-                # tax_amount = price * 0.15
+                taxes = rec.product_id.taxes_id.compute_all((price + amount_extra_lbs), rec.external_currency_id, 1, product=rec.product_id, partner=False)
                 tax_amount = round((taxes['total_included'] - taxes['total_excluded']), 2)
-                rec.external_price = price
+                rec.external_price = price + amount_extra_lbs
+                rec.pack_price = amount_pack_price
+                rec.extra_lbs = amount_extra_lbs
                 rec.tax_price = tax_amount
-                rec.total_amount_piece = price + tax_amount
+                rec.total_amount_piece = price + amount_extra_lbs + tax_amount
                 rec.local_price = rec.external_currency_id._convert((rec.total_amount_piece), rec.local_currency_id, self.env.company, rec.date, True)
 
     def add_cart(self):
@@ -482,9 +492,10 @@ class saleOrderHandling(models.Model):
                 'piece_description': self.piece_description,
                 'piece_type': self.piece_type,
                 'volumen': self.volumen,
+                'extra_lbs': self.extra_lbs,
                 'weight_piece': self.weight_piece or self.suitcase_weight
             })
-            self.weight_or_qty = 0
+            self.weight_or_qty = 1
             self.weight_piece = 0
             self.volumen_list_id = False
             self.volumen = 0
@@ -601,7 +612,13 @@ class saleOrderHandling(models.Model):
                     budget_account_id = False
 
             if budget_account_id:
-                line_vals.update({'analytic_account_id': budget_account_id})
+                source_id = self.env['crossovered.source_expenditure'].search([('code','=','VT')])
+                process_id = self.env['crossovered.activity'].search([('code','=','PP06-COM')])
+                line_vals.update({
+                    'analytic_account_id': budget_account_id,
+                    'activity_id': process_id.id,
+                    'source_id': source_id.id
+                })
 
             self.env['account.move.line'].create(line_vals)
 
@@ -716,3 +733,4 @@ class orderCartHandling(models.Model):
     piece_type = fields.Selection([('uniform','Uniforme'),('mix','Mixta')], string="Tipo de pieza")
     piece_description = fields.Text(string="Descripcion Pieza")
     volumen = fields.Float(string="Volumen")
+    extra_lbs = fields.Float(string="Flete")

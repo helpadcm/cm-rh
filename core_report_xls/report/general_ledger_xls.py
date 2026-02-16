@@ -89,7 +89,7 @@ class GeneralLegderReport(models.AbstractModel):
 		if not xlines['analytic_account_ids']:
 			sheet.merge_range('D6:E6', _('Todas'), format21)
 		else:
-			sheet.merge_range('D6:E6', ', '.join([ lt or '' for lt in xlines['analytic_account_ids'] ]), format21)
+			sheet.merge_range('D6:E6', xlines['analytic_account_ids'], format21)
         		
 		if datax.get('date_from'):
 			sheet.write(4, 7, _('Fecha Inicio'), format211)

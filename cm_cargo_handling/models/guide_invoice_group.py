@@ -130,7 +130,13 @@ class groupGuides(models.Model):
                     budget_account_id = False
 
             if budget_account_id:
-                line_vals.update({'analytic_account_id': budget_account_id})
+                source_id = self.env['crossovered.source_expenditure'].search([('code','=','VT')])
+                process_id = self.env['crossovered.activity'].search([('code','=','PP06-COM')])
+                line_vals.update({
+                    'analytic_account_id': budget_account_id,
+                    'activity_id': process_id.id,
+                    'source_id': source_id.id
+                })
 
             self.env['account.move.line'].create(line_vals)
             if not guide.bill_id.order_id.move_id:

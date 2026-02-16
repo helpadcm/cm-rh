@@ -85,7 +85,7 @@
                                         <field name="pricelist_id" invisible="1" domain="listprice_domain" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="pieces_qty" readonly="state != 'quote'"/>
                                         <field name="listprice_domain" invisible="1"/>
-                                        <field name="discount_id" domain="[('is_active','=',True)]" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="discount_id" domain="[('is_active','=',True),('available_for','in',['promo','cargo'])]" readonly="state != 'quote'" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="options_size" invisible="not by_size" required="by_size" readonly="state != 'quote'"/>
                                         <field name="piece_type" required="1" readonly="state != 'quote'" invisible="1" help="Uniforme: Piezas con mismas dimensiones y peso; Mixta: Piezas con peso y dimensiones variables"/>
                                     </group>
@@ -97,9 +97,11 @@
                                         <field name="product_code" invisible="1"/>
                                     </group>
                                     <group>
-                                        <field name="weight_or_qty" invisible="uom_name != 'Unidades'" readonly="state != 'quote'"/>
+                                        <field name="weight_or_qty" invisible="uom_name != 'Unidades'" readonly="state != 'quote' or uom_name == 'Unidades'"/>
                                         <field name="weight_piece" invisible="uom_name == 'Unidades'" readonly="state != 'quote'"/>
                                         <field name="suitcase_weight" string="Peso(LBS)" invisible="uom_name != 'Unidades' or product_code == '110'" readonly="state != 'quote'"/>
+                                        <field name="pack_price" invisible="uom_name == 'Unidades'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
+                                        <field name="extra_lbs" invisible="uom_name == 'Unidades'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="tax_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="total_amount_piece" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
@@ -108,7 +110,7 @@
                                         <field name="local_currency_id" invisible="1"/>
                                         <field name="udm_id" nolabel="1" class="oe_inline" invisible="1" for_save="1" options="{'no_create': True, 'no_open': True}"/>
                                     </group>
-                                    <div style="margin-left:70%" class="o_row mt-2"> 
+                                    <div style="margin-left:70%;margin-bottom:25px" class="o_row mt-2"> 
                                         <button name="add_cart" type="object" string="Agregar al Carrito" invisible="state != 'quote'" class="oe_highlight **text-nowrap**"/>	
                                     </div>
                                 </group>
@@ -135,6 +137,7 @@
                                         <field name="udm_id" readonly="1" force_save="1" column_invisible="1"/>
                                         <field name="weight_or_qty" sum="Total" readonly="1"/>
                                         <field name="volumen" readonly="1" force_save="1" sum="Total Volumen"/>
+                                        <field name="extra_lbs" widget="monetary" options="{'currency_field': 'external_currency_id'}" optional="hide" readonly="1"/>
                                         <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1" sum="Total USD"/>
                                         <field name="local_price" widget="monetary" options="{'currency_field': 'local_currency_id'}" readonly="1" for_save="1" sum="Total LPS"/>
                                         <field name="external_currency_id" column_invisible="1"/>
