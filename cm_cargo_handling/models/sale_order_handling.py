@@ -429,6 +429,9 @@ class saleOrderHandling(models.Model):
                     amount_pack_price = line_id.price
 
                 elif not line_id and not rec.product_id.by_size:
+                    print ("////////////////////////////////")
+                    print (line_id)
+                    print (rec.product_id.name)
                     raise ValidationError("No hay regla de precio para el producto seleccionado en la lista de precio")
                             
                 if rec.volumen > 0:
