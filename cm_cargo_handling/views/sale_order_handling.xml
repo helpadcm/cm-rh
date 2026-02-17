@@ -99,9 +99,9 @@
                                     <group>
                                         <field name="weight_or_qty" invisible="uom_name != 'Unidades'" readonly="state != 'quote' or uom_name == 'Unidades'"/>
                                         <field name="weight_piece" invisible="uom_name == 'Unidades'" readonly="state != 'quote'"/>
-                                        <field name="suitcase_weight" string="Peso(LBS)" invisible="uom_name != 'Unidades' or product_code == '110'" readonly="state != 'quote'"/>
-                                        <field name="pack_price" invisible="uom_name == 'Unidades'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
-                                        <field name="extra_lbs" invisible="uom_name == 'Unidades'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
+                                        <field name="suitcase_weight" string="Peso(LBS)" invisible="uom_name != 'Unidades' or product_code == '100'" readonly="state != 'quote'"/>
+                                        <field name="pack_price" invisible="uom_name == 'Unidades' or product_code != '110'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
+                                        <field name="extra_lbs" invisible="uom_name == 'Unidades' or product_code != '110'" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="external_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="tax_price" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>
                                         <field name="total_amount_piece" widget="monetary" options="{'currency_field': 'external_currency_id'}" readonly="1" for_save="1"/>

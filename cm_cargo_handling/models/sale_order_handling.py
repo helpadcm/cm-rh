@@ -399,6 +399,13 @@ class saleOrderHandling(models.Model):
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
+                code = rec.product_id.default_code
+                if rec.weight_piece > 0:
+                    if code == '120' and rec.weight_piece > 5:
+                        raise ValidationError("Si el producto seleccionado es PAQUETE el peso permitido es menor que 5 si quiere ingresar un peso mayor debe seleccionar el producto FLETE.")
+                    elif code == '110' and rec.weight_piece < 6:
+                        raise ValidationError("Si el producto seleccionado es FLETE el peso permitido es mayor de 5 si quiere ingresar un peso menor debe seleccionar el producto PAQUETE.")
+
                 line_id = False
                 if not rec.pricelist_id:
                     line_id = rec.product_id.price_list_ids.filtered(lambda line: line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
@@ -459,6 +466,12 @@ class saleOrderHandling(models.Model):
 
         if self.weight_or_qty == 0 and self.weight_piece == 0:
             raise ValidationError("La cantidad debe ser mayor de cero")
+
+        code = self.product_id.default_code
+        if code == '120' and self.weight_piece > 5:
+            raise ValidationError("Si el producto seleccionado es PAQUETE el peso permitido es menor que 5 si quiere ingresar un peso mayor debe seleccionar el producto FLETE.")
+        elif code == '110' and self.weight_piece < 6:
+            raise ValidationError("Si el producto seleccionado es FLETE el peso permitido es mayor de 5 si quiere ingresar un peso menor debe seleccionar el producto PAQUETE.")
 
         if not self.piece_description:
             raise ValidationError("Debe agregar una descripcion de la pieza a ingresar")

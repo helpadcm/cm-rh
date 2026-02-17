@@ -4,3 +4,4 @@ from . import report_invoice
 from . import report_reports
 from . import invoice_format_handling
 from . import handling_volumen_xls
+from . import bandoned_guides

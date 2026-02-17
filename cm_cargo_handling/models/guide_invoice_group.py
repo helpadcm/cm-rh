@@ -190,3 +190,4 @@ class groupGuidesList(models.Model):
     amount_lps = fields.Float(string="Monto(LPS)",related="bill_id.order_id.amount_total_lps")
     currency_id = fields.Many2one('res.currency',string="Moneda",related="bill_id.order_id.external_currency_id")
     currency_hnl_id = fields.Many2one('res.currency',string="Moneda HNL",related="bill_id.order_id.local_currency_id")
+    date = fields.Datetime(string="Fecha", related="bill_id.create_date")

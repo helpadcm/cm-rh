@@ -29,5 +29,19 @@
                 </notebook>
             </field>
         </record>
+
+        <record id="cargo_move_view_inherit_sales" model="ir.ui.view">
+            <field name="name">Cargo Move Sales Inh</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="cm_sales.view_account_invoice_form_inherit"/>
+            <field name="arch" type="xml">
+                <field name="partner_name" position="replace">
+                    <field name="partner_name"/>
+                </field>
+                <field name="rtn_name" position="replace">
+                    <field name="rtn_name"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

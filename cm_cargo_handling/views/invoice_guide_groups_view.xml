@@ -20,7 +20,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="partner_id" readonly="state != 'draft'" required="1" domain="[('grouping_invoice','=',True)]"/>
+                                <field name="partner_id" options="{'no_create': True}" readonly="state != 'draft'" required="1" domain="[('grouping_invoice','=',True)]"/>
                                 <field name="move_id" invisible="1"/>
                             </group>
                             <group>
@@ -36,6 +36,7 @@
                                 <field name="guide_ids" readonly="state != 'draft'">
                                     <tree create="false" edit="false" editable="bottom">
                                         <field name="bill_id"/>
+                                        <field name="date"/>
                                         <field name="amount_lps" widget="monetary" options="{'currency_field': 'currency_hnl_id'}" sum="Total"/>
                                         <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total"/>
                                         <field name="currency_id" column_invisible="1"/>

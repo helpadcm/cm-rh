@@ -53,6 +53,16 @@
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
     </record>
 
+    <record id="abandoned_guide_report_id" model="ir.actions.report">
+        <field name="name">Guias abandonadas</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.abandoned_guides_report</field>
+        <field name="report_file">cm_cargo_handling.abandoned_guides_report</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_abandoned_guide"/>
+    </record>
+
     <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
         <field name="name">Manifiesto de Carga XLSX</field>
         <field name="model">cargo.manifest</field>

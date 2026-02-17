@@ -13,7 +13,7 @@
                             <field name="initial_date" required="1"/>
                         </group>
                         <group>
-                            <field name="final_date" required="1"/>
+                            <field name="final_date" invisible="report_opt == '2'" required="report_opt == '1'"/>
                         </group>
                     </group>
                     <footer>
