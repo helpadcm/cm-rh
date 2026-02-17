@@ -81,13 +81,13 @@
             groups="cm_cargo_handling.group_todos_los_pagos"
             action="action_prepago_object2"/> 
 
-<!-- ###############################  CONFIGURATIONS  ###################################################### -->
+<!-- ###############################  REPORTS  ###################################################### -->
 
         <menuitem
             id="cargo_handling_report_menu"
             name="Reportes"
             parent="cargo_handling_menu_root"
-            groups="cm_cargo_handling.group_cargo_handling_manager"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports"
             sequence="3"/>
 
         <menuitem
@@ -95,6 +95,7 @@
             name="Reportes encomiendas"
             parent="cargo_handling_report_menu"
             action="action_wizard_handling_report"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports"
             sequence="1"/>
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->

@@ -4,7 +4,8 @@ from odoo.exceptions import ValidationError
 
 opt_reports = [
     ('1','Volumenes totales'),
-    ('2','Guias abandonadas')
+    ('2','Guias abandonadas'),
+    ('3','Revision de Guias')
 ]
 
 class handlingReport(models.TransientModel):
@@ -25,5 +26,7 @@ class handlingReport(models.TransientModel):
             return self.env.ref('cm_cargo_handling.cargo_volume_handling_xlsx').report_action(self,data=data)
         elif self.report_opt == '2':
             return self.env.ref('cm_cargo_handling.abandoned_guide_report_id').report_action(self,data=data)
+        elif self.report_opt == '3':
+            return self.env.ref('cm_cargo_handling.cargo_guide_reviews_xlsx').report_action(self,data=data)
         else:
             return True
