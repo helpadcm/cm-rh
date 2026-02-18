@@ -186,3 +186,31 @@ class AccountPartialReconcile(models.Model):
                     partner.available_credit -= round(paid_usd,2)
 
         return super().unlink()
+
+class moveLineinherit(models.Model):
+    _inherit = "account.move.line"
+
+    def add_budget_account(self):
+        self.env.cr.execute("""
+            SELECT account_budget_account_id
+            FROM account_account_account_budget_account_rel
+            WHERE account_account_id = %s
+        """, (self.account_id.id,))
+        rows = self.env.cr.fetchall()
+
+        budget_account_id = False
+        if len(rows) > 0:
+            try:
+                budget_account_id = rows[0][0]
+            except:
+                budget_account_id = False
+
+        if budget_account_id:
+            source_id = self.env['crossovered.source_expenditure'].search([('code','=','VT')])
+            process_id = self.env['crossovered.activity'].search([('code','=','PP06-COM')])
+            self.write({
+                'analytic_account_id': budget_account_id,
+                'activity_id': process_id.id,
+                'source_id': source_id.id
+            })
+            self.create_budget_lines()
