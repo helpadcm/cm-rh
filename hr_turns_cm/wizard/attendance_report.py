@@ -37,6 +37,9 @@ class attendanceEquipReport(models.TransientModel):
             if self.start_date > last_day_actual_month:
                 raise ValidationError("Solo puede obtener registros de asistencias de meses anteriores")
 
+            if self.end_date > last_day_actual_month:
+                raise ValidationError("Solo puede obtener registros de asistencias de meses anteriores")
+
     def get_attendance(self):
         data = {
             'initial_date': self.start_date,
