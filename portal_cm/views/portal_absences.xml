@@ -274,7 +274,7 @@
                             finalDate.required = true;
                         }
 
-                        adjuntosDiv.style.display = (type_code === "PGS") ? "block" : "none";
+                        <!-- adjuntosDiv.style.display = (type_code === "PGS") ? "block" : "none"; -->
 
                         if (paidLeaveDiv.style.display === "block") {
                             updatePaidLeaveConcept();
