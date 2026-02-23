@@ -10,4 +10,12 @@
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="hr_turns_cm.paperformat_planification"/>
     </record>
+
+    <record id="action_attendance_team" model="ir.actions.report">
+        <field name="name">Asistencias de equipo XLSX</field>
+        <field name="model">hr.turn.registration</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_turns_cm.report_attendance_team_xlsx</field>
+        <field name="report_file">hr_turns_cm.report_attendance_team_xlsx</field>
+    </record>
 </odoo>

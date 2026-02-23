@@ -9,7 +9,7 @@
         This module provides the necessary functionality for CM Airlines.
         - Registration turns for teams.
         """,
-    'depends': ['hr_payroll','mail'],
+    'depends': ['hr_payroll','mail','report_xlsx'],
     'data': [
         'data/cron.xml',
         'data/action_server.xml',
@@ -21,6 +21,7 @@
         'wizard/furure_turns_view.xml',
         'wizard/planitication_format.xml',
         'wizard/turn_notes_view.xml',
+        'wizard/attendance_report_view.xml',
         'views/teams_view.xml',
         'views/schedules_view.xml',
         'views/turn_registration_view.xml',
