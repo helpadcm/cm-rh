@@ -23,6 +23,20 @@ class attendanceEquipReport(models.TransientModel):
     is_manager = fields.Boolean(string="Es admin", default=_validate_admin)
     employee_ids = fields.Many2many('hr.employee',string="Empleados")
 
+    @api.constrains('start_date','end_date')
+    def valid_dates(self):
+        if self.start_date and self.end_date:
+            if self.start_date > self.end_date:
+                raise ValidationError("La fecha inicial no puede ser mayor que la fecha final")
+
+            today = (datetime.now() - timedelta(hours=6)).date()
+
+            first_day_actual_month = today.replace(day=1)
+            last_day_actual_month = first_day_actual_month - timedelta(days=1)
+
+            if self.start_date > last_day_actual_month:
+                raise ValidationError("Solo puede obtener registros de asistencias de meses anteriores")
+
     def get_attendance(self):
         data = {
             'initial_date': self.start_date,
