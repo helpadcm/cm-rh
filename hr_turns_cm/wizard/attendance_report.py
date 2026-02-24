@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from odoo.exceptions import UserError, ValidationError
 
 class attendanceEquipReport(models.TransientModel):
-    _name = 'hr.attendance.team'
-    _description = "Asitencia de equipo"
+    _name = 'attendance.team.report'
+    _description = "Asistencia de equipo"
 
     @api.model
     def _get_user_default(self):
