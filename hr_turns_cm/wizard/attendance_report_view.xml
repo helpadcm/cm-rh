@@ -2,7 +2,7 @@
 <odoo>
     <record id="view_attendance_equip_report" model="ir.ui.view">
         <field name="name">attendance.equip.form</field>
-        <field name="model">attendance.team.report</field>
+        <field name="model">attendance.team.wizard</field>
         <field name="arch" type="xml">
             <form string="Asistencia de equipo">
                 <group>
@@ -28,7 +28,7 @@
 
     <record id="action_attendance_team_wizard" model="ir.actions.act_window">
         <field name="name">Asistencia de equipos</field>
-        <field name="res_model">attendance.team.report</field>
+        <field name="res_model">attendance.team.wizard</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_attendance_equip_report"/>
         <field name="target">new</field>
