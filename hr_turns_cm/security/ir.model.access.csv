@@ -22,4 +22,3 @@ hr_turns_cm.access_hr_turn_registration_admin,access_hr_turn_registration_admin,
 hr_turns_cm.access_hr_employees_members_admin,access_hr_employees_members_admin,hr_turns_cm.model_hr_employees_members,hr_turns_cm.manager_turn_cm,1,1,1,1
 hr_turns_cm.access_hr_employees_members_user,access_hr_employees_members_user,hr_turns_cm.model_hr_employees_members,hr_turns_cm.user_turn_cm,1,1,0,0
 
-hr_turns_cm.access_hr_attendance_team,access_hr_attendance_team,hr_turns_cm.model_attendance_team_report,base.group_user,1,1,1,1

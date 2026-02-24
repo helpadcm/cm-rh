@@ -19,7 +19,7 @@
         'security/ir.model.access.csv',
         'wizard/validate_turns_view.xml',
         'wizard/furure_turns_view.xml',
-        'wizard/attendance_report_view.xml',
+        # 'wizard/attendance_report_view.xml',
         'wizard/planitication_format.xml',
         'wizard/turn_notes_view.xml',
         'views/teams_view.xml',

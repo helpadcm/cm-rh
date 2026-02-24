@@ -70,12 +70,12 @@
         parent="reports_turns_menu"
         sequence="1"/>
 
-    <menuitem
+    <!-- <menuitem
         id="attendance_team_menuitem"
         name="Asistencia de equipo"
         action="action_attendance_team_wizard"
         parent="reports_turns_menu"
-        sequence="2"/>
+        sequence="2"/> -->
 
 <!-- ########################################################################## -->
 
