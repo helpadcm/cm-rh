@@ -6,15 +6,23 @@
             <field name="arch" type="xml">
                 <form string='Cancelar Manifiesto'>
                     <group>
-                        <field name="report_opt" required="1"/>
+                        <group>
+                            <field name="report_opt" required="1"/>
+                        </group>
+                        <group>
+                            <field name="detail" invisible="report_opt not in ['4']"/>
+                        </group>
                     </group>
                     <group>
                         <group>
                             <field name="initial_date" required="1"/>
                         </group>
                         <group>
-                            <field name="final_date" invisible="report_opt == '2'" required="report_opt in ['1','3']"/>
+                            <field name="final_date" invisible="report_opt == '2'" required="report_opt in ['1','3','4']"/>
                         </group>
+                    </group>
+                    <group invisible="report_opt not in ['4']">
+                        <field name="partner_ids" domain="[('cargo_client','=',True)]" widget="many2many_tags" options="{'no_create': True}" invisible="report_opt not in ['4']" placeholder="Si no se elige cliente se traera informacion de todos los clientes con descuento aplicados"/>
                     </group>
                     <footer>
                         <button name="print_report" class="oe_highlight" string="Imprimir" type="object"/>

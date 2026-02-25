@@ -13,6 +13,10 @@ class Cargo_manifest(models.Model):
     def _get_shipping_airport(self):
         return self.env.user.station_id.airport_id.id
 
+    @api.model
+    def get_actual_date(self):
+        return datetime.now()
+
     flight = fields.Char(string="Vuelo")
     name = fields.Char(string="Numero", tracking=True)
     total_weight = fields.Float(string="Total Peso (lbs)",compute="_get_total_weight")
@@ -27,6 +31,11 @@ class Cargo_manifest(models.Model):
     reception_observations = fields.Text(string="Observaciones de recepcion", tracking=True)
     cargo_bill_landing_ids = fields.One2many('cargo.manifest_bill_landing','cargo_manifest_id',string="Bill landings")
     cargo_manifest_log_ids = fields.One2many('cargo.manifest_log','cargo_manifest_id',string="Logs")
+    abandoned_guides = fields.Boolean(string="Manifiesto de Abandono")
+    abandoned_date = fields.Datetime(string="Fecha de abandono", default=get_actual_date, tracking=True)
+    abandoned_place = fields.Char(string="Lugar", tracking=True)
+    abandoned_members = fields.Char(string="Integrantes", tracking=True)
+    abandoned_city = fields.Char(string="Ciudad")
 
     @api.depends('cargo_bill_landing_ids')
     def _get_total_weight(self):
@@ -108,6 +117,9 @@ class Cargo_manifest(models.Model):
             'type': type
         }
         self.env['cargo.manifest_log'].create(values)
+        
+    def print_abandonment_report(self):
+        return self.env.ref('cm_cargo_handling.action_abandonment_report_id').report_action(self)
 
 class Cargo_manifest_bill_landing(models.Model):
     _name   =   'cargo.manifest_bill_landing'

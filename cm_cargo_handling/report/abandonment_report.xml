@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="abandonment_report">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>	
+                <div class="page" style="font-size:11px sans-serif;">
+                    <style>
+                        td{
+                            font-size: 12px
+                        }
+                    </style>
+                    <table style="align:center;width:100%">
+                        <tbody>
+                            <tr style="text-align:center;height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="4">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:230px;height:120px" alt="Logo"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table style="align:center;width:100%">
+                        <tbody>
+                            <tr>
+                                <td style="text-align:center;font-size:20px"><strong>ACTA DE INCINERACIÓN DE ENCOMIENDAS ABANDONADAS</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%">
+                        En la ciudad de <span t-esc="abandoned_city"/>, siendo las <t t-esc="abandoned_date"/> horas del día <t t-esc="abandoned_day_name"/> <t t-esc="abandoned_day"/> de <t t-esc="abandoned_month"/>
+                        del año <t t-esc="abandoned_year"/>, se reunieron en las instalaciones de la empresa <t t-esc="abandoned_members"/>, ubicadas en
+                        <t t-esc="abandoned_place"/>, los representantes abajo firmantes, quienes hacen constar que
+                        procedieron a la incineración de las siguientes encomiendas declaradas abandonadas:
+                    </p>
+
+                    <table style="width:100%;margin-top:3px;border-collapse: collapse">
+                        <tr>
+                            <th style="text-align:left;" colspan="7">DETALLE DE GUÍAS INCINERADAS</th>
+                        </tr>
+                        <tr>
+                            <td style="width:8%;padding:3px;border-top:1px solid #CDCDCD">Guia</td>
+                            <td style="width:20%;padding:3px;border-top:1px solid #CDCDCD">Remitente</td>
+                            <td style="width:10%;padding:3px;border-top:1px solid #CDCDCD">Tipo</td>
+                            <td style="width:7%;padding:3px;border-top:1px solid #CDCDCD">Peso LBS</td>
+                            <td style="width:20%;padding:3px;border-top:1px solid #CDCDCD">Destinatario</td>
+                            <td style="width:7%;padding:3px;border-top:1px solid #CDCDCD">Destino</td>
+                            <td style="width:28%;padding:3px;border-top:1px solid #CDCDCD">Descripción</td>
+                        </tr>
+                        <t t-set="total" t-value="0"/>
+                        <t t-foreach="guides" t-as="line">
+                            <tr>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('name')"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('sender')"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('product')"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="'{0:,.2f}'.format(line.get('weight'))"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('receiver')"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('destination_')"/></td>
+                                <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="line.get('description')"/></td>
+                            </tr>
+                            <t t-set="total" t-value="total + line.get('weight')"/>
+                        </t>
+                        <tr>
+                            <td colspan="3" style="font-size:11px;padding:3px;background-color: #CDCDCD;text-align:center"><strong>TOTAL</strong></td>
+                            <td style="font-size:11px;padding:3px;background-color: #CDCDCD"><strong><t t-esc="'{0:,.2f}'.format(total)"/></strong></td>
+                            <td colspan="3" style="font-size:11px;padding:3px;background-color: #CDCDCD"></td>
+                        </tr>
+                    </table>
+
+                    <div style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%">
+                        <strong>MOTIVO DE LA INCINERACIÓN</strong>
+                    </div>
+                    <p style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 5px">
+                        Las encomiendas arriba descritas fueron declaradas abandonadas, al haber transcurrido el plazo establecido en el reglamento interno de la empresa sin que el destinatario o remitente procediera a su retiro, 
+                        habiéndose agotado previamente los intentos razonables de notificación y localización.
+                    </p>
+
+                    <div style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%">
+                        <strong>MÉTODO DE DESTRUCCIÓN</strong>
+                    </div>
+                    <p style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 5px">
+                        La incineración fue realizada mediante procedimiento controlado, asegurando la
+                        eliminación total del contenido, bajo supervisión del personal autorizado y cumpliendo con
+                        las normas internas de seguridad y control. La destrucción fue verificada por los abajo
+                        firmantes.
+                    </p>
+
+                    <div style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%; width:100%; border-bottom: 2px solid #000000">
+                        OBSERVACIONES ADICIONALES
+                    </div>
+                    <p style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 5px">
+                        Se levanta la presente acta como evidencia documental y para los fines legales o administrativos que correspondan.
+                    </p>
+
+                    <div style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%">
+                        <strong>FIRMAS DE CONFORMIDAD</strong>
+                    </div>
+                    <table style="width:70%;margin-left:15%;margin-top:10%;border-collapse: collapse;">
+                        <tr>
+                            <td style="border-bottom: 1px solid black;width:25%"></td>
+                            <td style="width:25%"></td>
+                            <td style="border-bottom: 1px solid black;width:25%"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;padding:2px">Supervisor (Firma y Sello)</td>
+                            <td style="text-align:center;padding:2px"></td>
+                            <td style="text-align:center;padding:2px">Gerente responsable (Firma y Sello)</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;padding:2px;padding-top:30px"></td>
+                            <td style="text-align:center;padding:2px;border-bottom:1px solid black;padding-top:25px"></td>
+                            <td style="text-align:center;padding:2px;padding-top:25px"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;padding:2px"></td>
+                            <td style="text-align:center;padding:2px">Lugar y Fecha</td>
+                            <td style="text-align:center;padding:2px"></td>
+                        </tr>
+                    </table>
+
+                    <p style="text-align: justify;line-height: 1.5; font-size:15px; margin-top: 1%">
+                        <i>Nota: Este documento será cargado en el manifiesto con el que se trasladó la encomienda abandonada hacia oficina principal. </i>
+                    </p>
+
+                </div>
+                <div class="footer" style="border-top:1px solid black">
+                    <div class="text-center">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div>
+                    <div class="text-center" style="word-spacing: 10px">
+                        <strong>Calle:</strong> <span t-field="company.street"/>   <strong>Sitio Web:</strong> <span t-field="company.website"/>   <strong>Teléfono:</strong> <span t-field="company.phone"/>   <strong>RTN:</strong> <span t-field="company.company_registry"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

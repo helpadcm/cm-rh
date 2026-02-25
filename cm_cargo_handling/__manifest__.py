@@ -47,6 +47,7 @@
 		'report/main_template_invoice.xml',
 		'report/guide_invoice.xml',
 		'report/abandoned_guides.xml',
+		'report/abandonment_report.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,

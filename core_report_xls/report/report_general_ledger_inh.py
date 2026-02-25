@@ -124,7 +124,8 @@ class ReportGeneralLedger(models.AbstractModel):
             COALESCE(l.credit,0) AS credit, 
             COALESCE(SUM(l.debit),0) - COALESCE(SUM(l.credit), 0) AS balance,\
             m.name AS move_name, c.symbol AS currency_code, 
-            p.name AS partner_name\
+            p.name AS partner_name,
+            budget.name AS budget\
             FROM account_move_line l\
             JOIN account_move m ON (l.move_id=m.id)\
             LEFT JOIN res_currency c ON (l.currency_id=c.id)\
@@ -133,6 +134,7 @@ class ReportGeneralLedger(models.AbstractModel):
             JOIN account_account acc ON (l.account_id = acc.id) \
             LEFT JOIN account_analytic_line aal ON aal.move_line_id = l.id
             LEFT JOIN account_analytic_account aaa ON aaa.id = aal.account_id
+            LEFT JOIN account_budget_account budget ON budget.id = l.analytic_account_id
             LEFT JOIN LATERAL (
                 SELECT value AS analytic_account
                 FROM jsonb_each_text(aaa.name)
@@ -140,7 +142,7 @@ class ReportGeneralLedger(models.AbstractModel):
             ) AS fan ON true
             WHERE l.account_id IN %s ''' + filters + ''' GROUP BY l.id, 
             l.account_id, l.date, j.code, l.currency_id, l.amount_currency, 
-            l.ref, l.name, m.name, c.symbol, p.name, aaa.id ORDER BY ''' + sql_sort)
+            l.ref, l.name, m.name, c.symbol, p.name, aaa.id, budget.name ORDER BY ''' + sql_sort)
         params = (tuple(accounts.ids),) + tuple(where_params)
         cr.execute(sql, params)
 

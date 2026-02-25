@@ -12,6 +12,7 @@
                         <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':False}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_add" string="Agregar Guia de Carga"/>
                         <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':True}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_remove" string="Remover Guia de Carga"/>
                         <button name="%(action_wizard_cancel_cargo_manifest)d" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_cancel" string="Cancelar"/>
+                        <!-- <button name="print_abandonment_report" type="object" string="Imprimir acta" class="oe_highlight" invisible="not abandoned_guides" groups="cm_cargo_handling.group_guia_cargar_group_reports"/> -->
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -27,6 +28,7 @@
                             <group string="ENVIO">
                                 <field name="shipping_date" readonly="state != 'draft'" required="1"/>
                                 <field name="shipping_airport" readonly="state != 'draft'" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}' required="1"/>
+                                <field name="abandoned_guides"/>
                                 <field name="shipping_observations" readonly="state != 'draft'"/>
                             </group>
 
@@ -43,6 +45,16 @@
                             <group>
                                 <field name="total_weight"/>
                                 <!-- <field name="total_vol_weight"/> -->
+                            </group>
+                        </group>
+                        <group string="Informacion de abandono" invisible="not abandoned_guides" groups="cm_cargo_handling.group_guia_cargar_group_reports">
+                            <group>
+                                <field name="abandoned_date"/>
+                                <field name="abandoned_members"/>
+                            </group>
+                            <group>
+                                <field name="abandoned_place"/>
+                                <field name="abandoned_city"/>
                             </group>
                         </group>
                         <notebook>

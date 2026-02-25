@@ -6,3 +6,5 @@ from . import invoice_format_handling
 from . import handling_volumen_xls
 from . import bandoned_guides
 from . import review_guides_xls
+from . import abandonment_report
+from . import discount_applied_xls
