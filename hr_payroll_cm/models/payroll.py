@@ -127,6 +127,14 @@ class HrSalaryAttachment(models.Model):
         if self.deduction_type_id:
             self.description = self.deduction_type_id.name
 
+    # def update_paid_amount(self):
+    #     if self.by_quotes:
+    #         for line in self.payment_plan_ids:
+    #             if line.state == 'paid':
+    #                 self.paid_amount += line.amount
+    #     else:
+    #         if self.payslip_id
+
 class paymentPlanDed(models.Model):
     _name = 'deductions.payment.plan'
     _description = 'Plan de pago deducciones'
@@ -142,4 +150,10 @@ class paymentPlanDed(models.Model):
         for val in self:
             if val.state == 'paid':
                 raise ValidationError("No puede eliminar un registro pagado")
+            val.deduction_id.paid_amount -= val.amount
         return super(paymentPlanDed, self).unlink()
+
+    @api.onchange('state')
+    def update_paid_amount(self):
+        if self.state == 'paid':
+            self.deduction_id.paid_amount += self.amount
