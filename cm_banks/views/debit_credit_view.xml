@@ -66,10 +66,13 @@
                         	<page string="Apuntes Contables" invisible="state not in ['validated','anulated']">
 								<field name="move_ids" readonly="1">
 									<tree string="Apuntes Contables">
-										<field name="move_id"/>
+										<field name="move_id" optional="hide"/>
 										<field name="date"/>
-										<field name="statement_id"/>
+										<field name="statement_id" optional="hide"/>
 										<field name="account_id" domain="[('deprecated','=',False)]"/>
+										<field name="analytic_account_id" optional="show"/>
+										<field name="activity_id" optional="show"/>
+										<field name="source_id" optional="show"/>
 										<field name="name"/>
 										<field name="debit" sum="Debit"/>
 										<field name="credit" sum="Credit"/>

@@ -458,6 +458,14 @@ class mcheck(models.Model):
 						lines_col['move_id']=move_id.id
 						
 						lines_col['name'] = lines.name  or mcheck.name
+
+						if lines.account_id.account_type == 'expense':
+							if not lines.budget_account_id or not lines.process_id or not lines.source_id:
+								raise ValidationError("Debe agregar los datos de presupuesto para poder avanzar")
+
+							lines_col['analytic_account_id'] = lines.budget_account_id.id
+							lines_col['activity_id'] = lines.process_id.id
+							lines_col['source_id'] = lines.source_id.id
 						
 						if lines.type == 'dr':
 							lines_col['credit']=0
@@ -824,3 +832,23 @@ class mcheck_name(models.Model):
 	chqmanalitics = fields.Many2one("account.analytic.account", string="Analiticas")
 	type = fields.Selection([('dr','Debito'),('cr','Credito')], string='Db/Cr', default='dr')
 	partner_id = fields.Many2one('res.partner', string='Empresa')
+	source_id = fields.Many2one('crossovered.source_expenditure', string="Fuente de Financiamiento")
+	process_id = fields.Many2one('crossovered.activity', string="Proceso")
+	budget_account_id = fields.Many2one('account.budget.account', string='Cuenta Presupuesto')
+	fbudget_line_ids = fields.Many2many("account.budget.account", related="account_id.fbudget_line_ids")
+	factivity_ids = fields.Many2many("crossovered.activity", related="account_id.factivity_ids")
+
+
+	@api.onchange('account_id')
+	def onchange_account_id_budget(self):
+		self.budget_account_id = False
+		self.source_id = False
+		self.process_id = False
+		if self.account_id and self.account_id.account_type == 'expense':
+			if len(self.factivity_ids) > 0 and len(self.fbudget_line_ids) > 0:
+				domain = [('move_type','=','gasto')]
+				self.source_id = self.env.get("crossovered.source_expenditure").search(domain,limit=1).id
+			if len(self.factivity_ids) == 1:
+				self.process_id = self.factivity_ids.id
+			if len(self.fbudget_line_ids) == 1:
+				self.budget_account_id = self.fbudget_line_ids.id

@@ -129,7 +129,7 @@ class ReportBook(models.AbstractModel):
 
 	def get_currency_rate(self, currency_id, invoice_date, company_id):
 		currency_rate = 1
-		if currency_id:
+		if currency_id and invoice_date:
 			if currency_id.id != company_id.currency_id.id:
 				rate_list = currency_id._get_rates(company_id, invoice_date)
 				rate = rate_list.get(currency_id.id, 1.0) 
@@ -185,7 +185,9 @@ class ReportBook(models.AbstractModel):
 		if invoice.state == 'cancel':
 			rate=0
 		
-		fdate = datetime.strptime(str(invoice.invoice_date), DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
+		fdate = ''
+		if invoice.invoice_date:
+			fdate = datetime.strptime(str(invoice.invoice_date), DEFAULT_SERVER_DATE_FORMAT).strftime(date_format)
 
 		cai = ''
 		if invoice.move_type == 'out_invoice':
@@ -195,7 +197,7 @@ class ReportBook(models.AbstractModel):
 
 		res={
 			'symbol': invoice.company_id.currency_id.symbol,
-			'title_name': invoice.name,
+			'title_name': invoice.internal_number or invoice.name,
 			'name': invoice.pnrcode or '' if invoice.move_type == 'out_invoice' else invoice.ref,
 			'subtitle_name': invoice.partner_id.name,
 			'ref': invoice.name,
