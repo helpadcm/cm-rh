@@ -69,6 +69,7 @@ class Contract(models.Model):
                 if deduction_ids:
                     for ded in deduction_ids:
                         if ded.deduction_type_id.code == code:
+                            payslip.salary_attachment_ids = [(4, ded.id)]
                             if not ded.by_quotes:
                                 amount += ded.monthly_amount
                             else:

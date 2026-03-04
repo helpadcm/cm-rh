@@ -132,6 +132,11 @@ class HrPayslipRun(models.Model):
                 if not line.salary_rule_id.account_debit and not line.salary_rule_id.account_credit:
                     continue
 
+                if line.category_id.code == 'DED':
+                    attachment_id = sl.salary_attachment_ids.filtered(lambda att: att.deduction_type_id.code == line.salary_rule_id.code)
+                    if attachment_id:
+                        attachment_id.paid_amount += abs(line.total)
+
                 if abs(line.total) > 0:
                     vals = {'employee': sl.employee_id.name,'amount': line.total, 'rule_name': line.salary_rule_id.name, 'department': sl.employee_id.department_id.name}
 
@@ -375,11 +380,6 @@ class HrPayslipRun(models.Model):
                 'credit': credit_amount,
                 'amount_currency': (t_total_debit - abs(t_total_credit)) * -1
             }))
-
-        # for m in move_lines:
-        #     print ("//////////////////////////////")
-        #     print (m)
-        # print (a)
 
         vals_move.update({'line_ids': move_lines})
         move_id = self.env['account.move'].create(vals_move)
