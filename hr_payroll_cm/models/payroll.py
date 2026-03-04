@@ -127,13 +127,11 @@ class HrSalaryAttachment(models.Model):
         if self.deduction_type_id:
             self.description = self.deduction_type_id.name
 
-    # def update_paid_amount(self):
-    #     if self.by_quotes:
-    #         for line in self.payment_plan_ids:
-    #             if line.state == 'paid':
-    #                 self.paid_amount += line.amount
-    #     else:
-    #         if self.payslip_id
+    def update_paid_amount(self):
+        if self.by_quotes:
+            for line in self.payment_plan_ids:
+                if line.state == 'paid':
+                    self.paid_amount += line.amount
 
 class paymentPlanDed(models.Model):
     _name = 'deductions.payment.plan'
