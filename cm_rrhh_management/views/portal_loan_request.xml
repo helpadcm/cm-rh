@@ -96,7 +96,7 @@
                             </div>
 
                             <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
+                                <button type="submit" id="request_button" class="btn btn-primary mt-3">Solicitar</button>
                             </div>
                         </form>
                     </div>
@@ -171,6 +171,8 @@
                     const errorId = document.getElementById("error_message_request_id");
                     const yearsOldInput = document.getElementById("id_years_old");
 
+                    const requestButtonInput = document.getElementById("request_button");
+                                        
                     function setDefaultValues() {
                         const show_form = showFormInput.value;
                         if (show_form === 'allow'){
@@ -215,11 +217,13 @@
                             if (amount &gt; max_amount){
                                 errorId.value = "El monto máximo permitido " + max_amount;
                                 successId.value = "";
+                                requestButtonInput.disabled = true;
                                 errorDiv.style.display = "block";
                                 successDiv.style.display = "none";
                             }else{
                                 successId.value = "Todo esta correcto";
                                 errorId.value = "";
+                                requestButtonInput.disabled = false;
                                 successDiv.style.display = "block";
                                 errorDiv.style.display = "none";
                             }

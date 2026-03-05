@@ -13,7 +13,7 @@ class loanRequestPortal(http.Controller):
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         request_ids = request.env['rrhh.request.loan'].sudo().search([('employee_id','=',employee_id.id)])
         days = (datetime.now().date() - employee_id.date_start_contract).days
-        years = math.ceil(days/365)
+        years = math.floor(days/365)
         show_form = 'allow'
         messsage_form = ''
         if request_ids:
