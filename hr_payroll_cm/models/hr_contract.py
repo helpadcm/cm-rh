@@ -96,6 +96,8 @@ class Contract(models.Model):
         if payslip.worked_days_line_ids:
             work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
             extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+            if work100_amount == 0:
+                work100_amount = self.wage
             amount = work100_amount + extras_amount
         else:
             amount = self.wage
