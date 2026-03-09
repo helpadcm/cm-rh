@@ -129,6 +129,7 @@ class HrSalaryAttachment(models.Model):
 
     def update_paid_amount(self):
         if self.by_quotes:
+            self.paid_amount = 0
             for line in self.payment_plan_ids:
                 if line.state == 'paid':
                     self.paid_amount += line.amount
