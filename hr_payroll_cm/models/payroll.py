@@ -134,6 +134,12 @@ class HrSalaryAttachment(models.Model):
                 if line.state == 'paid':
                     self.paid_amount += line.amount
 
+    def finalize_deductions(self):
+        deduction_ids = self.search([('state','=','open')])
+        for ded in deduction_ids:
+            if ded.remaining_amount == 0:
+                ded.state = 'close'
+
 class paymentPlanDed(models.Model):
     _name = 'deductions.payment.plan'
     _description = 'Plan de pago deducciones'

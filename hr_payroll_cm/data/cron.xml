@@ -12,6 +12,18 @@
             <field name="numbercall">-1</field>
         </record>
 
+        <record id="ir_cron_finalize_deductions" model="ir.cron">
+            <field name="name">Deducciones: Finalizar deducciones</field>
+            <field name="model_id" ref="hr_payroll.model_hr_salary_attachment"/>
+            <field name="state">code</field>
+            <field name="code">model.finalize_deductions()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
+
         <record id="action_server_finalize_incomes" model="ir.actions.server">
             <field name="name">Finalizar Ingreso</field>
             <field name="model_id" ref="hr_payroll_cm.model_hr_other_incomes"/>
