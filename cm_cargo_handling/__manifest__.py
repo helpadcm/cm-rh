@@ -48,6 +48,7 @@
 		'report/guide_invoice.xml',
 		'report/abandoned_guides.xml',
 		'report/abandonment_report.xml',
+		'report/daily_sales_report.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,

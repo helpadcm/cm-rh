@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="daily_sales_report">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>	
+                <div class="page" style="font-size:11px sans-serif;">
+                    <style>
+                        td{
+                            font-size: 12px
+                        }
+                    </style>
+                    <table style="align:center;width:100%">
+                        <tbody>
+                            <tr style="text-align:center;height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="4">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="width:230px;height:120px" alt="Logo"/>
+                                </td>
+                                <td style="text-align:center;font-size:20px"><strong>VENTAS DIARIAS POR PUNTO DE VENTA</strong></td>
+                            </tr>
+                            <tr style="text-align:center;height: 20px;padding:0px;border:0px ;" >
+                                <td style="text-align:center;font-size:20px"><strong>Desde <span t-esc="initial_date"/> al <span t-esc="final_date"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-foreach="data" t-as="line">
+                        <table style="width:100%;margin-top:1%;border-collapse: collapse">
+                            <tr>
+                                <th style="text-align:center;background-color: #CDCDCD;font-size: 14px"><span t-esc="line.get('origin_name')"/></th>
+                            </tr>
+                        </table>
+                        <t t-if="len(line.get('counted_guides')) > 0">
+                            <table style="width:100%;margin-top:1%;border-collapse: collapse">
+                                <tr>
+                                    <th style="text-align:left;" colspan="5">CONTADO</th>
+                                    <th style="text-align:left;border:1px solid black;padding:2px" colspan="2">Pagado: $ <t t-esc="'{0:,.2f}'.format(line.get('paid_counted_amount'))"/></th>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;padding:3px;border-top:1px solid #CDCDCD">#</td>
+                                    <td style="width:10%;padding:3px;border-top:1px solid #CDCDCD">Guia</td>
+                                    <td style="width:30%;padding:3px;border-top:1px solid #CDCDCD">Cliente</td>
+                                    <td style="width:15%;padding:3px;border-top:1px solid #CDCDCD">Destino</td>
+                                    <td style="width:15;padding:3px;border-top:1px solid #CDCDCD">Estado</td>
+                                    <td style="width:15%;padding:3px;border-top:1px solid #CDCDCD">Estado de Pago</td>
+                                    <td style="width:10%;padding:3px;border-top:1px solid #CDCDCD">Monto</td>
+                                </tr>
+                                <t t-set="count" t-value="1"/>
+                                <t t-foreach="line.get('counted_guides')" t-as="counted">
+                                    <tr>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="count"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="counted.get('guide')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="counted.get('client')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="counted.get('destination')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="counted.get('state')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="counted.get('payment_state')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD;text-align:right">$ <span t-esc="'{0:,.2f}'.format(counted.get('amount'))"/></td>
+                                    </tr>
+                                    <t t-set="count" t-value="count + 1"/>
+                                </t>
+                                <tr>
+                                    <td colspan="6" style="font-size:11px;padding:3px;background-color: #E5E7EB;text-align:center"><strong>TOTAL</strong></td>
+                                    <td style="font-size:11px;padding:3px;background-color: #E5E7EB;text-align:right"><strong>$ <t t-esc="'{0:,.2f}'.format(line.get('counted_totals'))"/></strong></td>
+                                </tr>
+                            </table>
+                        </t>
+                        <t t-if="len(line.get('upon_delivery_guides')) > 0">
+                            <table style="width:100%;margin-top:1%;border-collapse: collapse">
+                                <tr>
+                                    <th style="text-align:left;" colspan="3">POR COBRAR</th>
+                                    <th style="text-align:left;border:1px solid black;padding:2px" colspan="2">Pagado: $ <t t-esc="'{0:,.2f}'.format(line.get('paid_upon_amount'))"/></th>
+                                    <th style="text-align:left;border:1px solid black;padding:2px" colspan="2">Pendiente: $ <t t-esc="'{0:,.2f}'.format(line.get('pending_upon_amount'))"/></th>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;padding:3px;border-top:1px solid #CDCDCD">#</td>
+                                    <td style="width:10%;padding:3px;border-top:1px solid #CDCDCD">Guia</td>
+                                    <td style="width:30%;padding:3px;border-top:1px solid #CDCDCD">Cliente</td>
+                                    <td style="width:15%;padding:3px;border-top:1px solid #CDCDCD">Destino</td>
+                                    <td style="width:15%;padding:3px;border-top:1px solid #CDCDCD">Estado</td>
+                                    <td style="width:15%;padding:3px;border-top:1px solid #CDCDCD">Estado de Pago</td>
+                                    <td style="width:10%;padding:3px;border-top:1px solid #CDCDCD">Monto</td>
+                                </tr>
+                                <t t-set="count" t-value="1"/>
+                                <t t-foreach="line.get('upon_delivery_guides')" t-as="upon">
+                                    <tr>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="count"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="upon.get('guide')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="upon.get('client')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="upon.get('destination')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="upon.get('state')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD"><span t-esc="upon.get('payment_state')"/></td>
+                                        <td style="font-size:11px;padding:3px;border-top:1px solid #CDCDCD;text-align:right">$ <span t-esc="'{0:,.2f}'.format(upon.get('amount'))"/></td>
+                                    </tr>
+                                    <t t-set="count" t-value="count + 1"/>
+                                </t>
+                                <tr>
+                                    <td colspan="6" style="font-size:11px;padding:3px;background-color: #E5E7EB;text-align:center"><strong>TOTAL</strong></td>
+                                    <td style="font-size:11px;padding:3px;background-color: #E5E7EB;text-align:right"><strong>$ <t t-esc="'{0:,.2f}'.format(line.get('upon_delivery_total'))"/></strong></td>
+                                </tr>
+                            </table>
+                        </t>
+                    </t>
+
+                </div>
+                <div class="footer" style="border-top:1px solid black">
+                    <div class="text-center">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div>
+                    <div class="text-center" style="word-spacing: 10px">
+                        <strong>Calle:</strong> <span t-field="company.street"/>   <strong>Sitio Web:</strong> <span t-field="company.website"/>   <strong>Teléfono:</strong> <span t-field="company.phone"/>   <strong>RTN:</strong> <span t-field="company.company_registry"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

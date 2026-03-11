@@ -43,5 +43,16 @@
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
         </record>
+
+        <record model="ir.cron" id="send_daily_sales_cron">
+            <field name="name">Encomiendas: Enviar Ventas Diarias</field>
+            <field name="model_id" ref="cm_cargo_handling.model_cargo_bill"/>
+            <field name="code">model.generate_and_send_report()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+        </record>
     </data>
 </odoo>

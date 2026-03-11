@@ -1,3 +1,4 @@
+import base64
 from odoo import api, exceptions, models, fields, _
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -173,6 +174,91 @@ class BillLading(models.Model):
             for guide in guides_ids:
                 if guide.product_id.default_code == '890':
                     guide.state = 'delivered'
+
+    @api.model
+    def generate_and_send_report(self):
+        # Generar el PDF del reporte
+        report_ref = 'cm_cargo_handling.action_daily_sales_report'  # Referencia del reporte
+        report_action = self.env.ref(report_ref)
+        pdf_content, _ = report_action._render_qweb_pdf(
+            report_ref=report_ref,
+            data={
+            'initial_date': datetime.now().date().strftime('%Y-%m-%d'),
+            'final_date': datetime.now().date().strftime('%Y-%m-%d')
+        })
+
+        pdf_base64 = base64.b64encode(pdf_content)
+
+        # Crear adjunto con el contenido del PDF
+        pdf_name = f"Reporte_de Venta Diaria_{datetime.now().date()}.pdf"
+        attachment = self.env['ir.attachment'].create({
+            'name': pdf_name,
+            'type': 'binary',
+            'datas': pdf_base64,
+            'mimetype': 'application/pdf',
+            'res_model': 'bill.cargo',
+            'res_id': self.id,
+        })
+
+        body = """
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="middle">
+                                                        <span style="font-size: 10px;">Ventas Diarias por punto de venta</span><br/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            A continuacion se adjunta el reporte de ventas diarias por estacion del dia {date}
+                                                            <br/>Saludos<br/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+        """.format(date=datetime.now().date())
+
+        # Crear y enviar correo
+        mail = self.env['mail.mail'].create({
+            'subject': f'Reporte de Ventas Diarias - {datetime.now().date()}',
+            'body_html': body,
+            'email_to': 'esevilla@cmairlines.com,martincobian@cmairlines.com',
+            'email_cc': 'jgunera@cmairlines.com,jcalix@cmairlines.com,dleiva@cmairlines.com,carmen@cmairlines.com,fosorio@cmairlines.com,hguzman@cmairlines.com,vvargas@cmairlines.com,oavilez@cmairlines.com',
+            'attachment_ids': [(4, attachment.id)],
+        })
+        mail.send()
 
 class cargo_bill_logs(models.Model):
     _name='cargo.bill_logs'

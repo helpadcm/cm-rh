@@ -7,6 +7,7 @@ opt_reports = [
     ('2','Guias abandonadas'),
     ('3','Revision de Guias'),
     ('4','Descuentos aplicados'),
+    ('5','Ventas Diarias'),
 ]
 
 class handlingReport(models.TransientModel):
@@ -35,5 +36,7 @@ class handlingReport(models.TransientModel):
             return self.env.ref('cm_cargo_handling.cargo_guide_reviews_xlsx').report_action(self,data=data)
         elif self.report_opt == '4':
             return self.env.ref('cm_cargo_handling.action_discount_applied_xlsx').report_action(self,data=data)
+        elif self.report_opt == '5':
+            return self.env.ref('cm_cargo_handling.action_daily_sales_report').report_action(self,data=data)
         else:
             return True

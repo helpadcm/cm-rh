@@ -8,3 +8,4 @@ from . import bandoned_guides
 from . import review_guides_xls
 from . import abandonment_report
 from . import discount_applied_xls
+from . import daily_sales
