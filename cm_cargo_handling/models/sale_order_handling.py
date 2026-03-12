@@ -403,7 +403,7 @@ class saleOrderHandling(models.Model):
                 if rec.weight_piece > 0:
                     if code == '120' and rec.weight_piece > 5:
                         raise ValidationError("Si el producto seleccionado es PAQUETE el peso permitido es menor que 5 si quiere ingresar un peso mayor debe seleccionar el producto FLETE.")
-                    elif code == '110' and rec.weight_piece < 6:
+                    elif code == '110' and rec.weight_piece <= 5:
                         raise ValidationError("Si el producto seleccionado es FLETE el peso permitido es mayor de 5 si quiere ingresar un peso menor debe seleccionar el producto PAQUETE.")
 
                 line_id = False
@@ -470,7 +470,7 @@ class saleOrderHandling(models.Model):
         code = self.product_id.default_code
         if code == '120' and self.weight_piece > 5:
             raise ValidationError("Si el producto seleccionado es PAQUETE el peso permitido es menor que 5 si quiere ingresar un peso mayor debe seleccionar el producto FLETE.")
-        elif code == '110' and self.weight_piece < 6:
+        elif code == '110' and self.weight_piece <= 5:
             raise ValidationError("Si el producto seleccionado es FLETE el peso permitido es mayor de 5 si quiere ingresar un peso menor debe seleccionar el producto PAQUETE.")
 
         if not self.piece_description:

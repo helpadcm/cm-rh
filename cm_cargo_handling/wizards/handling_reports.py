@@ -19,6 +19,8 @@ class handlingReport(models.TransientModel):
     partner_ids = fields.Many2many('res.partner',string="Clientes")
     detail = fields.Boolean(string="Detallar")
     report_opt = fields.Selection(opt_reports, string="Reporte")
+    origin_id = fields.Many2one('cargo.station', string="Origen")
+    destination_id = fields.Many2one('cargo.station', string="Destino")
 
     def print_report(self):
         data = {
@@ -26,6 +28,10 @@ class handlingReport(models.TransientModel):
             'final_date': self.final_date,
             'detail': self.detail,
             'partner_ids': self.partner_ids.ids,
+            'origin_id': self.origin_id.id or False,
+            'destination_id': self.destination_id.id or False,
+            'origin_name': self.origin_id.ref or False,
+            'destination_name': self.destination_id.ref or False,
             'report_opt': self.report_opt
         }
         if self.report_opt == '1':
@@ -37,6 +43,16 @@ class handlingReport(models.TransientModel):
         elif self.report_opt == '4':
             return self.env.ref('cm_cargo_handling.action_discount_applied_xlsx').report_action(self,data=data)
         elif self.report_opt == '5':
-            return self.env.ref('cm_cargo_handling.action_daily_sales_report').report_action(self,data=data)
+            print_excel = self.env.context.get('print_excel')
+            if print_excel:
+                return self.env.ref('cm_cargo_handling.action_daily_sales_report_xlsx').report_action(self,data=data)
+            else:
+                return self.env.ref('cm_cargo_handling.action_daily_sales_report').report_action(self,data=data)
         else:
             return True
+
+    @api.constrains('origin_id', 'destination_id')
+    def validate_point_of_sale(self):
+        if self.origin_id and self.destination_id:
+            if self.origin_id.id == self.destination_id.id:
+                raise ValidationError("El origen y el destino no pueden ser iguales")

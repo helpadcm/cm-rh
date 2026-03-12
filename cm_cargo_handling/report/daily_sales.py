@@ -29,7 +29,20 @@ class dailySales(models.AbstractModel):
         initial_date = data.get('initial_date')
         final_date = data.get('final_date')
 
-        bill_ids = bill_obj.search([('create_date','>=',initial_date),('create_date','<=',final_date),('modality','in',['upon_delivery','counted']),('state','not in',['desechada','canceled'])])
+        origin_id = data.get('origin_id')
+        destination_id = data.get('destination_id')
+
+        domain = [('create_date','>=',initial_date),('create_date','<=',final_date),('modality','in',['upon_delivery','counted']),('state','not in',['desechada','canceled'])]
+        if origin_id and destination_id:
+            domain.append(('origin_id','=',origin_id))
+            domain.append(('destination_id','=',destination_id))
+        elif origin_id and not destination_id:
+            domain.append(('origin_id','=',origin_id))
+        elif not origin_id and destination_id:
+            domain.append(('destination_id','=',destination_id))
+
+        bill_ids = bill_obj.search(domain)
+        
         datas = []
         origin_ids = []
         for bill in bill_ids:

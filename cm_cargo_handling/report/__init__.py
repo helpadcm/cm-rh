@@ -9,3 +9,4 @@ from . import review_guides_xls
 from . import abandonment_report
 from . import discount_applied_xls
 from . import daily_sales
+from . import daily_sales_xls

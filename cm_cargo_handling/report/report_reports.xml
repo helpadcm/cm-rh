@@ -116,6 +116,14 @@
         <field name="report_file">cm_cargo_handling.report_discount_applied_xlsx</field>
     </record>
 
+    <record id="action_daily_sales_report_xlsx" model="ir.actions.report">
+        <field name="name">Ventas Diarias XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.daily_sales_report_xlsx</field>
+        <field name="report_file">cm_cargo_handling.daily_sales_report_xlsx</field>
+    </record>
+
     <report
         id="cargo_manifest_report_xlsx"
         model="cargo.manifest"
