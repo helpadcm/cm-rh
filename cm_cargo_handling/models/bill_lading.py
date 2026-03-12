@@ -1,6 +1,6 @@
 import base64
 from odoo import api, exceptions, models, fields, _
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError, ValidationError
 
@@ -180,17 +180,19 @@ class BillLading(models.Model):
         # Generar el PDF del reporte
         report_ref = 'cm_cargo_handling.action_daily_sales_report'  # Referencia del reporte
         report_action = self.env.ref(report_ref)
+        actual_date = datetime.now() - timedelta(hours=6)
+
         pdf_content, _ = report_action._render_qweb_pdf(
             report_ref=report_ref,
             data={
-            'initial_date': datetime.now().date().strftime('%Y-%m-%d'),
-            'final_date': datetime.now().date().strftime('%Y-%m-%d')
+            'initial_date': actual_date.date().strftime('%Y-%m-%d'),
+            'final_date': actual_date.date().strftime('%Y-%m-%d')
         })
 
         pdf_base64 = base64.b64encode(pdf_content)
 
         # Crear adjunto con el contenido del PDF
-        pdf_name = f"Reporte_de Venta Diaria_{datetime.now().date()}.pdf"
+        pdf_name = f"Reporte_de Venta Diaria_{actual_date.date()}.pdf"
         attachment = self.env['ir.attachment'].create({
             'name': pdf_name,
             'type': 'binary',
@@ -248,7 +250,7 @@ class BillLading(models.Model):
                         </td>
                     </tr>
                 </table>
-        """.format(date=datetime.now().date())
+        """.format(date=actual_date.date())
 
         station_ids = self.env['cargo.station'].search([])
         boss_station_ids = station_ids.mapped('boss_station_id')
@@ -256,7 +258,7 @@ class BillLading(models.Model):
 
         # Crear y enviar correo
         mail = self.env['mail.mail'].create({
-            'subject': f'Reporte de Ventas Diarias - {datetime.now().date()}',
+            'subject': f'Reporte de Ventas Diarias - {actual_date.date()}',
             'body_html': body,
             'email_to': 'esevilla@cmairlines.com,martincobian@cmairlines.com',
             'email_cc': email_cc + ',jgunera@cmairlines.com,jcalix@cmairlines.com,vvargas@cmairlines.com',
