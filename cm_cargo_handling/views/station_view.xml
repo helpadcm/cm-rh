@@ -13,13 +13,14 @@
                                 <field name="name" />
                                 <field name="address"/>
                                 <field name="address_send"/>
-                                <field name="active" groups="base.group_no_one"/>
+                                <field name="boss_station_id" options="{'no_create': True}"/>
                             </group>
                             <group>
                                 <field name="airport_id" options="{'no_create': True}"/>
                                 <field name="internal_load_ori"/>
                                 <field name="internal_load_dest"/>
                                 <field name="use_discounts"/>
+                                <field name="active" groups="base.group_no_one"/>
                             </group>
                         </group>
                         

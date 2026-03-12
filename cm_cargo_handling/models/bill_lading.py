@@ -250,12 +250,16 @@ class BillLading(models.Model):
                 </table>
         """.format(date=datetime.now().date())
 
+        station_ids = self.env['cargo.station'].search([])
+        boss_station_ids = station_ids.mapped('boss_station_id')
+        email_cc = ','.join([boss.login for boss in boss_station_ids])
+
         # Crear y enviar correo
         mail = self.env['mail.mail'].create({
             'subject': f'Reporte de Ventas Diarias - {datetime.now().date()}',
             'body_html': body,
             'email_to': 'esevilla@cmairlines.com,martincobian@cmairlines.com',
-            'email_cc': 'jgunera@cmairlines.com,jcalix@cmairlines.com,dleiva@cmairlines.com,carmen@cmairlines.com,fosorio@cmairlines.com,hguzman@cmairlines.com,vvargas@cmairlines.com,oavilez@cmairlines.com',
+            'email_cc': email_cc + ',jgunera@cmairlines.com,jcalix@cmairlines.com,vvargas@cmairlines.com',
             'attachment_ids': [(4, attachment.id)],
         })
         mail.send()

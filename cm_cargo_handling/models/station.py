@@ -18,6 +18,7 @@ class CargoStation(models.Model):
 	discount_ids = fields.One2many('cargo.station.discounts','cargo_station_id',string="Descuentos")
 	internal_load_dest = fields.Float(string="Cargo Interno Destino")
 	internal_load_ori = fields.Float(string="Cargo Interno Origen")
+	boss_station_id = fields.Many2one('res.users',string="Jefe de estación")
 
 class CargoStationDiscounts(models.Model):
 	_name = "cargo.station.discounts"
