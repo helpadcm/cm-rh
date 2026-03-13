@@ -200,8 +200,12 @@ class CmPrepago(models.Model):
         self.hide_payment_method = len(journal_payment_methods) == 1 and journal_payment_methods[0].code == 'manual'
 
     
-    @api.constrains('amount')
+    @api.constrains('amount', 'payment_date')
     def _check_amount(self):
+        if self.cargo_handling_id.move_id:
+            if self.payment_date < self.cargo_handling_id.move_id.invoice_date:
+                raise ValidationError("No puede crear un pago con fecha menor que el de la factura")
+
         if not self.amount > 0.0:
             raise ValidationError(_('El Pago debe ser Positivo'))
 

@@ -180,7 +180,7 @@ class BillLading(models.Model):
         # Generar el PDF del reporte
         report_ref = 'cm_cargo_handling.action_daily_sales_report'  # Referencia del reporte
         report_action = self.env.ref(report_ref)
-        actual_date = datetime.now() - timedelta(hours=6)
+        actual_date = (datetime.now() - timedelta(hours=6)) - timedelta(days=1)
 
         pdf_content, _ = report_action._render_qweb_pdf(
             report_ref=report_ref,
