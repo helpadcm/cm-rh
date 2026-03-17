@@ -10,6 +10,8 @@ class expensesInh(models.Model):
     budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria")
     invoice_number = fields.Char(string="Número de factura")
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
+    process_id = fields.Many2one('crossovered.activity', string="Proceso")
+    expense_sheet_req_id = fields.Many2one('expenses.sheet.request', string="Reporte de gasto")
 
     def action_submit_expenses(self):
         if self.filtered(lambda expense: not expense.is_editable):

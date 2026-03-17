@@ -23,13 +23,22 @@
         parent="cm_request_menu"
     />
 
+    <menuitem 
+        id="reports_sheet_request_menu" 
+        name ="Reportes de Gastos"
+        groups="group_expenses_request_manager,group_expenses_request_purchase"
+        parent="expenses_request_root" 
+        action="action_expenses_request_sheet"
+        sequence="2" 
+    />
+
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
     <menuitem
         id="conf_expenses_request_menu"
         name="Configuracion"
         groups="group_expenses_request_manager"
         parent="expenses_request_root"
-        sequence="2"/>
+        sequence="3"/>
 
     <menuitem
         id="dist_expenses_request_menu"
