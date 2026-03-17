@@ -44,7 +44,7 @@ class otherIncomes(models.Model):
         if income_ids:
             for income in income_ids:
                 if not income.by_quotes:
-                    if payslip_id.state == 'paid':
+                    if income.payslip_id.state == 'paid':
                         income.write({'state':'completed'})
                 else:
                     if income.payment_plan_ids:
