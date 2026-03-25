@@ -6,7 +6,7 @@
 	'author'	:'Oniel, CMAirlines',
     'category': 'Tools',
 	'description'	:"""Module for intranet.""",
-	'depends':['base','website','portal','cm_rrhh_management'],
+	'depends':['base','website','portal','cm_rrhh_management','ps_binary_field_attachment_preview'],
 	'data':[
         'security/ir.model.access.csv',
 		'views/intranet_category_view.xml',
