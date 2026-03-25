@@ -14,7 +14,7 @@
             </ul>
 
             <div class="tab-content">
-                <div class="container tab-pane fade show active" id="tab1">
+                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
 
                     <h2 class="text-center">Solicitud de boletos</h2>
                     <p class="text-center">Desde esta página podrá ingresar sus solicitudes para el beneficio boletos de ferry.</p>
@@ -26,7 +26,7 @@
                     </div>
 
                     <div class="row justify-content-center">
-                        <div class="col-12 col-md-8 col-lg-6">
+                        <div class="col-12 col-md-8 col-lg-6" style="background-color: #F5F5F5;border-radius:10px">
                             <form action="/request_tickets_ferry/submit" method="POST" class="mt-2" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="container tab-pane fade" id="tab2">
+                <div class="container tab-pane fade" id="tab2" style="background-color: #F5F5F5;border-radius:10px">
                     <div class="table-responsive">
                         <table class="table table-striped historical_table" >
                             <thead>
@@ -225,7 +225,7 @@
                         </form>
                     </div>
                 </div>
-                <div id="tab3" class="tab-pane fade">
+                <div id="tab3" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
                     <div class="table-responsive">
                         <table class="table table-striped historical_table" >
                             <thead>

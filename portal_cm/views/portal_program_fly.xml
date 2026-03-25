@@ -13,7 +13,7 @@
                 </li>
             </ul>
 
-            <div class="tab-content">
+            <div class="tab-content" style="background-color: #F5F5F5;border-radius:10px">
                 <div class="container tab-pane fade show active" id="tab1">
 
                     <h2 class="text-center">Solicitud de boletos</h2>
