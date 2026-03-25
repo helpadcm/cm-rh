@@ -43,7 +43,7 @@ class RecruitmentPublicForm(http.Controller):
             'currently_studying': post.get('currently_studying') == 'on',
             'current_institute': post.get('current_institute'),
             'career_promedy': post.get('career_promedy'),
-            'own_vehicle': post.get('own_vehicle') == 'on',
+            'own_vehicle': post.get('own_vehicle'),
             'has_with': post.get('has_with'),
             'availability_travel': post.get('availability_travel') == 'on',
             'excel_level': post.get('excel_level'),

@@ -19,9 +19,14 @@
       <form>
         <sheet>
           <group>
-            <field name="name"/>
-            <field name="sequence"/>
-            <field name="active"/>
+            <group>
+              <field name="name"/>
+              <field name="code"/>
+            </group>
+            <group>
+              <field name="active"/>
+              <field name="sequence"/>
+            </group>
           </group>
         </sheet>
       </form>

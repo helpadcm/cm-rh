@@ -28,6 +28,7 @@
             </group>
             <group>
               <field name="is_published"/>
+              <field name="allow_download"/>
               <field name="active"/>
             </group>
           </group>

@@ -23,6 +23,7 @@ class IntranetDocument(models.Model):
 
     sequence = fields.Integer(default=10,string="Secuencia")
     active = fields.Boolean(default=True,string="Activo")
+    allow_download = fields.Boolean(string="Permitir descarga")
 
     file_type = fields.Selection(
         [
@@ -53,3 +54,5 @@ class IntranetDocumentCategory(models.Model):
     name = fields.Char(required=True, string="Nombre")
     sequence = fields.Integer(default=10, string="Secuencia")
     active = fields.Boolean(default=True,string="Activo")
+    code = fields.Char(string="Codigo")
+

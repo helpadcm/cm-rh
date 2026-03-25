@@ -1,5 +1,6 @@
 import base64
 from odoo import http
+import mimetypes
 from odoo.http import request
 
 class PortalIntranet(http.Controller):
@@ -28,7 +29,7 @@ class PortalIntranet(http.Controller):
     def portal_document_download(self, doc_id):
         doc = request.env['intranet.document'].sudo().browse(doc_id)
 
-        if not doc.is_published or not doc.active:
+        if not doc.is_published or not doc.active or not doc.allow_download:
             return request.not_found()
 
         return request.make_response(
@@ -41,26 +42,25 @@ class PortalIntranet(http.Controller):
         )
 
     @http.route('/portal/documents/<int:doc_id>/preview',
-            auth='user', website=True)
+                auth='user', website=True)
     def portal_document_preview(self, doc_id):
         doc = request.env['intranet.document'].sudo().browse(doc_id)
 
-        if not doc.is_published or not doc.active:
+        if not doc.exists() or not doc.is_published or not doc.active:
             return request.not_found()
 
-        content_type = 'application/octet-stream'
-        name = (doc.file_name or '').lower()
+        # 🔥 Detecta automáticamente el tipo de archivo
+        content_type, _ = mimetypes.guess_type(doc.file_name or '')
 
-        if name.endswith(('.png', '.jpg', '.jpeg', '.webp')):
-            content_type = 'image/*'
-        elif name.endswith('.pdf'):
-            content_type = 'application/pdf'
+        if not content_type:
+            content_type = 'application/octet-stream'
 
         return request.make_response(
             base64.b64decode(doc.file),
             headers=[
                 ('Content-Type', content_type),
+                # 👇 CLAVE: inline = preview
                 ('Content-Disposition',
-                f'inline; filename="{doc.file_name}"')
+                 f'inline; filename="{doc.file_name}"')
             ]
         )
