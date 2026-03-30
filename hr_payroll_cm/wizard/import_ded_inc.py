@@ -39,7 +39,7 @@ class importIncomesDeductions(models.TransientModel):
             if not employee_name:
                 raise ValidationError("Debe agregar nombre del empleado")
             else:
-                employee_id = self.env['hr.employee'].search([('name','=',employee_name)])
+                employee_id = self.env['hr.employee'].search([('name','=',employee_name.upper())])
                 if not employee_id:
                     raise ValidationError(f"""No existe empleado con el nombre {employee_name}""")
 
