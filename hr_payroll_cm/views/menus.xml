@@ -58,6 +58,14 @@
         sequence="40"
         action="action_other_incomes"/>
 
+    <menuitem
+        id="import_inc_ded_menuitem"
+        name="Importar Deducciones e Ingresos"
+        parent="hr_payroll.menu_hr_payroll_employees_root"
+        groups="hr_payroll_cm.manager_rrhh_cm"
+        sequence="41"
+        action="import_ded_inc_action"/>
+
 <!-- ############################################################################################ -->
 
     <menuitem

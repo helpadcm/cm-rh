@@ -27,6 +27,7 @@
         'reports/hr_payroll_employee_report_view.xml',
         'wizard/load_catorceavo_from_excel_wizard_views.xml',
         'wizard/load_nomina_from_excel_wizard_views.xml',
+        'wizard/import_ded_inc_view.xml',
         'wizard/get_hours_record_view.xml',
         'wizard/payslip_employee_view.xml',
         'wizard/summary_inc_ded_view.xml',
