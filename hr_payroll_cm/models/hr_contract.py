@@ -78,7 +78,7 @@ class Contract(models.Model):
 
                                 line_id = ded.payment_plan_ids.filtered(lambda plan: plan.date == payslip.date_from)
                                 if line_id:
-                                    amount = line_id.amount
+                                    amount += line_id.amount
                                     line_id.payslip_id = payslip.id
                                     line_id.state = 'paid'
 
