@@ -298,18 +298,13 @@
                             <tbody>
                                 <t t-foreach="history_absences_ids" t-as="absences">
                                     <tr>
-                                        <td><t t-esc="absences.holiday_status_id.name"/></td>
-                                        <td><t t-esc="absences.name"/></td>
-                                        <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <td t-if="absences.exit_only">Solo Ida</td>
-                                        <td t-if="not absences.exit_only">Ida / Vuelta</td>
-                                        <td><t t-esc="int(absences.tickets_request)"/> Boleto(s)</td>
-                                        <td t-if="absences.state == 'draft'">A enviar</td>
-                                        <td t-if="absences.state == 'confirm'">A aprobar</td>
-                                        <td t-if="absences.state == 'refuse'">Rechazado</td>
-                                        <td t-if="absences.state == 'validate1'">Segunda aprobacion</td>
-                                        <td t-if="absences.state == 'validate'">Aprobado</td>
+                                        <td><t t-esc="absences.get('type')"/></td>
+                                        <td><t t-esc="absences.get('description')"/></td>
+                                        <td><t t-esc="absences.get('date_from')"/></td>
+                                        <td><t t-esc="absences.get('date_to')"/></td>
+                                        <td><t t-esc="absences.get('ticket_type')"/></td>
+                                        <td><t t-esc="absences.get('tickets_request')"/> Boleto(s)</td>
+                                        <td><t t-esc="absences.get('state')"/></td>
                                     </tr>
                                 </t>
                             </tbody>

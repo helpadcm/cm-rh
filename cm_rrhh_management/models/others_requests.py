@@ -17,17 +17,23 @@ class othersRequests(models.Model):
     def default_company(self):
         return self.env.user.company_id.id
 
+    @api.model
+    def _get_employee_default(self):
+        user_id = self.env.user
+        employee_id = self.env['hr.employee'].search([('user_id','=',user_id.id)])
+        if employee_id:
+            return employee_id.id
         
     name = fields.Char(string="Numero",default="Nuevo",copy=False,tracking=True)
-    employee_id = fields.Many2one('hr.employee',string="Empleado",tracking=True)
+    employee_id = fields.Many2one('hr.employee',string="Empleado",default=_get_employee_default,tracking=True)
     date = fields.Date(string="Fecha de Solicitud",default=_default_date)
     initial_date = fields.Date(string="Fecha de Inicio",copy=False,tracking=True)
     exit_date = fields.Date(string="Fecha de Fin",copy=False,tracking=True)
-    people_qty = fields.Integer(string="Num. Personas",copy=False,tracking=True)
+    people_qty = fields.Float(string="Num. Personas",copy=False,tracking=True)
     qty_available = fields.Char(string="Cantidad disponible")
     business_id = fields.Many2one('cm.business.list',string="Lugar",copy=False,tracking=True)
     state = fields.Selection([('draft','Borrador'),('to_approve','Por Aprobar'),('approved','Aprobado'),('refused','Rechazado')],string="Estado",default="draft",copy=False,tracking=True)
-    business_type = fields.Selection([('hotel','Hotel'),('ferry','Ferry')],string="Tipo de negocio")
+    business_type = fields.Selection([('hotel','Hotel'),('ferry','Ferry'),('fly','Vuelos')],string="Tipo de negocio")
     beneficiary_ids = fields.One2many('request.beneficiary','request_id',string="Beneficiarios")
     observations = fields.Text(string="Observaciones",tracking=True)
 
@@ -39,8 +45,18 @@ class othersRequests(models.Model):
     char_date_from = fields.Char(string="Fecha inicial string")
     char_date_to = fields.Char(string="Fecha final string")
     company_id = fields.Many2one('res.company',string="Empresa",default=default_company)
+    color = fields.Integer("Color", related='business_id.color')
+
+    ###############################  PROGRAM TO FLY  FIELDS  ###########################################
+    tickets_request = fields.Boolean(string="Solicitud de Boletos")
+    fly_exit_route_id = fields.Many2one('flight.routes',string="Ruta de Salida", tracking=True)
+    fly_return_route_id = fields.Many2one('flight.routes',string="Ruta de Regreso", tracking=True)
+    exit_only = fields.Boolean(string="Solo Salida",tracking=True)
+    open_back = fields.Boolean(string="Regreso Abierto",tracking=True)
+    char_date_from = fields.Char(string="Fecha inicial string")
+    char_date_to = fields.Char(string="Fecha final string")
     
-    @api.onchange('employee_id')
+    @api.onchange('employee_id','tickets_request')
     def get_qty_available(self):
         history_ids = self.search([('employee_id','=',self.employee_id.id),('business_type','=','ferry'),('state','=','approved')])
 
@@ -55,6 +71,10 @@ class othersRequests(models.Model):
                 ferry_tickets = 'No Disponible'
             else:
                 ferry_tickets = 4 - qty_month_requests
+
+        if self.tickets_request:
+            ferry_tickets = self.employee_id.program_to_fly
+
         self.qty_available = ferry_tickets
 
     @api.onchange('initial_date','exit_date')
@@ -69,6 +89,10 @@ class othersRequests(models.Model):
     @api.onchange('business_id')
     def change_business(self):
         if self.business_id:
+            if self.business_id.business_type == 'fly':
+                self.tickets_request = True
+            else:
+                self.tickets_request = False
             self.business_type = self.business_id.business_type
 
     def change_state(self):
@@ -88,6 +112,9 @@ class othersRequests(models.Model):
                 else:
                     request_type = 'Boletos en Ferry'
 
+                if self.tickets_request:
+                    request_type = "Boletos de Programa a Volar"
+
                 mail = self.env['mail.mail'].sudo().create({
                     'subject': "Solicitud %s creada por %s"%(self.name, self.employee_id.name),
                     'body_html': f"""<p>Se ha creado la solicitud <strong>{self.name}</strong> para <strong>{request_type}</strong> para que pueda ser revisada</p>""",
@@ -96,14 +123,19 @@ class othersRequests(models.Model):
                 mail.send()
 
         if next_state == 'approved':
+            if self.tickets_request:
+                self.employee_id.program_to_fly -= self.people_qty
             self.send_email(self.business_type)
 
         self.state = next_state
 
     def validate_to_approve(self):
-        if self.business_type == 'ferry':
+        if self.business_type == 'ferry' or self.tickets_request:
             if self.qty_available == 'No Disponible':
-                raise ValidationError(f"""El empleado {self.employee_id.name} no tiene boletos disponible para el mes.""")
+                if not self.tickets_request:
+                    raise ValidationError(f"""El empleado {self.employee_id.name} no tiene boletos disponible para el mes.""")
+                else:
+                    raise ValidationError(f"""El empleado {self.employee_id.name} no tiene boletos disponible.""")
 
         if self.people_qty <= 0:
             raise ValidationError("La cantidad solicitada deber ser mayor de 0.")
@@ -130,11 +162,14 @@ class othersRequests(models.Model):
             template_id = self.env.ref('cm_rrhh_management.other_request_email_template')
         else:
             template_id = self.env.ref('cm_rrhh_management.ferry_request_email_template')
-        
+
         email_cc = ','.join(filter(None, [
             self.employee_id.private_email,
             self.business_id.cc_email,
         ]))
+
+        if self.tickets_request:
+            template_id = self.env.ref('cm_rrhh_management.rrhh_email_pv_template')
 
         template_ctx = {'action_url': base_url}
         template_id.attachment_ids = [(6, 0, self.attachment_ids.ids)]

@@ -52,7 +52,7 @@
 
         <menuitem
             id="request_others_menuitem"
-            name="Otras Solicitudes"
+            name="Solicitudes Plan de Beneficios"
             parent="payroll_benefits_menuitem"
             action="action_other_request"
             groups="group_payroll_area_rrhh"

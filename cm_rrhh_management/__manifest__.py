@@ -13,6 +13,7 @@
 		'data/paperformat.xml',
 		'data/email_template_hotel.xml',
 		'data/email_template_ferry.xml',
+		'data/email_pv_template.xml',
 		'security/groups.xml',
 		'security/ir.model.access.csv',
 		'wizard/calculate_assists_view.xml',
