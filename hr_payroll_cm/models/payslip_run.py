@@ -135,7 +135,18 @@ class HrPayslipRun(models.Model):
                 if line.category_id.code == 'DED':
                     attachment_id = sl.salary_attachment_ids.filtered(lambda att: att.deduction_type_id.code == line.salary_rule_id.code)
                     if attachment_id:
-                        attachment_id.paid_amount += abs(line.total)
+                        if len(attachment_id) > 1:
+                            for att in attachment_id:
+                                total_att = 0
+                                if not att.by_quotes:
+                                    total_att = att.monthly_amount
+                                else:
+                                    line_id = att.payment_plan_ids.filtered(lambda plan: plan.date == sl.date_from)
+                                    if line_id:
+                                        total_att = line_id.amount
+                                att.paid_amount += abs(total_att)
+                        else:
+                            attachment_id.paid_amount += abs(line.total)
 
                 if abs(line.total) > 0:
                     vals = {'employee': sl.employee_id.name,'amount': line.total, 'rule_name': line.salary_rule_id.name, 'department': sl.employee_id.department_id.name}

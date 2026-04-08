@@ -129,6 +129,11 @@ class othersRequests(models.Model):
 
         self.state = next_state
 
+    def request_refuse(self):
+        if self.tickets_request:
+            self.employee_id.program_to_fly += self.people_qty
+        self.state = 'refused'
+
     def validate_to_approve(self):
         if self.business_type == 'ferry' or self.tickets_request:
             if self.qty_available == 'No Disponible':
