@@ -132,9 +132,10 @@
             <field name="name">Calendario Solicitudes Plan de Beneficios</field>
             <field name="model">rrhh.others.requests</field>
             <field name="arch" type="xml">
-                <calendar string="Calendario" date_start="initial_date" date_stop="exit_date" color="employee_id">
+                <calendar string="Calendario" mode="month" js_class="time_off_calendar" date_start="initial_date" date_stop="exit_date" color="color">
                     <field name="name"/>
                     <field name="employee_id" filters="1"/>
+                    <field name="state"/>
                     <field name="business_id" color="color" filters="1"/>
                     <field name="people_qty"/>
                 </calendar>

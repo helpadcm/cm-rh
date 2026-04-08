@@ -243,9 +243,9 @@ class CustomPortalAbsences(http.Controller):
         if validated:
             if exit_only or open_back:
                 if exit_only:
-                    vals.update({'fly_exit_route_id': exit_route_id, 'exit_only': True, 'initial_date': date_from})
+                    vals.update({'fly_exit_route_id': exit_route_id, 'exit_only': True, 'initial_date': date_from, 'exit_date': date_from})
                 if open_back:
-                    vals.update({'fly_exit_route_id': exit_route_id, 'fly_return_route_id': return_route_id, 'open_back': True, 'initial_date': date_from})
+                    vals.update({'fly_exit_route_id': exit_route_id, 'fly_return_route_id': return_route_id, 'open_back': True, 'initial_date': date_from, 'exit_date': date_from})
             else:
                 vals.update({'fly_exit_route_id': exit_route_id, 'fly_return_route_id': return_route_id, 'initial_date': date_from, 'exit_date': date_to})
             
