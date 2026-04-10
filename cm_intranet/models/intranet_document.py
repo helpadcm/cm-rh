@@ -55,4 +55,3 @@ class IntranetDocumentCategory(models.Model):
     sequence = fields.Integer(default=10, string="Secuencia")
     active = fields.Boolean(default=True,string="Activo")
     code = fields.Char(string="Codigo")
-
