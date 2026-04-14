@@ -10,6 +10,7 @@
                         <button name="change_state" context="{'state': 'to_approve'}" class="oe_highlight" type="object" string="Enviar a Aprobar" invisible="state != 'draft'"/>
                         <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'to_approve'"/>
                         <button name="change_state" context="{'state': 'refused'}" class="oe_highlight btn-danger" type="object" string="Rechazar" invisible="state != 'to_approve'"/>
+                        <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'to_approve'"/>
                         <button name="request_refuse" type="object" string="Rechazar" invisible="not tickets_request or state != 'approved'"/>
                         <field name="state" widget="statusbar"/>
                   	</header>
