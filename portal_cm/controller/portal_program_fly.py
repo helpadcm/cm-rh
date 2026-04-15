@@ -152,12 +152,7 @@ class CustomPortalAbsences(http.Controller):
                     return_route_id = ret_route_id.id
 
         type_id = request.env['hr.leave.type'].sudo().browse(int(type_value_id))
-        if type_id.code == 'PFLY':
-            business_id = request.env['cm.business.list'].sudo().search([('code','=','PFLY')])
-        elif type_id.code == 'SCP':
-            business_id = request.env['cm.business.list'].sudo().search([('code','=','SCP')])
-        elif type_id.code == 'SCSE':
-            business_id = request.env['cm.business.list'].sudo().search([('code','=','SCSE')])
+        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code)])
         
         vals = {
             'employee_id': employee_id.id,

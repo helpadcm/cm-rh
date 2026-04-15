@@ -113,12 +113,7 @@ class othersRequests(models.Model):
                     request_type = 'Boletos en Ferry'
 
                 if self.tickets_request:
-                    if self.business_id.code == 'PFLY':
-                        request_type = "Boletos de Programa a Volar"
-                    elif self.business_id.code == 'SCP':
-                        request_type = "Boletos de Espacio Positivo"
-                    elif self.business_id.code == 'SCSE':
-                        request_type = "Boletos Sujeto a Espacio"
+                    request_type = self.business_id.name
 
                 mail = self.env['mail.mail'].sudo().create({
                     'subject': "Solicitud %s creada por %s"%(self.name, self.employee_id.name),
