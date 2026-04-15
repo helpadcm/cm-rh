@@ -51,7 +51,15 @@
                                                                 Ruta y fecha regreso: <t t-out="object.fly_return_route_id.name or ''"/>, Open.<br/><br/>
                                                             </t>
                                                             <t>
-                                                                Boleto: <strong>Programa a Volar.</strong><br/><br/>
+                                                                <t t-if="object.business_id.code == 'PFLY'">
+                                                                    Boleto: <strong>Programa a Volar.</strong><br/><br/>
+                                                                </t>
+                                                                <t t-if="object.business_id.code == 'SCP'">
+                                                                    Boleto: <strong>Boleto Espacio Positivo.</strong><br/><br/>
+                                                                </t>
+                                                                <t t-if="object.business_id.code == 'SCSE'">
+                                                                    Boleto: <strong>Boleto Sujeto a Espacio.</strong><br/><br/>
+                                                                </t>
                                                             </t>
 
                                                             <table style="border:1px solid black;border-collapse: collapse;width:100%">

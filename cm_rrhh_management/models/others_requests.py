@@ -31,7 +31,7 @@ class othersRequests(models.Model):
     exit_date = fields.Date(string="Fecha de Fin",copy=False,tracking=True)
     people_qty = fields.Float(string="Num. Personas",copy=False,tracking=True)
     qty_available = fields.Char(string="Cantidad disponible")
-    business_id = fields.Many2one('cm.business.list',string="Lugar",copy=False,tracking=True)
+    business_id = fields.Many2one('cm.business.list',string="Tipo de Solicitud",copy=False,tracking=True)
     state = fields.Selection([('draft','Borrador'),('to_approve','Por Aprobar'),('approved','Aprobado'),('refused','Rechazado')],string="Estado",default="draft",copy=False,tracking=True)
     business_type = fields.Selection([('hotel','Hotel'),('ferry','Ferry'),('fly','Vuelos')],string="Tipo de negocio")
     beneficiary_ids = fields.One2many('request.beneficiary','request_id',string="Beneficiarios")
@@ -113,7 +113,12 @@ class othersRequests(models.Model):
                     request_type = 'Boletos en Ferry'
 
                 if self.tickets_request:
-                    request_type = "Boletos de Programa a Volar"
+                    if self.business_id.code == 'PFLY':
+                        request_type = "Boletos de Programa a Volar"
+                    elif self.business_id.code == 'SCP':
+                        request_type = "Boletos de Espacio Positivo"
+                    elif self.business_id.code == 'SCSE':
+                        request_type = "Boletos Sujeto a Espacio"
 
                 mail = self.env['mail.mail'].sudo().create({
                     'subject': "Solicitud %s creada por %s"%(self.name, self.employee_id.name),
