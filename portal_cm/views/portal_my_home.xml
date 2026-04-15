@@ -58,7 +58,7 @@
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
                     <t t-set="title">Solicitud de Vuelos</t>
-                    <t t-set="text">Programa a volar, Service Charge Positivo, Service Charge Sujeto a Espacio</t>
+                    <t t-set="text">Programa a volar, Boleto Sujeto a Espacio, Boleto Espacio Positivo</t>
                     <t t-set="url" t-value="'/absences/record_program_fly'"/>
                     <t t-set="config_card" t-value="True"/>
                 </t>
