@@ -11,12 +11,14 @@
      
     ],
 	'data'		:[
+			'security/ir.model.access.csv',
 			# 'report/report_contact_list.xml',
 			# 'wizard/view_wizard_accounting_report.xml',
 			# 'wizard/view_wizard_expire_balances.xml',
 			# 'wizard/view_wizard_contact_list.xml',
 			'wizard/account_wizard_general_ledger_view.xml',
 			'wizard/aged_trial_balance_inh_view.xml',
+			'wizard/analytic_report_ledger_view.xml',
 			# 'views/report_accounting_seat.xml',
 			# 'views/account_financial_report.xml',
 			# 'views/report_financial.xml',
