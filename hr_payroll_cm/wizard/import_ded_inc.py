@@ -69,17 +69,21 @@ class importIncomesDeductions(models.TransientModel):
                 if not monthly_amount or monthly_amount <= 0:
                     raise ValidationError(f"""Debe ingresar el monto mensual o debe ser mayor que 0 en la linea {line_number}""")
 
-            if not amount_total or amount_total <= 0:
-                raise ValidationError(f"""Debe ingresar el monto total o debe ser mayor que 0 en la linea {line_number}""")
+            # if not amount_total or amount_total <= 0:
+            #     raise ValidationError(f"""Debe ingresar el monto total o debe ser mayor que 0 en la linea {line_number}""")
 
             if fees:
                 if not fixed_fee:
                     fees_values = True
                     fees_qty = fees
+                    if amount_total == 0
+                        amount_total = fees_qty * monthly_amount
                 else:
                     fees_values = True
                     fees_qty = fees
                     fixed_fee_value = fixed_fee
+                    if amount_total == 0:
+                        amount_total = fees_qty * fixed_fee
 
             if self.options == 'deductions':
                 values = {
