@@ -76,13 +76,13 @@ class importIncomesDeductions(models.TransientModel):
                 if not fixed_fee:
                     fees_values = True
                     fees_qty = fees
-                    if amount_total == 0
+                    if amount_total = 0
                         amount_total = fees_qty * monthly_amount
                 else:
                     fees_values = True
                     fees_qty = fees
                     fixed_fee_value = fixed_fee
-                    if amount_total == 0:
+                    if amount_total = 0:
                         amount_total = fees_qty * fixed_fee
 
             if self.options == 'deductions':
