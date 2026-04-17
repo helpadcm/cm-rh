@@ -89,7 +89,7 @@
                     <filter string="En evaluacion" name="evaluation_state_filter" domain="[('state','=','assessment')]"/>
                     <filter string="En espera" name="waiting_state_filter" domain="[('state','=','waiting')]"/>
                     <filter string="Asignar a nomina" name="payroll_state_filter" domain="[('state','=','payroll')]"/>
-                    <filter string="Solicitudes pendientes" name="pending_state_filter" domain="[('state','in',['assessment','waiting'])]"/>
+                    <filter string="Solicitudes pendientes" name="pending_state_filter" domain="[('state','not in',['finalized','cancel'])]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_date" string="Fecha" domain="[]" context="{'group_by':'date'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
@@ -103,7 +103,7 @@
             <field name="name">Solicitudes de prestamo</field>
             <field name="res_model">rrhh.request.loan</field>
             <field name="view_mode">tree,form</field>
-            <field name="context"></field>         
+            <field name="context">{'search_default_pending_state_filter': 1}</field>         
             <field name="domain" eval=""/>
         </record>
 
