@@ -9,10 +9,10 @@ class analyticAccountLedger(models.TransientModel):
     @api.model
     def default_get(self, fields):
         rec = super(analyticAccountLedger, self).default_get(fields)
-        params = self.env.context.get('params')
+        active_model = self.env.context.get('active_model')
         active_ids = self.env.context.get('active_ids')
-        if params:
-            if params.get('model') == 'account.account':
+        if active_model:
+            if active_model == 'account.account':
                 rec.update({'account_ids': [(6,0,active_ids)]})
         return rec
 
