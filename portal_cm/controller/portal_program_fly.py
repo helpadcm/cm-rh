@@ -98,7 +98,7 @@ class CustomPortalAbsences(http.Controller):
 
         vals = {
             'employee_id': employee_id.id,
-            'name': beneficiary_name,
+            'name': beneficiary_name.upper(),
             'identity': beneficiary_id,
             'birthday': birthday,
             'relationship': beneficiary_relationship,
