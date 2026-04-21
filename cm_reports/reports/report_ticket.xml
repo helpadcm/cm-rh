@@ -14,7 +14,7 @@
                                 <div style="width:100%;height:150px;margin-top:10px;">
                                     <table style="width:25%;float:left">
                                         <tr>
-                                            <td style="padding-left:10px;padding-right:10px;align:center;padding-top:10px"><img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:240.6px;height:120px" alt="Logo"/></td>
+                                            <td style="padding-left:10px;padding-right:10px;align:center;padding-top:10px"><img t-if="company2.logo" t-att-src="image_data_uri(company2.logo)" style="width:240.6px;height:120px" alt="Logo"/></td>
                                         </tr>
                                     </table>
                                     <table style="float:left;width:34%">

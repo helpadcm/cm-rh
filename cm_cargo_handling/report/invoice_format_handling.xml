@@ -10,7 +10,7 @@
                     <table style="width:25%;float:left">
                         <tr>
                             <td style="padding-left:10px;padding-right:10px;align:center;">
-                                <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:180px;height:85px" alt="Logo"/>
+                                <img t-if="o.get('company').logo" t-att-src="image_data_uri(o.get('company').logo)" style="width:180px;height:85px" alt="Logo"/>
                             </td>
                         </tr>
                         <tr>

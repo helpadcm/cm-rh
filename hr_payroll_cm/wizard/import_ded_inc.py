@@ -30,8 +30,6 @@ class importIncomesDeductions(models.TransientModel):
         # Iterar por filas
         line_number = 2
         for row in ws.iter_rows(min_row=2, values_only=True):  # min_row=2 para saltar encabezados
-            print ("///////////////////////////////")
-            print (row)
             employee_name, description, ded_type, initial_date, final_date, monthly_amount, amount_total, fees, fixed_fee = row
 
             employee_id = False
