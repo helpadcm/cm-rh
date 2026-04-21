@@ -83,6 +83,16 @@
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_abandoned_report"/>
     </record>
 
+    <record id="action_group_guide" model="ir.actions.report">
+        <field name="name">Guias de agrupadas</field>
+        <field name="model">cargo.invoice.group_guides</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.guide_group_invoice</field>
+        <field name="report_file">cm_cargo_handling.guide_group_invoice</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+    </record>
+
     <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
         <field name="name">Manifiesto de Carga XLSX</field>
         <field name="model">cargo.manifest</field>

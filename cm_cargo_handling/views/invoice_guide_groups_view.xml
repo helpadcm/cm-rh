@@ -8,6 +8,7 @@
                 <form string="Agrupacion de guias">
                     <header>
                         <button name="create_invoice" type="object" string="Facturar" class="oe_highlight" invisible="state != 'draft'" confirm="¿Esta seguro de querer crear la factura?"/>
+                        <button name="print_guides" class="oe_highlight" type="object" string="Imprimir Guias" invisible="state != 'validated'"/>
                         <button name="set_to_draft" class="oe_highlight" type="object" string="Regresar a Borrador" invisible="state != 'validated'"/>
                         <field name="state" widget="statusbar"/>
                     </header>
