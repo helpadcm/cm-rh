@@ -268,8 +268,8 @@ class HrPayslipBonus(models.Model):
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         if mark_ids:
-            eh_amount = sum(mark_ids.mapped('eh_holiday'))
-            ehx_amount = sum(mark_ids.mapped('eh_holiday_extra'))
+            eh_amount = round(sum(mark_ids.mapped('eh_holiday')), 2)
+            ehx_amount = round(sum(mark_ids.mapped('eh_holiday_extra')), 2)
             wage = self.contract_id.contract_wage * 2
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
