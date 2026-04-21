@@ -278,7 +278,7 @@ class HrPayslipBonus(models.Model):
                     amount = hours_amount * eh_amount
                     vals.update({
                         'input_type_id': eh_type_id.id,
-                        'amount': amount,
+                        'amount': round(amount, 2),
                         'name': "%s (%s horas)"%(eh_type_id.name, eh_amount)
                     })
                     if self.input_line_ids:
@@ -297,7 +297,7 @@ class HrPayslipBonus(models.Model):
                     amount = hours_amount * ehx_amount
                     vals.update({
                         'input_type_id': ehx_type_id.id,
-                        'amount': amount,
+                        'amount': round(amount, 2),
                         'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
                     })
                     if self.input_line_ids:
