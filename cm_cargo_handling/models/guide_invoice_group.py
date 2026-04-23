@@ -153,7 +153,7 @@ class groupGuides(models.Model):
             data=data
         )
         
-        attach_vals.update({'datas': base64.b64encode(pdf_content), 'name': f'Guias Agrupadas {self.partner_id.name}.pdf'})
+        attach_vals.update({'datas': base64.b64encode(pdf_content), 'name': f'Guias Agrupadas {self.partner_id.name} {self.date}.pdf'})
         attachment_obj.create(attach_vals)
 
         sequence_id = self.env.ref('cm_cargo_handling.sequence_guide_group_handling')
