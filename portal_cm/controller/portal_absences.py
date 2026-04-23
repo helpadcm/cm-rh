@@ -26,7 +26,7 @@ class CustomPortalAbsences(http.Controller):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         employee_company_id = employee_id.company_id.id
-        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','!=','PFLY')]
+        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','not in',['PFLY','SCP','SCSE'])]
         types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
         history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','!=','PFLY'),('number_of_days','>',0)], order="request_date_from desc")
         paid_leave_ids = request.env['paid.leave'].sudo().search([])
