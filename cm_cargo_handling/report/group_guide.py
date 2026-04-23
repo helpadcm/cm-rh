@@ -107,7 +107,7 @@ class groupGuide(models.AbstractModel):
                 'taxes': order.amount_tax,
                 'conv_taxes': self.conv_amount(order.external_currency_id, order.local_currency_id, invoice_date, order.amount_tax),
                 'total': order.amount_total,
-                'conv_total': order.move_id.amount_total_signed,
+                'conv_total': order.amount_total_lps,
                 'name_currency': order.external_currency_id.name,
                 'exonerado': 0,
                 'discount': discount_amount,
