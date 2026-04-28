@@ -172,6 +172,7 @@ class lotFormatXlsx(models.AbstractModel):
                 for line in payslip.contract_id.historical_salaries_ids:
                     if payslip.date_to <= line.end_date:
                         wage_amount = line.amount
+                        fortnight_amount = line.amount / 2
 
             incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
             incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})
