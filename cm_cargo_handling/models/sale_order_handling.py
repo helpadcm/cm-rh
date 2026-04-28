@@ -412,9 +412,6 @@ class saleOrderHandling(models.Model):
                 else:
                     line_id = rec.partner_id.pricelist_ids.filtered(lambda line: line.product_id.id == rec.product_id.product_tmpl_id.id and line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
                 
-                print ("/////////////////////////////////////////")
-                print (line_id)
-
                 if not line_id:
                     line_id = rec.product_id.price_list_ids.filtered(lambda line: line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
                 
