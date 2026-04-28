@@ -50,7 +50,8 @@ class partnerInherit(models.Model):
     credit_limit = fields.Float(string="Limite de Credito($)",tracking=True)
     available_credit = fields.Float(string="Credito Disponible")
     credit_ticket = fields.Boolean(string="Aplica a credito en boletos")
-    grouping_invoice = fields.Boolean(string="Agrupar facturas") 
+    grouping_invoice = fields.Boolean(string="Agrupar facturas")
+    pricelist_ids = fields.One2many('pricelist.product.partner','partner_id',string="Lista de precios")
 
     def write(self,vals):
         if vals.get('cargo_client'):
@@ -76,6 +77,24 @@ class partnerInherit(models.Model):
         if self.parent_id:
             res = self.name or ''
         return res
+
+class priceListPartner(models.Model):
+    _name = "pricelist.product.partner"
+    _description = "Lista de precios por cliente"
+
+    @api.model
+    def get_default_currency(self):
+        usd_currency_id = self.env.ref('base.USD')
+        return usd_currency_id.id
+        
+    partner_id = fields.Many2one('res.partner',string="Cliente")
+    product_id = fields.Many2one('product.template',string="Producto")
+    rute_id = fields.Many2one('cargo.airport.airport.rel',string="Ruta")
+    price = fields.Monetary(string="Precio Base")
+    min_price = fields.Monetary(string="Precio por libra")
+    qty_min = fields.Float(string="Minimo")
+    currency_id = fields.Many2one('res.currency',string="Moneda", default=get_default_currency)
+    product_type = fields.Selection(related="product_id.type_cargo.options",string="Tipo")
 
 class contactListInherit(models.Model):
     _name = 'res.partner.contact'
