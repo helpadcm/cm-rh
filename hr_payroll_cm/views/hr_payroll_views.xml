@@ -9,6 +9,7 @@
             </button>
             <xpath expr="//field[@name='date_start']" position="after">
                 <field name="first_date_payment" readonly="1" invisible="1"/>
+                <field name="estimated_end" string="Fecha de Finalizacion"/>
             </xpath>
             <field name="paid_amount" position="after">
                 <field name="remaining_amount"/>
