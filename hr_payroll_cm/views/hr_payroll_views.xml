@@ -11,6 +11,12 @@
                 <field name="first_date_payment" readonly="1" invisible="1"/>
                 <field name="estimated_end" string="Fecha de Finalizacion"/>
             </xpath>
+            <xpath expr="//field[@name='date_end']" position="replace">
+                <field name="date_end" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='date_estimated_end']" position="replace">
+                <field name="date_estimated_end" invisible="1"/>
+            </xpath>
             <field name="paid_amount" position="after">
                 <field name="remaining_amount"/>
                 <field name="by_quotes"/>

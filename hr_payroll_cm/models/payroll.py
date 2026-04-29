@@ -20,7 +20,7 @@ class HrSalaryAttachment(models.Model):
     fixed_fee = fields.Float(string="Cuota fija")
     total_amount = fields.Monetary('Monto Total',tracking=True,help='Total amount to be paid.',default=1)
     monthly_amount = fields.Monetary('Monto a debitar', required=True, tracking=True, help='Amount to pay each month.',default=1)
-    estimated_end = fields.Date('Estimated End Date', help='Approximated end date.')
+    estimated_end = fields.Date('Estimated End Date', help='Approximated end date.', tracking=True)
 
     def update_estimated_date(self):
         if self.date_estimated_end:
@@ -37,13 +37,13 @@ class HrSalaryAttachment(models.Model):
     def _compute_estimated_end(self):
         for record in self:
             if not record.payment_plan_ids:
-                # record.date_estimated_end = record.estimated_end
-                # record.date_end = record.estimated_end
-                if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
-                    payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
-                    record._compute_date_estimated_end(payments)
-                else:
-                    record.date_estimated_end = False
+                record.date_estimated_end = record.estimated_end
+                record.date_end = record.estimated_end
+                # if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
+                #     payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
+                #     record._compute_date_estimated_end(payments)
+                # else:
+                #     record.date_estimated_end = False
             else:
                 record.date_estimated_end = record.payment_plan_ids[len(record.payment_plan_ids)-1].date
                 record.date_end = record.payment_plan_ids[len(record.payment_plan_ids)-1].date

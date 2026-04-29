@@ -201,6 +201,10 @@ class Contract(models.Model):
             vals.update({'start_date': self.date_start, 'end_date': last_date})
             self.env['historical.salaries.contract'].create(vals)
 
+    def update_end_date_payroll(self):
+        for line in self.historical_salaries_ids:
+            line.end_date_payroll = line.end_date
+
 class historicalSalaries(models.Model):
     _name = "historical.salaries.contract"
     _description = "Historial de salarios por contrato"
@@ -208,6 +212,7 @@ class historicalSalaries(models.Model):
     contract_id = fields.Many2one('hr.contract', string="Contrato")
     start_date = fields.Date(string="Fecha Inicial")
     end_date = fields.Date(string="Fecha Final")
+    end_date_payroll = fields.Date(string="Ultima fecha aplicada en nomina")
     amount = fields.Float(string="Sueldo Anterior")
     employee_id = fields.Many2one('hr.employee',string="Empleado")
 

@@ -170,7 +170,7 @@ class lotFormatXlsx(models.AbstractModel):
             wage_amount = payslip.contract_id.wage * 2
             if len(payslip.contract_id.historical_salaries_ids) > 0:
                 for line in payslip.contract_id.historical_salaries_ids:
-                    if payslip.date_to <= line.end_date:
+                    if payslip.date_to <= line.end_date_payroll:
                         wage_amount = line.amount
                         fortnight_amount = line.amount / 2
 
