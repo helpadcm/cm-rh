@@ -2,7 +2,7 @@
 <odoo>
     <menuitem
         id="hr_digital_sign_menu"
-        name="Firma Digital"
+        name="Firma de Correo"
         web_icon="hr_employee_cm,static/description/digital_signature.png"
         action="hr_employee_cm.action_digital_sign_creator"
         groups="hr_employee_cm.manager_digital_sign_cm,hr_employee_cm.user_digital_sign_cm"
@@ -10,14 +10,14 @@
 
     <menuitem
         id="hr_digital_sign_menuitem"
-        name="Firma Digital"
+        name="Firma de Correo"
         action="hr_employee_cm.action_digital_sign_creator"
         parent="hr_digital_sign_menu"
         sequence="1"/>
 
     <menuitem
         id="conf_digital_sign_menuitem"
-        name="Conf. Firma Digital"
+        name="Conf. Firma de Correo"
         action="hr_employee_cm.action_digital_sign_conf"
         parent="hr_digital_sign_menu"
         groups="hr_employee_cm.manager_digital_sign_cm"

@@ -4,7 +4,6 @@
         id="turns_menu_root"
         name="Turnos de trabajo"
         web_icon="hr_turns_cm,static/description/icon.png"
-        action="hr_turns_cm.action_turn_registration"
         groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
         sequence="6"/>
 
@@ -29,13 +28,13 @@
         groups="hr_turns_cm.user_turn_cm,hr_turns_cm.manager_turn_cm"
         sequence="2"/>
 
-    <menuitem
+    <!-- <menuitem
         id="validate_turns_menuitem"
         name="Validar Turnos"
         action="hr_turns_cm.action_validate_turns"
         parent="turn_registration_menuitem"
         groups="hr_turns_cm.user_turn_cm"
-        sequence="3"/>
+        sequence="3"/> -->
 
 <!-- ########################################################################## -->
     

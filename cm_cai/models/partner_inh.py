@@ -17,11 +17,11 @@ class partnerInh(models.Model):
         res = super().default_get(fields_list)
 
         if "property_account_receivable_id" in fields_list:
-            account_receivable_id = self.env['account.account'].search([('code','=','104.01'),('company_id','=',1)])
+            account_receivable_id = self.env['account.account'].search([('code','=','104.01'),('company_ids','in',[1])])
             if account_receivable_id:
                     res["property_account_receivable_id"] = account_receivable_id.id
         if "property_account_payable_id" in fields_list:
-            account_payable_id = self.env['account.account'].search([('code','=','201.01'),('company_id','=',1)])
+            account_payable_id = self.env['account.account'].search([('code','=','201.01'),('company_ids','in',[1])])
             if account_payable_id:
                 res["property_account_payable_id"] = account_payable_id.id
 

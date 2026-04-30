@@ -8,6 +8,4 @@ class calculateRAP(models.Model):
     code = fields.Char(string="Codigo")
     category_id = fields.Many2one('hr.salary.rule.category', string="Categoria")
 
-    _sql_constraints = [
-        ('unique_code', 'UNIQUE(code)', 'El codigo de la regla debe ser unico')
-    ]
+    _code_unique = models.Constraint('unique(code)', message='El codigo de la regla debe ser unico')

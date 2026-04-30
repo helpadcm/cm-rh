@@ -20,10 +20,10 @@
                     <notebook>
                         <page name="marking" string="Marcajes">
                             <field name="marking_ids" readonly="1" create="false" delete="false">
-                                <tree>
+                                <list>
                                     <field name="date"/>
                                     <field name="clock_id"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -36,12 +36,12 @@
         <field name="name">real.marking.employees.tree</field>
         <field name="model">real.marking.employees</field>
         <field name="arch" type="xml">
-            <tree string="Marcajes Reales">
+            <list string="Marcajes Reales">
                 <field name="employee_id"/>
                 <field name="date"/>
                 <field name="qty_marks"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -51,7 +51,7 @@
         <field name="arch" type="xml">
             <search string="Busqueda de marcajes reales">
                 <field name="employee_id"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter string="Empleado" name="group_by_employee" context="{'group_by':'employee_id'}"/>
                     <filter string="Fecha" name="group_by_date" context="{'group_by':'date'}"/>
                 </group>
@@ -62,7 +62,7 @@
     <record id="action_real_marking" model="ir.actions.act_window">
         <field name="name">Marcajes Reales</field>
         <field name="res_model">real.marking.employees</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="context">{"search_default_group_by_employee":1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

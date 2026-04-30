@@ -20,7 +20,7 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//page/field[@name='invoice_line_ids']/tree/field[@name='analytic_distribution']" position="after">
+                <xpath expr="//page/field[@name='invoice_line_ids']/list/field[@name='analytic_distribution']" position="after">
                     <field name="YQAmount" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
                     <field name="TAAmount" optional="hide" groups="cm_sales.group_ws_sale_manager"/>
                     <field name="YRAmount" optional="hide" groups="cm_sales.group_ws_sale_manager"/>

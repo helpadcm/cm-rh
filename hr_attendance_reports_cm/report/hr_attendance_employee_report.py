@@ -86,7 +86,7 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
     apply_extra_hour = fields.Boolean('Have Extra Hour', compute='_compute_apply_extra_hour', readonly=True)
 
-    max_transport_bonus = fields.Integer(related='employee_id.contract_id.max_transportation_bonus', readonly=True)
+    max_transport_bonus = fields.Integer(related='employee_id.max_transportation_bonus', readonly=True)
     transport_bonus = fields.Float('Transport Bonus', readonly=True)
     transport_bonus_value = fields.Float(compute='_compute_transport_bonus_value', readonly=True)
 
@@ -103,17 +103,14 @@ class HrAttendanceEmployeeReport(models.TransientModel):
 
     def _compute_transport_bonus_value(self):
         for record in self:
-            if not record.employee_id.contract_id:
-                record.transport_bonus_value = 0
-                return
-            record.transport_bonus_value = record.transport_bonus * record.employee_id.contract_id.value_bonus
+            record.transport_bonus_value = record.transport_bonus * record.employee_id.value_bonus
 
     def _compute_apply_extra_hour(self):
         for record in self:
-            if not record.employee_id.contract_id:
+            if not record.employee_id.work_entry_source:
                 record.apply_extra_hour = False
                 return
-            record.apply_extra_hour = record.employee_id.contract_id.work_entry_source != 'calendar'
+            record.apply_extra_hour = record.employee_id.work_entry_source != 'calendar'
 
     def get_attendance(self):
         domain = self._get_domain()
@@ -269,9 +266,6 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             departamento.branch_id.city_id
             sumar el valor del bono de transporte
         """
-        if not self.employee_id.contract_id:
-            return 0
-
         cleaned_data = [item for item in checktimes if item]
         checktimes = cleaned_data
         
@@ -287,8 +281,8 @@ class HrAttendanceEmployeeReport(models.TransientModel):
             else:
                 checktime_record = next((att for att in attendance_records if att.check_out == checktime), None)
                 branch_id = checktime_record.out_branch_id
-            bonus_time = self.employee_id.contract_id.early_checkin_bonus_time if operator == '<' else (
-                self.employee_id.contract_id.late_checkout_bonus_time)
+            bonus_time = self.employee_id.early_checkin_bonus_time if operator == '<' else (
+                self.employee_id.late_checkout_bonus_time)
             if compare_datetime_with_float(checktime, bonus_time, operator):
                 if not branch_id or not self.employee_id.branch_id.city_id:
                     self.transport_bonus += 1
@@ -308,12 +302,9 @@ class HrAttendanceEmployeeReport(models.TransientModel):
         Returns:
         float: The transport bonus for the employee.
         """
-        contract = self.employee_id.contract_id
-        if not contract:
-            return 0
-        start_time_for_bonus = contract.early_checkin_bonus_time
-        end_time_for_bonus = contract.late_checkout_bonus_time
-        value_bonus = contract.value_bonus
+        start_time_for_bonus = self.employee_id.early_checkin_bonus_time
+        end_time_for_bonus = self.employee_id.late_checkout_bonus_time
+        value_bonus = self.employee_id.value_bonus
         if value_bonus <= 0:
             return 0
 
@@ -363,7 +354,7 @@ class HrAttendanceEmployeesReport(models.TransientModel):
         """
         if self.department_id:
             self.employee_ids = self.env['hr.employee'].search(
-                [('department_id', '=', self.department_id.id), ('contract_id', '!=', False)]
+                [('department_id', '=', self.department_id.id)]
                 )
 
     @staticmethod

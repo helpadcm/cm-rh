@@ -17,8 +17,6 @@
 		'views/conf_view.xml',
 		'views/expenses_request_view.xml',
 		'views/expense_inh_view.xml',
-		'views/budget_process_view.xml',
-		'views/expenses_sheet_request_view.xml',
         'views/menus.xml',
 	],
 	'installable':True,

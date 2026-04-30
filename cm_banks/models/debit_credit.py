@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api
 from dateutil.relativedelta import relativedelta
-import odoo.addons.decimal_precision as dp
 from datetime import datetime
 import locale
 import pytz

@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 hr_turns_cm.access_hr_options_schedules,access_hr_options_schedules,hr_turns_cm.model_hr_options_schedules,base.group_user,1,1,1,1
-hr_turns_cm.access_hr_validate_turns,access_hr_validate_turns,hr_turns_cm.model_hr_validate_turns,base.group_user,1,1,1,1
 hr_turns_cm.access_hr_turn_types,access_hr_turn_types,hr_turns_cm.model_hr_turn_types,base.group_user,1,1,1,1
 hr_turns_cm.access_hr_templates_turn,access_hr_templates_turn,hr_turns_cm.model_hr_templates_turn,base.group_user,1,1,1,1
 hr_turns_cm.access_hr_templates_turn_lines,access_hr_templates_turn_lines,hr_turns_cm.model_hr_templates_turn_lines,base.group_user,1,1,1,1

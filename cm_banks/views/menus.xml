@@ -3,7 +3,7 @@
     <menuitem 
         name="Banco y Caja" 
         id="bank_cash_id" 
-        parent="account_accountant.menu_accounting" 
+        parent="accountant.menu_accounting" 
         sequence="3"
     />
 

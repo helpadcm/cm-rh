@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class AccountFiscalyear(models.Model):
     _name = "account.fiscalyear.periods"
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread','mail.activity.mixin']
     _description = "Fiscal Year"
     _rec_name = 'fiscal_year_id'
 
@@ -64,9 +64,8 @@ class AccountFiscalyear(models.Model):
                 fiscal_rec_end = self.search([('date_start','<=',rec.date_stop),('date_stop','>=',rec.date_stop),('id','!=',rec.id)])
                 if fiscal_rec_end:
                     raise ValidationError(_('The end date is within other fiscal year period.'))'''
-    _sql_constraints = [
-        ('fiscalyear_per_company_uniq', 'unique(fiscal_year_id,company_id)', _('The Fiscal Year must be unique For Periods!'))
-    ]            
+
+    _fiscal_year_unique = models.Constraint('unique(fiscal_year_id)', message='El año fiscal debe ser único por periodo')
 
     @api.constrains('date_start', 'date_stop', 'company_id')
     def _check_dates(self):
@@ -189,8 +188,8 @@ class AccountMonthPeriod(models.Model):
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def _check_fiscalyear_lock_date(self):
-        res = super(AccountMove, self)._check_fiscalyear_lock_date()
+    def _check_fiscal_lock_dates(self):
+        res = super(AccountMove, self)._check_fiscal_lock_dates()
         if res:
             for rec in self:
                 fiscal_year_obj = self.env['account.fiscalyear.periods']
@@ -204,7 +203,7 @@ class AccountMove(models.Model):
                         raise ValidationError(
                             _('La fecha debe estar dentro del periodo de duracion.'))
                     elif not period_rec.special:
-                        raise ValidationError(_('El año fiscal esta cerrado'))
+                        raise ValidationError(f"""El periodo fiscal {period_rec.code} esta cerrado""")
                     else:return True
                 else:raise ValidationError(
                             _('El año fiscal debe estar abierto'))

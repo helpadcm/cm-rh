@@ -169,32 +169,9 @@ class lotFormatXlsx(models.AbstractModel):
 
             wage_amount = payslip.contract_id.wage * 2
             if len(payslip.contract_id.historical_salaries_ids) > 0:
-                # for line in payslip.contract_id.historical_salaries_ids:
-                #     if (line.start_date_payroll 
-                #     and line.start_date_payroll <= payslip.date_to 
-                #     and (not line.end_date_payroll or payslip.date_to <= line.end_date_payroll)):
-                #         print ("?????????????????????????????????")
-                #         print (payslip.employee_id.name)
-                #         print (payslip.date_to, line.end_date_payroll)
-                #         wage_amount = line.amount
-                #         fortnight_amount = line.amount / 2
-                lines = payslip.contract_id.historical_salaries_ids.sorted(
-                    key=lambda l: l.end_date_payroll or fields.Date.max
-                )
-
-                found = False
-
-                for line in lines:
-                    if payslip.date_to <= line.end_date_payroll:
+                for line in payslip.contract_id.historical_salaries_ids:
+                    if payslip.date_to <= line.end_date:
                         wage_amount = line.amount
-                        fortnight_amount = line.amount / 2
-                        found = True
-                        break
-
-                # 🔥 fallback: usar el último salario
-                # if not found and lines:
-                #     wage_amount = lines[-1].amount
-                #     fortnight_amount = wage_amount / 2
 
             incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
             incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})

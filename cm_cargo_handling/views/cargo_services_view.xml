@@ -30,19 +30,19 @@
             <field name="name">Servicios Adicionales</field>
             <field name="model">cargo.additional.services</field>
             <field name="arch" type="xml">
-                <tree string="Servicios Adicionales">
+                <list string="Servicios Adicionales">
                     <field name="name"/>
                     <field name="type_service"/>
                     <field name="description" />
                     <field name="currency_id" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="action_cargo_additional_services_object" model="ir.actions.act_window">            
             <field name="name">Servicios Adicionales</field>
             <field name="res_model">cargo.additional.services</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>         
             <field name="domain" eval="[]"/>
         </record>

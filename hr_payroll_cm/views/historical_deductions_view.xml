@@ -4,13 +4,13 @@
         <field name="name">historical.deductions.tree</field>
         <field name="model">hr.historical.deductions</field>
         <field name="arch" type="xml">
-            <tree string="Deducciones" create="false" delete="false">
+            <list string="Deducciones" create="false" delete="false">
                 <field name="name" />
                 <field name="payslip_id" readonly="1"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="amount" sum="Total"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -18,13 +18,12 @@
         <field name="name">historical.salaries.tree</field>
         <field name="model">historical.salaries.contract</field>
         <field name="arch" type="xml">
-            <tree editable="bottom" string="Historial Salarios">
+            <list editable="bottom" string="Historial Salarios">
                 <field name="employee_id" required="1"/>
-                <field name="contract_id" readonly="1" force_save="1"/>
                 <field name="start_date" required="1"/>
                 <field name="end_date" />
                 <field name="amount"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -35,7 +34,7 @@
             <search string="Busqueda Deducciones">
                 <field name="name"/>
                 <field name="code"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter string="Nombre" name="name_group" context="{'group_by':'name'}"/>
                 </group>
             </search>
@@ -47,9 +46,9 @@
         <field name="model">historical.salaries.contract</field>
         <field name="arch" type="xml">
             <search string="Busqueda Historial">
-                <field name="contract_id"/>
-                <group expand="1" string="Group By">
-                    <filter string="Contrato" name="contract_group" context="{'group_by':'contract_id'}"/>
+                <field name="employee_id"/>
+                <group>
+                    <filter string="Empleado" name="contract_group" context="{'group_by':'employee_id'}"/>
                 </group>
             </search>
         </field>
@@ -58,14 +57,14 @@
     <record id="action_historical_ded" model="ir.actions.act_window">
         <field name="name">Deducciones</field>
         <field name="res_model">hr.historical.deductions</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="context">{"search_default_name_group":1}</field>
     </record>
 
     <record id="action_historical_salaries" model="ir.actions.act_window">
         <field name="name">Historial Salarios</field>
         <field name="res_model">historical.salaries.contract</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="context">{}</field>
     </record>
 </odoo>

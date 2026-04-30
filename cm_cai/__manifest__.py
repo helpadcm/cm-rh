@@ -6,7 +6,7 @@
         Modulo para gestion de uso de cai en el sistemas""",
     'author': 'Oniel Avilez',
     'category': 'Accounting/Accounting',
-    'version': "17.0",
+    'version': "1.0",
     'license': 'LGPL-3',
     'depends': [
         'base',

@@ -3,6 +3,7 @@
     'name': 'Employee module for CM Airlines',
     'version': '1.0.1',
     'category': 'Human Resources/Employee',
+    'author'	:'CMAirlines, Oniel Avilez',
     'sequence': 245,
     'summary': 'Employee module for CM Airlines',
     'description': """
@@ -19,7 +20,7 @@
         'views/conf_digital_sign.xml',
         'views/digital_sign_creator_view.xml',
         'views/menus.xml',
-        'data/cron_create_portal_user_to_employee.xml',
+        # 'data/cron_create_portal_user_to_employee.xml',
         'data/cron_award_one_anniversary_badge.xml',
         'data/gamification_badge_data_cm.xml',
         ],

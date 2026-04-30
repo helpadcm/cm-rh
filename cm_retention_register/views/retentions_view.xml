@@ -43,12 +43,12 @@
                         <notebook>
                             <page string="Retenciones aplicadas">
                                 <field name="retention_lines">
-                                    <tree string="retention_lines" create="false" delete="false" edit="false">
+                                    <list string="retention_lines" create="false" delete="false" edit="false">
                                         <field name="base_amount" />
                                         <field name="account_id" />
                                         <field name="name" />
                                         <field name="amount" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
@@ -62,7 +62,7 @@
             <field name="name">retentions</field>
             <field name="model">retentions</field>
             <field name="arch" type="xml">
-				<tree string="Retenciones" create="false" delete="false" edit="false">
+				<list string="Retenciones" create="false" delete="false" edit="false">
 					<field name="name"/>
 					<field name="pay_number"/>
                     <field name="invoice_id"/>
@@ -70,7 +70,7 @@
                     <field name="partner_rtn"/>
                     <field name="date"/>
                     <field name="cai_shot"/>
-				</tree>			    
+				</list>			    
           	</field>
         </record>
 
@@ -84,7 +84,7 @@
                     <field name='pay_number'/>
                     <field name='invoice_id'/>
                     <field name='partner_name'/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter name="name" string="Numero de retencion" context="{'group_by':'name'}"/>
                         <filter name="pay_number" string="Pago" context="{'group_by':'pay_number'}"/>
                         <filter name="invoice_id" string="Factura" context="{'group_by':'invoice_id'}"/>
@@ -98,7 +98,7 @@
         <record id="retentions_form_view_action" model="ir.actions.act_window">
             <field name="name">Retenciones</field>
             <field name="res_model">retentions</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
         </record>
 	</data>
 </odoo>

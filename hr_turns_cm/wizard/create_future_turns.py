@@ -51,7 +51,6 @@ class createFutureTurn(models.TransientModel):
                     oh = 0
                     oh_value = 0
                     aditional_time = 0
-                    contract_id = member.employee_id.contract_id
                     day = turn_date.weekday()
                     try:
                         amount1 = float(line_temp_id.schedule1_in_id.name) - float(line_temp_id.schedule1_out_id.name)
@@ -59,10 +58,10 @@ class createFutureTurn(models.TransientModel):
                         oh = abs((amount1 + amount2) / 100)
                         if day == 5:
                             aditional_time = oh - 4
-                            oh_value = contract_id.sudo().weekend_hours
+                            oh_value = member.employee_id.sudo().weekend_hours
                         elif day == 6:
                             aditional_time = 0
-                            oh_value = contract_id.sudo().weekend_hours
+                            oh_value = member.employee_id.sudo().weekend_hours
                         else:
                             aditional_time = oh - 8
                             oh_value = 8

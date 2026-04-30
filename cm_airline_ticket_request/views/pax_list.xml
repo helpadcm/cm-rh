@@ -50,20 +50,20 @@
             <field name="name">Solicitudes</field>
             <field name="model">cm.ticket.request.line</field>
             <field name="arch" type="xml">
-                <tree string="Solicitudes" create="false" delete="false">
+                <list string="Solicitudes" create="false" delete="false">
                     <field name="name"/>
                     <field name="email"/>
                     <field name="phone" />
                     <field name="pnr" />
                     <field name="state" />
-                </tree>
+                </list>
             </field>
         </record>
 
         <record id="pax_request_cm" model="ir.actions.act_window">            
             <field name="name">Solicitudes</field>
             <field name="res_model">cm.ticket.request.line</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>         
             <field name="domain" eval=""/>
         </record>

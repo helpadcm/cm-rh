@@ -4,6 +4,7 @@
     'version': '1.2',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
+    'author'	:'CMAirlines, Oniel Avilez',
     'summary': 'Turns registration module for CM Airlines',
     'description': """
         This module provides the necessary functionality for CM Airlines.
@@ -17,7 +18,7 @@
         'data/paperformat.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',
-        'wizard/validate_turns_view.xml',
+        # 'wizard/validate_turns_view.xml',
         'wizard/furure_turns_view.xml',
         'wizard/attendance_report_view.xml',
         'wizard/planitication_format.xml',

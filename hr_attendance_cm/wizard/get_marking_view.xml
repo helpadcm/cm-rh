@@ -30,5 +30,4 @@
         <field name="target">new</field>
         <field name="context">{}</field>
     </record>
-
 </odoo>

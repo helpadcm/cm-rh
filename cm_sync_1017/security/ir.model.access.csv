@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-cm_sync_1017.access_manual_synchronization,access_manual_synchronization,cm_sync_1017.model_manual_synchronization,base.group_user,1,1,1,1

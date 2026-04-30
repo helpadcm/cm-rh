@@ -78,13 +78,13 @@ class HrPayslipBonus(models.Model):
             remaining_days = num_days % 7
             ordinary_hours = num_weeks * 44 + remaining_days * 8
             total_extra_hours = max(0, sum_worked_hours - ordinary_hours)
-            payable_extra_hours = min(total_extra_hours, payslip.contract_id.max_extra_hours)
+            payable_extra_hours = min(total_extra_hours, payslip.employee_id.max_extra_hours)
 
-            wage = payslip.contract_id.wage
-            hourly_wage = payslip.contract_id.wage * 1.25 / (15 * 8)
+            wage = payslip.employee_id.wage
+            hourly_wage = payslip.employee_id.wage * 1.25 / (15 * 8)
             extra_hours_value = hourly_wage * payable_extra_hours
 
-            default_time_type = payslip.contract_id.structure_type_id.default_work_entry_type_id
+            default_time_type = payslip.employee_id.structure_type_id.default_work_entry_type_id
             default_overtime_type = payslip.env['hr.work.entry.type'].search([('code', '=', 'OVERTIME125')])[0]
 
             worked_day_lines = [
@@ -168,11 +168,11 @@ class HrPayslipBonus(models.Model):
         for payslip in self:
             employee_id = payslip.employee_id
             work_entries = self._get_employee_work_entries(employee_id, payslip.date_from, payslip.date_to)
-            max_bonus = payslip.contract_id.max_transportation_bonus
-            bonus_rate = payslip.contract_id.value_bonus
-            early_checkin_bonus_time = payslip.contract_id.early_checkin_bonus_time
-            late_checkout_bonus_time = payslip.contract_id.late_checkout_bonus_time
-            if not payslip.contract_id.value_bonus:
+            max_bonus = employee_id.max_transportation_bonus
+            bonus_rate = employee_id.value_bonus
+            early_checkin_bonus_time = employee_id.early_checkin_bonus_time
+            late_checkout_bonus_time = employee_id.late_checkout_bonus_time
+            if not employee_id.value_bonus:
                 return
             transport_bonus_count = self._calculate_transport_bonus(
                 work_entries,
@@ -186,17 +186,17 @@ class HrPayslipBonus(models.Model):
                 "name": f"Otorgados {transport_bonus_count} Bonos de Transporte",
                 "code": "TRANSBONUS",
                 "amount": transport_bonus_count * bonus_rate,
-                "contract_id": payslip.contract_id.id,
+                "employee_id": employee_id.id,
                 "payslip_id": payslip.id,
                 "input_type_id": payslip.env['hr.payslip.input.type'].search([("code", "=", "TRANSBONUS")])[0].id,
                 }
             self.env["hr.payslip.input"].create(input_line_values)
 
 
-    @api.depends('employee_id', 'contract_id', 'struct_id', 'date_from', 'date_to')
+    @api.depends('employee_id', 'version_id', 'struct_id', 'date_from', 'date_to')
     def _compute_worked_days_line_ids(self):
         res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
-        valid_slips = self.filtered(lambda p: p.employee_id and p.date_from and p.date_to and p.contract_id and p.struct_id)
+        valid_slips = self.filtered(lambda p: p.employee_id and p.date_from and p.date_to and p.struct_id)
         if not valid_slips:
             return
         
@@ -268,9 +268,9 @@ class HrPayslipBonus(models.Model):
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         if mark_ids:
-            eh_amount = round(sum(mark_ids.mapped('eh_holiday')), 2)
-            ehx_amount = round(sum(mark_ids.mapped('eh_holiday_extra')), 2)
-            wage = self.contract_id.contract_wage * 2
+            eh_amount = sum(mark_ids.mapped('eh_holiday'))
+            ehx_amount = sum(mark_ids.mapped('eh_holiday_extra'))
+            wage = self.employee_id.contract_wage * 2
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
                 if eh_type_id:
@@ -278,7 +278,7 @@ class HrPayslipBonus(models.Model):
                     amount = hours_amount * eh_amount
                     vals.update({
                         'input_type_id': eh_type_id.id,
-                        'amount': round(amount, 2),
+                        'amount': amount,
                         'name': "%s (%s horas)"%(eh_type_id.name, eh_amount)
                     })
                     if self.input_line_ids:
@@ -297,7 +297,7 @@ class HrPayslipBonus(models.Model):
                     amount = hours_amount * ehx_amount
                     vals.update({
                         'input_type_id': ehx_type_id.id,
-                        'amount': round(amount, 2),
+                        'amount': amount,
                         'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
                     })
                     if self.input_line_ids:
@@ -317,42 +317,55 @@ class workedDaysInh(models.Model):
 
     from_entry_register = fields.Boolean(string="Desde registro de entradas")
 
-    @api.depends('is_paid', 'is_credit_time', 'number_of_hours', 'payslip_id', 'contract_id.wage', 'payslip_id.sum_worked_hours')
+    @api.depends(
+        'is_paid', 'number_of_hours', 'payslip_id', 'version_id.wage', 'version_id.hourly_wage', 'payslip_id.sum_worked_hours',
+        'work_entry_type_id.amount_rate', 'work_entry_type_id.is_extra_hours')
     def _compute_amount(self):
         for worked_days in self:
-            if worked_days.payslip_id.edited or worked_days.payslip_id.state not in ['draft', 'verify']:
+            if worked_days.payslip_id.edited or worked_days.payslip_id.state != 'draft':
                 continue
-            if not worked_days.contract_id or worked_days.code == 'OUT' or worked_days.is_credit_time:
+            if not worked_days.version_id or worked_days.code == 'OUT':
                 worked_days.amount = 0
                 continue
+            version = worked_days.payslip_id.version_id
+            amount_rate = worked_days.work_entry_type_id.amount_rate
+            amount_days = 0
             if worked_days.payslip_id.wage_type == "hourly":
-                worked_days.amount = worked_days.payslip_id.contract_id.hourly_wage * worked_days.number_of_hours if worked_days.is_paid else 0
+                hourly_rate = version.hourly_wage
+                amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             else:
+                employee_id = worked_days.payslip_id.employee_id
                 if worked_days.work_entry_type_id.code == 'OVERTIME':
-                    wage = worked_days.payslip_id.contract_id.contract_wage * 2
+                    wage = employee_id.contract_wage * 2
                     hours_amount = (wage / 30 / 8) * 1.25
-                    worked_days.amount = hours_amount * worked_days.number_of_hours
+                    amount_days = hours_amount * worked_days.number_of_hours
+
                 elif worked_days.work_entry_type_id.code == 'WORK100':
-                    contract_id = worked_days.payslip_id.contract_id
                     before_diff = 0
                     after_diff = 0
-                    if contract_id.date_start > worked_days.payslip_id.date_from:
-                        before_diff = (worked_days.payslip_id.date_to - contract_id.date_start).days + 1
+                    if employee_id.contract_date_start > worked_days.payslip_id.date_from:
+                        before_diff = (worked_days.payslip_id.date_to - employee_id.contract_date_start).days + 1
 
-                    if contract_id.date_end and contract_id.date_end < worked_days.payslip_id.date_to:
-                        after_diff = (contract_id.date_end - worked_days.payslip_id.date_from).days + 1
+                    if employee_id.contract_date_end and employee_id.contract_date_end < worked_days.payslip_id.date_to:
+                        after_diff = (employee_id.contract_date_end - worked_days.payslip_id.date_from).days + 1
 
                     diff_total = before_diff + after_diff
-                    amount = contract_id.wage
-                    day_amount = contract_id.wage/15
+                    amount = employee_id.wage
+                    day_amount = employee_id.wage/15
                     diff_days_amount = 0
                     if diff_total > 0:
                         diff_days_amount = day_amount * diff_total
-                        worked_days.amount = diff_days_amount
+                        amount_days = diff_days_amount
                     else:
-                        worked_days.amount = worked_days.payslip_id.contract_id.contract_wage
+                        amount_days = employee_id.contract_wage
                 else:
-                    worked_days.amount = worked_days.payslip_id.contract_id.contract_wage * worked_days.number_of_hours / (worked_days.payslip_id.sum_worked_hours or 1) if worked_days.is_paid else 0
+                    attendance_hours = sum(
+                        wd.number_of_hours for wd in worked_days.payslip_id.worked_days_line_ids
+                        if not wd.work_entry_type_id.is_extra_hours
+                    ) or 1
+                    hourly_rate = version.contract_wage / attendance_hours
+                    amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
+            worked_days.amount = amount_days
 
 class payslipLineInh(models.Model):
     _inherit = 'hr.payslip.line'

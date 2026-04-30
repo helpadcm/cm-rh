@@ -76,8 +76,7 @@ class employeeAttendanceRecords(models.Model):
                 rec.pay_extra_hours = 0
 
     def get_department(self):
-        contract_id = self.env['hr.contract'].search([('employee_id','=',self.employee_id.id)])
-        self.department_id = contract_id.employee_id.department_id.id
+        self.department_id = self.employee_id.department_id.id
 
     def change_state(self):
         next_state = self.env.context.get('next_stage')

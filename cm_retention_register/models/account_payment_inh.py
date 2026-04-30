@@ -63,13 +63,13 @@ class AccountPayment(models.Model):
 
                 # Ajustar línea bancaria (donde está el crédito del pago)
                 for line in line_vals:
-                    if line.get('credit', 0) > 0 and payment.payment_type == 'outbound':
-                        line['credit'] -= total_retention
-                        line['amount_currency'] -= (total_amount_currency * -1)
+                    if line.get('debit', 0) > 0 and payment.payment_type == 'outbound':
+                        line['debit'] += total_retention
+                        line['amount_currency'] += (total_amount_currency)
                         break
-                    elif line.get('debit', 0) > 0 and payment.payment_type == 'inbound':
-                        line['debit'] -= total_retention
-                        line['amount_currency'] -= (total_amount_currency)
+                    elif line.get('credit', 0) > 0 and payment.payment_type == 'inbound':
+                        line['credit'] += total_retention
+                        line['amount_currency'] += (total_amount_currency * -1)
                         break
 
                 # Agregar las líneas de retención

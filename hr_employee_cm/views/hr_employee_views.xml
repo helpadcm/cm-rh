@@ -41,8 +41,11 @@
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
             <!-- PRINCIPAL -->
-            <xpath expr="//field[@name='mobile_phone']" position="before">
-                <field name="employee_no"/>
+            <xpath expr="//h5[./field[@name='mobile_phone']]" position="after">
+                <h5 class="d-flex align-items-baseline mb-0">
+                    <i class="fa fa-star fa-fw me-1 text-primary" title="Custom Field"/>
+                    <field name="employee_no" placeholder="Custom Field" class="w-100 w-sm-75"/>
+                </h5>
             </xpath>
 
             <!-- NOTEBOOK INFORMACION PRIVADA -->
@@ -50,17 +53,35 @@
             <xpath expr="//field[@name='identification_id']" position="after">
                 <field name="format_identification_id"/>
             </xpath>
-            <xpath expr="//field[@name='birthday']" position="after">
-                <field name="next_birthday"/>
-                <field name="birthday_month" invisible="1"/>
-            </xpath>
+
+            <group name="hr_birth_group" position="replace">
+                <group string="Informacion Personal" name="hr_birth_group">
+                    <field name="legal_name"/>
+                    <label for="birthday"/>
+                    <div class="o_row" name="div_km_home_work">
+                        <field name="birthday" class="o_hr_narrow_field"/>
+                        <span invisible="not birthday" >
+                            <label for="birthday_public_display" class="fw-bold text-900 form-check-label ms-3"/>
+                            <field name="birthday_public_display" class="ms-3"/>
+                        </span>
+                    </div>
+                    <field name="next_birthday"/>
+                    <label for="place_of_birth"/>
+                    <div class="o_row" name="birth_location">
+                        <field name="place_of_birth" class="oe_inline o_hr_narrow_field" nolabel="1" placeholder="Ciudad"/>
+                        <div class="mx-3 flex-grow-0">─</div>
+                        <field name="country_of_birth" class="oe_inline o_hr_narrow_field" nolabel="1" placeholder="Pais"/>
+                    </div>
+                    <field name="sex" string="Genero"/>
+                    <field name="birthday_month" invisible="1"/>
+                </group>
+            </group>
 
             <!-- CIUDADANÍA -->
-            <xpath expr="//field[@name='private_car_plate']" position="replace"/>
-            <xpath expr="//field[@name='km_home_work']" position="attributes">
+            <xpath expr="//field[@name='distance_home_work']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <xpath expr="//div[@name='div_km_home_work']" position="attributes">
+            <xpath expr="//field[@name='distance_home_work_unit']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
 
@@ -69,23 +90,16 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- PERMISO DE TRABAJO -->
-            <xpath expr="//separator[@name='has_work_permit']"
-                   position="replace"/>
-            <xpath expr="//field[@name='visa_no']" position="replace"/>
-            <xpath expr="//field[@name='permit_no']" position="replace"/>
-            <xpath expr="//field[@name='visa_expire']" position="replace"/>
-            <xpath expr="//field[@name='work_permit_expiration_date']"
-                   position="replace"/>
-            <xpath expr="//field[@name='work_permit_name']" position="replace"/>
-            <xpath expr="//field[@name='has_work_permit']" position="replace"/>
+            <xpath expr="//page[@name='personal_information']/group/group[4]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
 
             <!-- PESTAÑA AJUSTES DE RR.HH-->
-            <xpath
-                    expr="//sheet/notebook/page[@name='hr_settings']/group/group[@name='active_group']/field[@name='user_id']"
-                    position="attributes">
+            <!-- <xpath
+                expr="//sheet/notebook/page[@name='hr_settings']/group/group[@name='active_group']/field[@name='user_id']"
+                position="attributes">
                 <attribute name="domain">[]</attribute>
-            </xpath>
+            </xpath> -->
             <field name="department_id" position="after">
                 <field name="branch_id"/>
             </field>

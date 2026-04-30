@@ -5,16 +5,18 @@
         <field name="model">hr.settings.rap</field>
         <field name="arch" type="xml">
             <form string="Configuracion para Nomina">
-                <h1><field name="name" readonly="1"/></h1>
-                <group>
-                    <group string="RAP">
-                        <field name="min_salary"/>
-                        <field name="percentage"/>
+                <sheet>
+                    <h1><field name="name" readonly="1"/></h1>
+                    <group>
+                        <group string="RAP">
+                            <field name="min_salary"/>
+                            <field name="percentage"/>
+                        </group>
+                        <group string="IHSS">
+                            <field name="ihss_amount"/>
+                        </group>
                     </group>
-                    <group string="IHSS">
-                        <field name="ihss_amount"/>
-                    </group>
-                </group>
+                </sheet>
             </form>
         </field>
     </record>
@@ -23,18 +25,18 @@
         <field name="name">rap.settings.tree</field>
         <field name="model">hr.settings.rap</field>
         <field name="arch" type="xml">
-            <tree string="Configuracion para Nomina">
+            <list string="Configuracion para Nomina">
                 <field name="name" readonly="1"/>
                 <field name="min_salary"/>
                 <field name="percentage"/>
                 <field name="ihss_amount"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_rap_settings" model="ir.actions.act_window">
         <field name="name">Configuraciones para Nomina</field>
         <field name="res_model">hr.settings.rap</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

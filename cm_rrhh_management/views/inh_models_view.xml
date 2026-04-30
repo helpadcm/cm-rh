@@ -20,9 +20,6 @@
                 <field name="template_id" domain="[('leader_id','=',coach_id)]" options="{'no_create': True}"/>
                 <field name="role_in_loans" />
             </field>
-            <field name="coach_id" position="attributes">
-                <attribute name="string">Jefe Inmediato</attribute>
-            </field>
         </field>
     </record>
 </odoo>

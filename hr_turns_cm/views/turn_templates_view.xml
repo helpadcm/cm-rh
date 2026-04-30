@@ -21,7 +21,7 @@
                     <notebook>
                         <page string="Lineas">
                             <field name="template_line_ids">
-                                <tree editable="bottom" create="false" delete="false">
+                                <list editable="bottom" create="false" delete="false">
                                     <field name="day_opt" readonly="1" force_save="1"/>
                                     <field name="turn_type_a" options="{'no_create': True}" required="1"/>
                                     <field name="schedule1_in_id" force_save="1" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
@@ -31,16 +31,12 @@
                                     <field name="schedule2_out_id" force_save="1" readonly="editable_b == False" options="{'no_create': True}" required="1"/>
                                     <field name="editable_a" column_invisible="1"/>
                                     <field name="editable_b" column_invisible="1"/>
-                                </tree>
+                                </list>
                             </field>
                         </page> 
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="activity_ids" widget="mail_activity"/>
-                    <field name="message_ids" widget="mail_thread"/>
-                </div>
+                <chatter reload_on_attachment="True"/>
             </form>
         </field>
     </record>
@@ -52,7 +48,7 @@
             <search string="Busqueda Plantillas">
                 <field name="name"/>
                 <filter string="Inactivo" name="active_filter" domain="[('active','=',False)]"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter string="Equipo" name="group_team" context="{'group_by':'team_id'}"/>
                     <filter string="Lider" name="group_leader" context="{'group_by':'leader_id'}"/>
                 </group>
@@ -64,17 +60,17 @@
         <field name="name">hr.templates.turn.tree</field>
         <field name="model">hr.templates.turn</field>
         <field name="arch" type="xml">
-            <tree string="Lista de plantillas">
+            <list string="Lista de plantillas">
                 <field name="name"/>
                 <field name="leader_id" widget="many2one_avatar_user"/>
                 <field name="responsible_id" widget="many2one_avatar_user"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_templates_turn" model="ir.actions.act_window">
         <field name="name">Plantilla de turnos</field>
         <field name="res_model">hr.templates.turn</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

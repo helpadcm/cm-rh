@@ -4,14 +4,14 @@
     'version': '1.2',
     'category': 'Human Resources/Contract',
     'sequence': 244,
+    "author": "CMAirlines, Oniel Avilez",
     'summary': 'Transportation bonus module for CM Airlines',
     'description': """
 This module has added a series of fields for the management of transportation bonuses 
 for CM Airlines employees.
         """,
-    'depends': ['hr_contract', 'hr','hr_payroll'],
+    'depends': ['hr','hr_payroll'],
     'data': [
-        'views/hr_contract_views.xml',
         'views/hr_employee_views_inherit.xml',
         'views/hr_payslip_line_view.xml',
         'data/cron_update_contract_bonus.xml',

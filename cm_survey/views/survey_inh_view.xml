@@ -15,12 +15,12 @@
 				<notebook position="inside">
                     <page string="Ranking" invisible="not show_ranking">
                         <field name="result_ids" readonly="1">
-                            <tree editable="bottom">
+                            <list editable="bottom">
                                 <field name="name" />
                                 <field name="position" />
                                 <field name="percentage" />
                                 <field name="points" />
-                            </tree>
+                            </list>
                         </field>
                     </page>
                 </notebook>

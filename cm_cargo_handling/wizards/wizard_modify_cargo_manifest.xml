@@ -12,12 +12,12 @@
                     <h2 invisible="not context.get('remove_bill_landing')">Guia de carga para remover</h2>
                     <h2 invisible="context.get('remove_bill_landing')">Guia de carga a agregar</h2>
                     <field name="bill_landing_ids">
-                        <tree string="Bill landings" create="false" edit="false">
+                        <list string="Bill landings" create="false" edit="false">
                             <field name="name"/>
                             <field name="destination_id"/>
                             <field name="content_description"/>
                             <field name="weight"/>
-                        </tree>
+                        </list>
                         <form>
 
                         </form>

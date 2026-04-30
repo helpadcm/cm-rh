@@ -144,9 +144,9 @@ class markingRealEmployees(models.Model):
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Listado de Asistencias',
-                'view_mode': 'tree',
+                'view_mode': 'list',
                 'res_model': 'hr.attendance',
-                'views': [(self.env.ref('hr_attendance.view_attendance_tree').id, 'tree')],
+                'views': [(self.env.ref('hr_attendance.view_attendance_tree').id, 'list')],
                 'domain': [('id','=',attendance_ids.ids)],
                 'target': 'current',
                 'context': self.env.context

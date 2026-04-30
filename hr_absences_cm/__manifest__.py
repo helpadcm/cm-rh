@@ -4,16 +4,17 @@
     'version': '1.0',
     'category': 'Human Resources/Payroll',
     'sequence': 243,
+    "author": "CMAirlines, Oniel Avilez",
     'summary': 'Absences module for CM Airlines',
     'description': """
         This module provides the necessary functionality for CM Airlines.
         - Administration of the different absences that may occur in the company.
         """,
-    'depends': ['hr', 'hr_payroll', 'hr_contract','mail','hr_holidays','hr_contract_cm'],
+    'depends': ['hr', 'hr_payroll', 'mail','hr_holidays','hr_contract_cm'],
     'data': [
         'security/ir.model.access.csv',
         'security/groups.xml',
-        'data/cron.xml',
+        # 'data/cron.xml',
         'views/employee_inh_view.xml',
         'views/flight_routes_view.xml',
         'views/menu.xml',

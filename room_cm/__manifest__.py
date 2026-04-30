@@ -1,7 +1,7 @@
 {
     'name': 'Room module for CM',
     'description': 'Inherit from Room module to add new requirements described in the README.md',
-    'author': 'Helmut Padilla',
+    'author': 'Oniel Avilez',
     'license': 'AGPL-3',
     'depends': ['room'],
     'data': [

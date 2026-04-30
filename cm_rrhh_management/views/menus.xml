@@ -5,7 +5,7 @@
             id="rrhh_management_menu_root"
             name="Gestiones RRHH"
             web_icon="cm_rrhh_management,static/description/icon.jpg"
-            groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh,group_finance_area_rrhh"
+            groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh,group_finance_area_rrhh,group_manager_area_rrhh"
             sequence="10"/>
 
 <!-- ##################################  GENERAL MENU ##################################################  -->
@@ -21,8 +21,8 @@
             id="training_cm_menuitem"
             name="Capacitaciones"
             parent="general_rrrhh_menu"
-            action="action_trainigns_rrhh_cm"
             groups="group_legal_area_rrhh,group_recruitment_area_rrhh,group_payroll_area_rrhh,group_manager_area_rrhh"
+            action="action_trainigns_rrhh_cm"
             sequence="1"/>
 
         <menuitem
@@ -39,7 +39,7 @@
             id="payroll_benefits_menuitem"
             name="Nomina y Beneficios"
             parent="rrhh_management_menu_root"
-            groups="group_payroll_area_rrhh,group_finance_area_rrhh"
+            groups="group_payroll_area_rrhh,group_finance_area_rrhh,group_manager_area_rrhh"
             sequence="2"/>
 
         <menuitem
@@ -47,15 +47,15 @@
             name="Solicitud de prestamo"
             parent="payroll_benefits_menuitem"
             action="action_request_loan"
-            groups="group_payroll_area_rrhh,group_finance_area_rrhh"
+            groups="group_payroll_area_rrhh,group_finance_area_rrhh,group_manager_area_rrhh"
             sequence="1"/>
 
         <menuitem
             id="request_others_menuitem"
-            name="Solicitudes Plan de Beneficios"
+            name="Otras Solicitudes"
             parent="payroll_benefits_menuitem"
             action="action_other_request"
-            groups="group_payroll_area_rrhh"
+            groups="group_payroll_area_rrhh,group_manager_area_rrhh"
             sequence="2"/>
 
 <!-- ##################################  CONFIGURATION  ##################################################  -->

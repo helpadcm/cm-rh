@@ -102,9 +102,8 @@ class teamHourRecord(models.Model):
 
             rec.ordinary_hours = (amount1 + amount2) / 100
             if rec.ordinary_hours > 0:
-                contract_id = rec.employee_id.sudo().contract_id
                 if rec.date.weekday() in [5,6]:
-                    rec.oh = rec.employee_id.contract_id.sudo().weekend_hours
+                    rec.oh = rec.employee_id.sudo().weekend_hours
                 else:
                     rec.oh = 8
 

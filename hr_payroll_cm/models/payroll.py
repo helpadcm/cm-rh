@@ -12,6 +12,7 @@ class HrSalaryAttachment(models.Model):
         'Fecha de inicio de pago',
         compute='_compute_first_date_payment',
         help='Fecha de comienzo de pagos', )
+
     payment_plan_ids = fields.One2many('deductions.payment.plan','deduction_id',string="Plan de pago")
     payment_type = fields.Selection([('fortnight','Quincenal'),('monthly','Mensual')],string="Tipo de pago", default="fortnight")
     monthly_type = fields.Selection([('first','Primera'),('second','Segunda')],string="Quincena", default="first")
@@ -20,33 +21,23 @@ class HrSalaryAttachment(models.Model):
     fixed_fee = fields.Float(string="Cuota fija")
     total_amount = fields.Monetary('Monto Total',tracking=True,help='Total amount to be paid.',default=1)
     monthly_amount = fields.Monetary('Monto a debitar', required=True, tracking=True, help='Amount to pay each month.',default=1)
-    estimated_end = fields.Date('Estimated End Date', help='Approximated end date.', tracking=True)
-
-    def update_estimated_date(self):
-        if self.date_estimated_end:
-            self.estimated_end = self.date_estimated_end
-        if self.date_end:
-            self.estimated_end =  self.date_end
 
     @api.onchange('payment_plan_ids')
     def onchange_amount(self):
         if self.payment_plan_ids:
             self.total_amount = sum(self.payment_plan_ids.mapped('amount'))
 
-    @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'payment_plan_ids','estimated_end')
+    @api.depends('state', 'total_amount', 'monthly_amount', 'date_start', 'payment_plan_ids')
     def _compute_estimated_end(self):
         for record in self:
             if not record.payment_plan_ids:
-                record.date_estimated_end = record.estimated_end
-                record.date_end = record.estimated_end
-                # if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
-                #     payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
-                #     record._compute_date_estimated_end(payments)
-                # else:
-                #     record.date_estimated_end = False
+                if record.state not in ['close', 'cancel'] and record.total_amount and record.monthly_amount:
+                    payments = record._compute_number_of_payments(record.total_amount, record.monthly_amount)
+                    record._compute_date_estimated_end(payments)
+                else:
+                    record.date_estimated_end = False
             else:
                 record.date_estimated_end = record.payment_plan_ids[len(record.payment_plan_ids)-1].date
-                record.date_end = record.payment_plan_ids[len(record.payment_plan_ids)-1].date
 
     @staticmethod
     def _compute_number_of_payments(total_amount, monthly_amount):
@@ -73,13 +64,12 @@ class HrSalaryAttachment(models.Model):
             for _ in range(number_of_payments - 1):  # Iteramos hasta el último pago
                 if current_date.day <= 15:  
                     # Si está en la primera quincena (1-15), ir al día 16>
-                    current_date = current_date + relativedelta(day=15)
+                    current_date = current_date + relativedelta(day=16)
                 else:  
                     # Si está en la segunda quincena (16-fin de mes), ir al día 1 del próximo mes
                     current_date = current_date + relativedelta(months=1, day=1)
             
             record.date_estimated_end = current_date
-            record.date_end = current_date
 
     def create_plan(self):
         if self.payment_plan_ids:
@@ -132,12 +122,11 @@ class HrSalaryAttachment(models.Model):
                 else:
                     init_date = (init_date + relativedelta(months=1)).replace(day=1)
             self.date_end = self.payment_plan_ids[len(self.payment_plan_ids) - 1].date
-            self.estimated_end = self.payment_plan_ids[len(self.payment_plan_ids) - 1].date
 
-    @api.onchange('deduction_type_id')
+    @api.onchange('other_input_type_id')
     def get_deduction_name(self):
-        if self.deduction_type_id:
-            self.description = self.deduction_type_id.name
+        if self.other_input_type_id:
+            self.description = self.other_input_type_id.name
 
     def update_paid_amount(self):
         if self.by_quotes:

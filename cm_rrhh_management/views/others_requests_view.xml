@@ -5,13 +5,11 @@
             <field name="name">Otras Solicitudes</field>
             <field name="model">rrhh.others.requests</field>
             <field name="arch" type="xml">
-                <form string="Solicitudes Plan de Beneficios">
+                <form string="Otras Solicitudes">
                     <header>
                         <button name="change_state" context="{'state': 'to_approve'}" class="oe_highlight" type="object" string="Enviar a Aprobar" invisible="state != 'draft'"/>
                         <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'to_approve'"/>
-                        <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'to_approve'"/>
                         <button name="change_state" context="{'state': 'refused'}" class="oe_highlight btn-danger" type="object" string="Rechazar" invisible="state != 'to_approve'"/>
-                        <button name="request_refuse" type="object" string="Rechazar" invisible="not tickets_request or state != 'approved'"/>
                         <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>
@@ -22,18 +20,17 @@
                             <group>
                                 <field name="employee_id" readonly="state != 'draft'" required="1" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="initial_date" required="1" readonly="state != 'draft'"/>
-                                <field name="qty_available" readonly="1" force_save="1" invisible="business_type != 'ferry' and not tickets_request"/>
+                                <field name="qty_available" readonly="1" force_save="1" invisible="business_type != 'ferry'"/>
                                 <field name="people_qty" readonly="state != 'draft'"/>
                                 <field name="company_id" readonly="1" options="{'no_create': True, 'no_open': True}" groups="base.group_multi_company"/>
                             </group>
                             <group>
                                 <field name="date" readonly="1"/>
-                                <field name="exit_date" required="not exit_only or not open_back" invisible="exit_only or open_back" readonly="state != 'draft'"/>
+                                <field name="exit_date" required="1" readonly="state != 'draft'"/>
                                 <field name="business_id" required="1" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="business_type" invisible="1"/>
                                 <field name="char_date_from" invisible="1"/>
                                 <field name="char_date_to" invisible="1"/>
-                                <field name="tickets_request" force_save="1" invisible="1"/>
                             </group>
                         </group>
                         <notebook>
@@ -41,7 +38,7 @@
                                 <group>
                                     <group>
                                         <field name="exit_only" />
-                                        <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
                                         <field name="open_back" invisible="1"/>
                                     </group>
                                     <group>
@@ -50,42 +47,22 @@
                                     </group>
                                 </group>
                             </page>
-                            <page string="Datos Solicitud de Boletos" invisible="not tickets_request">
-                                <group>
-                                    <group>
-                                        <field name="exit_only" readonly="state not in ['draft']"/>
-                                        <field name="open_back" readonly="state not in ['draft']"/>
-                                        <label for="attachment_ids" string="Adjuntos"/>
-                                        <field name="attachment_ids" widget="many2many_binary" nolabel="1" readonly="state != 'draft'"/>
-                                    </group>
-                                    <group>
-                                        <field name="fly_exit_route_id" options="{'no_create': True}" required="tickets_request" readonly="state not in ['draft']"/>
-                                        <field name="fly_return_route_id" options="{'no_create': True}" required="tickets_request and not exit_only and not open_back" invisible="exit_only or open_back" readonly="state not in ['draft']"/>
-                                        <field name="char_date_from" invisible="1"/>
-                                        <field name="char_date_to" invisible="1"/>
-                                    </group>
-                                </group>
-                            </page>
                             <page string="Beneficiarios">
                                 <field name="beneficiary_ids" readonly="state != 'draft'" context="{'default_employee_id': employee_id}">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="employee_id" column_invisible="1"/>
                                         <field name="beneficiary_id" domain="[('employee_id','=',employee_id)]" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="identity" />
                                         <field name="birthday" />
                                         <field name="relationship" />
                                         <field name="observation" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
                         <field name="observations" placeholder="Agregue sus observaciones referente a la solicitud" readonly="state not in ['draft','to_approve']"/>
                     </sheet>
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="activity_ids" widget="mail_activity"/>
-                        <field name="message_ids" widget="mail_thread"/>
-                    </div>
+					<chatter reload_on_attachment="True"/>
                 </form>
             </field>
         </record>
@@ -94,14 +71,14 @@
             <field name="name">Otras Solicitudes</field>
             <field name="model">rrhh.others.requests</field>
             <field name="arch" type="xml">
-                <tree string="Otras Solicitudes">
+                <list string="Otras Solicitudes">
                     <field name="name" />
                     <field name="employee_id"/>
                     <field name="initial_date"/>
                     <field name="exit_date" />
                     <field name="business_id" />
                     <field name="state"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -116,11 +93,8 @@
                     <filter string="Pendiente de aprobar" name="pending_state_filter" domain="[('state','=','to_approve')]"/>
                     <filter string="Aprobado" name="approved_state_filter" domain="[('state','=','approved')]"/>
                     <filter string="Rechazado" name="refused_state_filter" domain="[('state','=','refused')]"/>
-                    <separator/>
-                    <filter string="Programa a Volar" name="fly_program_filter" domain="[('tickets_request','=',True)]"/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter name="group_request_date" string="Fecha de solicitud" domain="[]" context="{'group_by':'date'}"/>
-                        <filter name="group_initial_date" string="Fecha de Inicio" domain="[]" context="{'group_by':'initial_date'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
                         <filter name="group_employee" string="Empleado" domain="[]" context="{'group_by':'employee_id'}"/>
                         <filter name="group_business" string="Negocio" domain="[]" context="{'group_by':'business_id'}"/>
@@ -130,24 +104,21 @@
         </record>
 
         <record id="other_request_calendar" model="ir.ui.view">
-            <field name="name">Calendario Solicitudes Plan de Beneficios</field>
+            <field name="name">Calendario Otras Solicitudes</field>
             <field name="model">rrhh.others.requests</field>
             <field name="arch" type="xml">
-                <calendar string="Calendario" mode="month" js_class="time_off_calendar" date_start="initial_date" date_stop="exit_date" color="color">
+                <calendar string="Calendario" date_start="initial_date" date_stop="exit_date" color="employee_id">
                     <field name="name"/>
-                    <field name="employee_id" filters="1"/>
-                    <field name="state"/>
-                    <field name="business_id" color="color" filters="1"/>
-                    <field name="people_qty"/>
+                    <field name="employee_id"/>
                 </calendar>
             </field>
         </record>
 
         <record id="action_other_request" model="ir.actions.act_window">            
-            <field name="name">Solicitudes Plan de Beneficios</field>
+            <field name="name">Otras Solicitudes</field>
             <field name="res_model">rrhh.others.requests</field>
-            <field name="view_mode">tree,form,calendar</field>
-            <field name="context">{'search_default_pending_state_filter': 1}</field>         
+            <field name="view_mode">list,form,calendar</field>
+            <field name="context">{}</field>         
             <field name="domain" eval=""/>
         </record>
 

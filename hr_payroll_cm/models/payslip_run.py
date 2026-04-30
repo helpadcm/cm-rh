@@ -1,5 +1,6 @@
 from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
+from datetime import datetime
 
 months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
@@ -19,14 +20,47 @@ class HrPayslipRun(models.Model):
         if self.type_lot == 'normal':
             if self.date_start:
                 if self.date_start.day == 1:
-                    self.name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+                    lot_name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
                 if self.date_start.day == 16:
-                    self.name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
+                    lot_name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
         else:
             if self.type_lot == 'fourteenth':
-                self.name = 'Decimo Cuarto Mes año %s'%(self.date_end.year)
+                lot_name = 'Decimo Cuarto Mes año %s'%(self.date_end.year)
             elif self.type_lot == 'thirteenth':
-                self.name = 'Decimo Tercer Mes año %s'%(self.date_start.year)
+                lot_name = 'Decimo Tercer Mes año %s'%(self.date_start.year)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        formated_date_cache = {}
+        for vals in vals_list:
+            vals.update({'name': self.get_payslip_name()})
+            if vals.get('journal_id'):
+                id_journal = vals.get('journal_id')['id']
+                vals.update({'journal_id': id_journal})
+        return super().create(vals_list)
+
+    def _get_name_for_period(self, vals=None, cache=None):
+        res = super(HrPayslipRun, self)._get_name_for_period(vals, cache)
+        lot_name = False
+        if vals.get('type_lot') == 'normal':
+            if vals.get('date_start'):
+                start_date = datetime.strptime(vals.get('date_start'), '%Y-%m-%d').date()
+                if start_date.day == 1:
+                    lot_name = '1ra Quincena mes %s del año %s'%(months[start_date.month - 1], start_date.year)
+                if start_date.day == 16:
+                    lot_name = '2da Quincena mes %s del año %s'%(months[start_date.month - 1], start_date.year)
+        else:
+            if vals.get('date_end'):
+                date_end = datetime.strptime(vals.get('date_end'), '%Y-%m-%d').date()
+                if vals.get('type_lot') == 'fourteenth':
+                    lot_name = 'Decimo Cuarto Mes año %s'%(date_end.year)
+                elif vals.get('type_lot') == 'thirteenth':
+                    lot_name = 'Decimo Tercer Mes año %s'%(date_end.year)
+        
+        if lot_name:
+            return lot_name
+        else:
+            return res
 
     def action_load_nomina_from_excel_wizard(self):
         """
@@ -80,6 +114,7 @@ class HrPayslipRun(models.Model):
             'journal_id': self.journal_id.id,
             'move_type': 'entry',
             'ref': f"Asiento generado desde lote {self.name}",
+            'state': 'draft',
             'date': self.date_end
         }
 
@@ -87,7 +122,6 @@ class HrPayslipRun(models.Model):
         department_account_ids = self.env['account.account'].search([('calculate_type','=','department')])
         employee_account_ids = self.env['account.account'].search([('calculate_type','=','employee')])
         deduction_account_ids = self.env['account.account'].search([('calculate_type','=','deduction')])
-
 
         one_line_list = []
         one_line_values = []
@@ -135,18 +169,7 @@ class HrPayslipRun(models.Model):
                 if line.category_id.code == 'DED':
                     attachment_id = sl.salary_attachment_ids.filtered(lambda att: att.deduction_type_id.code == line.salary_rule_id.code)
                     if attachment_id:
-                        if len(attachment_id) > 1:
-                            for att in attachment_id:
-                                total_att = 0
-                                if not att.by_quotes:
-                                    total_att = att.monthly_amount
-                                else:
-                                    line_id = att.payment_plan_ids.filtered(lambda plan: plan.date == sl.date_from)
-                                    if line_id:
-                                        total_att = line_id.amount
-                                att.paid_amount += abs(total_att)
-                        else:
-                            attachment_id.paid_amount += abs(line.total)
+                        attachment_id.paid_amount += abs(line.total)
 
                 if abs(line.total) > 0:
                     vals = {'employee': sl.employee_id.name,'amount': line.total, 'rule_name': line.salary_rule_id.name, 'department': sl.employee_id.department_id.name}
@@ -395,4 +418,3 @@ class HrPayslipRun(models.Model):
         vals_move.update({'line_ids': move_lines})
         move_id = self.env['account.move'].create(vals_move)
         self.slip_ids.write({'move_id': move_id.id})
-

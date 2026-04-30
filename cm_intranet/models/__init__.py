@@ -1,1 +1,0 @@
-from . import intranet_document

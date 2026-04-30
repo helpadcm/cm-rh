@@ -245,19 +245,19 @@ class banks_account_journal(models.Model):
 					return super(banks_account_journal, self).create(values)
 			return super(banks_account_journal, self).create(values)
 
-	@api.returns('self', lambda value: value.id)
-	def copy(self,default=None):
-		default = dict(self.env.context or {})
-		journal = self
-		default.update(
-			code=_("%s (copy)") % (journal.code ),  
-		        name=_("%s (copy)") % (journal.name )),
-		        #allow_multi_sequence=False
-		default['allow_multi_sequence']=False
-		default['checkmiscelaneous']=False
-		default['allow_banks_transferences']=False
-		default['allow_multi_sequence']=False
-		return super(banks_account_journal, self).copy(default)
+	# @api.returns('self', lambda value: value.id)
+	# def copy(self,default=None):
+	# 	default = dict(self.env.context or {})
+	# 	journal = self
+	# 	default.update(
+	# 		code=_("%s (copy)") % (journal.code ),  
+	# 	        name=_("%s (copy)") % (journal.name )),
+	# 	        #allow_multi_sequence=False
+	# 	default['allow_multi_sequence']=False
+	# 	default['checkmiscelaneous']=False
+	# 	default['allow_banks_transferences']=False
+	# 	default['allow_multi_sequence']=False
+	# 	return super(banks_account_journal, self).copy(default)
 
 		
 

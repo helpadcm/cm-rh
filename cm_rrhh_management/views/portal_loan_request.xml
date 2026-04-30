@@ -10,7 +10,7 @@
                         <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial</a>
                     </li>
                 </ul>
-                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
+                <div class="container tab-pane fade show active" id="tab1">
                     <div class="mb-6 alert alert-danger" style="display: none;" id="message_not_request_id">
                         <span id="id_message_form" t-esc="messsage_form" />
                     </div>
@@ -102,7 +102,7 @@
                     </div>
                 </div>
 
-                <div id="tab2" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
+                <div id="tab2" class="tab-pane fade">
                     <div class="table-responsive">
                         <table class="table table-striped historical_table" >
                             <thead>

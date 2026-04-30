@@ -23,17 +23,17 @@
 				</xpath>
 				
 				<xpath expr="//page[@name='advanced_settings']" position="after">
-					<page string="Secuencias">	
+					<page string="Secuencias" invisible="type not in ['bank','credit']">	
 						<separator  string="Secuencias"/>
 						<field name="sequence_ids" onchange="onchange_sequence_ids(sequence_ids)">
-							<tree>
+							<list>
 								<field name="name" />
 								<field name="prefix" />
 								<field name="suffix" />
 								<field name="number_next_actual" />
 								<field name="code" />
 								<field name="code2" />
-							</tree>
+							</list>
 						</field>
 					</page>
 					<page string="Cuentas Analiticas">
@@ -55,16 +55,5 @@
 				</field>
 			</field>
 		</record>
-
-		<!-- <record model="ir.ui.view" id="view_pos_account_journal_form23">
-			<field name="name">account.journal.form.banks2</field>
-			<field name="model">account.journal</field>
-			<field name="inherit_id" ref="account_cancel.view_account_journal_form_inherit"/>
-			<field name="arch" type="xml">
-				<field name="update_posted" position="replace">
-					<field name="update_posted" groups="account.group_account_manager"/>
-				</field>
-			</field>
-		</record> -->
     </data>
 </odoo>

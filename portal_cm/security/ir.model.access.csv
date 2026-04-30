@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-portal_cm.access_team_hour_record,access_team_hour_record,portal_cm.model_team_hour_record,base.group_user,1,1,1,1
+
 portal_cm.access_turn_notes_team,access_turn_notes_team,portal_cm.model_turn_notes_team,base.group_user,1,1,1,1
+portal_cm.access_team_hour_record,access_team_hour_record,portal_cm.model_team_hour_record,base.group_user,1,1,1,1
 
 access_mail_activity_type_portal,access_mail_activity_type_portal,mail.model_mail_activity_type,base.group_portal,1,0,0,0
 calendar.access_calendar_event_all_user,calendar.event_all_user,calendar.model_calendar_event,base.group_portal,1,0,1,0

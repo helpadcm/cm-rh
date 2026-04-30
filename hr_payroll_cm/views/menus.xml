@@ -3,7 +3,7 @@
     <menuitem
         id="hr_hour_record_employee_menuitem"
         name="Obtener Marcajes"
-        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_work_entries_root"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_work_entries_root"
         sequence="10"
         groups="hr_payroll_cm.manager_rrhh_cm"
         action="hr_hours_record_employee_action"/>
@@ -11,7 +11,7 @@
     <menuitem
         id="attendance_emp_record_menuitem"
         name="Registro de Asistencias"
-        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_work_entries_root"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_work_entries_root"
         groups="hr_payroll_cm.manager_rrhh_cm"
         sequence="20"
         action="action_hr_attendance_emp_rec"/>
@@ -38,14 +38,14 @@
     <menuitem
         id="rap_settings_menuitem"
         name="Configuracion RAP"
-        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
         sequence="81"
         action="action_rap_settings"/>
 
     <menuitem
         id="inc_ded_rules_menuitem"
         name="Resumen Reglas Salariales"
-        parent="hr_work_entry_contract_enterprise.menu_hr_payroll_configuration"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
         sequence="82"
         action="action_inc_ded_rules"/>
 
@@ -54,14 +54,14 @@
     <menuitem
         id="other_incomes_menuitem"
         name="Ingresos Salariales"
-        parent="hr_payroll.menu_hr_payroll_employees_root"
+        parent="hr_payroll.menu_hr_payroll_employees"
         sequence="40"
         action="action_other_incomes"/>
 
     <menuitem
         id="import_inc_ded_menuitem"
         name="Importar Deducciones e Ingresos"
-        parent="hr_payroll.menu_hr_payroll_employees_root"
+        parent="hr_payroll.menu_hr_payroll_employees"
         groups="hr_payroll_cm.manager_rrhh_cm"
         sequence="41"
         action="import_ded_inc_action"/>

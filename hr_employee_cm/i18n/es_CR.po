@@ -110,7 +110,7 @@ msgstr "Divorciado"
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__doctor
 msgid "Doctor"
-msgstr "Doctorado"
+msgstr ""
 
 #. module: hr_employee_cm
 #: model:ir.model,name:hr_employee_cm.model_hr_employee
@@ -151,7 +151,7 @@ msgstr "Número de Identificación Formateado"
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__graduate
 msgid "Graduate"
-msgstr "Educacion Media"
+msgstr "Egresado"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields,field_description:hr_employee_cm.field_hr_branch__id
@@ -260,7 +260,7 @@ msgstr ""
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__certificate__university_intern
 msgid "University Intern"
-msgstr "Pasante Universitario"
+msgstr "Interno Universitario"
 
 #. module: hr_employee_cm
 #: model:ir.model.fields.selection,name:hr_employee_cm.selection__hr_employee__marital__widower

@@ -28,17 +28,17 @@
             <field name="name">banks.template.tree</field>
             <field name="model">banks.template</field>
             <field name="arch" type="xml">
-                <tree string="Templates" create="true">  	
+                <list string="Templates" create="true">  	
 					<field name="name" colspan="2"/>
 					<field name="doc_type" colspan="2"/>
-                </tree>
+                </list>
             </field>
         </record>
 	
 		<record id="banks_template_action" model="ir.actions.act_window">
 			<field name="name">Plantillas</field>
 			<field name="res_model">banks.template</field>
-			<field name="view_mode">tree,form</field>
+			<field name="view_mode">list,form</field>
 			<field name="domain">[]</field>
 			<field name="help" type="html">
 				<p class="oe_view_nocontent_create">

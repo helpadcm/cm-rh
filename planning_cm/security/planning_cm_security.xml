@@ -3,8 +3,6 @@
 
     <record id="group_cm_supervisor" model="res.groups">
         <field name="name">Supervisor</field>
-        <field name="category_id"
-               ref="base.module_category_human_resources_planning"/>
         <field name="implied_ids"
                eval="[(4, ref('planning.group_planning_user'))]"/>
     </record>
@@ -24,10 +22,10 @@
                 '|',
                     '|',
                         ('department_id', '=', False),
-                        ('department_id', '=', user.department_id.id),
+                        ('department_id', '=', user.employee_id.department_id.id),
                     '|',
                         ('role_department_id', '=', False),
-                        ('role_department_id', '=', user.department_id.id),
+                        ('role_department_id', '=', user.employee_id.department_id.id),
                 ]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>

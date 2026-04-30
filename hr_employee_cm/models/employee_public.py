@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class HrEmployeePublic(models.Model):
@@ -20,6 +20,7 @@ class HrEmployeePublic(models.Model):
 
     birthday_month = fields.Integer(string="Mes de nacimiento")
 
-    def _get_employee_no(self):
-        for employee_public in self:
-            employee_public.employee_no = employee_public.employee_id.employee_no
+    # @api.depends('pin','barcode')
+    # def _get_employee_no(self):
+    #     for employee_public in self:
+    #         employee_public.employee_no = employee_public.employee_id.employee_no

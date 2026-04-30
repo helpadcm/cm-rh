@@ -39,11 +39,11 @@ class turnTemplates(models.Model):
         res.update({'template_line_ids': vals})
         return res
 
-    @api.returns('self', lambda value: value.id)
-    def copy(self, default=None):
-        default = dict(default or {},
-                       name=_("%s (copia)", self.name))
-        return super().copy(default=default)
+    # @api.returns('self', lambda value: value.id)
+    # def copy(self, default=None):
+    #     default = dict(default or {},
+    #                    name=_("%s (copia)", self.name))
+    #     return super().copy(default=default)
         
     @api.onchange('team_id')
     def change_team(self):

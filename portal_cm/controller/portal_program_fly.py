@@ -17,51 +17,7 @@ class CustomPortalAbsences(http.Controller):
         else:
             program_to_fly = employee_id.program_to_fly
 
-        history_absences = []
         history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','in',['PFLY','SCP','SCSE'])], order="request_date_from desc")
-        if history_absences_ids:
-            for hist in history_absences_ids:
-                if hist.exit_only:
-                    ticket_type = 'Solo Ida'
-                else:
-                    ticket_type = "Ida/Vuelta"
-
-                state = hist._fields['state'].convert_to_export(hist.state, hist)
-
-                history_absences.append({
-                    'type': 'Programa a Volar',
-                    'description': hist.name,
-                    'date_from': (hist.date_from - timedelta(hours=6)).strftime('%d/%m/%Y'),
-                    'date_to': (hist.date_to - timedelta(hours=6)).strftime('%d/%m/%Y'),
-                    'ticket_type': ticket_type,
-                    'tickets_request': hist.tickets_request,
-                    'state': state
-                })
-
-        history_absences_ids = request.env['rrhh.others.requests'].sudo().search([('employee_id','=',employee_id.id),('tickets_request','=',True)], order="initial_date desc")
-        if history_absences_ids:
-            for hist in history_absences_ids:
-                if hist.exit_only:
-                    ticket_type = 'Solo Ida'
-                else:
-                    ticket_type = "Ida/Vuelta"
-
-                state = hist._fields['state'].convert_to_export(hist.state, hist)
-
-                exit_date = ''
-                if hist.exit_date:
-                    exit_date = (hist.exit_date - timedelta(hours=6)).strftime('%d/%m/%Y')
-
-                history_absences.append({
-                    'type': 'Programa a Volar',
-                    'description': hist.observations,
-                    'date_from': (hist.initial_date - timedelta(hours=6)).strftime('%d/%m/%Y'),
-                    'date_to': exit_date,
-                    'ticket_type': ticket_type,
-                    'tickets_request': hist.people_qty,
-                    'state': state
-                })
-
         routes_ids = request.env['flight.routes'].sudo().search([])
 
         domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','in',['PFLY','SCP','SCSE']),('company_id','=',employee_id.company_id.id)]
@@ -74,7 +30,7 @@ class CustomPortalAbsences(http.Controller):
         values = {
             'beneficiaries_ids': employee_id.beneficiaries_ids,
             'program_to_fly': program_to_fly,
-            'history_absences_ids': history_absences,
+            'history_absences_ids': history_absences_ids,
             'types_absences_ids': types_absences_ids,
             'routes': routes_ids,
             'form_data': form_data  # Pasar los datos al template
@@ -98,7 +54,7 @@ class CustomPortalAbsences(http.Controller):
 
         vals = {
             'employee_id': employee_id.id,
-            'name': beneficiary_name.upper(),
+            'name': beneficiary_name,
             'identity': beneficiary_id,
             'birthday': birthday,
             'relationship': beneficiary_relationship,
@@ -136,7 +92,6 @@ class CustomPortalAbsences(http.Controller):
         beneficiary9 = post.get("selection_beneficiary9")
         attachments = request.httprequest.files.getlist('attachments')
         notes = post.get("record_notes")
-        program_to_fly = employee_id.program_to_fly
 
         date_from = datetime.strptime(start_date, "%Y-%m-%d")
         if not exit_only and not open_back:
@@ -150,40 +105,59 @@ class CustomPortalAbsences(http.Controller):
                     exit_origin = flight_route_id.origin
                     ret_route_id = request.env['flight.routes'].sudo().search([('origin','=',exit_destination),('destination','=',exit_origin)])
                     return_route_id = ret_route_id.id
-
-        type_id = request.env['hr.leave.type'].sudo().browse(int(type_value_id))
-        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code)])
         
         vals = {
             'employee_id': employee_id.id,
-            'people_qty': str(tickets_request),
-            'tickets_request': True,
-            'business_id': business_id.id,
-            'observations': notes,
-            'qty_available': program_to_fly,
-            'state': 'draft'
+            'holiday_status_id': int(type_value_id),
+            'request_date_from': date_from,
+            'tickets_request': tickets_request,
+            'company_id': company_id.id,
+            'name': notes
         }
         tickets = []
         if int(tickets_request) == 1:
             tickets.append(int(beneficiary1))
+            vals.update({'beneficiary1': int(beneficiary1)})
         elif int(tickets_request) == 2:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2)
+            })
         elif int(tickets_request) == 3:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
             tickets.append(int(beneficiary3))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3)
+            })
         elif int(tickets_request) == 4:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
             tickets.append(int(beneficiary3))
             tickets.append(int(beneficiary4))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4)
+            })
         elif int(tickets_request) == 5:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
             tickets.append(int(beneficiary3))
             tickets.append(int(beneficiary4))
             tickets.append(int(beneficiary5))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5)
+            })
         elif int(tickets_request) == 6:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
@@ -191,6 +165,14 @@ class CustomPortalAbsences(http.Controller):
             tickets.append(int(beneficiary4))
             tickets.append(int(beneficiary5))
             tickets.append(int(beneficiary6))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6)
+            })
         elif int(tickets_request) == 7:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
@@ -199,6 +181,15 @@ class CustomPortalAbsences(http.Controller):
             tickets.append(int(beneficiary5))
             tickets.append(int(beneficiary6))
             tickets.append(int(beneficiary7))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7)
+            })
         elif int(tickets_request) == 8:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
@@ -208,6 +199,16 @@ class CustomPortalAbsences(http.Controller):
             tickets.append(int(beneficiary6))
             tickets.append(int(beneficiary7))
             tickets.append(int(beneficiary8))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7), 
+                'beneficiary8': int(beneficiary8)
+            })
         elif int(tickets_request) == 9:
             tickets.append(int(beneficiary1))
             tickets.append(int(beneficiary2))
@@ -218,6 +219,17 @@ class CustomPortalAbsences(http.Controller):
             tickets.append(int(beneficiary7))
             tickets.append(int(beneficiary8))
             tickets.append(int(beneficiary9))
+            vals.update({
+                'beneficiary1': int(beneficiary1), 
+                'beneficiary2': int(beneficiary2), 
+                'beneficiary3': int(beneficiary3), 
+                'beneficiary4': int(beneficiary4), 
+                'beneficiary5': int(beneficiary5), 
+                'beneficiary6': int(beneficiary6), 
+                'beneficiary7': int(beneficiary7), 
+                'beneficiary8': int(beneficiary8), 
+                'beneficiary9': int(beneficiary9)
+            })
 
         validated = False
         if date_to.date() < date_from.date():
@@ -244,46 +256,31 @@ class CustomPortalAbsences(http.Controller):
         if validated:
             if exit_only or open_back:
                 if exit_only:
-                    vals.update({'fly_exit_route_id': exit_route_id, 'exit_only': True, 'initial_date': date_from, 'exit_date': date_from})
+                    vals.update({'exit_route_id': exit_route_id, 'exit_only': True, 'request_date_to': date_from})
                 if open_back:
-                    vals.update({'fly_exit_route_id': exit_route_id, 'fly_return_route_id': return_route_id, 'open_back': True, 'initial_date': date_from, 'exit_date': date_from})
+                    vals.update({'exit_route_id': exit_route_id, 'return_route_id': return_route_id, 'open_back': True, 'request_date_to': date_from})
             else:
-                vals.update({'fly_exit_route_id': exit_route_id, 'fly_return_route_id': return_route_id, 'initial_date': date_from, 'exit_date': date_to})
+                vals.update({'exit_route_id': exit_route_id, 'return_route_id': return_route_id, 'request_date_to': date_to})
             
             vals.update({'char_date_from': self.convert_date(date_from), 'char_date_to': self.convert_date(date_to)})
-            leave_id = request.env['rrhh.others.requests'].sudo().create(vals)
-            for i in tickets:
-                request.env['request.beneficiary'].sudo().create({
-                    'request_id': leave_id.id,
-                    'beneficiary_id': i,
-                    'employee_id': employee_id.id
-                })
-
-            attachment_ids_to_link = []
+            leave_id = request.env['hr.leave'].sudo().create(vals)
             for attachment in attachments:
                 if attachment.filename:
                     file_content = attachment.read()  # Leer el archivo en bytes
                     encoded_file = base64.b64encode(file_content).decode('utf-8')  # Codificar en base64 y convertir a string
-                    attachment = request.env['ir.attachment'].sudo().create({
+                    request.env['ir.attachment'].sudo().create({
                         'name': attachment.filename,
                         'datas': encoded_file,  # Usar el archivo en base64
-                        'res_model': 'rrhh.others.requests',
+                        'res_model': 'hr.leave',
                         'res_id': leave_id.id,
                         'mimetype': attachment.mimetype,
                     })
-                    attachment_ids_to_link.append(attachment.id)
-
-            if attachment_ids_to_link:
-                leave_id.sudo().write({'attachment_ids': [(6, 0, attachment_ids_to_link)]})
-            
-            leave_id.sudo().with_context({'state': 'to_approve'}).change_state()
             self.send_notification('success', '¡Su solicitud a sido registrada correctamente!')
         return request.redirect('/absences/record_program_fly')
 
     def send_notification(self, type, message):
         request.session['flash_message'] = message
         request.session['flash_message_type'] = f'alert-{type}'
-        request.session.modified = True
 
     def create_default_beneficiary(self, employee):
         create_beneficiary = False

@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-cm_intranet.access_intranet_document,access_intranet_document,cm_intranet.model_intranet_document,base.group_user,1,1,1,1
-cm_intranet.access_intranet_document_category,access_intranet_document_category,cm_intranet.model_intranet_document_category,base.group_user,1,1,1,1

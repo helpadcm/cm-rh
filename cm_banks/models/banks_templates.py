@@ -10,7 +10,7 @@ class bank_template(models.Model):
 		result[ids]=uid
 		return result
 
-	doc_type= fields.Selection([
+	doc_type = fields.Selection([
 					('check','Cheque'),
 					('transference','Transferencia'),
 					('deposit','Deposito'),

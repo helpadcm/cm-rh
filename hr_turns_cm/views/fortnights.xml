@@ -24,11 +24,11 @@
                     <notebook>
                         <page string="Quincenas">
                             <field name="line_ids" readonly="1">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="name"/>
                                     <field name="start_date"/>
                                     <field name="end_date"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -51,17 +51,17 @@
         <field name="name">hr.fortnights.tree</field>
         <field name="model">hr.fortnights</field>
         <field name="arch" type="xml">
-            <tree string="Registro de Asistencias">
+            <list string="Registro de Asistencias">
                 <field name="name"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_fortnights" model="ir.actions.act_window">
         <field name="name">Creador Quincenas</field>
         <field name="res_model">hr.fortnights</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

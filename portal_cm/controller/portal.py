@@ -71,7 +71,6 @@ class CustomPortal(http.Controller):
     @http.route('/clear_flash_message', type='http', auth="user", methods=["POST"], website=True)
     def clear_flash_message(self):
         request.session['flash_message'] = None
-        request.session.modified = True
         return 'OK'
 
     @http.route('/hours_day_record/submit', type='http', auth="user", methods=["POST"], website=True)
@@ -165,12 +164,10 @@ class CustomPortal(http.Controller):
 
                 request.session['flash_message'] = '¡Horas registradas correctamente!'
                 request.session['flash_message_type'] = 'alert-success'
-                request.session.modified = True
         else:
             date_format = datetime.strptime(date, '%Y-%m-%d')
             request.session['flash_message'] = 'Ya existen registros para la fecha %s.'%(date_format.strftime("%d/%m/%Y"))
             request.session['flash_message_type'] = 'alert-danger'
-            request.session.modified = True
 
         return request.redirect('/turns/record_hours_team')
 
@@ -210,7 +207,6 @@ class CustomPortal(http.Controller):
 
                 request.session['flash_message'] = "\n".join(messages)
                 request.session['flash_message_type'] = 'alert-danger'
-                request.session.modified = True
                 return False
 
         elif not entry1 and not out1:
@@ -225,7 +221,6 @@ class CustomPortal(http.Controller):
 
                 request.session['flash_message'] = "\n".join(messages)
                 request.session['flash_message_type'] = 'alert-danger'
-                request.session.modified = True
                 return False
 
         elif not entry2 and not out2:
@@ -240,5 +235,4 @@ class CustomPortal(http.Controller):
 
                 request.session['flash_message'] = "\n".join(messages)
                 request.session['flash_message_type'] = 'alert-danger'
-                request.session.modified = True
                 return False

@@ -12,9 +12,6 @@ from odoo.http import request
 
 class RoomCMController(RoomController):
 
-    # ------
-    # ROUTES
-    # ------
 
     @http.route("/room/<string:short_code>/book", type="http", auth="public", website=True)
     def room_book(self, short_code):
@@ -23,7 +20,7 @@ class RoomCMController(RoomController):
             raise exceptions.NotFound()
         return request.render("room.room_booking", {"room": room_sudo})
 
-    @http.route("/room/<string:access_token>/get_existing_bookings", type="json", auth="public")
+    @http.route("/room/<string:access_token>/get_existing_bookings", type="jsonrpc", auth="public")
     def get_existing_bookings(self, access_token):
         room_sudo = self._fetch_room_from_access_token(access_token)
         return request.env["room.booking"].sudo().search_read(
@@ -39,7 +36,7 @@ class RoomCMController(RoomController):
             return ""
         return request.env['ir.binary']._get_image_stream_from(room_sudo, "room_background_image").get_response()
 
-    @http.route("/room/<string:access_token>/booking/create", type="json", auth="user")
+    @http.route("/room/<string:access_token>/booking/create", type="jsonrpc", auth="user")
     def room_booking_create(self, access_token, name, start_datetime, stop_datetime):
         if not request.env.user.has_group('room_cm.group_room_booking_user'):
             raise exceptions.Forbidden()
@@ -55,7 +52,7 @@ class RoomCMController(RoomController):
                 }
             )
 
-    @http.route("/room/<string:access_token>/booking/<int:booking_id>/delete", type="json", auth="user")
+    @http.route("/room/<string:access_token>/booking/<int:booking_id>/delete", type="jsonrpc", auth="user")
     def room_booking_delete(self, access_token, booking_id):
         if not request.env.user.has_group('room_cm.group_room_booking_user'):
             raise exceptions.Forbidden()
@@ -68,7 +65,7 @@ class RoomCMController(RoomController):
             raise exceptions.Forbidden()
         return self._fetch_booking(booking_id, access_token).unlink()
 
-    @http.route("/room/<string:access_token>/booking/<int:booking_id>/update", type="json", auth="user")
+    @http.route("/room/<string:access_token>/booking/<int:booking_id>/update", type="jsonrpc", auth="user")
     def room_booking_update(self, access_token, booking_id, **kwargs):
         if not request.env.user.has_group('room_cm.group_room_booking_user'):
             raise exceptions.Forbidden()

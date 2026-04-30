@@ -8,7 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 class ferryRequestPortal(http.Controller):
 
     @http.route('/benefits/record_ferry_request', type='http', auth="user", website=True)
-    def program_to_fly_portal(self, **kwargs):
+    def program_ferry_portal(self, **kwargs):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         
@@ -196,7 +196,6 @@ class ferryRequestPortal(http.Controller):
     def send_notification(self, type, message):
         request.session['flash_message'] = message
         request.session['flash_message_type'] = f'alert-{type}'
-        request.session.modified = True
 
     def create_default_beneficiary(self, employee):
         create_beneficiary = False

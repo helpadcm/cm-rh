@@ -19,8 +19,8 @@ class getRecordHours(models.TransientModel):
     date_from = fields.Date('Start Date', required=True)
     date_to = fields.Date('End Date', required=True)
 
-    payslip_date_from = fields.Date(_('Start Date Pasylip'))
-    payslip_date_to = fields.Date(_('End Date Payslip'))
+    payslip_date_from = fields.Date('Start Date Pasylip')
+    payslip_date_to = fields.Date('End Date Payslip')
 
     @api.onchange('date_from','department_id')
     def get_payslips_date(self):
@@ -69,7 +69,6 @@ class getRecordHours(models.TransientModel):
                 'date_to': self.date_to,
             })
 
-            contract_id = self.env['hr.contract'].search([('employee_id','=',id_employee)])
             # Utilizar los métodos del modelo abstracto para obtener y procesar los datos
             employee_attendances = employee_report.get_attendance()
             employee_attendance_data = employee_report.process_employee_attendance()
@@ -84,15 +83,15 @@ class getRecordHours(models.TransientModel):
                 'name': 'Registro de Asistencia %s %s'%(header_data.get('employee'), header_data.get('start_date')),
                 'period': name_rec,
                 'employee_id': header_data.get('employee_id'),
-                'department_id': contract_id.employee_id.department_id.id,
+                'department_id': employee_id.department_id.id,
                 'code': header_data.get('employee_no'),
                 'start_date': header_data.get('start_date'),
                 'end_date': header_data.get('end_date'),
                 'esperated_hours': esperated_hours,
-                'eh_limit': contract_id.max_extra_hours,
-                'tb_max': contract_id.max_transportation_bonus,
-                'tb_bonus': contract_id.value_bonus,
-                'tb_limit': contract_id.max_transportation_bonus * contract_id.value_bonus,
+                'eh_limit': employee_id.max_extra_hours,
+                'tb_max': employee_id.max_transportation_bonus,
+                'tb_bonus': employee_id.value_bonus,
+                'tb_limit': employee_id.max_transportation_bonus * employee_id.value_bonus,
                 'payslip_date_from': self.payslip_date_from,
                 'payslip_date_to': self.payslip_date_to
             })
@@ -113,12 +112,12 @@ class getRecordHours(models.TransientModel):
                     'extra_hours': row.get('extra_hours'),
                     'observations': row.get('observation'),
                     'bonus': row.get('transport_bonus'),
-                    'check_type': contract_id.check_type
+                    'check_type': employee_id.check_type
                 }
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 if turn_line_id:
                     if turn_line_id.state == 'draft':
-                        raise ValidationError('La fecha %s del empleado %s en el equipo %s no ha sido validada'%(turn_line_id.date, contract_id.employee_id.name, turn_line_id.team_id.name))
+                        raise ValidationError('La fecha %s del empleado %s en el equipo %s no ha sido validada'%(turn_line_id.date, employee_id.name, turn_line_id.team_id.name))
 
                     entry_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_in_id)
                     out_date_1 = self.convert_format(row.get('date'), turn_line_id.schedule1_out_id)
@@ -165,7 +164,7 @@ class getRecordHours(models.TransientModel):
 
                 min_hours = []
                 max_hours = []
-                if contract_id.check_type == 'mark':
+                if employee_id.check_type == 'mark':
                     bonus = 0
                     amount1 = 0
                     amount2 = 0
@@ -224,15 +223,15 @@ class getRecordHours(models.TransientModel):
                     except:
                         amount3 = 0
 
-                    bonus = self.calculate_bonus(min_hours, max_hours, contract_id)
+                    bonus = self.calculate_bonus(min_hours, max_hours, employee_id)
 
                     total_h = amount1 + amount2 + amount3
                     extra_hours = 0
                     oh = 0
                     if row.get('date').weekday() in [5,6]:
                         if total_h > 0:
-                            oh = contract_id.weekend_hours
-                            extra_hours = total_h - contract_id.weekend_hours
+                            oh = employee_id.weekend_hours
+                            extra_hours = total_h - employee_id.weekend_hours
 
                         vals.update({
                             'ordinary_hours': oh,
@@ -273,14 +272,14 @@ class getRecordHours(models.TransientModel):
         return name
 
 
-    def calculate_bonus(self, check1, check2, contract_id):
+    def calculate_bonus(self, check1, check2, employee_id):
         bonus = 0
         if check1:
-            if min(check1) < contract_id.early_checkin_bonus_time:
-                bonus += contract_id.value_bonus
+            if min(check1) < employee_id.early_checkin_bonus_time:
+                bonus += employee_id.value_bonus
         if check2:
-            if max(check2) > contract_id.late_checkout_bonus_time:
-                bonus += contract_id.value_bonus
+            if max(check2) > employee_id.late_checkout_bonus_time:
+                bonus += employee_id.value_bonus
         return bonus
 
     def convert_timedelta(self, hour):

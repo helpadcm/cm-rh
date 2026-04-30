@@ -5,7 +5,7 @@
             <field name="model">hr.employee</field>
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
-                <field name="study_school" position="after">
+                <field name="study_field" position="after">
                     <field name="aeronatical_license" />
                 </field>
 
@@ -31,22 +31,22 @@
                         <notebook>
                             <page string="Detalle de vacaciones">
                                 <field name="vacation_details_ids">
-                                    <tree create="false" delete="false">
+                                    <list create="false" delete="false">
                                         <field name="name" />
                                         <field name="assigned_days" />
                                         <field name="pending_days" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             <page string="Beneficiarios PV">
                                 <field name="beneficiaries_ids">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="name" />
                                         <field name="identity" />
                                         <field name="birthday" />
                                         <field name="relationship" />
                                         <field name="observation" />
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>

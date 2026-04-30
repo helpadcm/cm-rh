@@ -5,10 +5,38 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet/notebook/page[@name='hr_settings']/group/group[@name='active_group']/field[@name='user_id']" position="after">
+            <xpath expr="//form/sheet/notebook/page[@name='hr_settings']/group/group[@name='user']" position="inside">
                 <field name="seniority"/>
-                <field name="date_start_contract"/>
             </xpath>
+
+            <group name="payroll_group" position="inside">
+                <group string="Configuracion de Bonificaciones Quincenales">
+                    <group name="group_hours_bonus">
+                        <field name="early_checkin_bonus_time"  widget="float_time"/>
+                        <field name="late_checkout_bonus_time"  widget="float_time"/>
+                        <field name="max_extra_hours"/>
+                        <field name="temporal_amount" invisible="1"/>
+                    </group>
+                    <group name="group_bonus_values">
+                        <field name="max_performance_bonus"/>
+                        <field name="max_transportation_bonus"/>
+                        <field name="value_bonus"/>
+                    </group>
+                </group>
+            </group>
+
+            <button name="action_open_versions" position="after">
+                <button name="show_historical_salary" class="oe_stat_button" icon="fa-book" type="object">
+                    <div class="o_stat_info">
+                        <!-- <span class="o_stat_value">
+                            <field name="contracts_count"/>
+                        </span> -->
+                        <span class="o_stat_text" >
+                            Historial Salarios
+                        </span>
+                    </div>
+                </button>
+            </button>
         </field>
     </record>
 </odoo>

@@ -4,7 +4,7 @@
         id="main_menu_retention" 
         name="Retenciones" 
         sequence="4" 
-        parent="account_accountant.menu_accounting"
+        parent="accountant.menu_accounting"
         groups="group_retention"
     />
     <menuitem 

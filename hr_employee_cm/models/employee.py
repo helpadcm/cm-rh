@@ -24,13 +24,27 @@ class HrEmployee(models.Model):
 
     birthday_month = fields.Integer(string="Mes de nacimiento")
 
-    certificate = fields.Selection(selection_add=[('university intern', 'University Intern'),('engineering', 'Engineering'),('basic', 'Educación Básica')])
-
     format_identification_id = fields.Char(
         string="Formatted Identification Number",
         help='This is the value of the "ID Number" field formatted with hyphens.',
         compute="_format_identification_with_dashes"
         )
+
+    @api.constrains('barcode')
+    def _verify_barcode(self):
+        for employee in self:
+            if employee.barcode:
+                if not (re.match(r'^[A-Za-z0-9]+$', employee.barcode) and len(employee.barcode) <= 18):
+                    # raise ValidationError(_("The Badge ID must be alphanumeric without any accents and no longer than 18 characters."))
+                    return True
+
+    @api.model
+    def _get_certificate_selection(self):
+        res = super(HrEmployee, self)._get_certificate_selection()
+        res.append(('university intern', 'Pasante Universitario'))
+        res.append(('engineering', 'Ingeniería'))
+        res.append(('basic', 'Educación Básica'))
+        return res
 
     @api.onchange('birthday')
     def calculate_month(self):
@@ -110,17 +124,17 @@ class HrEmployee(models.Model):
         badge = self.env.ref('hr_employee_cm.one_year').id
         if not badge:
             return
-        contracts = self.env['hr.contract'].search(
+        contracts = self.search(
             [
-                ('date_end', '=', False),
-                ('date_start', '>=', two_years_ago),
-                ('date_start', '<=', one_year_ago),
+                ('contract_date_end', '=', False),
+                ('contract_date_start', '>=', two_years_ago),
+                ('contract_date_start', '<=', one_year_ago),
                 ]
             )
         if not contracts:
             return
-        employees = contracts.mapped('employee_id')
-        for employee in employees:
+            
+        for employee in contracts:
             if employee.user_id:
                 badge_user = self.env['gamification.badge.user'].search(
                     [

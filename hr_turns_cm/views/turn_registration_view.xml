@@ -4,7 +4,7 @@
         <field name="name">turn.registration.view.tree</field>
         <field name="model">hr.turn.registration</field>
         <field name="arch" type="xml">
-            <tree string="Horarios" editable="bottom" create="false">
+            <list string="Horarios" editable="bottom" create="false">
                 <field name="name" column_invisible="1"/>
                 <field name="editable_a" column_invisible="1"/>
                 <field name="editable_b" column_invisible="1"/>
@@ -22,7 +22,7 @@
                 <field name="aditional_hours" readonly="1" force_save="1" sum="Tiempo Adicional"/>
                 <field name="state" readonly="1" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'validated'"/>
                 <button name="%(hr_turns_cm.action_note_turns)d" string="Notas" type="action"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -35,7 +35,7 @@
                 <field name="fortnight_line_id"/>
                 <filter string="Borrador" name="group_draft_state" domain="[('state','=','draft')]"/>
                 <filter string="Validado" name="group_validated_state" domain="[('state','=','validated')]"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter string="Nombre" name="group_name" context="{'group_by':'name'}"/>
                     <filter string="Fecha" name="date" context="{'group_by':'date'}"/>
                     <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
@@ -50,7 +50,7 @@
     <record id="action_turn_registration" model="ir.actions.act_window">
         <field name="name">Planificacion de turnos</field>
         <field name="res_model">hr.turn.registration</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="context">{"search_default_group_name": 1, "search_default_employee_group":1, "search_default_group_draft_state":1}</field>
     </record>
 </odoo>

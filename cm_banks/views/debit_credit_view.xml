@@ -47,9 +47,9 @@
 								<group col="4" colspan="4"> 
 									<field name="pay_comp_currency" string="Use company currency" invisible="journal_id.currency == True"/>
 								</group>
-								<field name="mcheck_ids"  mode="tree" widget="one2many_list" readonly="state != 'draft'" context="{'type':doc_type}">
-									<tree editable="bottom">
-										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('deprecated','=',False)]"/>
+								<field name="mcheck_ids"  mode="list" widget="one2many_list" readonly="state != 'draft'" context="{'type':doc_type}">
+									<list editable="bottom">
+										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('active','=',False)]"/>
 										<field name="name"/>
 										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
 										<field name="budget_account_id" domain="[('id','in',fbudget_line_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
@@ -60,23 +60,23 @@
 										<field name="chqmanalitics" string="Analitica"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
 										<field name="amount"/>
 										<field name="type"/>
-									</tree>
+									</list>
 								</field>
 							</page>
                         	<page string="Apuntes Contables" invisible="state not in ['validated','anulated']">
 								<field name="move_ids" readonly="1">
-									<tree string="Apuntes Contables">
+									<list string="Apuntes Contables">
 										<field name="move_id" optional="hide"/>
 										<field name="date"/>
 										<field name="statement_id" optional="hide"/>
-										<field name="account_id" domain="[('deprecated','=',False)]"/>
+										<field name="account_id" domain="[('active','=',True)]"/>
 										<field name="analytic_account_id" optional="show"/>
 										<field name="activity_id" optional="show"/>
 										<field name="source_id" optional="show"/>
 										<field name="name"/>
 										<field name="debit" sum="Debit"/>
 										<field name="credit" sum="Credit"/>
-									</tree>
+									</list>
 								</field>
 							</page>
                        		<page string="Otra Informacion" invisible="state not in ['validated']">
@@ -97,9 +97,7 @@
 							<field name="was_unreconcilied" invisible='1'/>  
 						</group>
 					</sheet>
-					<div class="oe_chatter">
-						<field name="message_ids" widget="mail_thread"/>
-					</div>
+					<chatter reload_on_attachment="True"/>
 				</form>
             </field>
         </record>
@@ -108,14 +106,14 @@
             <field name="name">debit.credit.tree</field>
             <field name="model">debit.credit</field>
             <field name="arch" type="xml">
-                <tree string="Debitos y Creditos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
+                <list string="Debitos y Creditos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
 					<field name="number" />
 					<field name="date" />
 					<field name="journal_id" widget="selection" />
 					<field name="name" colspan="2"/>
 					<field name="total" sum="total"/>
 					<field name="state"/>
-				</tree>
+				</list>
             </field>
         </record>
 
@@ -126,7 +124,7 @@
 				<search string="Busqueda Equipos">
 					<field name="number" />
 					<field name="name"/>
-					<group expand="1" string="Group By">
+					<group>
 						<filter string="Fecha" name="date" context="{'group_by':'date'}"/>
 						<filter string="Tipo Documento" name="doc_type_group" context="{'group_by':'doc_type'}"/>
 						<filter string="Diario" name="journal_group" context="{'group_by':'journal_id'}"/>
@@ -139,7 +137,7 @@
 		<record id="debit_credit_action_form" model="ir.actions.act_window">
 			<field name="name">Debitos y Creditos</field>
 			<field name="res_model">debit.credit</field>
-			<field name="view_mode">tree,form</field>   
+			<field name="view_mode">list,form</field>   
 			<field name="help" type="html">
 				<p class="oe_view_nocontent_create">
 				Click to add a new credit or debit.

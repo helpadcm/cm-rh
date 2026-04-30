@@ -13,10 +13,10 @@
     ,
     'author': "Oniel Avilez",
     'category': 'Invoicing Management',
-    'version': '2.0',
+    'version': '1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['account'],
+    'depends': ['account','mail'],
 
     # always loaded
     'data': [
@@ -24,6 +24,7 @@
         'security/ir.model.access.csv',
         'views/fiscal_year.xml',
         'views/views.xml',
+        'views/menus.xml',
         'data/account_fiscal_sequence.xml'
     ],
     # only loaded in demonstration mode

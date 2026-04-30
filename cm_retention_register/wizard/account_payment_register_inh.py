@@ -91,7 +91,7 @@ class AccountPaymentRegisterRetentionLine(models.TransientModel):
 
     @api.onchange('account_id', 'invoice_line_id')
     def get_data_account(self):
-        self.env.context = dict(self.env.context or {})
+        # self.env.context = dict(self.env.context or {})
         self.name = self.account_id.tax_description
         self.percentage = self.account_id.retention_porcent
 

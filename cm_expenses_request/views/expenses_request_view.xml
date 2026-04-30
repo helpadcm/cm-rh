@@ -34,20 +34,18 @@
                                 <field name="employee_id" options="{'no_create': True,'no_open': True}" readonly="state != 'draft'"/>
                                 <field name="department_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1"/>
                                 <field name="date" readonly="state != 'draft'"/>
-                                <field name="process_id" domain="[('id','in',process_ids)]" options="{'no_create': True,'no_open': True}" readonly="state != 'draft'" required="1" force_save="1" />
                             </group>
                             <group>
                                 <field name="job_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1"/>
                                 <field name="account_number" readonly="1" for_save="1"/>
                                 <field name="purpose" required="1" readonly="state != 'draft'"/>
                                 <field name="boss_id" invisible="1"/>
-                                <field name="reason_expense" required="1" readonly="state != 'draft'"/>
-                                <field name="process_ids" widget="many2many_tags" options="{'no_create': True,'no_open': True}" invisible="1" force_save="1" />
                             </group>
                         </group>
                         <group col="3">
                             <group>
                                 <field name="need_tickets" readonly="state != 'draft'"/>
+                                <field name="reason_expense" required="1" readonly="state != 'draft'"/>
                             </group>
                             <group>
                                 <field name="need_transport" readonly="state != 'draft'"/>
@@ -70,7 +68,7 @@
                         <notebook>
                             <page name="details" string="Detalles de Gasto">
                                 <field name="request_details_ids" required="1" context="{'default_job_id': job_id}" readonly="state != 'draft'">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="job_id" column_invisible="1"/>
                                         <field name="date" required="1"/>
                                         <field name="breakfast_cti_id" options="{'no_create': True,'no_open': True}"/>
@@ -85,26 +83,22 @@
                                         <field name="purchase_amount" sum="Total Compras"/>
                                         <field name="others_amount" sum="Total Otros"/>
                                         <field name="total_amount" readonly="1" force_save="1" sum="Total Dia"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             <page name="expenses" string="Gastos" invisible="state in ['draft','required','approved','canceled']">
-                                <field name="expenses_ids" context="{'default_employee_id': employee_id,'default_reason_expense': reason_expense, 'default_process_id': process_id}" readonly="state in ['pending','finalized','canceled']">
-                                    <tree>
+                                <field name="expenses_ids" context="{'default_employee_id': employee_id,'default_reason_expense': reason_expense}" readonly="state in ['pending','finalized','canceled']">
+                                    <list>
                                         <field name="name" />
                                         <field name="date" />
                                         <field name="total_amount"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
                         <field name="observations" placeholder="Observaciones y Justificaciones" readonly="state != 'draft'"/>
                     </sheet>
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="activity_ids" widget="mail_activity"/>
-                        <field name="message_ids" widget="mail_thread"/>
-                    </div>
+					<chatter reload_on_attachment="True"/>
                 </form>
             </field>
         </record>
@@ -113,13 +107,13 @@
             <field name="name">Solicitud de viaticos</field>
             <field name="model">cm.expenses.request</field>
             <field name="arch" type="xml">
-                <tree string="Solicitud de viaticos">
+                <list string="Solicitud de viaticos" decoration-info="state == 'draft'">
                     <field name="name"/>
                     <field name="employee_id" />
                     <field name="date"/>
                     <field name="purpose"/>
                     <field name="state"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -154,7 +148,7 @@
         <record id="action_expenses_request" model="ir.actions.act_window">            
             <field name="name">Solicitud de viaticos</field>
             <field name="res_model">cm.expenses.request</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>         
             <field name="domain" eval=""/>
         </record>

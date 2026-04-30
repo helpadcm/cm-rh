@@ -4,41 +4,10 @@
         <field name="model">hr.payslip</field>
         <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
         <field name="arch" type="xml">
-            <header>
-                <button name="action_recalculate_eh_day_based_cm" string="Calcular Horas Extras" type="object"
-                        class="btn-primary"
-                        invisible="1"
-                        help="Calcula el pago de horas extras basado en las reglas definidas en el contrato del empleado.
-                        Este cálculo se realiza considerando las horas trabajadas en exceso a la jornada laboral ordinaria."/>
-
-                <button name="action_calculate_transport_bonus_for_payslip" string="Calcular Bono Trasporte"
-                        type="object"
-                        invisible="1"
-                        class="btn-primary"
-                        help="Calcula y aplica el bono de transporte del empleado según las reglas definidas en su contrato."/>
-            </header>
             <field name="wage_type" position="after">
                 <field name="esperated_hours"/>
                 <field name="type_lot" required="1"/>
             </field>
         </field>
-    </record>
-
-    <record id="action_recalculate_eh_day_based_cm" model="ir.actions.server">
-        <field name="name">Calcular Horas Extras</field>
-        <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
-        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">records.action_recalculate_eh_day_based_cm()</field>
-    </record>
-
-    <record id="action_recalculate_bonus_transport_cm" model="ir.actions.server">
-        <field name="name">Calcular Bonos de Trasporte</field>
-        <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
-        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
-        <field name="binding_view_types">list</field>
-        <field name="state">code</field>
-        <field name="code">record.action_calculate_transport_bonus_for_payslip()</field>
     </record>
 </odoo>

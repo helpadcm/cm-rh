@@ -26,19 +26,10 @@ class expensesRequest(models.Model):
         user = self.env.user
         employee_id = self.env['hr.employee'].sudo().search([('user_id','=',user.id)])
         if employee_id:
-            permitted_processes_ids = False
-            default_process_id = False
-            if employee_id.user_id:
-                permitted_processes_ids = self.env['crossovered.activity'].search([('user_ids','in',employee_id.user_id.ids)])
-                if len(permitted_processes_ids) == 1:
-                    default_process_id = permitted_processes_ids.id
-
             rec.update({
                 'department_id': employee_id.department_id.id,
                 'job_id': employee_id.job_id.id,
                 'employee_id': employee_id.id,
-                'process_ids': permitted_processes_ids,
-                'process_id': default_process_id,
                 'boss_id': employee_id.coach_id.id,
                 'account_number': employee_id.bank_account_id.acc_number,
                 'date': datetime.now().date()
@@ -63,14 +54,12 @@ class expensesRequest(models.Model):
     refund_amount = fields.Float(string="Reembolso", copy=False)
 
     request_details_ids = fields.One2many('cm.expenses.request.details','request_id',string="Detalles de solicitud",copy=True)
-    expenses_ids = fields.One2many('hr.expense','request_id',string="Lista de gastos") 
+    expenses_ids = fields.One2many('hr.expense','request_id',string="Lista de gastos")
 
     need_tickets = fields.Boolean(string="Necesita boletos")
     need_transport = fields.Boolean(string="Necesita transporte")
     need_hotel = fields.Boolean(string="Necesita hotel")
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
-    process_id = fields.Many2one('crossovered.activity', string="Proceso")
-    process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
 
     @api.depends('request_details_ids','expenses_ids','refund_amount')
     def calculate_totals(self):
@@ -128,34 +117,23 @@ class expensesRequest(models.Model):
                 if line.nb_attachment == 0:
                     raise ValidationError(f"""Debe agregar comprobantes de sus gastos, el gasto {line.name} no tiene adjuntos.""")
             self.create_report_expenses()
-            self.send_email(next_state)
 
         self.state = next_state
 
     def send_email(self, state):
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
         if state == 'required':
-            base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.boss_id.name
             email_to = self.boss_id.user_id.login
             message_txt = f"""El colaborador {self.employee_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos'
 
         if state == 'assigned':
-            base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.employee_id.name
             email_to = self.employee_id.user_id.login
             message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta."""
             subject = 'Asignación de viaticos'
-
-        if state == 'pending':
-            for_user = self.employee_id.expense_manager_id.name
-            email_to = self.employee_id.expense_manager_id.login
-            message_txt = f"""Se ha creado un reporte de gastos del empleado {self.employee_id.name} para su revisión."""
-            subject = 'Reporte de gastos creado'
-
-            expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
-            base_url += '/web#id=%d&view_type=form&model=%s' % (expense_sheet_id.id, expense_sheet_id._name)
         
         body = """
             <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
@@ -192,7 +170,7 @@ class expensesRequest(models.Model):
                                                             {message}
                                                             <div style="margin: 16px 0px 16px 0px;">
                                                                 <a href="{url}"
-                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver registro</a>
+                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver solicitud</a>
                                                             </div>
                                                             <br/>Saludos<br/>
                                                         </div>
@@ -222,38 +200,21 @@ class expensesRequest(models.Model):
         mail.send()
 
     def create_report_expenses(self):
-        # expense_sheet_id = self.env['hr.expense.sheet'].search([('request_id','=',self.id)])
-        # if expense_sheet_id:
-        #     expense_sheet_id.unlink()
-        
-        # self.expenses_ids.action_submit_expenses()
-        expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
+        expense_sheet_id = self.env['hr.expense.sheet'].search([('request_id','=',self.id)])
         if expense_sheet_id:
             expense_sheet_id.unlink()
-
-        sheet_obj = self.env['expenses.sheet.request']
-        sequence_id = self.env.ref('cm_expenses_request.expenses_sheet_request_sequence')
-        vals = {
-            'employee_id': self.employee_id.id,
-            'user_id': self.employee_id.expense_manager_id.id,
-            'request_id': self.id,
-            'name': f"""Liq. de viaticos {self.employee_id.name}""",
-            'state': 'sent',
-            'number': sequence_id.next_by_id()
-        }
-        sheet_id = sheet_obj.create(vals)
-        self.expenses_ids.write({'expense_sheet_req_id': sheet_id.id, 'state': 'submitted'})
         
+        self.expenses_ids.action_submit_expenses()
 
     def show_expenses_report(self):
-        expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
+        expense_sheet_id = self.env['hr.expense.sheet'].search([('request_id','=',self.id)])
         if expense_sheet_id:
             self.ensure_one()
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',
                 'views': [[False, "form"]],
-                'res_model': 'expenses.sheet.request',
+                'res_model': 'hr.expense.sheet',
                 'target': 'current',
                 'res_id': expense_sheet_id.id
             }

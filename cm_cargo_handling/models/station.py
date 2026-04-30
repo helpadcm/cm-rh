@@ -24,11 +24,7 @@ class CargoStationDiscounts(models.Model):
 	_name = "cargo.station.discounts"
 	_description = "Descuentos en estaciones"
 
-	_sql_constraints = [
-            ('unique_station_product',
-            'UNIQUE (cargo_station_id,product_id)',
-            'El producto debe ser unico por estacion' )
-    ]	
+	_unique_station_product = models.Constraint('unique(cargo_station_id,product_id)', message='El producto debe ser unico por estacion')
 
 	cargo_station_id = fields.Many2one('cargo.station',string="Estacion de Venta")
 	product_id = fields.Many2one('product.product',string="Producto")	

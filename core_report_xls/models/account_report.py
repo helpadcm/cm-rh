@@ -1,7 +1,7 @@
 from odoo import models, fields
 from dateutil.relativedelta import relativedelta
 from itertools import chain
-from odoo.tools.misc import formatLang, format_date, xlsxwriter
+from odoo.tools.misc import formatLang, format_date
 
 class AccountReport(models.Model):
     _inherit = "account.report"

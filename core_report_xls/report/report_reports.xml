@@ -8,14 +8,6 @@
             <field name="report_name">core_report_xls.report_generalledger_xls</field>
             <field name="report_file">core_report_xls.report_generalledger_xls</field>
         </record>
-
-        <record id="action_analytic_account_ledger_xlsx" model="ir.actions.report">
-            <field name="name">Libro Mayor Cuentas Analiticas XLSX</field>
-            <field name="model">account.account</field>
-            <field name="report_type">xlsx</field>
-            <field name="report_name">core_report_xls.ledger_analytic_account_xls</field>
-            <field name="report_file">core_report_xls.ledger_analytic_account_xls</field>
-        </record>
     </data>
 </odoo>
 

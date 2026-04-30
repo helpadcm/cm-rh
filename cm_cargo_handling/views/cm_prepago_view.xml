@@ -6,7 +6,7 @@
             <field name="model">cm.prepago</field>
             <field name="priority">1</field>
             <field name="arch" type="xml">
-                <tree create="false" edit="false" delete="false">
+                <list create="false" edit="false" delete="false">
                     <field name="name"/>
                     <field name="payment_date"/>
                     <field name="journal_id"/>
@@ -17,7 +17,7 @@
                     <field name="state"/>
                     <button name="action_cancel" type="object" string="Cancelar" groups="settlement.group_cash_register_auditor,base.group_no_one"/>
                     <button name="post_to_pay" type="object" string="Procesar" groups="base.group_no_one"/>          
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -26,7 +26,7 @@
             <field name="model">cm.prepago</field>
             <field name="priority">2</field>
             <field name="arch" type="xml">
-                <tree create="false" edit="false" delete="false">
+                <list create="false" edit="false" delete="false">
                     <field name="name"/>
                     <field name="guia_ids"/>
                     <field name="invoice_id"/>
@@ -40,7 +40,7 @@
                     <field name="state"/>
                     <button name="action_cancel" type="object" string="Cancelar" groups="settlement.group_cash_register_auditor,base.group_no_one"/>
                     <button name="post_to_pay" type="object" string="Procesar" groups="base.group_no_one"/>   
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -153,9 +153,9 @@
         <record id="action_prepago_object" model="ir.actions.act_window">            
             <field name="name">Pagos de Caja</field>
             <field name="res_model">cm.prepago</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_ids" eval="[(5, 0, 0), 
-                (0, 0, {'view_mode': 'tree','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
+                (0, 0, {'view_mode': 'list','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
                 (0, 0, {'view_mode': 'form', 'view_id': ref('cm_cargo_handling.cm_prepago_form_view2')})]"/>
             <field name="context">{}</field>  
             <field name="domain">[('payment_create','=',False),('user_id','=',context.get('uid'))]</field>
@@ -164,9 +164,9 @@
         <record id="action_prepago_object2" model="ir.actions.act_window">            
             <field name="name">Todos los Pagos de Caja</field>
             <field name="res_model">cm.prepago</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_ids" eval="[(5, 0, 0), 
-                (0, 0, {'view_mode': 'tree','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
+                (0, 0, {'view_mode': 'list','view_id': ref('cm_cargo_handling.cm_prepago_tree_view2')}), 
                 (0, 0, {'view_mode': 'form', 'view_id': ref('cm_cargo_handling.cm_prepago_form_view2')})]"/>
             <field name="context">{}</field>  
             <field name="domain">[('payment_create','=',False)]</field>

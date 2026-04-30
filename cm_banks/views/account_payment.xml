@@ -13,7 +13,7 @@
 				<xpath expr="//field[@name='journal_id']" position="after" string='Payment type'>
 					<field name="pay_method_type"  readonly="was_unreconcilied == True or state != 'draft'" invisible="partner_type == 'customer'"/>
 				</xpath>
-				<field name="ref" position="after">
+				<field name="memo" position="after">
 					<field name="total_usd" invisible="1"/>
 				</field>
 			</field>

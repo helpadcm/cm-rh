@@ -686,18 +686,18 @@ class mcheck(models.Model):
 			lines_col.update({'analytic_distribution': distribution_line})
 		return lines_col
 
-	@api.returns('self', lambda value: value.id)
-	def copy(self, default=None):
-		default = dict(default or {})
-		default['number'] = 'Borrador'
-		default['state'] = 'draft'
-		default['reference'] = self.reference
-		default['date'] = datetime.now()
-		default['was_unreconcilied'] = False
-		encabezado = super(mcheck, self).copy(default)
-		# for line in self.mcheck_ids:
-		# 	a = self.env['mcheck.mcheck_name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type })
-		return encabezado
+	# @api.returns('self', lambda value: value.id)
+	# def copy(self, default=None):
+	# 	default = dict(default or {})
+	# 	default['number'] = 'Borrador'
+	# 	default['state'] = 'draft'
+	# 	default['reference'] = self.reference
+	# 	default['date'] = datetime.now()
+	# 	default['was_unreconcilied'] = False
+	# 	encabezado = super(mcheck, self).copy(default)
+	# 	# for line in self.mcheck_ids:
+	# 	# 	a = self.env['mcheck.mcheck_name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type })
+	# 	return encabezado
 
 	def cancel_payment(self,anullation_date):
 		self.env.context = dict(self.env.context or {})

@@ -47,8 +47,8 @@
 									<field name="pay_comp_currency"/>
 								</group>
 								<field name="mcheck_ids" widget="one2many_list" readonly="state != 'draft'">
-									<tree editable="bottom">
-										<field name="account_id" domain="[('deprecated','=',False)]" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
+									<list editable="bottom">
+										<field name="account_id" domain="[('active','=',True)]" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
 										<field name="name"/>
 										<field name="name2"/>
 										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
@@ -60,12 +60,12 @@
 										<field name="chqmanalitics" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" string="Analiticas"/>
 										<field name="amount" sum="amount"/>
 										<field name="type"/>
-									</tree>
+									</list>
 								</field>
 							</page>
                         	<page string="Apuntes contables" invisible="state not in ['validated','anulated']">
 								<field name="move_ids" readonly="1">
-									<tree string="Apuntes contables">
+									<list string="Apuntes contables">
 										<field name="move_id" optional="hide"/>
 										<field name="date"/>
 										<field name="statement_id" optional="hide"/>
@@ -76,7 +76,7 @@
 										<field name="name"/>
 										<field name="debit" sum="Debit"/>
 										<field name="credit" sum="Credit"/>
-									</tree>
+									</list>
 								</field>
 							</page>
 		       				<page string="Pago de Clientes" invisible="1">
@@ -86,14 +86,14 @@
 											<field name="date"/>
 										</group> 
 									</form>	                               
-									<tree string="Clients Payment"  >
+									<list string="Clients Payment"  >
 										<field name="date"/>
 										<field name="partner_id" />
 										<field name="name" />
 										<field name="journal_id" />
 										<field name="amount" sum="amount"/>
 										<field name="state"/>
-									</tree>
+									</list>
 				
                             	</field>
                         	</page>
@@ -112,9 +112,7 @@
 							<field name="was_unreconcilied" invisible='1'/>													
 						</group>
                   	</sheet>
-					<div class="oe_chatter">
-						<field name="message_ids" widget="mail_thread"/>
-					</div>
+					<chatter reload_on_attachment="True"/>
                 </form>
             </field>
         </record>
@@ -124,14 +122,14 @@
             <field name="name">deposit.tree</field>
             <field name="model">banks.deposit</field>
             <field name="arch" type="xml">
-                <tree string="Depositos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
+                <list string="Depositos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
 					<field name="number" />               
 					<field name="date" />
 					<field name="journal_id"/>
 					<field name="name"/>
 					<field name="total" sum='total'/>
 					<field name="state"/>
-                </tree>
+                </list>
             </field>
         </record>
 	
@@ -143,7 +141,7 @@
 					<field name="number"/>
 					<field name="journal_id"/>
 					<field name="name"/>
-					<group expand="1" string="Group By">
+					<group>
 						<filter string="Fecha" name="date_group"  context="{'group_by':'date'}"/>
 						<filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
 						<filter string="Diario" name="journal_group" context="{'group_by':'journal_id'}"/>
@@ -155,7 +153,7 @@
 		<record id="deposit_action_form" model="ir.actions.act_window">
 			<field name="name">Depositos</field>
 			<field name="res_model">banks.deposit</field>
-			<field name="view_mode">tree,form</field>
+			<field name="view_mode">list,form</field>
 			<field name="help" type="html">
 				<p class="oe_view_nocontent_create">
 					Click para agregar un nuevo deposito.

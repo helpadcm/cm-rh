@@ -41,7 +41,7 @@ class requestLoan(models.Model):
         if self.employee_id:
             self.write({
                 'seniority': self.employee_id.seniority,
-                'start_date': self.employee_id.date_start_contract,
+                'start_date': self.employee_id.contract_date_start,
                 'boss_id': self.employee_id.department_id.request_approve_id.id
             })
 

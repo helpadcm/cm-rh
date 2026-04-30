@@ -21,7 +21,7 @@ class Cargo_manifest(models.Model):
     name = fields.Char(string="Numero", tracking=True)
     total_weight = fields.Float(string="Total Peso (lbs)",compute="_get_total_weight")
     # total_vol_weight = fields.Float(string="Total volumetric weight",compute="_get_total_weight")
-    shipping_date = fields.Datetime(string="Fecha de Envio", default=fields.datetime.now(),tracking=True)
+    shipping_date = fields.Datetime(string="Fecha de Envio", default=datetime.now(),tracking=True)
     reception_date = fields.Datetime(string="Fecha de Recepcion", tracking=True)
     shipping_airport = fields.Many2one('cargo.airport', default=_get_shipping_airport, string="CTI de Envio", tracking=True)
     reception_airport = fields.Many2one('cargo.airport', string="CTI de Recepcion", tracking=True)

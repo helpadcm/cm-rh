@@ -474,17 +474,17 @@ class banks_deposits(models.Model):
 		for deposit in self:
 			self.write({'state':'anulated', 'anulation_date' : deposit.date, 'was_unreconcilied':True})
 
-	@api.returns('self', lambda value: value.id)
-	def copy(self, default=None):
-		default = dict(default or {})
-		default['state'] ='draft'
-		default['date'] = datetime.now()
-		default['number'] = 'Borrador'
-		default['was_unreconcilied'] = False
-		encabezado = super(banks_deposits, self).copy(default)
-		# for line in self.mcheck_ids:
-		# 	a = self.env['banks.deposit.name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type})
-		return encabezado
+	# @api.returns('self', lambda value: value.id)
+	# def copy(self, default=None):
+	# 	default = dict(default or {})
+	# 	default['state'] ='draft'
+	# 	default['date'] = datetime.now()
+	# 	default['number'] = 'Borrador'
+	# 	default['was_unreconcilied'] = False
+	# 	encabezado = super(banks_deposits, self).copy(default)
+	# 	# for line in self.mcheck_ids:
+	# 	# 	a = self.env['banks.deposit.name'].create({'mcheck_id': encabezado.id, 'account_id': line.account_id.id, 'name':line.name, 'amount': line.amount, 'chqmanalitics': line.chqmanalitics.id, 'type':line.type})
+	# 	return encabezado
 
 	def unlink(self):
 		deposits = self
@@ -548,7 +548,6 @@ class banks_deposit_name(models.Model):
 				self.process_id = self.factivity_ids.id
 			if len(self.fbudget_line_ids) == 1:
 				self.budget_account_id = self.fbudget_line_ids.id
-
 
 
 

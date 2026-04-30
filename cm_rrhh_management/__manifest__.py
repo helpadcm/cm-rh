@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
 	'name'		:'RRHH Management CM Airlines',
-	'version'	:'17.0',
+	'version'	:'1.0',
     'license': 'LGPL-3',
 	'author'	:'Oniel, CMAirlines',
     'category': 'Human Resources',
@@ -13,7 +13,6 @@
 		'data/paperformat.xml',
 		'data/email_template_hotel.xml',
 		'data/email_template_ferry.xml',
-		'data/email_pv_template.xml',
 		'security/groups.xml',
 		'security/ir.model.access.csv',
 		'wizard/calculate_assists_view.xml',

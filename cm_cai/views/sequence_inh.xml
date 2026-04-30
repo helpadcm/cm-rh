@@ -31,12 +31,12 @@
                         <notebook>
                             <page string="Registros de CAI">
                                 <field name="cai_ids" >
-                                    <tree editable="top">
+                                    <list editable="top">
                                         <field name="cai_id"/>
                                         <field name="number_from"/>
                                         <field name="number_to"/>
                                         <field name="selected"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>

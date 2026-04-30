@@ -60,5 +60,4 @@ class CustomPortalReserveRoom(http.Controller):
         if reserve_id:
             request.session['flash_message'] = 'Reserva de sala creada correctamente'
             request.session['flash_message_type'] = 'alert-success'
-            request.session.modified = True
         return request.redirect('/reserveroom/record_reserve_room')

@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-core_report_xls.access_account_analytic_report_ledger,access_account_analytic_report_ledger,core_report_xls.model_account_analytic_report_ledger,base.group_user,1,1,1,1

@@ -31,13 +31,13 @@
                         <notebook>
                             <page string="Lista de precios" invisible="not for_cargo">
                                 <field name="price_list_ids" invisible="not for_cargo">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="rute_id" />
                                         <field name="price" />
                                         <field name="min_price" />
                                         <field name="qty_min" />
                                         <field name="currency_id" column_invisible="1"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
@@ -49,7 +49,7 @@
         <record id="action_product_handling" model="ir.actions.act_window">            
             <field name="name">Productos</field>
             <field name="res_model">product.template</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="context">{'default_for_cargo': True}</field>         
             <field name="domain" eval="[('for_cargo','=',True)]"/>
         </record>

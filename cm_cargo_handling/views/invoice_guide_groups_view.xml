@@ -8,7 +8,6 @@
                 <form string="Agrupacion de guias">
                     <header>
                         <button name="create_invoice" type="object" string="Facturar" class="oe_highlight" invisible="state != 'draft'" confirm="¿Esta seguro de querer crear la factura?"/>
-                        <button name="print_guides" class="oe_highlight" type="object" string="Imprimir Guias" invisible="state != 'validated'"/>
                         <button name="set_to_draft" class="oe_highlight" type="object" string="Regresar a Borrador" invisible="state != 'validated'"/>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -35,23 +34,19 @@
                         <notebook>
                             <page string="Guias">
                                 <field name="guide_ids" readonly="state != 'draft'">
-                                    <tree create="false" edit="false" editable="bottom">
+                                    <list create="false" edit="false" editable="bottom">
                                         <field name="bill_id"/>
                                         <field name="date"/>
                                         <field name="amount_lps" widget="monetary" options="{'currency_field': 'currency_hnl_id'}" sum="Total"/>
                                         <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="currency_hnl_id" column_invisible="1"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
                     </sheet>
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="activity_ids" widget="mail_activity"/>
-                        <field name="message_ids" widget="mail_thread"/>
-                    </div>
+                    <chatter reload_on_attachment="True"/>
                 </form>
 
             </field>
@@ -61,13 +56,13 @@
             <field name="name">Lista Facturacion de guias</field>
             <field name="model">cargo.invoice.group_guides</field>
             <field name="arch" type="xml">
-                <tree string="Lista de Manifiestos">
+                <list string="Lista de Manifiestos">
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="date"/>
                     <field name="total" sum="Total"/>
                     <field name="state"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -78,7 +73,7 @@
                 <search>
                     <field name="name" filter_domain="[('name', 'ilike', self)]"/>
                     <field name="partner_id"/>
-                    <group expand="0" string="Group By">
+                    <group>
                         <filter name="state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
                         <filter name="partner_id" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
                     </group>
@@ -89,7 +84,7 @@
         <record id="action_invoice_guide_groups" model="ir.actions.act_window">            
             <field name="name">Facturacion de guias</field>
             <field name="res_model">cargo.invoice.group_guides</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>  
             <field name="domain">[]</field>
         </record>

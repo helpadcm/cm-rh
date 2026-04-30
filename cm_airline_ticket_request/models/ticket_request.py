@@ -353,9 +353,7 @@ class external_resquest(models.Model):
     id_file = fields.Binary(string="Doc ID",copy=False)
     id_file_name = fields.Char(string="Nombre ID",copy=False)
 
-    _sql_constraints = [
-        ('id_number_uniq', 'unique(id_number)', _('Ya existe otro registro con el mismo numero de Id/Pasaporte!'))
-    ]
+    _id_number_unique = models.Constraint('unique(id_number)', message='Ya existe otro registro con el mismo numero de Id/Pasaporte!')
 
 class program_resquest(models.Model):    
     _name = 'cm.ticket.request.program'

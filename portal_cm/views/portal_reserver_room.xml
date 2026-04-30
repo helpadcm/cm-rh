@@ -15,7 +15,7 @@
             </ul>
 
             <div class="tab-content">
-                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
+                <div class="container tab-pane fade show active" id="tab1">
                     <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
                         <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
                             <t t-esc="request.session.pop('flash_message')"/>
@@ -65,11 +65,11 @@
                     </t>
                     <t t-else="">
                         <tr>
-                            <td colspan="3" style="font-size:20px" class="text-center"><strong>No hay reservas en esta fecha.</strong></td>
+                            <td colspan="3" style="font-size:18px" class="text-center"><strong>No hay reservas en esta fecha.</strong></td>
                         </tr>
                     </t>
                 </div>
-                <div id="tab2" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
+                <div id="tab2" class="tab-pane fade">
                     <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
                         <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
                             <t t-esc="request.session.pop('flash_message')"/>

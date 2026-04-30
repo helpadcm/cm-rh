@@ -25,8 +25,7 @@ class CustomPortalAbsences(http.Controller):
     def absences_portal(self, **kwargs):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
-        employee_company_id = employee_id.company_id.id
-        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','not in',['PFLY','SCP','SCSE'])]
+        domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','not in',['PFLY','SCP','SCSE']),('company_id','=',employee_id.sudo().company_id.id)]
         types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
         history_absences_ids = request.env['hr.leave'].sudo().search([('employee_id','=',employee_id.id),('holiday_status_id.code','!=','PFLY'),('number_of_days','>',0)], order="request_date_from desc")
         paid_leave_ids = request.env['paid.leave'].sudo().search([])
@@ -78,8 +77,6 @@ class CustomPortalAbsences(http.Controller):
             'employee_id': employee_id.id,
             'holiday_status_id': int(type_value),
             'request_date_from': datetime.strptime(start_date, "%Y-%m-%d"),
-            'holiday_type': 'employee',
-            'multi_employee': False,
             'company_id': company_id.id,
             'tickets_request': tickets_request,
             'name': notes
@@ -151,13 +148,11 @@ class CustomPortalAbsences(http.Controller):
                 message = """Ocurrio un problema en la creacion de su solicitud, contacte con el encargado del sistema"""
                 request.session['flash_message'] = message
                 request.session['flash_message_type'] = 'alert-danger'
-                request.session.modified = True
 
         elif type_absence_id.code not in ['VAC','HCOMP']:
             message = """Solicitud creada exitosamente"""
             request.session['flash_message'] = message
             request.session['flash_message_type'] = 'alert-success'
-            request.session.modified = True
 
         if not leave_created:
             leave_id.sudo().unlink()
@@ -181,7 +176,6 @@ class CustomPortalAbsences(http.Controller):
 
             request.session['flash_message'] = message
             request.session['flash_message_type'] = 'alert-danger'
-            request.session.modified = True        
         else:
             if code in ['VAC','HCOMP']:
                 message = """¡Su solicitud por %s dias ha sido creada exitosamente!"""%(days)
@@ -189,6 +183,5 @@ class CustomPortalAbsences(http.Controller):
                 message = """¡Su solicitud por %s boleto(s) ha sido creada exitosamente!"""%(days)
             request.session['flash_message'] = message
             request.session['flash_message_type'] = 'alert-success'
-            request.session.modified = True
             leave_created = True
         return leave_created

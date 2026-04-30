@@ -1,8 +1,8 @@
 {
     "name": "Retention Payment Integration CM",
     "version": "1.2",
-    "depends": ["account","cm_banks","cm_cai","account_accountant","report_xlsx"],
-    "author": "CMAirlines",
+    "depends": ["account","cm_banks","cm_cai","account_accountant",'report_xlsx'],
+    "author": "CMAirlines, Oniel Avilez",
     "category": "Accounting",
     "description": "Gestiona múltiples retenciones aplicadas a pagos desde el wizard de registro.",
     "data": [

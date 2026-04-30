@@ -1,5 +1,5 @@
 <odoo>
-    <record id="hr_contract_inherit_cm" model="ir.ui.view">
+    <!-- <record id="hr_contract_inherit_cm" model="ir.ui.view">
         <field name="name">hr_payroll_cm.hr_historical.ded</field>
         <field name="model">hr.contract</field>
         <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
@@ -7,9 +7,6 @@
             <button name="action_open_contract_list" position="after">
                 <button name="show_historical" context="{'code': 'DED'}" class="oe_stat_button" icon="fa-list" type="object">
                     <div class="o_stat_info">
-                        <!-- <span class="o_stat_value">
-                            <field name="contracts_count"/>
-                        </span> -->
                         <span class="o_stat_text" >
                             Deducciones
                         </span>
@@ -27,31 +24,8 @@
             <field name="country_code" position="after">
                 <field name="check_type" help="Campo utilizado para revision en nomina"/>
             </field>
-            <notebook position="inside">
-                <page name="historica_salaries" string="Historial Salarios">
-                    <field name="historical_salaries_ids">
-                        <tree editable="bottom" create="0">
-                            <field name="start_date" />
-                            <field name="end_date" />
-                            <field name="end_date_payroll" />
-                            <field name="amount" readonly="1" force_save="1"/>
-                        </tree>
-                    </field>
-                </page>
-            </notebook>
         </field>
-    </record>
-
-    <record id="hr_contract_inherit_form" model="ir.ui.view">
-        <field name="name">contract.form.inh</field>
-        <field name="model">hr.contract</field>
-        <field name="inherit_id" ref="hr_payroll.hr_contract_form_inherit"/>
-        <field name="arch" type="xml">
-            <field name="schedule_pay" position="after">
-                <field name="monthly_wage"/>
-            </field>
-        </field>
-    </record>
+    </record> -->
 
     <record id="hr_department_inherit_cm" model="ir.ui.view">
         <field name="name">hr.department.inherit.list</field>
@@ -70,8 +44,40 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <field name="coach_id" position="after">
+            <button name="action_open_versions" position="after">
+                <button name="show_historical" context="{'code': 'DED'}" class="oe_stat_button" icon="fa-list" type="object">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text" >
+                            Deducciones
+                        </span>
+                    </div>
+                </button>
+            </button>
+            <field name="version_id" position="before">
+                <button string="Agregar Historial de salario" groups="hr_payroll_cm.manager_rrhh_cm" name="add_salarial_historical" type="object" class="oe_highlight"/>
+            </field>
+            <field name="parent_id" position="after">
                 <field name="analytic_account_id" options="{'no_create': True}"/>
+            </field>
+            <field name="wage_type" position="after">
+                <field name="monthly_wage"/>
+            </field>
+            <notebook position="inside">
+                <page name="historica_salaries" string="Historial Salarios">
+                    <field name="historical_salaries_ids">
+                        <list editable="bottom" create="0">
+                            <field name="start_date" />
+                            <field name="end_date" />
+                            <field name="amount" readonly="1" force_save="1"/>
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+            <field name="registration_number" position="after">
+                <field name="check_type" />
+            </field>
+            <field name="resource_calendar_id" position="after">
+                <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
             </field>
         </field>
     </record>
@@ -81,9 +87,8 @@
         <field name="model">hr.work.teams</field>
         <field name="inherit_id" ref="hr_turns_cm.view_turn_work_teams"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='member_employees_ids']/tree/field[@name='job_id']" position="after">
+            <xpath expr="//field[@name='member_employees_ids']/list/field[@name='job_id']" position="after">
                 <field name="compensatory_day_string"/>
-                <field name="available_vacations"/>
             </xpath>
         </field>
     </record>
@@ -93,7 +98,7 @@
         <field name="model">account.account</field>
         <field name="inherit_id" ref="account.view_account_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='allowed_journal_ids']" position="after">
+            <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="calculate_type"/>
             </xpath>
         </field>

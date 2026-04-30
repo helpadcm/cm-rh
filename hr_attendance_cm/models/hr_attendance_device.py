@@ -7,8 +7,6 @@ try:
 except ImportError:
     _logger.error("Please Install pyzk library.")
 
-
-
 class HrAttendanceDevice(models.Model):
     _name = 'hr.attendance.device'
     _description = 'Attendance Device'

@@ -28,7 +28,7 @@ class account_payment_inherit_wizard(models.TransientModel):
     @api.model
     def default_get(self, fields):
         rec = super(account_payment_inherit_wizard, self).default_get(fields)
-        context = dict(self._context or {})
+        context = self.env.context
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         if rec.get('line_ids'):
@@ -143,10 +143,10 @@ class account_payment_inherit_wizard(models.TransientModel):
             'date': self.payment_date,
             'analytic_account_id': self.analytic_account_id.id or False,
             'amount': self.amount,
-            'name': self.next_number,
             'payment_type': self.payment_type,
             'partner_type': self.partner_type,
-            'ref': self.communication,
+            'memo': self.communication,
+            'name': self.next_number,
             'journal_id': self.journal_id.id,
             'company_id': self.company_id.id,
             'currency_id': self.currency_id.id,
@@ -155,7 +155,7 @@ class account_payment_inherit_wizard(models.TransientModel):
             'payment_method_line_id': self.payment_method_line_id.id,
             'destination_account_id': self.line_ids[0].account_id.id,
             'pay_method_type': self.pay_method_type,
-            'write_off_line_vals': []
+            'write_off_line_vals': [],
         }
 
         # if self.payment_line_ids:

@@ -252,9 +252,13 @@ class ap_account_payment(models.Model):
 				if rec.move_id.name in ['Borrador','/']:
 					sequence_id = rec.journal_id.sequence_ids.filtered(lambda seq: seq.code2.code == rec.pay_method_type)
 					if sequence_id:
-						rec.name = sequence_id.next_by_id()
+						next_number = sequence_id.next_by_id()
+						rec.move_id.name = next_number
+						rec.move_id.internal_number = next_number
 					else:
-						rec.name = rec.journal_id.sequence_id.next_by_id()
+						next_number = rec.journal_id.sequence_id.next_by_id()
+						rec.move_id.name = next_number
+						rec.move_id.internal_number = next_number
 			rec.move_id.internal_number = rec.move_id.name
 		return res
 
@@ -540,15 +544,15 @@ class write_off_line(models.Model):
 	_name = "account.payment.writeoffline"
 	_description = "Distribucion de pagos"
 
-	account_id = fields.Many2one('account.account',string="Account",required=True)
-	description = fields.Char(string="Description")
-	debit = fields.Float(string="Debit")
-	credit = fields.Float(string="Credit")
-	amount_currency=fields.Float(string="Credit")
-	currency_id = fields.Many2one('res.currency',string='Currency')
-	payment_id = fields.Many2one('account.payment',string="Payment")
-	partner_id	= fields.Many2one('res.partner',string="Partner")
-	analytic_account_id = fields.Many2one('account.analytic.account',string="Analytic Account")
+	account_id = fields.Many2one('account.account',string="Cuenta",required=True)
+	description = fields.Char(string="Descripcion")
+	debit = fields.Float(string="Debito")
+	credit = fields.Float(string="Credito")
+	amount_currency=fields.Float(string="Credito en moneda")
+	currency_id = fields.Many2one('res.currency',string='Moneda')
+	payment_id = fields.Many2one('account.payment',string="Pago")
+	partner_id	= fields.Many2one('res.partner',string="Cliente")
+	analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
 
 class account_payment_line(models.Model):
 	_name = "account.payment.line"

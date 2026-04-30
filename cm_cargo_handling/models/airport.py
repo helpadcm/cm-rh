@@ -14,6 +14,47 @@ class Airport(models.Model):
 	valid_destinations = fields.One2many("cargo.airport.airport.rel", "origin_id", string="Destinos Validos")
 	cargo_manifest_sequence_id =   fields.Many2one('ir.sequence',string="Sec. Manifiestos")
 	kanban_dashboard = fields.Text(compute='_kanban_dashboard')
+	to_send = fields.Integer(string="Para Enviar", compute="calculate_to_qtys")
+	to_receive = fields.Integer(string="Para Recibir", compute="calculate_to_qtys")
+	color = fields.Integer(string="Color")
+
+	def action_view_to_send(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'name': f"""Manifiestos para Enviar {self.name}""",
+			'res_model': 'cargo.manifest',
+			'view_mode': 'list,form',
+			'domain': [
+				('shipping_airport', '=', self.id),
+				('state', '=', 'draft'),
+			],
+			'context': {
+				'default_airport_id': self.id,
+			}
+		}
+
+	def action_view_to_receive(self):
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'name': f"""Manifiestos para Recibir {self.name}""",
+			'res_model': 'cargo.manifest',
+			'view_mode': 'list,form',
+			'domain': [
+				('reception_airport', '=', self.id),
+				('state', '=', 'sent'),
+			],
+			'context': {
+				'default_airport_id': self.id,
+			}
+		}
+
+	@api.depends('name')
+	def calculate_to_qtys(self):
+		for rec in self:
+			rec.to_send = self.env['cargo.manifest'].search_count([('shipping_airport', '=', rec.id),('state', '=', 'draft')])
+			rec.to_receive = self.env['cargo.manifest'].search_count([('reception_airport', '=', rec.id),('state', '=', 'sent')])
 
 	@api.depends('name')
 	def _kanban_dashboard(self):
@@ -93,14 +134,10 @@ class calculations_by_type(models.Model):
 	fixed_amount = fields.Float("Monto Fijo", digits=(12,4))
 	weight_with_grace =	fields.Float("Peso de regalia en lb", digits=(12,4))
 
+	_unique_options_cargo_airlid = models.Constraint('unique(cargo_airport_rel_id,type_cargo)', message='El tipo debe ser unico por ruta')
+
 	@api.onchange('type')
 	def onchange_type(self):
 		for val in self:
 			if val.type == 'fixed_value':
 				val.include_km = False
-
-	_sql_constraints = [
-            ('unique_options_cargo_airlid',
-            'UNIQUE (cargo_airport_rel_id,type_cargo)',
-            'El tipo debe ser unico por ruta' )
-    ]

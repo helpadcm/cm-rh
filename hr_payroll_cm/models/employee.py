@@ -25,7 +25,6 @@ class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'
 
     compensatory_day_string = fields.Char(related="employee_id.compensatory_day_string",string="Tiempo Compensatorio")
-    available_vacations = fields.Float(related="employee_id.vacations_day",string="Vacaciones Disp.")
 
 class payslipInputInherit(models.Model):
     _inherit = 'hr.payslip.input.type'
@@ -45,11 +44,14 @@ class salaryRulesInh(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         rules = super().create(vals_list)
-        self.env['hr.inc.ded.rules'].create({
-            'name': rules.name,
-            'code': rules.code,
-            'category_id': rules.category_id.id
-        })
+        for rule in rules:
+            rule_id = self.env['hr.inc.ded.rules'].search([('code','=',rule.code)])
+            if not rule_id:
+                self.env['hr.inc.ded.rules'].create({
+                    'name': rule.name,
+                    'code': rule.code,
+                    'category_id': rule.category_id.id
+                })
         return rules
 
 class accountAccountInh(models.Model):

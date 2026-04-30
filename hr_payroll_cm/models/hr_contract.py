@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import pytz
 
-class Contract(models.Model):
-    _inherit = 'hr.contract'
+class employeeContract(models.Model):
+    _inherit = 'hr.employee'
 
     # hours_per_week = fields.Float(
     #     string='Horas por Semana',
@@ -16,7 +16,7 @@ class Contract(models.Model):
 
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
     skip_rules_ids = fields.Many2many('hr.inc.ded.rules', string="Omitir reglas")
-    historical_salaries_ids = fields.One2many('historical.salaries.contract','contract_id',string="Historial de salarios")
+    historical_salaries_ids = fields.One2many('historical.salaries.contract','employee_id',string="Historial de salarios")
     monthly_wage = fields.Monetary(string="Salario Mensual", tracking=True)
 
     @api.onchange('monthly_wage','schedule_pay')
@@ -65,7 +65,7 @@ class Contract(models.Model):
             if code in ['RAP','SSH']:
                 amount = self.calculate_rap(code)
             else:
-                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('deduction_type_id.code','=',code)])
+                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('other_input_type_id.code','=',code)])
                 if deduction_ids:
                     for ded in deduction_ids:
                         if ded.deduction_type_id.code == code:
@@ -78,10 +78,9 @@ class Contract(models.Model):
 
                                 line_id = ded.payment_plan_ids.filtered(lambda plan: plan.date == payslip.date_from)
                                 if line_id:
-                                    amount += line_id.amount
+                                    amount = line_id.amount
                                     line_id.payslip_id = payslip.id
                                     line_id.state = 'paid'
-
         return amount
 
     def get_transport_bonus(self, payslip):
@@ -143,7 +142,7 @@ class Contract(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Deducciones',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'res_model': 'hr.historical.deductions',
             'domain': domain,
             'target': 'current',
@@ -186,7 +185,6 @@ class Contract(models.Model):
     def add_salarial_historical(self):
         last_date = (datetime.now() - timedelta(days=1)).date()
         vals = {
-            'contract_id': self.id,
             'employee_id': self.employee_id.id,
             'amount': self.wage * 2,
         }
@@ -201,30 +199,14 @@ class Contract(models.Model):
             vals.update({'start_date': self.date_start, 'end_date': last_date})
             self.env['historical.salaries.contract'].create(vals)
 
-    def update_end_date_payroll(self):
-        for line in self.historical_salaries_ids:
-            line.end_date_payroll = line.end_date
-
 class historicalSalaries(models.Model):
     _name = "historical.salaries.contract"
     _description = "Historial de salarios por contrato"
 
-    contract_id = fields.Many2one('hr.contract', string="Contrato")
+    employee_id = fields.Many2one('hr.employee', string="Contrato")
     start_date = fields.Date(string="Fecha Inicial")
     end_date = fields.Date(string="Fecha Final")
-    end_date_payroll = fields.Date(string="Ultima fecha aplicada en nomina")
     amount = fields.Float(string="Sueldo Anterior")
-    employee_id = fields.Many2one('hr.employee',string="Empleado")
-
-    @api.onchange('contract_id')
-    def get_contract_data(self):
-        if self.contract_id:
-            self.employee_id = self.contract_id.employee_id.id
-
-    @api.onchange('employee_id')
-    def get_contract_data(self):
-        if self.employee_id:
-            self.contract_id = self.employee_id.contract_id.id
 
 class workEntryTypeInh(models.Model):
     _inherit = 'hr.work.entry.type'

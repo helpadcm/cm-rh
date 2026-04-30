@@ -44,7 +44,7 @@
             <field name="model">res.users</field>
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//form/sheet/div[hasclass('oe_title')]/group/field[@name='partner_id']" position="after">
+                <xpath expr="//form/sheet/group/field[@name='partner_id']" position="after">
                     <field name="station_id"/>
                 </xpath>
             </field>
@@ -80,27 +80,14 @@
                             <group>
                                 <field name="no_volumen"/>
                             </group>
-                            <notebook>
-                                <page name="pricelist" string="Lista de precios">
-                                    <field name="pricelist_ids">
-                                        <tree editable="bottom">
-                                            <field name="product_id" options="{'no_create': True}" domain="[('for_cargo','=',True)]"/>
-                                            <field name="rute_id" force_save="1" required="product_type != 'is_sobre'" options="{'no_create': True}"/>
-                                            <field name="price" />
-                                            <field name="min_price" />
-                                            <field name="qty_min" />
-                                            <field name="product_type" column_invisible="1"/>
-                                            <field name="currency_id" column_invisible="1" options="{'no_create': True}"/>
-                                        </tree>
-                                    </field>
-                                </page>
-                            </notebook>
                         </group>
                     </page>
                 </notebook>
 
-                <xpath expr="//field[@name='child_ids']/form/sheet/group/group/field[@name='mobile']" position="after">
-                    <field name="vat"/>
+                <xpath expr="//field[@name='child_ids']/form/sheet/group[@name='other_info']" position="inside">
+                    <group>
+                        <field name="vat"/>
+                    </group>
                 </xpath>
             </field>
         </record>

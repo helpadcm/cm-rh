@@ -12,10 +12,10 @@
                     <notebook>
                         <page string="Lineas">
                             <field name="line_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="employee_id" widget="many2one_avatar_user" options="{'no_create': True}"/>
                                     <field name="email" required="1"/>
-                                </tree>
+                                </list>
                             </field>
                         </page> 
                     </notebook>
@@ -28,15 +28,15 @@
         <field name="name">email.notifications.tree</field>
         <field name="model">turn.email.notifications</field>
         <field name="arch" type="xml">
-            <tree string="Lista">
+            <list string="Lista">
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_notification_email" model="ir.actions.act_window">
         <field name="name">Correos para notificaciones</field>
         <field name="res_model">turn.email.notifications</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

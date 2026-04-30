@@ -206,7 +206,7 @@ class saleOrderHandling(models.Model):
             'name': _('Guias de Carga'),
             'type': 'ir.actions.act_window',
             'res_model': 'cargo.bill',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('order_id', '=', self.id)],
             'target': 'current',
             'context': {'default_order_id': self.id},
@@ -395,7 +395,7 @@ class saleOrderHandling(models.Model):
             self.uom_name = self.product_id.uom_id.name
             self.product_code = self.product_id.default_code
 
-    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id', 'volumen', 'additional_costs', 'uom_name', 'discount_id','partner_id')
+    @api.depends('product_id', 'pricelist_id', 'weight_or_qty', 'options_size', 'weight_piece', 'origin_id', 'destination_id', 'volumen', 'additional_costs', 'uom_name', 'discount_id')
     def calculate_amounts(self):
         for rec in self:
             if rec.product_id:
@@ -407,13 +407,10 @@ class saleOrderHandling(models.Model):
                         raise ValidationError("Si el producto seleccionado es FLETE el peso permitido es mayor de 5 si quiere ingresar un peso menor debe seleccionar el producto PAQUETE.")
 
                 line_id = False
-                if rec.product_id.type_cargo.options == 'is_sobre':
-                    line_id = rec.partner_id.pricelist_ids.filtered(lambda line: line.product_id.id == rec.product_id.product_tmpl_id.id)
-                else:
-                    line_id = rec.partner_id.pricelist_ids.filtered(lambda line: line.product_id.id == rec.product_id.product_tmpl_id.id and line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
-                
-                if not line_id:
+                if not rec.pricelist_id:
                     line_id = rec.product_id.price_list_ids.filtered(lambda line: line.rute_id.origin_id.id == rec.origin_id.airport_id.id and line.rute_id.destination_id.id == rec.destination_id.airport_id.id)
+                else:
+                    line_id = rec.pricelist_id.list_product_ids.filtered(lambda line: line.product_id.id == rec.product_id.id)
                 
                 price = 0
                 amount_pack_price = 0

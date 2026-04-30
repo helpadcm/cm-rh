@@ -74,8 +74,7 @@ class moveInh(models.Model):
         self.write({'name': invoice_name})
         return res
 
-
-    @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'payment_id')
+    @api.depends('posted_before', 'state', 'journal_id', 'date', 'move_type', 'origin_payment_id')
     def _compute_name(self):
         for rec in self:
             if rec.move_type in ['out_invoice','out_refund','entry']:
@@ -144,6 +143,8 @@ class moveInh(models.Model):
                     else:
                         if inv.name in ['Borrador','/']:
                             if not self.env.context.get('from_register'):
+                                if not inv.journal_id.sequence_id:
+                                    raise ValidationError(f"""No hay una secuencia establecia para el diario {inv.journal_id.name}""")
                                 inv.name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.date).next_by_id()
                         inv.write({'internal_number': inv.name})
             

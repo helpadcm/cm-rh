@@ -8,7 +8,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
         </record>
 
         <record model="ir.cron" id="delete_incompletes_records_cron">
@@ -19,7 +18,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
         </record>
 
         <record model="ir.cron" id="delete_quotes_order_cron">
@@ -30,7 +28,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
         </record>
 
         <record model="ir.cron" id="delivery_guide_cron">
@@ -41,7 +38,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
         </record>
 
         <record model="ir.cron" id="send_daily_sales_cron">
@@ -52,7 +48,6 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
         </record>
     </data>
 </odoo>

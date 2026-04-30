@@ -4,7 +4,6 @@ from datetime import datetime
 relationship_list = [
     ('mother', 'Madre'), ('father','Padre'),
     ('children','Hijo(a)'), ('siblings','Hermano(a)'),
-    ('grandparents','Abuelo(a)'), ('grandson','Nieto(a)'),
     ('couple','Pareja'),('other','Otro'), ('employee','Empleado')
 ]
 

@@ -12,7 +12,7 @@ class loanRequestPortal(http.Controller):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         request_ids = request.env['rrhh.request.loan'].sudo().search([('employee_id','=',employee_id.id)])
-        days = (datetime.now().date() - employee_id.date_start_contract).days
+        days = (datetime.now().date() - employee_id.contract_date_start).days
         years = math.floor(days/365)
         show_form = 'allow'
         messsage_form = ''
@@ -39,7 +39,7 @@ class loanRequestPortal(http.Controller):
 
         values = {
             'employee_name': employee_id.name,
-            'income_date': employee_id.date_start_contract,
+            'income_date': employee_id.contract_date_start,
             'seniority': employee_id.seniority,
             'years_old': years,
             'historical_request': request_ids,
@@ -69,6 +69,5 @@ class loanRequestPortal(http.Controller):
 
         request.session['flash_message'] = "Solicitud Ingresada con Exito"
         request.session['flash_message_type'] = 'alert-success'
-        request.session.modified = True
 
         return request.redirect('/requests_cm/loan_request_cm')

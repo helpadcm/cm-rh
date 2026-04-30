@@ -1,7 +1,7 @@
 <odoo>
     <template id="portal_download_signature" name="Descargar Firma">
         <t t-call="portal.portal_layout">
-            <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
+            <div class="container tab-pane fade show active" id="tab1">
 
                 <h2 class="text-center">Descargar Firma Digital</h2>
                 <p class="text-center">Desde esta página podrá descargar su firma digital.</p>

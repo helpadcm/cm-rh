@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <record model="ir.module.category" id="hr_digital_sign_category">
-            <field name="name">Permisos Firma Digital CM</field>
-            <field name="sequence">7</field>
+    <!-- ############################  CATEGORY  ######################################## -->
+		 <record model="ir.module.category" id="category_email_signatures">
+		    <field name="name">Firma de correo</field>
+		    <field name="description">Permisos para generacion de firmas de correo.</field>
+		    <field name="sequence">20</field>
+		</record>
+
+        <!-- ############################  PRIVILEGES  ######################################## -->
+
+        <record id="privilege_email_signature" model="res.groups.privilege">
+            <field name="name">Firma de correos</field>
+            <field name="category_id" ref="category_email_signatures"/>
+            <field name="sequence">10</field>
         </record>
+
+        <!-- ############################  GROUPS  ######################################## -->
 
         <record id="manager_digital_sign_cm" model="res.groups">
             <field name="name">Administrador Firma CM</field>
-            <field name="category_id" ref="hr_digital_sign_category"/>
+            <field name="privilege_id" ref="privilege_email_signature"/>
         </record>
 
         <record id="user_digital_sign_cm" model="res.groups">
             <field name="name">Usuario Firma CM</field>
-            <field name="category_id" ref="hr_digital_sign_category"/>
+            <field name="privilege_id" ref="privilege_email_signature"/>
         </record>
 
     </data>

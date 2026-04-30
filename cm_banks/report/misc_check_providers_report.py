@@ -16,7 +16,7 @@ class ReportChecks(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        account_payment = self.env.get('account.payment').search([('id','in',docids),('state','in',['posted'])])
+        account_payment = self.env.get('account.payment').search([('id','in',docids),('state','in',['paid','in_process'])])
         tipo = account_payment.mapped('journal_id')
         if len(tipo)!=1:
             raise ValidationError(_("El diario debe ser el mismo"))
@@ -31,7 +31,7 @@ class ReportChecks(models.AbstractModel):
         return docargs
 
     def get_data(self,ids):
-        account_payment = self.env.get('account.payment').search([('id','in',ids),('state','in',['posted'])])
+        account_payment = self.env.get('account.payment').search([('id','in',ids),('state','in',['paid','in_process'])])
         info_account=[]
         if account_payment:    
             for check in account_payment:
@@ -53,7 +53,7 @@ class ReportChecks(models.AbstractModel):
                     'credit_sum': asiento.get('suma_credito'),
                     'pay_method_type': check.pay_method_type,
                     'move': check.move_id.name,
-                    'concept': check.communication,
+                    'concept': check.memo,
                     'show_letter': True,
 
                 })

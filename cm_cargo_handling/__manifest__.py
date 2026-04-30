@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
 	'name'		:'Cargo Handling CM Airlines',
-	'version'	:'17.0',
+	'version'	:'1.0',
     'license': 'LGPL-3',
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
@@ -49,7 +49,6 @@
 		'report/abandoned_guides.xml',
 		'report/abandonment_report.xml',
 		'report/daily_sales_report.xml',
-		'report/group_guide.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,
