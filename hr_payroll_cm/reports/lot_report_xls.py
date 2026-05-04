@@ -199,7 +199,7 @@ class lotFormatXlsx(models.AbstractModel):
             incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
             incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})
             
-            if payslip.worked_days_line_ids:
+            if payslip.worked_days_line_ids and payslip.use_worked_day_lines:
                 for entry in payslip.worked_days_line_ids:
                     if entry.work_entry_type_id.code != 'WORK100':
                         if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' not in incomes_name:
