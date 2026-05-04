@@ -528,26 +528,26 @@ class banks_deposit_name(models.Model):
 	partner_id = fields.Many2one('res.partner', string='Empresa')
 	chqmanalitics = fields.Many2one("account.analytic.account",string="Depositos Analiticos")
 	type = fields.Selection([('dr','Debito'),('cr','Credito')], string='Db/Cr',default="cr")
-	source_id = fields.Many2one('crossovered.source_expenditure', string="Fuente de Financiamiento")
-	process_id = fields.Many2one('crossovered.activity', string="Proceso")
-	budget_account_id = fields.Many2one('account.budget.account', string='Cuenta Presupuesto')
-	fbudget_line_ids = fields.Many2many("account.budget.account", related="account_id.fbudget_line_ids")
-	factivity_ids = fields.Many2many("crossovered.activity", related="account_id.factivity_ids")
+	# source_id = fields.Many2one('crossovered.source_expenditure', string="Fuente de Financiamiento")
+	# process_id = fields.Many2one('crossovered.activity', string="Proceso")
+	# budget_account_id = fields.Many2one('account.budget.account', string='Cuenta Presupuesto')
+	# fbudget_line_ids = fields.Many2many("account.budget.account", related="account_id.fbudget_line_ids")
+	# factivity_ids = fields.Many2many("crossovered.activity", related="account_id.factivity_ids")
 
 
-	@api.onchange('account_id')
-	def onchange_account_id_budget(self):
-		self.budget_account_id = False
-		self.source_id = False
-		self.process_id = False
-		if self.account_id and self.account_id.account_type == 'expense':
-			if len(self.factivity_ids) > 0 and len(self.fbudget_line_ids) > 0:
-				domain = [('move_type','=','gasto')]
-				self.source_id = self.env.get("crossovered.source_expenditure").search(domain,limit=1).id
-			if len(self.factivity_ids) == 1:
-				self.process_id = self.factivity_ids.id
-			if len(self.fbudget_line_ids) == 1:
-				self.budget_account_id = self.fbudget_line_ids.id
+	# @api.onchange('account_id')
+	# def onchange_account_id_budget(self):
+	# 	self.budget_account_id = False
+	# 	self.source_id = False
+	# 	self.process_id = False
+	# 	if self.account_id and self.account_id.account_type == 'expense':
+	# 		if len(self.factivity_ids) > 0 and len(self.fbudget_line_ids) > 0:
+	# 			domain = [('move_type','=','gasto')]
+	# 			self.source_id = self.env.get("crossovered.source_expenditure").search(domain,limit=1).id
+	# 		if len(self.factivity_ids) == 1:
+	# 			self.process_id = self.factivity_ids.id
+	# 		if len(self.fbudget_line_ids) == 1:
+	# 			self.budget_account_id = self.fbudget_line_ids.id
 
 
 

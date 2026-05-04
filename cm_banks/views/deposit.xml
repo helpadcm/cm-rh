@@ -52,11 +52,11 @@
 										<field name="name"/>
 										<field name="name2"/>
 										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
-										<field name="budget_account_id" domain="[('id','in',fbudget_line_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<!-- <field name="budget_account_id" domain="[('id','in',fbudget_line_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
 										<field name="process_id" domain="[('id','in',factivity_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
 										<field name="source_id" options="{'no_quick_create':True,'no_create_edit':True}"/>
 										<field name="fbudget_line_ids" column_invisible="1" widget="many2many_tags"/>
-										<field name="factivity_ids" column_invisible="1" widget="many2many_tags"/>
+										<field name="factivity_ids" column_invisible="1" widget="many2many_tags"/> -->
 										<field name="chqmanalitics" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" string="Analiticas"/>
 										<field name="amount" sum="amount"/>
 										<field name="type"/>
@@ -70,9 +70,9 @@
 										<field name="date"/>
 										<field name="statement_id" optional="hide"/>
 										<field name="account_id"/>
-										<field name="analytic_account_id" optional="show"/>
+										<!-- <field name="analytic_account_id" optional="show"/>
 										<field name="activity_id" optional="show"/>
-										<field name="source_id" optional="show"/>
+										<field name="source_id" optional="show"/> -->
 										<field name="name"/>
 										<field name="debit" sum="Debit"/>
 										<field name="credit" sum="Credit"/>
