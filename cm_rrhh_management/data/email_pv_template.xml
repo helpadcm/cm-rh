@@ -65,10 +65,10 @@
                                                                 </tr>
                                                                 <t t-foreach="object.beneficiary_ids" t-as="ben">
                                                                     <tr>
-                                                                        <td style="border:1px solid black;padding:3px">
+                                                                        <td style="border:1px solid black;padding:3px;text-align:center">
                                                                             <t t-out="ben.beneficiary_id.name or ''"/>
                                                                         </td>
-                                                                        <td style="border:1px solid black;padding:3px">
+                                                                        <td style="border:1px solid black;padding:3px;text-align:center">
                                                                             <t t-out="ben.identity or ''"/>
                                                                         </td>
                                                                         <td style="border:1px solid black;padding:3px;text-align:center">
