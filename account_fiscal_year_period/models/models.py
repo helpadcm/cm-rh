@@ -192,19 +192,20 @@ class AccountMove(models.Model):
         res = super(AccountMove, self)._check_fiscal_lock_dates()
         if res:
             for rec in self:
-                fiscal_year_obj = self.env['account.fiscalyear.periods']
-                period_obj = self.env['account.month.period']
-                fiscal_rec = fiscal_year_obj.sudo().with_context(company_id=rec.company_id.id).search([('date_start','<=',rec.date),('date_stop','>=',rec.date),('company_id','=',rec.company_id.id)],limit=1)
-                if not fiscal_rec:
-                    raise ValidationError(_('La fecha debe estar dentro del periodo fiscal definido'))
-                elif fiscal_rec.state == 'open':
-                    period_rec = period_obj.sudo().with_context(company_id=rec.company_id.id).search([('date_start', '<=', rec.date), ('date_stop', '>=', rec.date),('fiscalyear_id','=',fiscal_rec.id)],limit=1)
-                    if not period_rec:
-                        raise ValidationError(
-                            _('La fecha debe estar dentro del periodo de duracion.'))
-                    elif not period_rec.special:
-                        raise ValidationError(f"""El periodo fiscal {period_rec.code} esta cerrado""")
-                    else:return True
-                else:raise ValidationError(
-                            _('El año fiscal debe estar abierto'))
+                if rec.date:
+                    fiscal_year_obj = self.env['account.fiscalyear.periods']
+                    period_obj = self.env['account.month.period']
+                    fiscal_rec = fiscal_year_obj.sudo().with_context(company_id=rec.company_id.id).search([('date_start','<=',rec.date),('date_stop','>=',rec.date),('company_id','=',rec.company_id.id)],limit=1)
+                    if not fiscal_rec:
+                        raise ValidationError(_('La fecha debe estar dentro del periodo fiscal definido'))
+                    elif fiscal_rec.state == 'open':
+                        period_rec = period_obj.sudo().with_context(company_id=rec.company_id.id).search([('date_start', '<=', rec.date), ('date_stop', '>=', rec.date),('fiscalyear_id','=',fiscal_rec.id)],limit=1)
+                        if not period_rec:
+                            raise ValidationError(
+                                _('La fecha debe estar dentro del periodo de duracion.'))
+                        elif not period_rec.special:
+                            raise ValidationError(f"""El periodo fiscal {period_rec.code} esta cerrado""")
+                        else:return True
+                    else:raise ValidationError(
+                                _('El año fiscal debe estar abierto'))
         else: return res                         

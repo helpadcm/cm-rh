@@ -150,7 +150,7 @@ class lotFormatXlsx(models.AbstractModel):
         payslips = self.env['hr.payslip'].search([('payslip_run_id', 'in', docids)])
         payslip_name = ''
         for payslip in payslips:
-            department_name = payslip.contract_id.department_id.name
+            department_name = payslip.employee_id.department_id.name
             deductions = []
             incomes = []
             payslip_name = payslip.payslip_run_id.name
@@ -161,17 +161,40 @@ class lotFormatXlsx(models.AbstractModel):
             if 'Salario Quincenal' not in incomes_name:
                 incomes_name.append('Salario Quincenal')
 
-            fortnight_amount = payslip.contract_id.wage
+            fortnight_amount = payslip.employee_id.wage
             if payslip.worked_days_line_ids:
                 line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
                 if line_id:
                     fortnight_amount = line_id.amount
 
-            wage_amount = payslip.contract_id.wage * 2
-            if len(payslip.contract_id.historical_salaries_ids) > 0:
-                for line in payslip.contract_id.historical_salaries_ids:
-                    if payslip.date_to <= line.end_date:
+            wage_amount = payslip.employee_id.wage * 2
+            if len(payslip.employee_id.historical_salaries_ids) > 0:
+                # for line in payslip.employee_id.historical_salaries_ids:
+                #     if (line.start_date_payroll 
+                #     and line.start_date_payroll <= payslip.date_to 
+                #     and (not line.end_date_payroll or payslip.date_to <= line.end_date_payroll)):
+                #         print ("?????????????????????????????????")
+                #         print (payslip.employee_id.name)
+                #         print (payslip.date_to, line.end_date_payroll)
+                #         wage_amount = line.amount
+                #         fortnight_amount = line.amount / 2
+                lines = payslip.employee_id.historical_salaries_ids.sorted(
+                    key=lambda l: l.end_date_payroll or fields.Date.max
+                )
+
+                found = False
+
+                for line in lines:
+                    if payslip.date_to <= line.end_date_payroll:
                         wage_amount = line.amount
+                        fortnight_amount = line.amount / 2
+                        found = True
+                        break
+
+                # 🔥 fallback: usar el último salario
+                # if not found and lines:
+                #     wage_amount = lines[-1].amount
+                #     fortnight_amount = wage_amount / 2
 
             incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
             incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})
@@ -202,13 +225,13 @@ class lotFormatXlsx(models.AbstractModel):
                     deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
             employee_vals = {
-                'entry_date': payslip.contract_id.date_start.strftime('%d/%m/%Y'),
-                'identity': payslip.contract_id.employee_id.identification_id,
-                'bank_account': payslip.contract_id.employee_id.bank_account_id.acc_number,
+                'entry_date': payslip.employee_id.contract_date_start.strftime('%d/%m/%Y'),
+                'identity': payslip.employee_id.identification_id,
+                'bank_account': payslip.employee_id.bank_account_ids.acc_number,
                 'employee': payslip.employee_id.name,
                 'job': payslip.employee_id.job_id.name,
-                'monthly_salary': payslip.contract_id.wage * 2,
-                'salary': payslip.contract_id.wage,
+                'monthly_salary': payslip.employee_id.wage * 2,
+                'salary': payslip.employee_id.wage,
                 'deductions': deductions,
                 'incomes': incomes
             }

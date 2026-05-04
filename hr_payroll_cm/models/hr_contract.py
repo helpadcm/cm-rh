@@ -206,6 +206,7 @@ class historicalSalaries(models.Model):
     employee_id = fields.Many2one('hr.employee', string="Contrato")
     start_date = fields.Date(string="Fecha Inicial")
     end_date = fields.Date(string="Fecha Final")
+    end_date_payroll = fields.Date(string="Ultima fecha aplicada en nomina")
     amount = fields.Float(string="Sueldo Anterior")
 
 class workEntryTypeInh(models.Model):
