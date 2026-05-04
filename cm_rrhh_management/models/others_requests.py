@@ -174,7 +174,7 @@ class othersRequests(models.Model):
         ]))
 
         if self.tickets_request:
-            template_id = self.env.ref('cm_rrhh_management.rrhh_email_pv_template')
+            template_id = self.env.ref('cm_rrhh_management.rrhh_email_fly_ticket_template')
 
         template_ctx = {'action_url': base_url}
         template_id.attachment_ids = [(6, 0, self.attachment_ids.ids)]
