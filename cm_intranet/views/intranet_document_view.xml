@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_document_tree" model="ir.ui.view">
+    <field name="name">intranet.document.tree</field>
+    <field name="model">intranet.document</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="sequence" widget="handle"/>
+        <field name="name"/>
+        <field name="category_id"/>
+        <field name="is_published"/>
+        <field name="active"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_document_form" model="ir.ui.view">
+    <field name="name">intranet.document.form</field>
+    <field name="model">intranet.document</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <group>
+              <field name="name"/>
+              <field name="category_id"/>
+              <field name="sequence"/>
+            </group>
+            <group>
+              <field name="is_published"/>
+              <field name="allow_download"/>
+              <field name="active"/>
+            </group>
+          </group>
+
+          <group>
+            <field name="file" filename="file_name" widget="binary_preview"/>
+            <field name="file_name" invisible="1"/>
+            <field name="file_type" invisible="0"/>
+          </group>
+
+          <group>
+            <field name="description"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_intranet_document" model="ir.actions.act_window">
+    <field name="name">Documentos</field>
+    <field name="res_model">intranet.document</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

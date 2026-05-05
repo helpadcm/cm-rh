@@ -11,6 +11,8 @@
                     <field name="cc_email"/>
                     <field name="phone" required="1"/>
                     <field name="business_type" required="1"/>
+                    <field name="code" required="1"/>
+                    <field name="color" widget="color_picker" />
                 </list>
             </field>
         </record>
