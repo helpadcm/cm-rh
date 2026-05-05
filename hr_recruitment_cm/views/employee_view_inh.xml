@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="employee_view_inh">
+            <field name="name">employee.inh.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form" />
+            <field name="arch" type="xml">
+                <field name="contract_date_start" position="after">
+                    <field name="rrhh_boss" invisible="1"/>
+                    <field name="function_rrhh"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

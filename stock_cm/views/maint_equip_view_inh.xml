@@ -1,0 +1,57 @@
+<odoo>
+    <record id="equipment_maintenance_inh_form" model="ir.ui.view">
+        <field name="name">equipment.maintenance.view.inh</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/div" position="before">
+                <div class="oe_avatar">
+                    <field name="image_equipment" widget="image"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="equipment_maintenance_inh_kanba" model="ir.ui.view">
+        <field name="name">equipment.maintenance.kanba.inh</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_kanban"/>
+        <field name="arch" type="xml">
+            <!-- IMPORTANTE: declarar el campo -->
+            <xpath expr="//kanban" position="inside">
+                <field name="image_equipment"/>
+            </xpath>
+
+            <!-- Insertar en la card -->
+            <!-- <xpath expr="//t[@t-name='card']/div" position="inside">
+                <t t-if="record.image_equipment.raw_value">
+                    <div class="mb-2 text-center">
+                        <field name="image_equipment" widget="image"
+                            style="max-height:80px; max-width:100%;"/>
+                    </div>
+                </t>
+            </xpath> -->
+
+            <!-- Reemplazar contenido del card -->
+            <xpath expr="//t[@t-name='card']/div" position="replace">
+                <div class="d-flex align-items-start">
+
+                    <!-- Imagen izquierda -->
+                    <t t-if="record.image_equipment.raw_value">
+                        <div class="me-3">
+                            <field name="image_equipment" widget="image"
+                                style="width:60px;height:60px;object-fit:cover;border-radius:6px;"/>
+                        </div>
+                    </t>
+
+                    <div> 
+                        <field name="name" class="fw-bold fs-5"/> 
+                        <span t-if="record.model.raw_value" class="fw-bold small"> 
+                            (<field name="model"/>)
+                        </span> 
+                    </div> 
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
