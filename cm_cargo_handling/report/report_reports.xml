@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
     <record id="action_guide_format" model="ir.actions.report">
         <field name="name">Guia de encomiendas</field>
         <field name="model">sale.order.handling</field>
@@ -132,4 +133,5 @@
         name="cargo_manifest.report_cargo_manifest.xlsx"
         file="cargo_manifest.report_cargo_manifest.xlsx"
     />
+    </data>
 </odoo>
