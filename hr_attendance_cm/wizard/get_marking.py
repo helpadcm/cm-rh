@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from datetime import datetime, timedelta
-import pymssql
+# import pymssql
 import logging
 from odoo.exceptions import UserError, ValidationError
 import pytz
@@ -71,88 +71,88 @@ class getMarkings(models.TransientModel):
         if len(markings_values) > 0:
             self.create_real_marking(markings_values)
 
-    def connect_sql_server(self):
-        server = '10.1.4.56'
-        database = 'attendance'
-        username = 'sa'
-        password = "youStrong(@)Password"
-        _logger = logging.getLogger(__name__)
-        _logger.info("####################Intentando conexion######################")
-        try:
-            # Crear la conexión
-            conn = pymssql.connect(
-                server=server,
-                user=username,
-                password=password,
-                database=database,
-                port=1433
-            )
-            _logger.info("Conexión exitosa a SQL Server.")
-            for cday in reversed(range(4)):
-                check_date = self.date - timedelta(days=cday)
-                year = check_date.year
-                month = check_date.month
-                day = check_date.day
+    # def connect_sql_server(self):
+    #     server = '10.1.4.56'
+    #     database = 'attendance'
+    #     username = 'sa'
+    #     password = "youStrong(@)Password"
+    #     _logger = logging.getLogger(__name__)
+    #     _logger.info("####################Intentando conexion######################")
+    #     try:
+    #         # Crear la conexión
+    #         conn = pymssql.connect(
+    #             server=server,
+    #             user=username,
+    #             password=password,
+    #             database=database,
+    #             port=1433
+    #         )
+    #         _logger.info("Conexión exitosa a SQL Server.")
+    #         for cday in reversed(range(4)):
+    #             check_date = self.date - timedelta(days=cday)
+    #             year = check_date.year
+    #             month = check_date.month
+    #             day = check_date.day
 
-                if not self.employee_id:
-                    query_sql = """SELECT usertable.NAME as employee,
-                                checking.CHECKTIME as date,
-                                DATENAME(WEEKDAY,checking.CHECKTIME) as day,
-                                machine.MachineAlias as clock,
-                                machine.MachineNumber as CODCLOCK,
-                                usertable.SSN as codemployee
-                            FROM CHECKINOUT as checking
-                            INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
-                            INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                            WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
-                        """%(year,month,day,year,month,day)
-                else:
-                    query_sql = """SELECT usertable.NAME as employee,
-                                checking.CHECKTIME as date,
-                                DATENAME(WEEKDAY,checking.CHECKTIME) as day,
-                                machine.MachineAlias as clock,
-                                machine.MachineNumber as CODCLOCK,
-                                usertable.SSN as codemployee
-                            FROM CHECKINOUT as checking
-                            INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
-                            INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
-                            WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59' AND usertable.SSN = '%s'
-                        """%(year,month,day,year,month,day, self.employee_id.barcode)
+    #             if not self.employee_id:
+    #                 query_sql = """SELECT usertable.NAME as employee,
+    #                             checking.CHECKTIME as date,
+    #                             DATENAME(WEEKDAY,checking.CHECKTIME) as day,
+    #                             machine.MachineAlias as clock,
+    #                             machine.MachineNumber as CODCLOCK,
+    #                             usertable.SSN as codemployee
+    #                         FROM CHECKINOUT as checking
+    #                         INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
+    #                         INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
+    #                         WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59'
+    #                     """%(year,month,day,year,month,day)
+    #             else:
+    #                 query_sql = """SELECT usertable.NAME as employee,
+    #                             checking.CHECKTIME as date,
+    #                             DATENAME(WEEKDAY,checking.CHECKTIME) as day,
+    #                             machine.MachineAlias as clock,
+    #                             machine.MachineNumber as CODCLOCK,
+    #                             usertable.SSN as codemployee
+    #                         FROM CHECKINOUT as checking
+    #                         INNER JOIN USERINFO as usertable ON checking.USERID = usertable.USERID
+    #                         INNER JOIN Machines as machine ON checking.SENSORID = machine.MachineNumber
+    #                         WHERE checking.CHECKTIME BETWEEN '%s-%s-%s 00:00:00' AND '%s-%s-%s 23:59:59' AND usertable.SSN = '%s'
+    #                     """%(year,month,day,year,month,day, self.employee_id.barcode)
                 
-                # Ejecutar una consulta de ejemplo
-                cursor = conn.cursor()
-                cursor.execute(query_sql)
-                results = cursor.fetchall()
-                code_employees = []
-                markings = []
+    #             # Ejecutar una consulta de ejemplo
+    #             cursor = conn.cursor()
+    #             cursor.execute(query_sql)
+    #             results = cursor.fetchall()
+    #             code_employees = []
+    #             markings = []
                 
-                for row in results:
-                    code_emp = row[5]
-                    date = row[1]
-                    clock = row[4]
-                    clock_id = self.env['hr.attendance.device'].search([('device_id','=',clock)])
-                    if clock_id:
-                        vals = {
-                            'date': date,
-                            'code_clock': clock
-                        }
-                        if code_emp in code_employees:
-                            markings[code_employees.index(code_emp)]['lines'].append(vals)
-                        else:
-                            code_employees.append(code_emp)
-                            markings.append({
-                                'code_employee': code_emp,
-                                'date': date,
-                                'lines': [vals]
-                            })
+    #             for row in results:
+    #                 code_emp = row[5]
+    #                 date = row[1]
+    #                 clock = row[4]
+    #                 clock_id = self.env['hr.attendance.device'].search([('device_id','=',clock)])
+    #                 if clock_id:
+    #                     vals = {
+    #                         'date': date,
+    #                         'code_clock': clock
+    #                     }
+    #                     if code_emp in code_employees:
+    #                         markings[code_employees.index(code_emp)]['lines'].append(vals)
+    #                     else:
+    #                         code_employees.append(code_emp)
+    #                         markings.append({
+    #                             'code_employee': code_emp,
+    #                             'date': date,
+    #                             'lines': [vals]
+    #                         })
 
-                # Cerrar conexión
-                cursor.close()
-                if markings:
-                    self.create_real_marking(markings, self.option_form)
-            conn.close()
-        except Exception as e:
-            _logger.info(f"Error al conectar a SQL Server: {e}")
+    #             # Cerrar conexión
+    #             cursor.close()
+    #             if markings:
+    #                 self.create_real_marking(markings, self.option_form)
+    #         conn.close()
+    #     except Exception as e:
+    #         _logger.info(f"Error al conectar a SQL Server: {e}")
 
     def action_set_timezone(self, machine):
         """Function to set user's timezone to device"""
