@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
         <record id="cargo_product_template_view_inherit" model="ir.ui.view">
             <field name="name">Cargo product template</field>
             <field name="model">product.template</field>
@@ -53,5 +52,4 @@
             <field name="context">{'default_for_cargo': True}</field>         
             <field name="domain" eval="[('for_cargo','=',True)]"/>
         </record>
-    </data>
 </odoo>

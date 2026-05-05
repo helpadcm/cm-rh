@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
         <record id="cargo_move_view_inherit" model="ir.ui.view">
             <field name="name">Cargo Move</field>
             <field name="model">account.move</field>
@@ -43,5 +42,4 @@
                 </field>
             </field>
         </record>
-    </data>
 </odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
         <record id="cargo_manifest_logs_tree_view" model="ir.ui.view">
             <field name="name">Cargo manifest logs tree</field>
             <field name="model">cargo.manifest_log</field>
@@ -105,5 +104,4 @@
             </field>
         </record> -->
         
-    </data>
 </odoo>

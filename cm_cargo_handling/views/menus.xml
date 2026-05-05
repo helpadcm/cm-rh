@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
         <menuitem
             id="cargo_handling_menu_root"
             name="Encomiendas"
@@ -257,6 +256,5 @@
             groups="cm_cargo_handling.group_guia_cargar_group_invoice"
             sequence="200"
             action="action_invoice_guide_groups"/>
-    </data>
 
 </odoo>
