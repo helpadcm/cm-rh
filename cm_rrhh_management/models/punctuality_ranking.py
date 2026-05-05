@@ -22,7 +22,7 @@ class punctualutyRankingRRHH(models.Model):
             'name': 'Asistencias',
             'type': 'ir.actions.act_window',
             'res_model': 'hr.attendance',
-            'view_mode': 'tree',
+            'view_mode': 'list',
             'domain': [('id', 'in', self.attendance_ids.ids)]
         }
 

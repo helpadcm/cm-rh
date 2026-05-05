@@ -130,7 +130,7 @@
                                     </group>
                                 </group>>
                                 <field name="cart_ids" readonly="state != 'quote'">
-                                    <list create="false" editable="bottom">
+                                    <tree create="false" editable="bottom">
                                         <field name="product_id" readonly="1"/>
                                         <field name="piece_description" string="Descripcion" />
                                         <field name="weight_piece" sum="Total LBS" readonly="1"/>
@@ -143,7 +143,7 @@
                                         <field name="external_currency_id" column_invisible="1"/>
                                         <field name="local_currency_id" column_invisible="1"/>
                                         <field name="pieces_qty" sum="Total Piezas" column_invisible="1"/>
-                                    </list>
+                                    </tree>
                                 </field>
                                 <group col="3">
                                     <group>
@@ -172,12 +172,12 @@
                             </page>
                             <page string="Servicios Adicionales" >
                                 <field name="additional_services_ids" readonly="state != 'quote'">
-                                    <list string="Caption">
+                                    <tree string="Caption">
                                         <field name="additional_service"/>
                                         <field name="type_service" column_invisible="1"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="total" sum="Total"/>
-                                    </list>
+                                    </tree>
                                     <form string="Servicios Adicionales">
                                         <sheet>
                                             <group>
@@ -204,12 +204,12 @@
                             </page>
                             <page name="bill_ladings" string="Guias de carga" invisible="1">
                                 <field name="bill_lading_ids">
-                                    <list create="false">
+                                    <tree create="false">
                                         <field name="name"/>
                                         <field name="origin_id"/>
                                         <field name="destination_id"/>
                                         <field name="state"/>
-                                    </list>
+                                    </tree>
                                     <form string="Guia de Carga">
                                         <header>
                                             <field name="state" widget="statusbar" statusbar_visible="draft,created,sent,received,delivered,canceled"/>
@@ -254,7 +254,11 @@
                             </page>
                         </notebook>
                     </sheet>
-                    <chatter reload_on_attachment="True"/>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -263,7 +267,7 @@
             <field name="name">Ordenes de Venta</field>
             <field name="model">sale.order.handling</field>
             <field name="arch" type="xml">
-                <list string="Ordenes de Venta" decoration-info="state == 'quote'">
+                <tree string="Ordenes de Venta" decoration-info="state == 'quote'">
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="user_id" />
@@ -276,7 +280,7 @@
                     <field name="state"/>
                     <field name="external_currency_id" column_invisible="1"/>
                     <field name="local_currency_id" column_invisible="1"/>
-                </list>
+                </tree>
             </field>
         </record>
 
@@ -296,7 +300,7 @@
                     <separator/>
                     <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
                     <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
-                    <group>
+                    <group expand="0" string="Group By">
                         <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
                         <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
                         <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
@@ -311,7 +315,7 @@
         <record id="action_sale_order_handling" model="ir.actions.act_window">            
             <field name="name">Ordenes de Venta</field>
             <field name="res_model">sale.order.handling</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">tree,form</field>
             <field name="context">{'search_default_today': 1}</field>         
             <field name="domain" eval=""/>
         </record>
@@ -319,7 +323,7 @@
         <record id="action_partner_handling" model="ir.actions.act_window">            
             <field name="name">Clientes Encomiendas</field>
             <field name="res_model">res.partner</field>
-            <field name="view_mode">kanban,list,form</field>
+            <field name="view_mode">kanban,tree,form</field>
             <field name="context">{'default_cargo_client': True}</field>         
             <field name="domain" eval="[('cargo_client','=',True),('parent_id','=',False)]"/>
         </record>

@@ -33,7 +33,7 @@
 		'views/cm_prepago_view.xml',
 		'views/move_inh_view.xml',
 		'views/discounts_view.xml',
-		'views/res_company_inherit.xml',
+		# 'views/res_company_inherit.xml',
 		'views/invoice_guide_groups_view.xml',
         'views/menus.xml',
 		'report/mother_guide.xml',
