@@ -37,8 +37,8 @@ class othersRequests(models.Model):
     beneficiary_ids = fields.One2many('request.beneficiary','request_id',string="Beneficiarios")
     observations = fields.Text(string="Observaciones",tracking=True)
 
-    exit_route_id = fields.Many2one('cm.ferry.routes',string="Ruta de Salida", tracking=True)
-    return_route_id = fields.Many2one('cm.ferry.routes',string="Ruta de Regreso", tracking=True)
+    exit_route_id = fields.Many2one('cm.ferry.routes',string="Ruta de Salida Ferry", tracking=True)
+    return_route_id = fields.Many2one('cm.ferry.routes',string="Ruta de Regreso Ferry", tracking=True)
     exit_only = fields.Boolean(string="Solo Salida",tracking=True)
     open_back = fields.Boolean(string="Regreso Abierto",tracking=True)
     attachment_ids = fields.Many2many('ir.attachment',string='Adjuntos',help='Archivos relacionados con la solicitud')

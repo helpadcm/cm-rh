@@ -97,7 +97,7 @@ class groupGuides(models.Model):
 
         self.move_id = self.env['account.move'].create(move_vals)
         
-        report = self.env.ref('cm_cargo_handling.action_guide_format')
+        report = self.env.ref('cm_cargo_handling.action_group_guide')
         attachment_obj = self.env['ir.attachment']
         attach_vals = {
             'type': 'binary',
@@ -143,19 +143,18 @@ class groupGuides(models.Model):
                 guide.bill_id.order_id.move_id = self.move_id.id
 
 
-            data = {
-                'order_id': guide.bill_id.order_id.id,
-                'print_guides': True,
-            }
+        data = {
+            'bill_ids': self.guide_ids.mapped('bill_id').ids,
+        }
 
-            pdf_content, _ = self.env['ir.actions.report'].with_context(active_ids=[self.move_id.id])._render_qweb_pdf(
-                report.report_name,
-                [self.move_id.id],
-                data=data
-            )
-            
-            attach_vals.update({'datas': base64.b64encode(pdf_content), 'name': f'Guias {guide.bill_id.name}.pdf'})
-            attachment_obj.create(attach_vals)
+        pdf_content, _ = self.env['ir.actions.report'].with_context(active_ids=[self.move_id.id])._render_qweb_pdf(
+            report.report_name,
+            [self.move_id.id],
+            data=data
+        )
+        
+        attach_vals.update({'datas': base64.b64encode(pdf_content), 'name': f'Guias Agrupadas {self.partner_id.name} {self.date}.pdf'})
+        attachment_obj.create(attach_vals)
 
         sequence_id = self.env.ref('cm_cargo_handling.sequence_guide_group_handling')
         if self.name == 'Borrador':
@@ -179,6 +178,12 @@ class groupGuides(models.Model):
                 raise ValidationError("Solo se pueden borrar registros en estado borrador")
         res = super(groupGuides, self).unlink()
         return res
+
+    def print_guides(self):
+        data = {
+            'bill_ids': self.guide_ids.mapped('bill_id').ids
+        }
+        return self.env.ref('cm_cargo_handling.action_group_guide').report_action(self, data=data)
 
 class groupGuidesList(models.Model):    
     _name = 'cargo.invoice.group_guides.lines'

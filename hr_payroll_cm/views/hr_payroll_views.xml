@@ -7,9 +7,16 @@
             <button name="action_close" position="before">
                 <button string="Crear Plan" name="create_plan" invisible="state != 'open' or not by_quotes" type="object" class="oe_highlight"/>
             </button>
-            <!-- <xpath expr="//field[@name='date_start']" position="after">
+            <xpath expr="//field[@name='date_start']" position="after">
                 <field name="first_date_payment" readonly="1" invisible="1"/>
-            </xpath> -->
+                <field name="estimated_end" string="Fecha de Finalizacion"/>
+            </xpath>
+            <xpath expr="//field[@name='date_end']" position="replace">
+                <field name="date_end" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='date_estimated_end']" position="replace">
+                <field name="date_estimated_end" invisible="1"/>
+            </xpath>
             <field name="description" position="before">
                 <field name="remaining_amount"/>
                 <field name="by_quotes"/>
