@@ -7,6 +7,12 @@
         <record id="privilege_access_rrhh_manager" model="res.groups.privilege">
             <field name="name">Gestiones RRHH</field>
             <field name="category_id" ref="hr_payroll_cm.rrhh_cm_category"/>
+            <field name="group_ids" eval="[
+                (4, ref('cm_rrhh_management.group_legal_area_rrhh')),
+                (4, ref('cm_rrhh_management.group_recruitment_area_rrhh')),
+                (4, ref('cm_rrhh_management.group_payroll_area_rrhh')),
+                (4, ref('cm_rrhh_management.group_finance_area_rrhh')),
+                (4, ref('cm_rrhh_management.group_manager_area_rrhh'))]"/>
             <field name="sequence">11</field>
         </record>
 

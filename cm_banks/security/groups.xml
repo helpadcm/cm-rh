@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<data noupdate="1">
+	<data noupdate="0">
         <!-- ############################  CATEGORY  ######################################## -->
 		 <record model="ir.module.category" id="module_category_banks">
 		    <field name="name">Bancos</field>
@@ -13,60 +13,70 @@
         <record id="privilege_check_manager_bank" model="res.groups.privilege">
             <field name="name">Check manager</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_check_manager'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_debit_credit_bank" model="res.groups.privilege">
             <field name="name">Debitos, Creditos</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_debit_credit_deposit'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_deposit_bank" model="res.groups.privilege">
             <field name="name">Depositos</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_deposit'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_transactions_bank" model="res.groups.privilege">
             <field name="name">Transacciones Bancarias</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_banks_transferences'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_deposit_archive_bank" model="res.groups.privilege">
             <field name="name">Archivar Depositos</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_archive_deposit'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_show_write_checks_bank" model="res.groups.privilege">
             <field name="name">Mostrar Write Checks</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_banks_mostrar_check_writting'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_anulate_allow_bank" model="res.groups.privilege">
             <field name="name">Permitit Anular</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_banks_anullation'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_reset_transactions_bank" model="res.groups.privilege">
             <field name="name">Re-abrir transacciones</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_banks_reset'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_sequence_edit_bank" model="res.groups.privilege">
             <field name="name">Editar secuencias</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_sequence_edit'))]"/>
             <field name="sequence">10</field>
         </record>
 
         <record id="privilege_users_bank" model="res.groups.privilege">
             <field name="name">Tipo usuario bancos</field>
             <field name="category_id" ref="module_category_banks"/>
+            <field name="group_ids" eval="[(4, ref('cm_banks.group_banks_user')),(4, ref('cm_banks.group_banks_manager'))]"/>
             <field name="sequence">10</field>
         </record>
 
