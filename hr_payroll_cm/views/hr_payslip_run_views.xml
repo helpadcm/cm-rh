@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="hr_payroll_cm.payslip_run_inherit" model="ir.ui.view">
+    <record id="cm_payslip_run_inherit" model="ir.ui.view">
         <field name="name">hr.payslip.run.inherit</field>
         <field name="model">hr.payslip.run</field>
         <field name="inherit_id" ref="hr_payroll.hr_payslip_run_form"/>
