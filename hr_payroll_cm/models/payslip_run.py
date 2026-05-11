@@ -15,20 +15,6 @@ class HrPayslipRun(models.Model):
     type_lot = fields.Selection([('normal','Normal'),('fourteenth','Decimo Cuarto Mes'),('thirteenth','Decimo Tercer Mes')], string="Tipo de lote", default="normal")
     journal_id = fields.Many2one('account.journal',string="Diario", default=get_journal_default)
 
-    @api.onchange('date_start', 'type_lot')
-    def get_payslip_name(self):
-        if self.type_lot == 'normal':
-            if self.date_start:
-                if self.date_start.day == 1:
-                    lot_name = '1ra Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
-                if self.date_start.day == 16:
-                    lot_name = '2da Quincena mes %s del año %s'%(months[self.date_start.month - 1], self.date_start.year)
-        else:
-            if self.type_lot == 'fourteenth':
-                lot_name = 'Decimo Cuarto Mes año %s'%(self.date_end.year)
-            elif self.type_lot == 'thirteenth':
-                lot_name = 'Decimo Tercer Mes año %s'%(self.date_start.year)
-
     @api.model_create_multi
     def create(self, vals_list):
         formated_date_cache = {}
@@ -167,9 +153,20 @@ class HrPayslipRun(models.Model):
                     continue
 
                 if line.category_id.code == 'DED':
-                    attachment_id = sl.salary_attachment_ids.filtered(lambda att: att.deduction_type_id.code == line.salary_rule_id.code)
+                    attachment_id = sl.salary_attachment_ids.filtered(lambda att: att.other_input_type_id.code == line.salary_rule_id.code)
                     if attachment_id:
-                        attachment_id.paid_amount += abs(line.total)
+                        if len(attachment_id) > 1:
+                            for att in attachment_id:
+                                total_att = 0
+                                if not att.by_quotes:
+                                    total_att = att.monthly_amount
+                                else:
+                                    line_id = att.payment_plan_ids.filtered(lambda plan: plan.date == sl.date_from)
+                                    if line_id:
+                                        total_att = line_id.amount
+                                att.paid_amount += abs(total_att)
+                        else:
+                            attachment_id.paid_amount += abs(line.total)
 
                 if abs(line.total) > 0:
                     vals = {'employee': sl.employee_id.name,'amount': line.total, 'rule_name': line.salary_rule_id.name, 'department': sl.employee_id.department_id.name}
@@ -418,3 +415,6 @@ class HrPayslipRun(models.Model):
         vals_move.update({'line_ids': move_lines})
         move_id = self.env['account.move'].create(vals_move)
         self.slip_ids.write({'move_id': move_id.id})
+
+    def print_payslip_report(self):
+        return self.env.ref('hr_payroll_cm.action_lot_report_cm_xlsx').report_action(self)

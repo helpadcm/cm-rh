@@ -58,3 +58,20 @@ class accountAccountInh(models.Model):
     _inherit = 'account.account'
 
     calculate_type = fields.Selection(selection_type, string="Tipo de Calculo", help="Campo para definir la forma en que se comportara la cuenta al crear el asiento contable de planillas")
+
+class HrPayrollStructureTypeInh(models.Model):
+    _inherit = 'hr.payroll.structure.type'
+
+    def _get_selection_schedule_pay(self):
+        print ("###############################")
+        return [
+            ('annually', 'Anual'),
+            ('semi-annually', 'Semestral'),
+            ('quarterly', 'Trimestral'),
+            ('bi-monthly', '2 meses'),
+            ('monthly', 'Mensual'),
+            ('semi-monthly', 'Quincenal'),
+            ('bi-weekly', '2 semanas'),
+            ('weekly', 'Semanal'),
+            ('daily', 'Diario'),
+        ]
