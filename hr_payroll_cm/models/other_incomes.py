@@ -24,6 +24,10 @@ class otherIncomes(models.Model):
     quotes_number = fields.Integer(string="Cuotas")
     by_quotes = fields.Boolean(string="Por Cuotas")
 
+    @api.onchange('input_type_id')
+    def _onchange_input_type_id(self):
+        self.name = self.input_type_id.name
+
     def change_state(self):
         self.state = 'in_progress'
         if self.by_quotes:

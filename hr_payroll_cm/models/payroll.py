@@ -20,7 +20,14 @@ class HrSalaryAttachment(models.Model):
     fixed_fee = fields.Float(string="Cuota fija")
     total_amount = fields.Monetary('Monto Total',tracking=True,help='Total amount to be paid.',default=1)
     monthly_amount = fields.Monetary('Monto a debitar', required=True, tracking=True, help='Amount to pay each month.',default=1)
-    estimated_end = fields.Date('Estimated End Date', help='Approximated end date.', tracking=True)
+    estimated_end = fields.Date('Fecha estimada de finalizacion', help='Approximated end date.', tracking=True)
+    other_input_type_id = fields.Many2one(
+        'hr.payslip.input.type',
+        string="Tipo",
+        required=True,
+        tracking=True,
+        domain=[('available_in_attachments', '=', True),('entry_type', '=', 'deduction')]
+    )
 
     def update_estimated_date(self):
         if self.date_estimated_end:
@@ -102,6 +109,7 @@ class HrSalaryAttachment(models.Model):
             quote_amount = round(self.total_amount / self.quotes_number, 2)
 
         self.total_amount = self.quotes_number * quote_amount
+        self.duration_type = 'limited'
         plan = []
 
         self.monthly_amount = quote_amount
@@ -134,17 +142,21 @@ class HrSalaryAttachment(models.Model):
             self.date_end = self.payment_plan_ids[len(self.payment_plan_ids) - 1].date
             self.estimated_end = self.payment_plan_ids[len(self.payment_plan_ids) - 1].date
 
-    @api.onchange('deduction_type_id')
+    @api.onchange('other_input_type_id')
     def get_deduction_name(self):
-        if self.deduction_type_id:
-            self.description = self.deduction_type_id.name
+        if self.other_input_type_id:
+            self.description = self.other_input_type_id.name
 
     def update_paid_amount(self):
         if self.by_quotes:
             self.paid_amount = 0
+            total_amount = 0
             for line in self.payment_plan_ids:
+                total_amount += line.amount
                 if line.state == 'paid':
                     self.paid_amount += line.amount
+            self.duration_type = 'limited'
+            self.total_amount = total_amount
 
     def finalize_deductions(self):
         deduction_ids = self.search([('state','=','open')])
