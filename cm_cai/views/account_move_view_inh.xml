@@ -157,7 +157,7 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="account_payment_inh_search">
+        <record model="ir.ui.view" id="cm_account_payment_inh_search">
             <field name="name">account.payment.search.inh</field>
             <field name="model">account.payment</field>
             <field name="inherit_id" ref="account.view_account_payment_search"/>
