@@ -114,7 +114,7 @@ class saleOrderHandling(models.Model):
     total = fields.Float(string="Subtotal", compute='calculate_totals', store=True,tracking=True)
     amount_total_lps = fields.Float(string="Total (Lps)", compute='calculate_totals', store=True)
     additional_costs = fields.Float(string="Costos Adicionales ($)", compute='calculate_totals',store=True)
-    discount = fields.Float(string="Descuento", compute='calculate_totals',store=True)
+    discount = fields.Float(string="Monto de Descuento", compute='calculate_totals',store=True)
 
     move_id = fields.Many2one('account.move',string="Factura", copy=False)
     payment_state = fields.Selection(string="Estado de Pago", related="move_id.prestate2")
