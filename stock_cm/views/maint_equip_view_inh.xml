@@ -12,7 +12,7 @@
         </field>
     </record>
 
-    <record id="equipment_maintenance_inh_kanba" model="ir.ui.view">
+    <record id="cm_equipment_maintenance_inh_kanba" model="ir.ui.view">
         <field name="name">equipment.maintenance.kanba.inh</field>
         <field name="model">maintenance.equipment</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_view_kanban"/>
