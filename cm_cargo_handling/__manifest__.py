@@ -49,6 +49,7 @@
 		'report/abandoned_guides.xml',
 		'report/abandonment_report.xml',
 		'report/daily_sales_report.xml',
+		'report/group_guide.xml',
 		'report/report_reports.xml'
 	],
 	'installable':True,
