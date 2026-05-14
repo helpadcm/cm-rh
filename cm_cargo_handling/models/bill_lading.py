@@ -11,6 +11,7 @@ class BillLading(models.Model):
     _name = 'cargo.bill'
     _description = "Guias de Carga"
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = "name desc"
 
     state = fields.Selection(states, string="Estado", default="created", tracking=True)
     content_description = fields.Text(string="Descripcion", tracking=True)
