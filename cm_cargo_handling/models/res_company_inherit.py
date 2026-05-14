@@ -31,7 +31,7 @@ class paymentInherit(models.Model):
         if self.journal_id.code == 'EFU' and self.from_cargo:
             for line in res:
                 _logger.info(f"""Line {line}""")
-                if line.get('debit') > 0:
+                if line.get('debit') and line.get('debit') > 0:
                     analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
                     if analytic_account_id:
                         distribution_line = {str(analytic_account_id.id): 100.0}
