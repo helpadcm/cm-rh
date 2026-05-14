@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import api, exceptions, models, fields, _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class ResCompanyInherit(models.Model):
     _inherit = 'res.company'
@@ -27,6 +30,7 @@ class paymentInherit(models.Model):
         res = super(paymentInherit, self)._prepare_move_line_default_vals(write_off_line_vals=None, force_balance=None)
         if self.journal_id.code == 'EFU' and self.from_cargo:
             for line in res:
+                _logger.info(f"""Line {line}""")
                 if line.get('debit') > 0:
                     analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
                     if analytic_account_id:
