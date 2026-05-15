@@ -14,7 +14,7 @@
             </ul>
 
             <div class="tab-content">
-                <div class="container tab-pane fade show active" id="tab1">
+                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
                     
                     <input type="text" class="d-none" name="turn_na" id="id_turn_na" t-att-value="turn_na_id"/>
 
@@ -178,7 +178,7 @@
                         </table>
                     </div>
                 </div>
-                <div id="tab2" class="tab-pane fade">
+                <div id="tab2" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
                     <div class="table-responsive">
                         <table class="table table-striped historical_table" >
                             <thead>
@@ -224,7 +224,7 @@
                         </table>
                     </div>
                 </div>
-                <div id="tab3" class="tab-pane fade">
+                <div id="tab3" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
                     <div class="table-responsive">
                         <table class="table table-striped historical_table" >
                             <thead>
