@@ -70,14 +70,14 @@ class mcheck(models.Model):
 					('check','Cheque'),
 					('transference','Transferencia')], string='Tipo de Documento', default='check')
 	tax_amount = fields.Float(string='Impuesto', digits='Account')
-	reference = fields.Char(string='Pagar a', help="Transaction reference number.", copy=False,required=True)
+	reference = fields.Char(string='Pagar a', help="Transaction reference number.", copy=True,required=True)
 	identy = fields.Char(string='Identidad', help="Identy", copy=False)
 	rest_credit = fields.Float(string='Debito Faltante', compute='_compute_rest_credit')
 	commission = fields.Float(string='Comision')
 	actual_comp_rate = fields.Float(string='Tasa de empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa real de moneda secundaria')
 	anulation_date = fields.Date(string='Fecha de Anulacion', help="Fecha efectiva de anulacion") #date of the anulation of the check
-	number = fields.Char(string='Numero',default="Borrador")
+	number = fields.Char(string='Numero',default="Borrador",copy=False)
 	obs = fields.Text(string='obs')
 	anulation_ref = fields.Many2one('account.move', string='Ref. Anulacion', copy=False)
 	# banks_check_book_assoc = fields.Many2one(compute='_calculate_journal_assoc', comodel_name="banks.checkbook", string='Diario de Bancos')
