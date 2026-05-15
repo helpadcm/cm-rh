@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
    <data>
-        <record id="rrhh_email_pv_template" model="mail.template">
-            <field name="name">Aprobacion Programa a Volar</field>
+        <record id="rrhh_email_fly_ticket_template" model="mail.template">
+            <field name="name">Aprobacion de Boletos</field>
             <field name="model_id" ref="cm_rrhh_management.model_rrhh_others_requests"/>
-            <field name="subject">Aprobacion Programa a Volar</field>
+            <field name="subject">Aprobacion de Boletos</field>
             <!-- <field name="email_from">{{object.employee_id.user_id.login}}</field> -->
             <field name="email_to">conectividad@cmairlines.com</field>
             <field name="body_html" type="html">
@@ -63,19 +63,19 @@
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Identidad</strong></td>
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Fecha de Nacimiento</strong></td>
                                                                 </tr>
-                                                                <t t-foreach="object.beneficiary_ids" t-as="ben">
-                                                                    <tr>
-                                                                        <td style="border:1px solid black;padding:3px">
-                                                                            <t t-out="ben.beneficiary_id.name or ''"/>
+                                                                <tbody>
+                                                                    <tr t-foreach="object.beneficiary_ids" t-as="ben">
+                                                                        <td style="border:1px solid black;padding:3px;text-align:center">
+                                                                            <t t-out="ben.beneficiary_id.name.upper() or ''"/>
                                                                         </td>
-                                                                        <td style="border:1px solid black;padding:3px">
+                                                                        <td style="border:1px solid black;padding:3px;text-align:center">
                                                                             <t t-out="ben.identity or ''"/>
                                                                         </td>
                                                                         <td style="border:1px solid black;padding:3px;text-align:center">
                                                                             <t t-out="ben.birthday.strftime('%d/%m/%Y') or ''"/>
                                                                         </td>
                                                                     </tr>
-                                                                </t>
+                                                                </tbody>
                                                             </table>
 
                                                             <table style="margin-top:1%;width:100%">
