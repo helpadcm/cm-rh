@@ -2,6 +2,7 @@ from odoo import models, fields
 from dateutil.relativedelta import relativedelta
 from itertools import chain
 from odoo.tools.misc import formatLang, format_date
+from odoo.fields import Domain
 
 class AccountReport(models.Model):
     _inherit = "account.report"
@@ -18,9 +19,10 @@ class AccountReport(models.Model):
     def _get_options_domain(self, report, options):
         domain = super()._get_options_domain(report, options)
         if report['report_id'] == self.env.ref("account_reports.aged_receivable_report").id:
-            domain.append(('partner_id.is_customer','=',True))
+            domain &= Domain([('partner_id.is_customer', '=', True)])
+
         if report['report_id'] == self.env.ref("account_reports.aged_payable_report").id:
-            domain.append(('partner_id.is_supplier','=',True))
+            domain &= Domain([('partner_id.is_supplier', '=', True)])
         return domain
 
     # def _get_rounding_unit_names(self):
