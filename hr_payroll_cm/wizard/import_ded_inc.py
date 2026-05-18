@@ -49,7 +49,7 @@ class importIncomesDeductions(models.TransientModel):
                 raise ValidationError(f"""Debe agregar el tipo de deduccion o ingreso en la linea {line_number}""")
             else:
                 if self.options == 'deductions':
-                    type_id = self.env['hr.salary.attachment.type'].search([('name','=',ded_type)])
+                    type_id = self.env['hr.payslip.input.type'].search([('name','=',ded_type)])
                     if not type_id:
                         raise ValidationError(f"""No existe tipo de deduccion con el nombre {ded_type} en la linea {line_number}""")
                 else:
@@ -86,7 +86,7 @@ class importIncomesDeductions(models.TransientModel):
             if self.options == 'deductions':
                 values = {
                     'employee_ids': [(4, employee_id.id)],
-                    'deduction_type_id': type_id.id,
+                    'other_input_type_id': type_id.id,
                     'description': description,
                     'date_start': initial_date,
                     'monthly_amount': monthly_amount,

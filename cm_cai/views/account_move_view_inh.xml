@@ -123,7 +123,7 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="account_move_inh_tree">
+        <record model="ir.ui.view" id="cm_account_move_inh_tree">
             <field name="name">account.move.tree.inh</field>
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_invoice_tree"/>

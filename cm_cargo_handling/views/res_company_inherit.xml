@@ -49,7 +49,7 @@
             </field>
         </record>
 
-        <record id="cargo_partner_view_inherit" model="ir.ui.view">
+        <record id="cm_cargo_partner_view_inherit" model="ir.ui.view">
             <field name="name">Cargo partner</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
