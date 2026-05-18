@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_account_payment_invoices_form_inherit">
+        <!-- <record model="ir.ui.view" id="view_account_payment_invoices_form_inherit">
 			<field name="name">account.payment.invoices.inherit</field>
 			<field name="model">account.payment.register</field>
 			<field name="inherit_id" ref="account.view_account_payment_register_form"/>
 			<field name="arch" type="xml">
-				<xpath expr="//field[@name='payment_method_line_id']" position="after">
-                    <field name="apply_retentions" />
-                </xpath>
 			</field>
-		</record>
+		</record> -->
 
 
         <record id="view_account_payment_register_form_inherit_retention" model="ir.ui.view">
             <field name="name">account.payment.register.form.inherit.retention</field>
             <field name="model">account.payment.register</field>
-            <field name="inherit_id" ref="cm_banks.view_account_payment_invoices_form_inherit"/>
+            <field name="inherit_id" ref="cm_banks.cm_view_account_payment_invoices_form_inherit"/>
             <field name="arch" type="xml">
+				<field name="analytic_account_id" position="after">
+                    <field name="apply_retentions" />
+                </field>
                 <xpath expr="//notebook" position="inside">
                     <page string="Lineas de retencion" invisible="apply_retentions != True">
                         <field name="invoice_compute" invisible="1"/>
