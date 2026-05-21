@@ -264,6 +264,7 @@
             <field name="arch" type="xml">
                 <list string="Ordenes de Venta" decoration-info="state == 'quote'">
                     <field name="name"/>
+                    <field name="date"/>
                     <field name="partner_id"/>
                     <field name="user_id" />
                     <field name="origin_id"/>
@@ -302,6 +303,7 @@
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
                         <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'user_id'}"/>
                         <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter name="group_date" string="Fecha de Registro" domain="[]" context="{'group_by':'date'}"/>
                     </group>
                 </search>
             </field>

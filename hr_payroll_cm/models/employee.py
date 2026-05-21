@@ -63,7 +63,6 @@ class HrPayrollStructureTypeInh(models.Model):
     _inherit = 'hr.payroll.structure.type'
 
     def _get_selection_schedule_pay(self):
-        print ("###############################")
         return [
             ('annually', 'Anual'),
             ('semi-annually', 'Semestral'),
