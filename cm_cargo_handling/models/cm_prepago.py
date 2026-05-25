@@ -38,6 +38,12 @@ class CmPrepago(models.Model):
     rtn = fields.Char(string="RTN")
     client_name = fields.Char(string="Nombre del cliente")
 
+    def set_user(self):
+        prepagos_ids = self.env['cm.prepago'].search([('payment_id','not in',[False,None])])
+        for prepago in prepagos_ids:
+            if prepago.payment_id and prepago.user_id:
+                prepago.payment_id.user_id = prepago.user_id.id
+
     @api.depends("cargo_handling_id")
     def _compute_guia(self):
         for record in self:
