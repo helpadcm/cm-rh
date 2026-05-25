@@ -54,7 +54,7 @@
 
     <template id="custom_portal_flight_request" inherit_id="cm_rrhh_management.portal_request_home_cm">
         <xpath expr="//div[@id='portal_home_request_cm']" position="inside">
-            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).program_to_fly &gt; 0 and request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
                     <t t-set="title">Solicitud de Vuelos</t>
