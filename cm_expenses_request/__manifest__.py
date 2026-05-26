@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
 	'name'		:'Expenses Request CM Airlines',
-	'version'	:'17.0',
+	'version'	:'1.0',
     'license': 'LGPL-3',
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
@@ -17,6 +17,8 @@
 		'views/conf_view.xml',
 		'views/expenses_request_view.xml',
 		'views/expense_inh_view.xml',
+		'views/budget_process_view.xml',
+		'views/expenses_sheet_request_view.xml',
         'views/menus.xml',
 	],
 	'installable':True,

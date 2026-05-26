@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="expenses_sheet_request_form_view" model="ir.ui.view">
+            <field name="name">Reporte de viaticos</field>
+            <field name="model">expenses.sheet.request</field>
+            <field name="arch" type="xml">
+                <form string="Solicitud de viaticos" create="false">
+                    <field name="company_currency_id" invisible="1"/>
+                    <header>
+                        <button name="change_state" context="{'state': 'approved'}" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'sent'"/>
+                        <button name="change_state" context="{'state': 'done'}" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager" class="oe_highlight" type="object" string="Finalizar" invisible="state != 'approved'"/>
+                        <button name="change_state" context="{'state': 'draft'}" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'sent'"/>
+                        <field name="state" widget="statusbar"/>
+                  	</header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box"> 
+                            <!-- <button name="show_expenses_debit" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['assigned','pending','finalized']" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager">Ver Debito</button>
+                            <button name="show_expenses_deposit" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['assigned','pending','finalized'] or refund_amount == 0" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager">Ver Deposito</button> -->
+                            <button name="show_move" type="object" class="oe_stat_button" icon="fa-dollar" invisible="not move_id" groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager">Ver Asiento</button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="employee_id" options="{'no_create': True,'no_open': True}" readonly="state != 'draft'"/>
+                                <field name="number" readonly="1"/>
+                                <field name="journal_id" domain="[('type', '=', 'general')]" required="state == 'approved'" invisible="state not in ['approved','done','canceled']" options="{'no_create': True,'no_open': True}" readonly="state != 'approved'"/>
+                            </group>
+                            <group>
+                                <field name="user_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1"/>
+                                <field name="request_id" options="{'no_create': True,'no_open': True}" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                                <field name="move_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="expenses" string="Gastos">
+                                <field name="expenses_ids" readonly="state != 'draft'" 
+                                        editable="bottom" 
+                                        domain="[
+                                            ('expense_sheet_req_id', '=', False),
+                                            ('employee_id', '=', employee_id)
+                                        ]" 
+                                        options="{'reload_on_button': True}"
+                                        context="{'default_employee_id': employee_id}"
+                                        force_save="1">
+                                    <list>
+                                        <field name="employee_id" column_invisible="True"/>
+                                        <field name="state" column_invisible="True"/>
+                                        <field name="nb_attachment" column_invisible="True"/>
+                                        <field name="message_main_attachment_id" column_invisible="True"/>
+                                        <field name="company_id" column_invisible="True"/>
+                                        <field name="company_currency_id" column_invisible="True"/>
+                                        <field name="is_multiple_currency" column_invisible="True"/>
+                                        <field name="product_has_cost" column_invisible="True"/>
+                                        <field name="date" optional="show"/>
+                                        <field name="product_id"/>
+                                        <field name="name"/>
+                                        <field name="description" optional="hide"/>
+                                        <!-- <button name="action_get_attachment_view" type="object" icon="fa-paperclip"
+                                                aria-label="View Attachments" title="View Attachments" class="float-end pe-0"
+                                                readonly="True" invisible="nb_attachment == 0"/> -->
+                                        <field name="budget_account_id"/>
+                                        <field name="process_id"/>
+                                        <field name="analytic_distribution" widget="analytic_distribution"
+                                            groups="analytic.group_analytic_accounting"
+                                            optional="show"
+                                            options="{'product_field': 'product_id', 'account_field': 'account_id', 'business_domain': 'expense'}"/>
+                                        <field name="account_id" optional="hide" groups="account.group_account_readonly"/>
+                                        <field name="price_unit" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                        <field name="currency_id" optional="hide" readonly="True" groups="base.group_multi_currency"/>
+                                        <field name="quantity" optional="hide" readonly="not product_has_cost"/>
+                                        <field name="tax_ids" string="Impuestos" optional="show" widget="many2many_tags"
+                                            context="{'default_company_id': company_id}"/>
+                                        <field name="tax_amount_currency" optional="hide"  options="{'currency_field': 'currency_id'}"
+                                            context="{'default_company_id': company_id}" readonly="True" groups="base.group_multi_currency"/>
+                                        <field name="tax_amount" optional="hide" readonly="True"/>
+                                        <field name="total_amount_currency" options="{'currency_field': 'currency_id'}"
+                                            string="Subtotal In Currency " optional="show"
+                                            readonly="not is_multiple_currency" groups="base.group_multi_currency"/>
+                                        <field name="total_amount" string="Subtotal" readonly="product_has_cost"/>
+                                    </list>
+                                </field>
+                                <group class="oe_subtotal_footer" colspan="2" name="expense_total">
+                                    <field name="untaxed_amount"/>
+                                    <div class="oe_inline o_td_label">
+                                        <label for="total_tax_amount"/>
+                                    </div>
+                                    <field name="total_tax_amount" nolabel="1"/>
+                                    <div class="oe_inline o_td_label">
+                                        <label for="total_amount"/>
+                                    </div>
+                                    <field name="total_amount" nolabel="1" class="oe_subtotal_footer_separator"/>
+                                    <!-- <field name="amount_residual"
+                                        class="oe_subtotal_footer_separator"
+                                        invisible="state not in ('post', 'done')"/> -->
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter reload_on_attachment="True"/>
+                </form>
+            </field>
+        </record>
+
+        <record id="expenses_request_sheet_tree_view" model="ir.ui.view">
+            <field name="name">Solicitud de viaticos</field>
+            <field name="model">expenses.sheet.request</field>
+            <field name="arch" type="xml">
+                <list string="Solicitud de viaticos" decoration-info="state == 'draft'">
+                    <field name="company_currency_id" column_invisible="1"/>
+                    <field name="number" readonly="1"/>
+                    <field name="name"/>
+                    <field name="employee_id" />
+                    <field name="total_amount" sum="Total"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- <record id="order_handling_search_view" model="ir.ui.view">
+            <field name="name">Ordenes de venta search</field>
+            <field name="model">expenses.sheet.request</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_id" filter_domain="[('sender_id', 'ilike', self)]"/>
+                    <field name="receiver_id" filter_domain="[('receiver_id', 'ilike', self)]"/>
+                    <field name="partner_id" filter_domain="[('partner_id', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'employee_id'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="action_expenses_request_sheet" model="ir.actions.act_window">            
+            <field name="name">Solicitud de viaticos</field>
+            <field name="res_model">expenses.sheet.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval=""/>
+        </record>
+
+    </data>
+</odoo>

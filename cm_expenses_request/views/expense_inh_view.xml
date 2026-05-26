@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//form/sheet/group/group[2]" position="inside">
                     <field name="budget_account_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1" />
+                    <field name="process_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1" />
                 </xpath>
                 <field name="price_unit" position="before">
                     <field name="invoice_number" required="1"/>
@@ -19,7 +20,7 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="expenses_sheet_inh_form">
+        <!-- <record model="ir.ui.view" id="expenses_sheet_inh_form">
             <field name="name">expenses.sheet.form.inh</field>
             <field name="model">hr.expense.sheet</field>
             <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
@@ -33,7 +34,7 @@
                         context="{'default_company_id': company_id}"/>
                 </field>
             </field>
-        </record>
+        </record> -->
 
         <record model="ir.ui.view" id="product_expenses_inh_form">
             <field name="name">product.expense.form.inh</field>
