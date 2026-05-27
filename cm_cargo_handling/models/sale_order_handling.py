@@ -206,7 +206,7 @@ class saleOrderHandling(models.Model):
             'name': _('Guias de Carga'),
             'type': 'ir.actions.act_window',
             'res_model': 'cargo.bill',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('order_id', '=', self.id)],
             'target': 'current',
             'context': {'default_order_id': self.id},
