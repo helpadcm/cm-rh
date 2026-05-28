@@ -13,6 +13,28 @@ class expensesInh(models.Model):
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     expense_sheet_req_id = fields.Many2one('expenses.sheet.request', string="Reporte de gasto")
 
+    @api.depends('product_id', 'account_id', 'employee_id')
+    def _compute_analytic_distribution(self):
+        for expense in self:
+            if expense.request_id:
+                print ("///////////////////////////////")
+                print (expense.request_id)
+                if expense.employee_id and expense.employee_id.analytic_account_id:
+                    analytic = expense.employee_id.analytic_account_id.id
+                    expense.analytic_distribution = {str(analytic): 100.0}
+                else:
+                    expense.analytic_distribution = False
+            else:
+                distribution = self.env['account.analytic.distribution.model']._get_distribution({
+                    'product_id': expense.product_id.id,
+                    'product_categ_id': expense.product_id.categ_id.id,
+                    'partner_id': expense.employee_id.work_contact_id.id,
+                    'partner_category_id': expense.employee_id.work_contact_id.category_id.ids,
+                    'account_prefix': expense.account_id.code,
+                    'company_id': expense.company_id.id,
+                })
+                expense.analytic_distribution = distribution or expense.analytic_distribution
+
     def action_submit_expenses(self):
         if self.filtered(lambda expense: not expense.is_editable):
             raise UserError(_('No tiene autorización para editar este gasto..'))
