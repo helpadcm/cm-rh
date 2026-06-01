@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-import time
 
 class wizard_desechar_charge(models.TransientModel):
     _name = "cm_cargo_handling.desechar_guia"
