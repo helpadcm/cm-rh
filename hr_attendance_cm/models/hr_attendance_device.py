@@ -70,3 +70,23 @@ class HrAttendanceDevice(models.Model):
         help='Longitude of the attendance device.'
         )
     device_active = fields.Boolean(string="Dispositivo Activo")
+
+
+    def action_test_connection(self):
+        return True
+        # """Checking the connection status"""
+        # zk = ZK(self.ip_address, port=self.port, timeout=30,
+        #         password=False, ommit_ping=True)
+        # try:
+        #     if zk.connect():
+        #         return {
+        #             'type': 'ir.actions.client',
+        #             'tag': 'display_notification',
+        #             'params': {
+        #                 'message': 'Successfully Connected',
+        #                 'type': 'success',
+        #                 'sticky': False
+        #             }
+        #         }
+        # except Exception as error:
+        #     raise ValidationError(f'{error}')
