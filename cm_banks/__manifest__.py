@@ -14,7 +14,7 @@
 				Checkbooks: With this option you can vinculate a journal to a bank and an expecific bank account
 				Templates: Use to allow you use documents as templates for the creation of future documents""",
 
-	'depends'	:['base','account','payment','cm_cai','account_accountant'],
+	'depends'	:['base','account','payment','cm_cai','account_accountant','year_budget'],
 	'data'		:[
 		'data/paperformat.xml',
 		'data/sequence_codes.xml',
