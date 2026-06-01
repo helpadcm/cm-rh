@@ -19,7 +19,7 @@ class HrPayslipRun(models.Model):
     def create(self, vals_list):
         formated_date_cache = {}
         for vals in vals_list:
-            vals.update({'name': self.get_payslip_name()})
+            # vals.update({'name': self.get_payslip_name()})
             if vals.get('journal_id'):
                 id_journal = vals.get('journal_id')['id']
                 vals.update({'journal_id': id_journal})
