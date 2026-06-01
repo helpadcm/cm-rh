@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from datetime import datetime, timedelta
-# import pymssql
 import logging
 from odoo.exceptions import UserError, ValidationError
 import pytz
