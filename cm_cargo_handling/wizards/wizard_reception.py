@@ -41,7 +41,7 @@ class wizard_recevie_cargo_manifest(models.TransientModel):
     def accept(self):
         obj = self.env['cargo.manifest'].browse(self.env.context.get('active_id'))
         for bcm in obj.cargo_bill_landing_ids:
-            if bcm.bill_landing_id.id in self.bill_landing_ids_hide.ids or self.user_has_groups('cm_cargo_handling.group_cargo_manifest_validate_manifest') :
+            if bcm.bill_landing_id.id in self.bill_landing_ids_hide.ids or self.env.user.has_group('cm_cargo_handling.group_cargo_manifest_validate_manifest') :
                 bcm.bill_landing_id.state='received'
                 bcm.bill_landing_id.cargo_manifest_id=False
                 res={
