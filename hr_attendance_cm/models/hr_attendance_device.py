@@ -2,10 +2,6 @@ from odoo import fields, models
 import logging
 from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
-try:
-    from zk import ZK, const
-except ImportError:
-    _logger.error("Please Install pyzk library.")
 
 class HrAttendanceDevice(models.Model):
     _name = 'hr.attendance.device'
@@ -74,22 +70,3 @@ class HrAttendanceDevice(models.Model):
         help='Longitude of the attendance device.'
         )
     device_active = fields.Boolean(string="Dispositivo Activo")
-
-
-    def action_test_connection(self):
-        """Checking the connection status"""
-        zk = ZK(self.ip_address, port=self.port, timeout=30,
-                password=False, ommit_ping=True)
-        try:
-            if zk.connect():
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'message': 'Successfully Connected',
-                        'type': 'success',
-                        'sticky': False
-                    }
-                }
-        except Exception as error:
-            raise ValidationError(f'{error}')

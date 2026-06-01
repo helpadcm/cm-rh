@@ -6,11 +6,7 @@ import logging
 from odoo.exceptions import UserError, ValidationError
 import pytz
 import requests
-# from zk import ZK, const
 _logger = logging.getLogger(__name__)
-# try:
-# except ImportError:
-#     _logger.error("Please Install pyzk library.")
 
 class getMarkings(models.TransientModel):
     _name = 'hr.get.markings'
