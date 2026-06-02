@@ -6,7 +6,7 @@
                 <form action="/job/apply/submit" method="post" enctype="multipart/form-data" class="o_website_form">
                     <input type="text" class="d-none" name="requirement" id="id_requirement" t-att-value="requirement_id"/>
 
-                    <div class="border rounded p-3 mb-3 row g-3">
+                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
                         <h4>Datos Personales</h4>
                         <div class="col-md-6"><label>Nombre Completo</label><input name="partner_name" class="form-control" required="required"/></div>
                         <div class="col-md-6"><label>Correo Electrónico</label><input type="email" name="email_from" class="form-control" required="required"/></div>
@@ -29,7 +29,7 @@
 
                     <br></br>
 
-                    <div class="border rounded p-3 mb-3 row g-3">
+                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
                         <div class="col-md-6"><label>Aspiracion Salarial(Especificar en números)</label><input type="number" step="0.01" name="salary_expected" t-attf-name="salary_expected" class="form-control"/></div>
                         <div class="col-md-6"><label>Negociable</label><input type="checkbox" name="negotiable"/></div>
                         <div class="col-md-6"><label>Disponibilidad Inmediata</label><input type="checkbox" name="immediate_availability"/></div>
@@ -37,7 +37,7 @@
 
                     <br></br>
 
-                    <div class="border rounded p-3 mb-3 row g-3">
+                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
                         <h4 class="mt-4">Ultimo Grado Academico</h4>
                         <div class="row g-3">
                             <div class="col-md-6"><label>Nivel Académico</label>
@@ -63,7 +63,7 @@
 
                     <br></br>
 
-                    <div class="border rounded p-3 mb-3 row g-3">
+                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
                         <h4 class="mt-4">Información Adicional</h4>
                         <div class="row g-3">
                             <div class="col-md-6"><label>Cuenta con</label>
@@ -104,7 +104,7 @@
 
                     <br></br>
 
-                    <div class="row g-3">
+                    <div class="border rounded row g-3" style="background-color: #F5F5F5">
                         <div class="col-md-6"><label>¿Padece o ha padecido de alguna enfermedad?</label><input type="checkbox" name="disease"/></div>
                         <div class="col-12"><label>¿Desde cuando esta sin empleo y por que?</label><textarea name="unemployed" class="form-control"></textarea></div>
                         <div class="col-12"><label>¿Cual es su expectativa de CM Airlines?</label><textarea name="expectatives" class="form-control"></textarea></div>
@@ -129,7 +129,7 @@
 
                     <br></br>
 
-                    <ul class="nav nav-tabs">
+                    <ul class="border rounded nav nav-tabs" style="background-color: #F5F5F5">
                         <li class="nav-item">
                             <a class="nav-link active" data-bs-toggle="tab" href="#tab1"><strong>Historial Laboral (hasta 3)</strong></a>
                         </li>
@@ -263,7 +263,7 @@
                         </div>
                     </div>
 
-                    <div class="row g-3">
+                    <div class="border rounded row g-3" style="background-color: #F5F5F5;margin-top: 10px;padding-boottom: 10px">
                         <h4 class="mt-4">Puesto de su interes</h4>
                         <div class="col-md-6">
                             <label>Puesto</label>

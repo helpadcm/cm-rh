@@ -145,7 +145,7 @@
                                         <td colspan="3"><strong>________________________________________________________</strong></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" style="border-right:1px solid black" class="td_left"><span t-field="o.ref"/></td>
+                                        <td colspan="3" style="border-right:1px solid black" class="td_left"><span t-field="o.memo"/></td>
                                         <td colspan="4"></td>
                                     </tr>
                                     <tr>
