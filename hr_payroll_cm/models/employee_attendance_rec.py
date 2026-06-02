@@ -273,12 +273,12 @@ class lineAttendanceRecords(models.Model):
         return timedelta(hours=h, minutes=m, seconds=s)
 
     def calculate_bonus(self, check1, check2):
-        contract_id = self.attendance_rec_id.employee_id.contract_id
+        employee_id = self.attendance_rec_id.employee_id
         bonus = 0
         if check1:
-            if min(check1) < contract_id.early_checkin_bonus_time:
-                bonus += contract_id.value_bonus
+            if min(check1) < employee_id.early_checkin_bonus_time:
+                bonus += employee_id.value_bonus
         if check2:
-            if max(check2) > contract_id.late_checkout_bonus_time:
-                bonus += contract_id.value_bonus
+            if max(check2) > employee_id.late_checkout_bonus_time:
+                bonus += employee_id.value_bonus
         return bonus
