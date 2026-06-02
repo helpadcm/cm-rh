@@ -129,15 +129,15 @@ class ap_account_payment(models.Model):
 						if payment.payment_type == 'outbound':  # Pago a proveedor
 							if total_credit > 0:
 								line['amount_currency'] += abs(total_writeoff_currency)
-								line['debit'] += total_credit
+								line['balance'] += total_credit
 							if total_debit > 0:
 								line['amount_currency'] -= abs(total_writeoff_currency)
-								line['debit'] -= total_debit
+								line['balance'] -= total_debit
 
 						elif payment.payment_type == 'inbound':  # Pago de cliente
 							if total_writeoff_company > 0:
 								line['amount_currency'] -= abs(total_writeoff_currency)
-								line['credit'] += total_writeoff_company
+								line['balance'] += total_writeoff_company
 							else:
 								if total_debit > 0:
 									line['amount_currency'] -= abs(total_writeoff_currency)
@@ -146,7 +146,6 @@ class ap_account_payment(models.Model):
 									line['amount_currency'] += abs(total_writeoff_currency)
 									line['credit'] -= total_credit
 						break
-
 				res.extend(lines_list)
 		return res
 
