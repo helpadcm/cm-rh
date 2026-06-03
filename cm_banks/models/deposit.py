@@ -36,7 +36,7 @@ class banks_deposits(models.Model):
 	total = fields.Float(string='Monto Total', required=True , tracking=True)
 	currency = fields.Float(string='Tasa de cambio', digits=(12,4))
 	jour_company_id = fields.Integer(string='Compañia')
-	was_unreconcilied = fields.Boolean(string='Desconciliado')
+	was_unreconcilied = fields.Boolean(string='Desconciliado',copy=False)
 	is_customer_deposit = fields.Boolean(string='Es depósito de cliente')
 	doc_type=fields.Selection([('deposit','Deposito')], string='Tipo', default='deposit')
 	tax_amount=fields.Float(string='Impuesto', digits='Account')
@@ -46,7 +46,7 @@ class banks_deposits(models.Model):
 	total_equivalent = fields.Float(compute='_get_equivalent', string='Total(Moneda de empresa)')
 	actual_comp_rate = fields.Float(string='Tasa de la empresa')
 	actual_sec_curr_rate = fields.Float(string='Tasa moneda secundaria actual') #date of the anulation of the check
-	number = fields.Char(string='Numero', default="Borrador")
+	number = fields.Char(string='Numero', default="Borrador",copy=False)
 	user_id = fields.Many2one('res.users',string="Usuario",default=_get_user_default)
 	anulation_date = fields.Date(string="Fecha de anulacion")
 	same_currency = fields.Boolean(string="Misma moneda")

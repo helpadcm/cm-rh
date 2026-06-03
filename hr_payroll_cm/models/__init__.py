@@ -10,3 +10,4 @@ from . import rules_inc_ded
 from . import historical_deductions
 from . import other_incomes
 from . import hr_version
+from . import document_inh
