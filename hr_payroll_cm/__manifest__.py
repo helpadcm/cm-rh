@@ -26,7 +26,6 @@
         'views/other_incomes_view.xml',
         'views/inc_ded_rules_view.xml',
         # 'reports/hr_payroll_employee_report_view.xml',
-        # 'wizard/load_catorceavo_from_excel_wizard_views.xml',
         'wizard/import_ded_inc_view.xml',
         'wizard/get_hours_record_view.xml',
         'wizard/payslip_employee_view.xml',
