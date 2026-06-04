@@ -33,6 +33,10 @@ class expensesRequest(models.Model):
                 if len(permitted_processes_ids) == 1:
                     default_process_id = permitted_processes_ids.id
 
+            account_number = ''
+            if employee_id.sudo().bank_account_ids:
+                account_number = employee_id.sudo().bank_account_ids[0].acc_number
+
             rec.update({
                 'department_id': employee_id.department_id.id,
                 'job_id': employee_id.job_id.id,
@@ -40,7 +44,7 @@ class expensesRequest(models.Model):
                 'process_ids': permitted_processes_ids,
                 'process_id': default_process_id,
                 'boss_id': employee_id.coach_id.id,
-                'account_number': employee_id.bank_account_ids.acc_number,
+                'account_number': account_number,
                 'date': datetime.now().date()
             })
         return rec

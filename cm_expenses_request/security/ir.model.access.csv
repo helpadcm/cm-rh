@@ -28,3 +28,7 @@ access_mail_mail_expense_user,access_mail_mail_expense_user,mail.model_mail_mail
 
 expenses.analytic.plan.user,access_expenses_plan_user,analytic.model_account_analytic_plan,base.group_user,1,0,0,0
 expenses.analytic.applicability.user,access_expenses_applicability_user,analytic.model_account_analytic_applicability,base.group_user,1,0,0,0
+
+
+expensescm.partner.bank.user,expensescm.partner.bank.user,base.model_res_partner_bank,cm_expenses_request.group_expenses_request_user,1,0,0,0
+employeescm.partner.bank.user,employeescm.partner.bank.user,hr.model_hr_employee,cm_expenses_request.group_expenses_request_user,1,0,0,0
