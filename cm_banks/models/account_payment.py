@@ -141,10 +141,10 @@ class ap_account_payment(models.Model):
 							else:
 								if total_debit > 0:
 									line['amount_currency'] -= abs(total_writeoff_currency)
-									line['credit'] += total_debit
+									line['balance'] += total_debit
 								if total_credit > 0:
 									line['amount_currency'] += abs(total_writeoff_currency)
-									line['credit'] -= total_credit
+									line['balance'] -= total_credit
 						break
 				res.extend(lines_list)
 		return res
