@@ -1,211 +1,269 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_payslip_cm">
-        <t t-call="web.external_layout">
-            <div class="page">
-                <h2 id="payslip_name">Comprobante de pago de planilla</h2>
-                <table name="employee-infos" id="employee_info_table_1" class="table table-sm table-bordered" style="border: 1px solid #566573">
-                    <tr id="employee_info_line_1">
-                        <td class="w-25"><strong>Codigo de empleado</strong></td>
-                        <td class="w-25"><strong>Empleado</strong></td>
-                        <td class="w-25"><strong>Identificación</strong></td>
-                        <td class="w-25"><strong>Periodo</strong></td>
-                    </tr>
-                    <tr id="employee_info_line_2">
-                        <td><span t-field="o.employee_id.barcode">John Smith</span></td>
-                        <td><span t-field="o.employee_id">Married</span></td>
-                        <td><span t-field="o.employee_id.identification_id"></span></td>
-                        <td><span t-field="o.payslip_run_id"/></td>
-                    </tr>
-                </table>
-
-                <table class="table table-sm" t-if="not o.struct_id.hide_basic_on_pdf" style="border: 1px solid #566573">
-                    <tr>
-                        <td class="w-25"><strong>Salario Ordinario (Mensual)</strong></td>
-                        <td style="color:#875A7B" class="w-25"><span t-field="o.employee_id.contract_wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"></span>
-                        </td>
-                        <td class="w-25"><strong>Salario Ordinario (Quincenal)</strong></td>
-                        <td style="color:#875A7B" class="w-25"><span t-field="o.employee_id.wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
-                    </tr>
-                </table>
-
-                <div id="total">
-                    <t t-set="entry_total" t-value="0"/>
-                    <table t-if="o.worked_days_line_ids and o.struct_id.use_worked_day_lines" class="table table-sm" style="border: 1px solid #566573">
-                        <thead class="o_black_border">
-                            <tr>
-                                <th colspan="3" id="line_header_name">INGRESOS</th>
-                            </tr>
-                            <tr>
-                                <th id="line_header_name">Nombre</th>
-                                <th id="line_header_name">Horas</th>
-                                <th id="line_header_amount" class="text-end">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t id="incomes_lines">
-                                <span t-foreach="o.worked_days_line_ids" t-as="line">
-                                    <t t-if="line.code != 'WORK100'">
-                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                            <td id="payslip_line_name"><span t-esc="'{0:,.2f}'.format(line.number_of_hours)"/></td>
-                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
-                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                                    t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
-                                        </tr>
-                                    </t>
-                                    <t t-if="line.code == 'WORK100'">
-                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                            <td id="payslip_line_name"><span t-field="o.esperated_hours"/></td>
-                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.amount)"
-                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                                    t-att-style="'color:#875A7B;' if line.amount &lt; 0 else ''"/></td>
-                                        </tr>
-                                    </t>
-                                    <t t-set="entry_total" t-value="entry_total + line.amount"/>
-                                </span>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <t t-set="alw_total" t-value="0"/>
-                    <t t-set="basic_total" t-value="0"/>
-                    <table class="table table-sm" style="border: 1px solid #566573">
-                        <thead class="o_black_border">
-                            <tr t-if="not o.worked_days_line_ids or not o.struct_id.use_worked_day_lines">
-                                <th colspan="2" id="line_header_name">INGRESOS</th>
-                            </tr>
-                            <tr>
-                                <th style="width:50%" id="line_header_name">Nombre</th>
-                                <th style="width:50%" id="line_header_amount" class="text-end">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t id="incomes_lines">
-                                <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ALW')" t-as="line">
-                                    <t t-if="line.total != 0">
-                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                        </tr>
-                                        <t t-set="alw_total" t-value="alw_total + line.total"/>
-                                    </t>
-                                </span>
-                                <t t-if="alw_total != 0 and entry_total == 0">
-                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
-                                        <t t-if="line.total != 0">
-                                            <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                                <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                                <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                            </tr>
-                                            <t t-set="alw_total" t-value="alw_total + line.total"/>
-                                        </t>
-                                    </span>
-                                </t>
-                                <t t-if="alw_total == 0 and entry_total == 0">
-                                    <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'BASIC')" t-as="line">
-                                        <t t-if="line.total != 0">
-                                            <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                                <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                                <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                            </tr>
-                                            <t t-set="alw_total" t-value="alw_total + line.total"/>
-                                        </t>
-                                    </span>
-                                </t>
-                                <span t-if="o.payslip_run_id.type_lot=='fourteenth'" t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'GROSS')" t-as="line">
-                                    <t t-if="line.total != 0">
-                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/></td>
-                                        </tr>
-                                        <t t-set="alw_total" t-value="alw_total + line.total"/>
-                                    </t>
-                                </span>
-                                <tr>
-                                    <td id="payslip_line_name"><strong>TOTAL INGRESOS</strong></td>
-                                    <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(alw_total + entry_total)"
-                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                        t-att-style="'color:#875A7B;'"/></strong></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <t t-set="ded_total" t-value="0"/>
-                    <table class="table table-sm" style="border: 1px solid #566573">
-                        <thead class="o_black_border">
-                            <tr>
-                                <th colspan="2" id="line_header_name">DEDUCCIONES</th>
-                            </tr>
-                            <tr>
-                                <th style="width:50%" id="line_header_name">Nombre</th>
-                                <th style="width:50%" id="line_header_amount" class="text-end">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t id="deduction_lines">
-                                <span t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'DED')" t-as="line">
-                                    <t t-if="line.total != 0">
-                                        <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                            <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                            <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)"
-                                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/></td>
-                                        </tr>
-                                        <t t-set="ded_total" t-value="ded_total + line.total"/>
-                                    </t>
-                                </span>
-                                <span t-if="o.payslip_run_id.type_lot=='fourteenth'" t-foreach="o.line_ids.filtered(lambda line: line.category_id.code == 'ANTC14')" t-as="line">
-                                    <tr t-att-class="line_class" t-att-style="line_style" id="line_display">
-                                        <td id="payslip_line_name"><span t-field="line.name"/></td>
-                                        <td id="payslip_line_total" class="text-end"><span t-esc="abs(line.total)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/></td>
-                                    </tr>
-                                    <t t-set="ded_total" t-value="ded_total + line.total"/>
-                                </span>
-                                <tr>
-                                    <td id="payslip_line_name"><strong>TOTAL DEDUCCIONES</strong></td>
-                                    <td id="payslip_line_total" class="text-end"><strong><span t-esc="abs(ded_total)"
-                                        t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                        t-att-style="'color:#875A7B;' if line.total &lt; 0 else ''"/></strong></td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <table class="table table-sm" style="border: 1px solid #566573">
-                        <tbody>
-                            <tr>
-                                <td id="payslip_line_name"><strong>NETO A PAGAR</strong></td>
-                                <td id="payslip_line_total" class="text-end"><strong><span t-esc="alw_total + entry_total - abs(ded_total)"
-                                    t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                    t-att-style="'color:#875A7B;'"/></strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div id="signature" style="text-align:center;margin-top:8%">
-                        <span>_______________________________________________</span>
-                        <br/>
-                        <a>Recibi Conforme</a>
-                        <br/>
-                        <span t-field="o.employee_id"/>
-                    </div>
-                    <div class="oe_structure"></div>
-                </div>
-
-            </div>
-        </t>
-    </template>
-
     <template id="payslip_receipt_cm">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
-                <t t-call="hr_payroll_cm.report_payslip_cm" t-lang="o.env.lang"/>
+            <head>
+                <meta charset="utf-8"/>
+            </head>
+            <t t-foreach="info_report" t-as="o">
+            <!-- <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/> -->
+            <!-- <t t-call="hr_payroll_cm.report_payslip_cm"/> -->
+                <t t-set="company" t-value="res_company"></t>	
+                <t t-set="symbol" t-value="company.currency_id.symbol"/>	
+                <div class="page">
+                    <table style="align:center;width:100%;border-bottom: 2px solid #016630">
+                        <tbody>
+                            <tr style="height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="5">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:150px;height:100px" alt="Logo"/>
+                                </td>
+                                <td style="font-size:13px"><strong><span t-field="company.name"/></strong></td>
+                                <td style="text-align:right;font-size:18px" rowspan="2"><strong>COMPROBANTE DE PAGO</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><span t-field="company.street"/>, <span t-field="company.street2"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><span t-field="company.city"/>, <span t-field="company.country_id.name"/>, <span t-field="company.phone"/></td>
+                                <td style="text-align:right;font-size:16px" rowspan="2">
+                                    <div style="padding:3px;border:1px solid #D1D5DC;border-radius:5px;background-color:#B9F8CF;">
+                                        <span t-esc="o.get('period')"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><strong>RTN: <span t-field="company.vat"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:1%;border: 1px solid #D1D5DC;border-radius:10px;background-color:#F4F4F5;">
+                        <table style="align:center;width:100%;">
+                            <tbody>
+                                <tr style="padding:3px;" >
+                                    <td style="width:20%;font-size:15px;padding:3px;">Código:</td>
+                                    <td style="width:40%;font-size:15px;padding:3px;"><span t-esc="o.get('code')"/></td>
+                                    <td style="width:20%;font-size:15px;padding:3px;">Fecha de Pago:</td>
+                                    <td style="width:20%;font-size:15px;padding:3px;"><span t-esc="o.get('payment_date')"/></td>
+                                </tr>
+                                <tr style="padding:3px;" >
+                                    <td style="font-size:15px;padding:3px;">Empleado:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="o.get('employee_name')"/></td>
+                                    <td style="font-size:15px;padding:3px;">Sueldo Mensual:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="symbol+'{0:,.2f}'.format(o.get('monthly_wage'))"/></td>
+                                </tr>
+                                <tr style="padding:3px;" >
+                                    <td style="font-size:15px;padding:3px;">Identidad:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="o.get('identification')"/></td>
+                                    <td style="font-size:15px;padding:3px;">Sueldo Quincenal:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="symbol+'{0:,.2f}'.format(o.get('wage'))"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <t t-set="net_amount" t-value="0"/>
+                    <table style="width:100%; border-spacing:15px 0; border-collapse:separate;margin-top:2%;">
+                        <tr>
+                            <td style="width:50%; vertical-align:top;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="3"
+                                                style="
+                                                    background:#2f8f5b;
+                                                    color:white;
+                                                    padding:8px;
+                                                    text-align:left;
+                                                    border-top-left-radius:8px;
+                                                    border-top-right-radius:8px;
+                                                    font-size:16px;">
+                                                + INGRESOS
+                                            </th>
+                                        </tr>
+                                        <tr style="background:#e9ecef;">
+                                            <th style="padding:6px; text-align:left;">CONCEPTO</th>
+                                            <th style="padding:6px; text-align:center;">HORAS</th>
+                                            <th style="padding:6px; text-align:right;">MONTO</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-set="total_incomes" t-value="0"/>
+                                        <t t-foreach="o.get('incomes')" t-as="income">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="income.get('name')"/></td>
+                                                <td style="padding: 6px;"><br/></td>
+                                                <td style="padding: 6px;text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(income.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_incomes" t-value="total_incomes + income.get('amount')"/>
+                                        </t>
+
+                                        <t t-foreach="o.get('incomes_hours')" t-as="hours">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="hours.get('name')"/></td>
+                                                <td style="padding: 6px;text-align:center;"><span t-esc="'{0:,.2f}'.format(hours.get('number_of_hours'))"/></td>
+                                                <td style="padding: 6px;text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(hours.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_incomes" t-value="total_incomes + hours.get('amount')"/>
+                                        </t>
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr style="background:#eef2f5;">
+                                            <td colspan="2"
+                                                style="
+                                                    padding:8px;
+                                                    font-weight:bold;
+                                                    color:#2f8f5b;">
+                                                TOTAL INGRESOS
+                                            </td>
+                                            <td style="
+                                                    padding:8px;
+                                                    text-align:right;
+                                                    font-weight:bold;
+                                                    color:#2f8f5b;">
+                                                <span t-esc="symbol+'{0:,.2f}'.format(total_incomes)"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </td>
+
+                            <td style="width:50%; vertical-align:top;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2"
+                                                style="
+                                                    background:#d32f2f;
+                                                    color:white;
+                                                    padding:8px;
+                                                    text-align:left;
+                                                    border-top-left-radius:8px;
+                                                    border-top-right-radius:8px;
+                                                    font-size:16px;">
+                                                − DEDUCCIONES
+                                            </th>
+                                        </tr>
+                                        <tr style="background:#e9ecef;">
+                                            <th style="padding:6px; text-align:left;">CONCEPTO</th>
+                                            <th style="padding:6px; text-align:right;">MONTO</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-set="total_deductions" t-value="0"/>
+                                        <t t-foreach="o.get('deductions')" t-as="deduction">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="deduction.get('name')"/></td>
+                                                <td style="padding: 6px; text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(deduction.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_deductions" t-value="total_deductions + deduction.get('amount')"/>
+                                        </t>
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr style="background:#eef2f5;">
+                                            <td style="
+                                                    padding:8px;
+                                                    font-weight:bold;
+                                                    color:#d32f2f;">
+                                                TOTAL DEDUCCIONES
+                                            </td>
+                                            <td style="
+                                                    padding:8px;
+                                                    text-align:right;
+                                                    font-weight:bold;
+                                                    color:#d32f2f;">
+                                                <span t-esc="symbol+'{0:,.2f}'.format(total_deductions)"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <t t-set="net_amount" t-value="total_incomes - total_deductions"/>
+
+                    <div style="
+                        background:#0f4d25;
+                        border-radius:10px;
+                        color:white;
+                        padding:18px 25px;
+                        margin-top:2%;
+                    ">
+
+                        <table style="width:100%; border:none;">
+                            <tr>
+                                <td style="
+                                    font-size:20px;
+                                    font-weight:bold;
+                                    color:white;
+                                    border:none;
+                                ">
+                                 NETO A RECIBIR:
+                                </td>
+
+                                <td style="
+                                    text-align:right;
+                                    font-size:24px;
+                                    font-weight:bold;
+                                    color:white;
+                                    border:none;
+                                ">
+                                    <span t-esc="symbol+'{:,.2f}'.format(net_amount)"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <hr style="
+                            border:none;
+                            border-top:1px solid #D1D5DC;
+                            margin:10px 0;
+                        "/>
+                    </div>
+
+                    <table style="width:100%; margin-top:15%;">
+                        <tr>
+                            <td style="width:50%; text-align:center; vertical-align:top;">
+                                <div style="
+                                    width:80%;
+                                    margin:0 auto;
+                                    border-top:1px solid #7f8fa6;
+                                    padding-top:8px;
+                                ">
+                                    <div style="font-size:16px; font-weight:bold; color:#34495e;">
+                                        Entregado por: <span t-esc="company.name"/>
+                                    </div>
+
+                                    <div style="font-size:14px; color:#5d6d7e;">
+                                        Departamento de Talento Humano
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="width:50%; text-align:center; vertical-align:top;">
+                                <div style="
+                                    width:80%;
+                                    margin:0 auto;
+                                    border-top:1px solid #7f8fa6;
+                                    padding-top:8px;
+                                ">
+                                    <div style="font-size:13px; font-weight:bold; color:#34495e;">
+                                        Recibí Conforme:
+                                        <span t-esc="o.get('employee_name')"/>
+                                    </div>
+
+                                    <div style="font-size:14px; color:#5d6d7e;">
+                                        Firma del Empleado
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </t>
         </t>
     </template>
