@@ -25,7 +25,7 @@
                             </tr>
                             <tr>
                                 <td style="font-size:13px"><span t-field="company.city"/>, <span t-field="company.country_id.name"/>, <span t-field="company.phone"/></td>
-                                <td style="text-align:right;font-size:16px" rowspan="2">
+                                <td style="text-align:center;font-size:16px" rowspan="2">
                                     <div style="padding:3px;border:1px solid #D1D5DC;border-radius:5px;background-color:#B9F8CF;">
                                         <span t-esc="o.get('period')"/>
                                     </div>
