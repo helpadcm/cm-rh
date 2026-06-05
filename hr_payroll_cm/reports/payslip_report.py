@@ -59,17 +59,18 @@ class ReportCheckList(models.AbstractModel):
                 })
                         
             for line in payslip.line_ids:
-                if line.salary_rule_id.category_id.code == 'ALW':
-                    incomes.append({
-                        'name': line.name,
-                        'amount': line.total
-                    })
+                if line.total != 0:
+                    if line.salary_rule_id.category_id.code == 'ALW':
+                        incomes.append({
+                            'name': line.name,
+                            'amount': line.total
+                        })
 
-                if line.salary_rule_id.category_id.code == 'DED':
-                    deductions.append({
-                        'name': line.name,
-                        'amount': abs(line.total)
-                    })
+                    if line.salary_rule_id.category_id.code == 'DED':
+                        deductions.append({
+                            'name': line.name,
+                            'amount': abs(line.total)
+                        })
 
 
 
