@@ -7,18 +7,9 @@
             <field name="pin" position="before">
                 <field name="notify_validate_turns"/>
             </field>
-        </field>
-    </record>
-
-    <record id="hr_contract_inh_form" model="ir.ui.view">
-        <field name="name">hr.contract.form.inh</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr_contract_cm.hr_employee_public_view_form_inherit"/>
-        <field name="arch" type="xml">
-            <field name="temporal_amount" position="after">
+            <field name="registration_number" position="after">
                 <field name="weekend_hours"/>
             </field>
         </field>
     </record>
-
 </odoo>
