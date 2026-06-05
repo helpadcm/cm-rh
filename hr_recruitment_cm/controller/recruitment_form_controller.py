@@ -25,7 +25,7 @@ class RecruitmentPublicForm(http.Controller):
             'department_id': requirement_id.sudo().department_id.id or False,
             'interviewer_ids': interviewer_ids,
             'job_id': requirement_id.sudo().new_position.id or False,
-            'name': f"""Postulacion { post.get('partner_name') }""",
+            # 'name': f"""Postulacion { post.get('partner_name') }""",
             'partner_name': post.get('partner_name'),
             'email_from': post.get('email_from'),
             'identity': post.get('identity'),

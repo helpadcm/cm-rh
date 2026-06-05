@@ -7,6 +7,8 @@ months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Sep
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
+    # lot_name = fields.Char(string="Nombre del lote")
+
     @api.model
     def get_journal_default(self):
         journal_default_id = self.env['account.journal'].search([('code','=','VARIO')])
