@@ -130,8 +130,8 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">Horas Trabajadas</th>
-                                    <!-- <th class="header_historical">HE</th> -->
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
                                     <th class="header_historical">Estado</th>
                                     <th class="header_historical">Acción</th>
                                 </tr>
@@ -150,8 +150,8 @@
                                         <td ><t t-esc="days.turn_type_b.name"/></td>
                                         <td ><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td ><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <td ><t t-esc="days.ordinary_hours"/></td>
-                                        <!-- <td ><t t-esc="days.aditional_hours"/></td> -->
+                                        <!-- <td ><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td ><t t-esc="days.aditional_hours"/></td>
                                         <td t-if="days.state == 'draft'">BORRADOR</td>
                                         <td t-if="days.state == 'validated'">VALIDADO</td>
                                         <td t-if="days.state == 'draft'">
@@ -171,8 +171,8 @@
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
-                                    <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <!-- <td><strong><t t-esc="total_eh"/></strong></td> -->
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -191,8 +191,8 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">Horas Trabajadas</th>
-                                    <!-- <th class="header_historical">HE</th> -->
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -209,16 +209,16 @@
                                         <td><t t-esc="days.turn_type_b.name"/></td>
                                         <td><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <td><t t-esc="days.ordinary_hours"/></td>
-                                        <!-- <td><t t-esc="days.aditional_hours"/></td> -->
+                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
-                                    <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <!-- <td><strong><t t-esc="total_eh"/></strong></td> -->
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -237,8 +237,8 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <th class="header_historical">Horas Trabajadas</th>
-                                    <!-- <th class="header_historical">HE</th> -->
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -255,16 +255,16 @@
                                         <td><t t-esc="days.turn_type_b.name"/></td>
                                         <td><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <td><t t-esc="days.ordinary_hours"/></td>
-                                        <!-- <td><t t-esc="days.aditional_hours"/></td> -->
+                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
                                 <tr>
                                     <td colspan="8"><strong>TOTAL</strong></td>
-                                    <td><strong><t t-esc="total_wt"/></strong></td>
-                                    <!-- <td><strong><t t-esc="total_eh"/></strong></td> -->
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
