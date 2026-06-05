@@ -52,7 +52,11 @@ class ReportCheckList(models.AbstractModel):
                             'amount': line.amount
                         })
             else:
-                salary_worked = payslip.employee_id.wage
+                line_id = payslip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
+                if line_id:
+                    salary_worked = line_id.total
+                else:
+                    salary_worked = payslip.employee_id.wage
                 incomes.insert(0,{
                     'name': 'Salario',
                     'amount': salary_worked

@@ -74,7 +74,7 @@
                                 <td style="">Hijo (s) género y edad</td>
                             </tr>
                             <tr>
-                                <td style="" class="answer"><span t-field="o.partner_mobile"/></td>
+                                <td style="" class="answer"><span t-field="o.partner_phone"/></td>
                                 <td style="" class="answer"><span t-field="o.email_from"/></td>
                                 <td style="" class="answer"><span t-field="o.children"/></td>
                             </tr>
