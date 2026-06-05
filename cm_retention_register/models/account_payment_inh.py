@@ -48,27 +48,25 @@ class AccountPayment(models.Model):
                         'date_maturity': payment.date,
                         'amount_currency': amount_currency,
                         'currency_id': payment.currency_id.id,
-                        'debit': 0.0,
-                        'credit': retention.amount,
                         'partner_id': payment.partner_id.id,
                         'account_id': retention.account_id.id,
                     }
 
                     if payment.payment_type == 'outbound':
-                        vals.update({'debit': 0.0, 'credit': retention.amount})
+                        vals.update({'balance': retention.amount * -1})
                     else:
-                        vals.update({'debit': retention.amount, 'credit': 0.0})
+                        vals.update({'balance': retention.amount})
 
                     retention_lines.append(vals)
 
                 # Ajustar línea bancaria (donde está el crédito del pago)
                 for line in line_vals:
-                    if line.get('debit', 0) > 0 and payment.payment_type == 'outbound':
-                        line['debit'] += total_retention
+                    if payment.payment_type == 'outbound':
+                        line['balance'] += total_retention
                         line['amount_currency'] += (total_amount_currency)
                         break
-                    elif line.get('credit', 0) > 0 and payment.payment_type == 'inbound':
-                        line['credit'] += total_retention
+                    elif payment.payment_type == 'inbound':
+                        line['balance'] += total_retention
                         line['amount_currency'] += (total_amount_currency * -1)
                         break
 
