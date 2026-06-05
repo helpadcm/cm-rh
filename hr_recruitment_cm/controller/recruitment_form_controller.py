@@ -48,7 +48,7 @@ class RecruitmentPublicForm(http.Controller):
             'availability_travel': post.get('availability_travel') == 'on',
             'excel_level': post.get('excel_level'),
             'english_level': post.get('english_level'),
-            'partner_mobile': post.get('partner_mobile'),
+            'partner_phone': post.get('partner_mobile'),
             'banpais_relation': post.get('banpais_relation') == 'on',
             'vigent_licence': post.get('vigent_licence') == 'on',
             'unemployed': post.get('unemployed'),
