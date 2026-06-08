@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_import_ded_inc" model="ir.ui.view">
+        <field name="name">import_ded_inc.form</field>
+        <field name="model">import_payment_user_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar usuario de pago">
+                <sheet>
+                    <group >
+                        <field name="format_doc" required="1" filename="doc_name"/>
+                        <field name="doc_name" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button string="Importar" type="object"
+                                name="import_document" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="import_payment_user_action" model="ir.actions.act_window">
+        <field name="name">Importar usuario de pago</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">import_payment_user_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
