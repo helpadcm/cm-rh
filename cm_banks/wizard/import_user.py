@@ -24,7 +24,7 @@ class import_user_wizard(models.TransientModel):
 
         # Iterar por filas
         line_number = 2
-        for row in ws.iter_rows(min_row=2, values_only=True):  # min_row=2 para saltar encabezados
+        for row in ws.iter_rows(min_row=2, values_only=True):
             payment_id = row[1]
             user_id = row[2]
             if payment_id and user_id:
