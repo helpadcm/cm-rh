@@ -25,6 +25,7 @@
             </xpath> -->
             <field name="schedule_pay" position="after">
                 <field name="type_lot" required="1"/>
+                <field name="for_pilot"/>
                 <field name="journal_id" required="1" options="{'no_create': True}"/>
             </field>
         </field>

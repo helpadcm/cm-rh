@@ -7,7 +7,6 @@ months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Sep
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
-    # lot_name = fields.Char(string="Nombre del lote")
 
     @api.model
     def get_journal_default(self):
@@ -15,6 +14,7 @@ class HrPayslipRun(models.Model):
         return journal_default_id.id
 
     type_lot = fields.Selection([('normal','Normal'),('fourteenth','Decimo Cuarto Mes'),('thirteenth','Decimo Tercer Mes')], string="Tipo de lote", default="normal")
+    for_pilot = fields.Boolean(string="Para Pilotos")
     journal_id = fields.Many2one('account.journal',string="Diario", default=get_journal_default)
 
     @api.model_create_multi
@@ -30,20 +30,24 @@ class HrPayslipRun(models.Model):
     def _get_name_for_period(self, vals=None, cache=None):
         res = super(HrPayslipRun, self)._get_name_for_period(vals, cache)
         lot_name = False
+        extra_name = ''
+        if vals.get('for_pilot'):
+            extra_name = 'Pilotos'
+
         if vals.get('type_lot') == 'normal':
             if vals.get('date_start'):
                 start_date = datetime.strptime(vals.get('date_start'), '%Y-%m-%d').date()
                 if start_date.day == 1:
-                    lot_name = '1ra Quincena mes %s del año %s'%(months[start_date.month - 1], start_date.year)
+                    lot_name = f"""1ra Quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
                 if start_date.day == 16:
-                    lot_name = '2da Quincena mes %s del año %s'%(months[start_date.month - 1], start_date.year)
+                    lot_name = f"""2da Quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
         else:
             if vals.get('date_end'):
                 date_end = datetime.strptime(vals.get('date_end'), '%Y-%m-%d').date()
                 if vals.get('type_lot') == 'fourteenth':
-                    lot_name = 'Decimo Cuarto Mes año %s'%(date_end.year)
+                    lot_name = f"""Decimo Cuarto Mes año {date_end.year} {extra_name}"""
                 elif vals.get('type_lot') == 'thirteenth':
-                    lot_name = 'Decimo Tercer Mes año %s'%(date_end.year)
+                    lot_name = f"""Decimo Tercer Mes año {date_end.year} {extra_name}"""
         
         if lot_name:
             return lot_name

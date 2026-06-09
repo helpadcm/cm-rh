@@ -133,6 +133,7 @@
                 </field>
                 <field name="amount_untaxed_in_currency_signed" position="after">
                     <field name="amount_untaxed" sum="Sub Total USD" optional="hide"/>
+                    <field name="amount_total_signed" sum="Total Firmado" optional="hide"/>
                 </field>
                 <field name="name" position="before">
                     <field name="internal_number" string="Número"/>
