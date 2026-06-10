@@ -149,16 +149,21 @@ class employeePayslipXlsx(models.AbstractModel):
         departments_dict = {}
         deductions_name = []
         incomes_name = []
+        fortnight_amount = 0
 
         payslips = self.env['hr.payslip'].search([('date_from', '>=', start_date),('date_to', '<=', end_date),('employee_id', '=', employee)])
         payslip_name = ''
         for payslip in payslips:
-            department_name = payslip.contract_id.department_id.name
+            department_name = payslip.employee_id.department_id.name
             deductions = []
             incomes = []
             payslip_name = 'Resumen de nominas %s'%(payslip.employee_id.name)
 
             if payslip.worked_days_line_ids:
+                line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
+                if line_id:
+                    fortnight_amount = line_id.amount
+
                 for entry in payslip.worked_days_line_ids:
                     if entry.work_entry_type_id.code != 'WORK100':
                         if entry.work_entry_type_id.name not in incomes_name:
@@ -166,6 +171,11 @@ class employeePayslipXlsx(models.AbstractModel):
                             incomes_name.append(entry.work_entry_type_id.name)
                         incomes.append({'rule_name': 'Horas', 'amount': entry.number_of_hours})
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount})
+
+            if fortnight_amount == 0:
+                line_id = payslip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
+                if line_id:
+                    fortnight_amount = line_id.total
 
             for line in payslip.line_ids:
                 if line.category_id.code == 'ALW':
@@ -180,12 +190,12 @@ class employeePayslipXlsx(models.AbstractModel):
 
             employee_vals = {
                 'entry_date': payslip.date_from.strftime('%d/%m/%Y'),
-                'identity': payslip.contract_id.employee_id.identification_id,
-                'bank_account': payslip.contract_id.employee_id.bank_account_id.acc_number,
+                'identity': payslip.employee_id.identification_id,
+                'bank_account': payslip.employee_id.bank_account_ids.acc_number,
                 'employee': payslip.employee_id.name,
                 'job': payslip.employee_id.job_id.name,
-                'monthly_salary': payslip.contract_id.wage * 2,
-                'salary': payslip.contract_id.wage,
+                'monthly_salary': fortnight_amount * 2,
+                'salary': fortnight_amount,
                 'deductions': deductions,
                 'incomes': incomes
             }

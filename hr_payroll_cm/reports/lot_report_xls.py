@@ -163,10 +163,9 @@ class lotFormatXlsx(models.AbstractModel):
 
             if payslip.worked_days_line_ids:
                 fortnight_amount = payslip.employee_id.wage
-                if payslip.worked_days_line_ids:
-                    line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
-                    if line_id:
-                        fortnight_amount = line_id.amount
+                line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
+                if line_id:
+                    fortnight_amount = line_id.amount
             else:
                 line_id = payslip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
                 if line_id:
