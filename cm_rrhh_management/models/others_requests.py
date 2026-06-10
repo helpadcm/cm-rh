@@ -56,7 +56,7 @@ class othersRequests(models.Model):
     char_date_from = fields.Char(string="Fecha inicial string")
     char_date_to = fields.Char(string="Fecha final string")
     
-    @api.onchange('employee_id','tickets_request')
+    @api.onchange('employee_id','tickets_request','business_id')
     def get_qty_available(self):
         history_ids = self.search([('employee_id','=',self.employee_id.id),('business_type','=','ferry'),('state','=','approved')])
 
@@ -72,7 +72,7 @@ class othersRequests(models.Model):
             else:
                 ferry_tickets = 4 - qty_month_requests
 
-        if self.tickets_request:
+        if self.tickets_request and self.business_id.code == 'PFLY':
             ferry_tickets = self.employee_id.program_to_fly
 
         self.qty_available = ferry_tickets
@@ -123,14 +123,14 @@ class othersRequests(models.Model):
                 mail.send()
 
         if next_state == 'approved':
-            if self.tickets_request:
+            if self.tickets_request and self.business_id.code == 'PFLY':
                 self.employee_id.program_to_fly -= self.people_qty
             self.send_email(self.business_type)
 
         self.state = next_state
 
     def request_refuse(self):
-        if self.tickets_request:
+        if self.tickets_request and self.business_id.code == 'PFLY':
             self.employee_id.program_to_fly += self.people_qty
         self.state = 'refused'
 

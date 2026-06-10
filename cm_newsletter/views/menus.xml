@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="newsletter_menuitem"
+            name="Newsletter"
+            parent="crm.crm_menu_sales"
+            action="action_newsletter_list"
+            sequence="6"/>
+    </data>
+
+</odoo>
