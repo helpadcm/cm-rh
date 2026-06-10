@@ -44,8 +44,8 @@ class HrEmployeeInh(models.Model):
     def update_personal_time(self):
         actual_date = datetime.now().date()
         for rec in self.search([]):
-            if rec.date_start_contract:
-                contract_date = rec.date_start_contract
+            if rec.contract_date_start:
+                contract_date = rec.contract_date_start
                 antique = int((actual_date - contract_date).days / 365)
                 tickets = 0
                 if antique == 1 and not rec.first_year:
