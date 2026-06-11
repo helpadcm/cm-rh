@@ -14,7 +14,7 @@ class getDataNewsletter(http.Controller):
 
         request.env['cm.newsletter.list'].sudo().create({
             'name': data.get('email', ''),
-            'lenguage': data.get('lenguage', ''),
+            'language': data.get('language', ''),
             'date': data.get('date', ''),
             'country': data.get('country', '')
         })

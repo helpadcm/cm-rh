@@ -7,6 +7,6 @@ class Newsletter(models.Model):
     _description = "Newsletter"
 
     name = fields.Char(string="Correo")
-    lenguage = fields.Char(string="Idioma")
+    language = fields.Char(string="Idioma")
     date = fields.Datetime(string="Fecha y Hora")
     country = fields.Char(string="Pais")
