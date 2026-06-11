@@ -2,7 +2,7 @@ from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
 
-months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
@@ -32,22 +32,22 @@ class HrPayslipRun(models.Model):
         lot_name = False
         extra_name = ''
         if vals.get('for_pilot'):
-            extra_name = 'Pilotos'
+            extra_name = 'pilotos'
 
         if vals.get('type_lot') == 'normal':
             if vals.get('date_start'):
                 start_date = datetime.strptime(vals.get('date_start'), '%Y-%m-%d').date()
                 if start_date.day == 1:
-                    lot_name = f"""1ra Quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
+                    lot_name = f"""1ra quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
                 if start_date.day == 16:
-                    lot_name = f"""2da Quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
+                    lot_name = f"""2da quincena mes {months[start_date.month - 1]} del año {start_date.year} {extra_name}"""
         else:
             if vals.get('date_end'):
                 date_end = datetime.strptime(vals.get('date_end'), '%Y-%m-%d').date()
                 if vals.get('type_lot') == 'fourteenth':
-                    lot_name = f"""Decimo Cuarto Mes año {date_end.year} {extra_name}"""
+                    lot_name = f"""Decimo cuarto mes año {date_end.year} {extra_name}"""
                 elif vals.get('type_lot') == 'thirteenth':
-                    lot_name = f"""Decimo Tercer Mes año {date_end.year} {extra_name}"""
+                    lot_name = f"""Decimo tercer mes año {date_end.year} {extra_name}"""
         
         if lot_name:
             return lot_name
