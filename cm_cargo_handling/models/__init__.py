@@ -14,5 +14,3 @@ from . import sale_order_handling
 from . import move_inh
 from . import cargo_manifest
 from . import guide_invoice_group
-# import configuration_status_inherit
-# import view_data
