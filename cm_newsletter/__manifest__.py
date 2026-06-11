@@ -8,7 +8,6 @@
 	'description'	:"""Module to capture data from website.""",
 	'depends':['base','mail', 'crm'],
 	'data':[
-		# 'security/groups.xml',
 		'security/ir.model.access.csv',
 		'views/newsletter_view.xml',
         'views/menus.xml',
