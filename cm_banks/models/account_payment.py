@@ -109,11 +109,15 @@ class ap_account_payment(models.Model):
 						'date_maturity': payment.date,
 						'amount_currency': amount_currency,
 						'currency_id': payment.currency_id.id,
-						'debit': debit,
-						'credit': credit,
 						'partner_id': payment.partner_id.id,
 						'account_id': line.account_id.id,
 					}
+
+					if debit != 0:
+						vals.update({'balance': debit})
+
+					if credit != 0:
+						vals.update({'balance': -credit})
 
 					if line.analytic_account_id:
 						distribution_line = {str(line.analytic_account_id.id): 100.0}
@@ -126,25 +130,12 @@ class ap_account_payment(models.Model):
 
 				for line in res:
 					if line.get('account_id') == payment.destination_account_id.id:
-						if payment.payment_type == 'outbound':  # Pago a proveedor
-							if total_credit > 0:
-								line['amount_currency'] += abs(total_writeoff_currency)
-								line['balance'] += total_credit
-							if total_debit > 0:
-								line['amount_currency'] -= abs(total_writeoff_currency)
-								line['balance'] -= total_debit
 
-						elif payment.payment_type == 'inbound':  # Pago de cliente
-							if total_writeoff_company > 0:
-								line['amount_currency'] -= abs(total_writeoff_currency)
-								line['balance'] += total_writeoff_company
-							else:
-								if total_debit > 0:
-									line['amount_currency'] -= abs(total_writeoff_currency)
-									line['balance'] += total_debit
-								if total_credit > 0:
-									line['amount_currency'] += abs(total_writeoff_currency)
-									line['balance'] -= total_credit
+						line['balance'] -= total_writeoff_company
+
+						if 'amount_currency' in line:
+							line['amount_currency'] -= total_writeoff_currency
+
 						break
 				res.extend(lines_list)
 		return res
