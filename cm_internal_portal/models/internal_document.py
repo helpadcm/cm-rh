@@ -42,17 +42,12 @@ class internalDocumentCategory(models.Model):
     name = fields.Char(required=True, string="Nombre", tracking=True)
     sequence = fields.Integer(default=10, string="Secuencia", tracking=True)
     code = fields.Char(string="Codigo",tracking=True)
+    url_address = fields.Char(string="URL")
 
     def action_view_documents(self):
         self.ensure_one()
-
         return {
-            'type': 'ir.actions.act_window',
-            'name': self.name,
-            'res_model': 'internal.portal.document',
-            'view_mode': 'list,form',
-            'domain': [('category_id', '=', self.id)],
-            'context': {
-                'default_category_id': self.id,
-            },
+            'type': 'ir.actions.act_url',
+            'url': self.url_address,
+            'target': 'new',
         }
