@@ -63,7 +63,6 @@ class CustomPortalAbsences(http.Controller):
                 })
 
         routes_ids = request.env['flight.routes'].sudo().search([])
-
         domain=['|',('requires_allocation', '=', 'no'),('has_valid_allocation', '=', True),('code','in',['PFLY','SCP','SCSE']),('company_id','=',employee_id.company_id.id)]
         types_absences_ids = request.env['hr.leave.type'].sudo().search(domain)
 
