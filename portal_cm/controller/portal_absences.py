@@ -101,9 +101,9 @@ class CustomPortalAbsences(http.Controller):
             if middle_day:
                 vals.update({'request_unit_half': True, 'request_date_to': datetime.strptime(start_date, "%Y-%m-%d")})
                 if middle_day_opt == 'Mañana':
-                    vals.update({'request_date_from_period': 'am'})
+                    vals.update({'request_hour_from': '8','request_hour_to': '12'})
                 else:
-                    vals.update({'request_date_from_period': 'pm'})
+                    vals.update({'request_hour_from': '13','request_hour_to': '17'})
 
 
         
