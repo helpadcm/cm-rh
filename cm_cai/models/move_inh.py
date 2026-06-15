@@ -92,6 +92,7 @@ class moveInh(models.Model):
     def _post(self, soft=True):
         res = super(moveInh, self)._post(soft=False)
         for inv in self:
+            
             if inv.invoice_date:
                 seq_date = datetime.combine(inv.invoice_date,time.min)
             else:
