@@ -92,7 +92,11 @@ class moveInh(models.Model):
     def _post(self, soft=True):
         res = super(moveInh, self)._post(soft=False)
         for inv in self:
-            seq_date = datetime.combine(inv.invoice_date,time.min)
+            if inv.invoice_date:
+                seq_date = datetime.combine(inv.invoice_date,time.min)
+            else:
+                seq_date = inv.date
+
             if inv.move_type in ['out_invoice']:
                 if inv.journal_id.sequence_id:
                     if inv.journal_id.sequence_id.is_fiscal_sequence:
