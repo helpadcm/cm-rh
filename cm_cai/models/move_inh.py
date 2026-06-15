@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from odoo.tools.misc import format_date
 import math
 import requests
@@ -92,6 +92,7 @@ class moveInh(models.Model):
     def _post(self, soft=True):
         res = super(moveInh, self)._post(soft=False)
         for inv in self:
+            seq_date = datetime.combine(inv.invoice_date,time.min)
             if inv.move_type in ['out_invoice']:
                 if inv.journal_id.sequence_id:
                     if inv.journal_id.sequence_id.is_fiscal_sequence:
@@ -104,7 +105,7 @@ class moveInh(models.Model):
                                 raise ValidationError('Ha llegado al numero maximo permitido, por favor configurar un nuevo CAI')
                         
                         if inv.internal_number == 'Borrador' or not inv.internal_number:
-                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=seq_date).next_by_id()
                             inv.with_context({'cai': True}).write({'name': new_name})
                             inv.write({'payment_reference': new_name})
                             inv.write({'internal_number': new_name})
@@ -119,7 +120,7 @@ class moveInh(models.Model):
                             inv.write({'name': inv.internal_number})
                     else:
                         if inv.internal_number in ['/', 'Borrador']:
-                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                            new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=seq_date).next_by_id()
                             inv.write({'name': new_name})
                             inv.write({'internal_number': new_name})
                         else:
@@ -155,7 +156,7 @@ class moveInh(models.Model):
 
                 if inv.internal_number in ['Borrador','/'] or not inv.internal_number:
                     if inv.journal_id.sequence_id:
-                        new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=inv.invoice_date).next_by_id()
+                        new_name = inv.journal_id.sequence_id.with_context(ir_sequence_date=seq_date).next_by_id()
                         inv.write({'payment_reference': new_name})
                         inv.write({'internal_number': new_name})
                         inv.write({'name': new_name})
