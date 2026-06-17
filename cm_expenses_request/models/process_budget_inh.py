@@ -8,6 +8,11 @@ class processBudgetInh(models.Model):
 
     user_ids = fields.Many2many('res.users', string="Usuarios Permitidos")
 
+class accountBudgetInh(models.Model):
+    _inherit = 'account.budget.account'
+
+    process_id = fields.Many2one('crossovered.activity', string="Proceso")
+
 
 class employeeInh(models.Model):
     _inherit = 'hr.employee'
@@ -23,3 +28,10 @@ class employeeInh(models.Model):
         tracking=True,
         string='Bank Accounts',
         help='Employee bank accounts to pay salaries')
+
+    show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")
+
+class employeePublicInh(models.Model):
+    _inherit = 'hr.employee.public'
+
+    show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")

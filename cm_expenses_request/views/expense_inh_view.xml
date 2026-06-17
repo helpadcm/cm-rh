@@ -11,7 +11,7 @@
                     <field name="process_id" options="{'no_create': True,'no_open': True}" readonly="1" force_save="1" />
                 </xpath>
                 <field name="price_unit" position="before">
-                    <field name="invoice_number" required="1"/>
+                    <field name="invoice_number" required="1" placeholder="Ejemplo: 000-000-00-00000000"/>
                     <field name="reason_expense" invisible="1" readonly="state != 'draft'"/>
                 </field>
                 <field name="description" position="attributes">

@@ -41,9 +41,10 @@ class expensesRequest(models.Model):
                 'department_id': employee_id.department_id.id,
                 'job_id': employee_id.job_id.id,
                 'employee_id': employee_id.id,
+                'assign_to_id': employee_id.id,
                 'process_ids': permitted_processes_ids,
                 'process_id': default_process_id,
-                'boss_id': employee_id.coach_id.id,
+                'boss_id': employee_id.parent_id.id,
                 'account_number': account_number,
                 'date': datetime.now().date()
             })
@@ -59,6 +60,7 @@ class expensesRequest(models.Model):
     observations = fields.Text(string="Observaciones",tracking=True,copy=False)
     state = fields.Selection(states,string="Estado",default="draft",tracking=True,copy=False)
     boss_id = fields.Many2one('hr.employee',string="Jefe Inmediato",copy=True)
+    assign_to_id = fields.Many2one('hr.employee',string="Asignado a",copy=True)
 
     advance_amount = fields.Float(string="Anticipo al Empleado", compute="calculate_totals")
     total_expense_amount = fields.Float(string="Total de gastos", compute="calculate_totals")
@@ -102,9 +104,30 @@ class expensesRequest(models.Model):
             else:
                 rec.infavor_employee_amount = infavor_total
 
+    @api.onchange('assign_to_id')
+    def get_assign_to_data(self):
+        if self.assign_to_id:
+            self.write({
+                'department_id': self.assign_to_id.department_id.id,
+                'job_id': self.assign_to_id.job_id.id,
+                'boss_id': self.assign_to_id.coach_id.id,
+                'account_number': self.assign_to_id.bank_account_ids.acc_number
+            })
+
     @api.onchange('employee_id')
     def get_employee_data(self):
+        permitted_processes_ids = False
+        default_process_id = False
         if self.employee_id:
+            if self.employee_id.user_id:
+                permitted_processes_ids = self.env['crossovered.activity'].search([('user_ids','in',self.employee_id.user_id.ids)])
+                if len(permitted_processes_ids) == 1:
+                    default_process_id = permitted_processes_ids.id
+                    self.write({
+                        'process_ids': permitted_processes_ids,
+                        'process_id': default_process_id,
+                    })
+
             self.write({
                 'department_id': self.employee_id.department_id.id,
                 'job_id': self.employee_id.job_id.id,
@@ -151,20 +174,20 @@ class expensesRequest(models.Model):
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.boss_id.name
             email_to = self.boss_id.user_id.login
-            message_txt = f"""El colaborador {self.employee_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
+            message_txt = f"""El colaborador {self.assign_to_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos'
 
         if state == 'assigned':
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
-            for_user = self.employee_id.name
-            email_to = self.employee_id.user_id.login
-            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta."""
+            for_user = self.assign_to_id.name
+            email_to = self.assign_to_id.user_id.login
+            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo"""
             subject = 'Asignación de viaticos'
 
         if state == 'pending':
-            for_user = self.employee_id.expense_manager_id.name
-            email_to = self.employee_id.expense_manager_id.login
-            message_txt = f"""Se ha creado un reporte de gastos del empleado {self.employee_id.name} para su revisión."""
+            for_user = self.assign_to_id.expense_manager_id.name
+            email_to = self.assign_to_id.expense_manager_id.login
+            message_txt = f"""Se ha creado un reporte de gastos del empleado {self.assign_to_id.name} para su revisión."""
             subject = 'Reporte de gastos creado'
 
             expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
@@ -247,10 +270,10 @@ class expensesRequest(models.Model):
         sheet_obj = self.env['expenses.sheet.request']
         sequence_id = self.env.ref('cm_expenses_request.expenses_sheet_request_sequence')
         vals = {
-            'employee_id': self.employee_id.id,
-            'user_id': self.employee_id.expense_manager_id.id,
+            'employee_id': self.assign_to_id.id,
+            'user_id': self.assign_to_id.expense_manager_id.id,
             'request_id': self.id,
-            'name': f"""Liq. de viaticos {self.employee_id.name}""",
+            'name': f"""Liq. de viaticos {self.assign_to_id.name}""",
             'state': 'sent',
             'number': sequence_id.next_by_id()
         }

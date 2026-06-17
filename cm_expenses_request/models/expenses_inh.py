@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from odoo import api, models, fields, _, Command
 from datetime import datetime, timedelta
 from odoo.exceptions import UserError, ValidationError
@@ -8,19 +9,33 @@ class expensesInh(models.Model):
 
     request_id = fields.Many2one('cm.expenses.request',string="Solicitud de viaticos")
     budget_account_id = fields.Many2one('account.budget.account',string="Cuenta Presupuestaria")
-    invoice_number = fields.Char(string="Número de factura")
+    invoice_number = fields.Char(string="Número de factura",size=19)
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     expense_sheet_req_id = fields.Many2one('expenses.sheet.request', string="Reporte de gasto")
+
+    @api.constrains('invoice_number')
+    def _check_invoice_number(self):
+        pattern = r'^\d{3}-\d{3}-\d{2}-\d{8}$'
+
+        for rec in self:
+            if rec.invoice_number:
+                if len(rec.invoice_number) != 19:
+                    raise ValidationError(
+                        "El número de factura debe contener exactamente 19 caracteres."
+                    )
+
+                if not re.match(pattern, rec.invoice_number):
+                    raise ValidationError(
+                        "El formato debe ser 000-000-00-00000000"
+                    )
 
     @api.depends('product_id', 'account_id', 'employee_id')
     def _compute_analytic_distribution(self):
         for expense in self:
             if expense.request_id:
-                print ("///////////////////////////////")
-                print (expense.request_id)
-                if expense.employee_id and expense.employee_id.analytic_account_id:
-                    analytic = expense.employee_id.analytic_account_id.id
+                if expense.assign_to_id and expense.assign_to_id.analytic_account_id:
+                    analytic = expense.assign_to_id.analytic_account_id.id
                     expense.analytic_distribution = {str(analytic): 100.0}
                 else:
                     expense.analytic_distribution = False
@@ -60,15 +75,13 @@ class expensesInh(models.Model):
             analytic = self.employee_id.analytic_account_id.id
             self.analytic_distribution = {str(analytic): 100.0}
 
-        if self.product_id:
-            if self.reason_expense == 'tour':
-                if not self.product_id.budget_account_id:
-                    raise ValidationError(f"""No esta configurada una cuenta presupuestaria para giras en la categoria {self.name}""")
-                self.budget_account_id = self.product_id.budget_account_id.id
-            elif self.reason_expense == 'training':
-                if not self.product_id.training_budget_account_id:
-                    raise ValidationError(f"""No esta configurada una cuenta presupuestaria para capacitaciones en la categoria {self.name}""")
-                self.budget_account_id = self.product_id.training_budget_account_id.id
+        if self.process_id:
+            if self.product_id and self.product_id.property_account_expense_id:
+                budget_account_id = self.product_id.property_account_expense_id.fbudget_line_ids.filtered(lambda account: account.process_id.id == self.process_id.id)
+                if budget_account_id:
+                    self.budget_account_id = budget_account_id.id
+                else:
+                    raise ValidationError(f"""La categoria de gasto {self.product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -76,7 +89,7 @@ class expensesInh(models.Model):
             if vals.get('request_id'):
                 req_id = self.env['cm.expenses.request'].browse(vals.get('request_id'))
                 if req_id:
-                    employee = req_id.employee_id
+                    employee = req_id.assign_to_id
                     if employee.analytic_account_id:
                         analytic = employee.analytic_account_id.id
                         vals['analytic_distribution'] = {str(analytic): 100.0}

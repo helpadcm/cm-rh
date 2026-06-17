@@ -22,5 +22,38 @@
                 </field>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="budget_account_inh_form">
+            <field name="name">account.budget.form.inh</field>
+            <field name="model">account.budget.account</field>
+            <field name="inherit_id" ref="year_budget.view_account_analytic_form"/>
+            <field name="arch" type="xml">
+                <field name="parent_id" position="after">
+                    <field name="process_id" options="{'no_create':True}"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="budget_account_inh_tree">
+            <field name="name">account.budget.tree.inh</field>
+            <field name="model">account.budget.account</field>
+            <field name="inherit_id" ref="year_budget.view_account_analytic_list"/>
+            <field name="arch" type="xml">
+                <field name="plan_id" position="after">
+                    <field name="process_id"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="portal_cm_employee">
+            <field name="name">portal_cm.employee.inh</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="portal_cm.hr_employee_portal_form"/>
+            <field name="arch" type="xml">
+                <field name="show_pfly_menu" position="after">
+                    <field name="show_settlement_menu"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -6,7 +6,7 @@
 	'author'	:'Oniel, CMAirlines',
     'category': 'Accounting/Accounting',
 	'description'	:"""Module for requesting travel expenses.""",
-	'depends':['base','sale','cm_cai','account','mail','hr','hr_expense','cm_cargo_handling','hr_payroll_cm','year_budget','cm_banks'],
+	'depends':['base','sale','cm_cai','account','mail','hr','hr_expense','cm_cargo_handling','hr_payroll_cm','year_budget','cm_banks','portal_cm'],
 	'data':[
 		'security/groups.xml',
 		'security/ir.model.access.csv',
@@ -19,7 +19,14 @@
 		'views/expense_inh_view.xml',
 		'views/budget_process_view.xml',
 		'views/expenses_sheet_request_view.xml',
+		'views/portal_settlement_expenses.xml',
+		'views/portal_menu.xml',
         'views/menus.xml',
 	],
 	'installable':True,
+	'assets': {
+    'web.assets_frontend': [
+        'cm_expenses_request/static/src/js/portal_expenses.js',
+    ],
+},
 }

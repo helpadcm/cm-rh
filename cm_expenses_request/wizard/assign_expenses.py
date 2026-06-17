@@ -17,7 +17,7 @@ class assignExpenses(models.TransientModel):
         account_id = self.env['account.account'].search([('code','=','105.01')])
         if req_id:
             rec.update({
-                'description': f"""Viaticos para {req_id.employee_id.name}""",
+                'description': f"""Viaticos para {req_id.assign_to_id.name}""",
                 'date': (datetime.now() - timedelta(hours=6)).date()
             })
             if account_id:
@@ -51,7 +51,7 @@ class assignExpenses(models.TransientModel):
             'account_id': self.account_id.id,
             'name': req_id.purpose,
             'amount': self.amount,
-            'chqmanalitics': req_id.employee_id.analytic_account_id.id or False,
+            'chqmanalitics': req_id.assign_to_id.analytic_account_id.id or False,
             'debit_credit_id': debit_id.id,
             'type': 'dr'
         })

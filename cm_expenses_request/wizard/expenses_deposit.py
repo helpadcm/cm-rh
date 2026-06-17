@@ -49,7 +49,7 @@ class depositExpenses(models.TransientModel):
             'account_id': self.account_id.id,
             'name': "Reembolso",
             'amount': self.amount,
-            'chqmanalitics': req_id.employee_id.analytic_account_id.id or False,
+            'chqmanalitics': req_id.assign_to_id.analytic_account_id.id or False,
             'mcheck_id': deposit_id.id,
             'type': 'cr'
         })
