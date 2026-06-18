@@ -16,7 +16,8 @@ class getDataNewsletter(http.Controller):
             'name': data.get('email', ''),
             'language': data.get('language', ''),
             'date': data.get('date', ''),
-            'country': data.get('country', '')
+            'country': data.get('country', ''),
+            'source': data.get('source', False)
         })
 
         return request.make_json_response({

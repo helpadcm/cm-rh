@@ -10,3 +10,4 @@ class Newsletter(models.Model):
     language = fields.Char(string="Idioma")
     date = fields.Datetime(string="Fecha y Hora")
     country = fields.Char(string="Pais")
+    source = fields.Selection([('web','Web'),('other','Otro')],string="Fuente")
