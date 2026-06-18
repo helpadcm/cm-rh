@@ -1,6 +1,6 @@
 /** @odoo-module **/ // ¡Añade esta línea al principio!
 
-console.log("¡Archivo de prueba cargado correctamente!");
+// console.log("¡Archivo de prueba cargado correctamente!");
 
 // Esperar a que el documento esté completamente cargado
 // document.addEventListener("DOMContentLoaded", function() {

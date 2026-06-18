@@ -1,23 +1,40 @@
 <odoo>
     <template id="portal_ferry_request" name="Boletos en ferry">
         <t t-call="portal.portal_layout">
-            <ul class="nav nav-tabs">
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm p-2 bg-white rounded">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Solicitar Boletos</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab1">
+                        <i class="fa fa-plane me-1"></i>
+                        Solicitar Boletos
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">Beneficiarios</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">
+                        <i class="fa fa-users me-1"></i>
+                        Beneficiarios
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#tab3">Historial</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab3">
+                        <i class="fa fa-history me-1"></i>
+                        Historial
+                    </a>
                 </li>
             </ul>
 
-            <div class="tab-content">
-                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
+            <div class="tab-content" style="background: rgba(255,255,255,0.7);border-radius:10px;">
+                <div class="container tab-pane fade show active" id="tab1">
 
-                    <h2 class="text-center">Solicitud de boletos</h2>
-                    <p class="text-center">Desde esta página podrá ingresar sus solicitudes para el beneficio boletos de ferry.</p>
+                    <div class="text-center py-4 mb-4 border-bottom">
+                        <h1 class="display-6 fw-bold text-primary">
+                            <i class="fa fa-ship" aria-hidden="true"></i>
+                            Solicitud de Boletos
+                        </h1>
+
+                        <p class="lead text-muted mb-0">
+                            Desde aqui podrá ingresar sus solicitudes para el beneficio boletos de ferry.
+                        </p>
+                    </div>
 
                     <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
                         <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
@@ -26,129 +43,198 @@
                     </div>
 
                     <div class="row justify-content-center">
-                        <div class="col-12 col-md-8 col-lg-6" style="background-color: #F5F5F5;border-radius:10px">
+                        <div class="col-12 col-md-8 col-lg-6" style="border-radius:10px">
                             <form action="/request_tickets_ferry/submit" method="POST" class="mt-2" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                                <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                <div class="card shadow border-0">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-ticket me-2"></i>
+                                            Registro de Solicitud
+                                        </h5>
+                                    </div>
 
-                                    <div class="col-12" id="fly_div_id">
-                                        <div class="mb-3">
-                                            <label class="form-label">Boletos disponibles</label>
-                                            <input type="text" disabled="disabled" class="form-control" name="record_ferry_tickets" id="ferry_tickets_id" t-att-value="ferry_tickets"/>
+                                    <div class="card-body">
+                                        <div class="col-12" id="fly_div_id">
+                                            <div class="card border-success shadow-sm mb-3">
+                                                <div class="card-body text-center">
+
+                                                    <h6 class="text-success">
+                                                        <i class="fa fa-ship"></i>
+                                                        Boletos Disponibles
+                                                    </h6>
+
+                                                    <input type="text"
+                                                        disabled="disabled"
+                                                        class="form-control text-center fw-semibold text-secondary"
+                                                        name="record_ferry_tickets"
+                                                        id="ferry_tickets_id"
+                                                        t-att-value="ferry_tickets"/>
+
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-12" id="tickets_div_id">
-                                        <div class="mb-3">
-                                            <label class="form-label">Boletos a tomar</label>
-                                            <input type="number" class="form-control" name="record_tickets" id="tickets" t-att-max="ferry_tickets" min="1"/>
+                                        <div class="col-12" id="tickets_div_id">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-ticket"></i>
+                                                    Boletos a tomar
+                                                </label>
+                                                <input type="number" class="form-control" name="record_tickets" id="tickets" t-att-max="ferry_tickets" min="1"/>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-12"  id="ben1">
-                                        <label class="form-label" id="label1">Beneficiario 1</label>
-                                        <select class="form-control" name="selection_beneficiary1" id="beneficiary1_id" required="required">
-                                            <t t-foreach="beneficiaries_ids" t-as="ben">
-                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
-                                            </t>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12"  id="ben2">
-                                        <label class="form-label" id="label3">Beneficiario 2</label>
-                                        <select class="form-control" name="selection_beneficiary2" id="beneficiary2_id" required="required">
-                                            <t t-foreach="beneficiaries_ids" t-as="ben">
-                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
-                                            </t>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12"  id="ben3">
-                                        <label class="form-label" id="label3">Beneficiario 3</label>
-                                        <select class="form-control" name="selection_beneficiary3" id="beneficiary3_id" required="required">
-                                            <t t-foreach="beneficiaries_ids" t-as="ben">
-                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
-                                            </t>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12"  id="ben4">
-                                        <label class="form-label" id="label4">Beneficiario 4</label>
-                                        <select class="form-control" name="selection_beneficiary4" id="beneficiary4_id" required="required">
-                                            <t t-foreach="beneficiaries_ids" t-as="ben">
-                                                <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
-                                            </t>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Ida y Vuelta</label>
-                                        <input type="checkbox" checked="on" class="form-check-input" name="round_trip" id="round_trip_id"/>
-                                        <label class="form-label">Solo Ida</label>
-                                        <input type="checkbox" class="form-check-input" name="exit_only" id="exit_only_id"/>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Ruta de Ida</label>
-                                            <select class="form-control" name="selection_exit_route" id="exit_route_id" required="required">
-                                                <t t-foreach="routes" t-as="exit">
-                                                    <option t-att-value="exit.id"><t t-esc="exit.name"/></option>
+                                        <div class="col-12"  id="ben1">
+                                            <label class="form-label fw-semibold text-secondary">
+                                                <i class="fa fa-users me-1"></i>
+                                                Beneficiario 1
+                                            </label>
+                                            <select class="form-control" name="selection_beneficiary1" id="beneficiary1_id" required="required">
+                                                <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                    <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
                                                 </t>
                                             </select>
                                         </div>
-                                        <div class="mb-3" id="return_div_id">
-                                            <label class="form-label">Ruta de Regreso</label>
-                                            <select class="form-control" name="selection_return_route" id="return_route_id">
-                                                <t t-foreach="routes" t-as="return">
-                                                    <option t-att-value="return.id"><t t-esc="return.name"/></option>
+
+                                        <div class="col-12"  id="ben2">
+                                            <label class="form-label fw-semibold text-secondary">
+                                                <i class="fa fa-users me-1"></i>
+                                                Beneficiario 2
+                                            </label>
+                                            <select class="form-control" name="selection_beneficiary2" id="beneficiary2_id" required="required">
+                                                <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                    <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
                                                 </t>
                                             </select>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Fecha Ida</label>
-                                            <input class="form-control" type="date" name="initial_date" id="initial_date_id" required="required"/>
+
+                                        <div class="col-12"  id="ben3">
+                                            <label class="form-label fw-semibold text-secondary">
+                                                <i class="fa fa-users me-1"></i>
+                                                Beneficiario 3
+                                            </label>
+                                            <select class="form-control" name="selection_beneficiary3" id="beneficiary3_id" required="required">
+                                                <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                    <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                                </t>
+                                            </select>
                                         </div>
-                                    </div>
 
-                                    <div class="col-12" id="final_date_div">
-                                        <div class="mb-3">
-                                            <label class="form-label">Fecha Vuelta</label>
-                                            <input class="form-control" type="date" name="final_date" id="final_date_id"/>
+                                        <div class="col-12"  id="ben4">
+                                            <label class="form-label fw-semibold text-secondary">
+                                                <i class="fa fa-users me-1"></i>
+                                                Beneficiario 4
+                                            </label>
+                                            <select class="form-control" name="selection_beneficiary4" id="beneficiary4_id" required="required">
+                                                <t t-foreach="beneficiaries_ids" t-as="ben">
+                                                    <option t-att-value="ben.id"><t t-esc="ben.name"/></option>
+                                                </t>
+                                            </select>
                                         </div>
-                                    </div>
 
+                                        <div class="col-12">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input"
+                                                    type="checkbox"
+                                                    name="round_trip"
+                                                    id="round_trip_id"/>
 
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Notas</label>
-                                            <input type="text" name="record_notes" class="form-control" id="notes"/>
+                                                <label class="form-check-label">
+                                                    Ida y Vuelta
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input"
+                                                    type="checkbox"
+                                                    name="exit_only"
+                                                    id="exit_only_id"/>
+
+                                                <label class="form-check-label">
+                                                    Solo Ida
+                                                </label>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label class="form-label">Adjuntar Documento</label>
-                                            <input type="file" class="form-control" name="attachments" id="attachment_id" accept=".pdf,.jpg,.png,.doc,.docx" multiple="multiple"/>
+                                        <div class="col-12">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-map-marker me-1"></i>
+                                                    Ruta de Ida
+                                                </label>
+                                                <select class="form-control" name="selection_exit_route" id="exit_route_id" required="required">
+                                                    <t t-foreach="routes" t-as="exit">
+                                                        <option t-att-value="exit.id"><t t-esc="exit.name"/></option>
+                                                    </t>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3" id="return_div_id">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-map-marker me-1"></i>
+                                                    Ruta de Regreso
+                                                </label>
+                                                <select class="form-control" name="selection_return_route" id="return_route_id">
+                                                    <t t-foreach="routes" t-as="return">
+                                                        <option t-att-value="return.id"><t t-esc="return.name"/></option>
+                                                    </t>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-calendar me-1"></i>
+                                                        Fecha Ida
+                                                    </label>
+                                                    <input class="form-control" type="date" name="initial_date" id="initial_date_id" required="required"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12" id="final_date_div">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-calendar me-1"></i>
+                                                        Fecha de Regreso
+                                                    </label>
+                                                    <input class="form-control" type="date" name="final_date" id="final_date_id"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-sticky-note" aria-hidden="true"></i>
+                                                        Notas
+                                                    </label>
+                                                    <input type="text" name="record_notes" class="form-control" id="notes"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-paperclip me-1"></i>
+                                                        Adjuntar Documento
+                                                    </label>
+                                                    <input type="file" class="form-control" name="attachments" id="attachment_id" accept=".pdf,.jpg,.png,.doc,.docx" multiple="multiple"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 text-center">
+                                                <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-12 text-center">
-                                        <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <div class="container tab-pane fade" id="tab2" style="background-color: #F5F5F5;border-radius:10px">
+                <div class="container tab-pane fade" id="tab2">
                     <div class="table-responsive">
-                        <table class="table table-striped historical_table" >
-                            <thead>
+                        <table class="table table-hover table-striped align-middle historical_table">
+                            <thead class="table-dark">
                                 <tr>
                                     <th class="header_historical">Nombre</th>
                                     <th class="header_historical">Identidad</th>
@@ -181,54 +267,108 @@
                         <input type="checkbox" class="form-check-input" name="create_beneficiary" id="create_benficiary_id"/>
                     </div>
                     <div id="beneficiaryForm" style="display: none;">
-                        <form action="/create_beneficiary_ferry/submit" method="POST" class="mt-2">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-
-                            <div class="row g-3 p-3 border rounded">
-                                <h2 class="text-center">Crear Beneficiario</h2>
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="record_beneficiry_name" id="beneficiary_name_id" required="required"/>
-                                </div>
-
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label">Identidad</label>
-                                    <input type="text" class="form-control" name="record_beneficiry_identity" id="beneficiary_id" required="required"/>
-                                </div>
-
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label">Fecha de nacimiento</label>
-                                    <input type="date" class="form-control" name="record_beneficiry_birth" id="birthday_id" required="required"/>
-                                </div>
-
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label">Parentesco</label>
-                                    <select class="form-control" name="selection_relationship" id="relationship_id" required="required">
-                                        <option value="mother">Madre</option>
-                                        <option value="father">Padre</option>
-                                        <option value="children">Hijo(a)</option>
-                                        <option value="siblings">Hermano(a)</option>
-                                        <option value="couple">Pareja</option>
-                                        <option value="other">Otro</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-12 col-md-3">
-                                    <label class="form-label">Observacion</label>
-                                    <input type="text" class="form-control" name="record_beneficiry_obs" id="beneficiary_obs_id"/>
-                                </div>
-
-                                <div class="col-12 text-center">
-                                    <button type="submit" class="btn btn-primary mt-3">Crear</button>
-                                </div>
+                        <div class="card shadow border-0 mt-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-user-plus me-2"></i>
+                                    Crear Beneficiario
+                                </h5>
                             </div>
-                        </form>
+
+                            <div class="card-body">
+                                <form action="/create_beneficiary_ferry/submit" method="POST" class="mt-2">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-font" aria-hidden="true"></i>
+                                                Nombre
+                                            </label>
+                                            <input
+                                                class="form-control"
+                                                type="text"
+                                                name="record_beneficiry_name"
+                                                id="beneficiary_name_id"
+                                                required="required"/>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-font" aria-hidden="true"></i>
+                                                Identidad
+                                            </label>
+                                            <input
+                                                class="form-control"
+                                                type="text"
+                                                placeholder="Número de identidad sin guiones"
+                                                name="record_beneficiry_identity"
+                                                id="beneficiary_id"
+                                                required="required"/>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-calendar me-1"></i>
+                                                Fecha de nacimiento
+                                            </label>
+                                            <input
+                                                class="form-control"
+                                                type="date"
+                                                placeholder="Número de identidad sin guiones"
+                                                name="record_beneficiry_birth"
+                                                id="birthday_id"
+                                                required="required"/>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-list-alt me-1"></i>
+                                                    Parentesco
+                                                </label>
+                                                <select class="form-control" name="selection_relationship" id="relationship_id" required="required">
+                                                    <option t-att-data-opt-code="mother" value="mother">Madre</option>
+                                                    <option t-att-data-opt-code="father" value="father">Padre</option>
+                                                    <option t-att-data-opt-code="children" value="children">Hijo(a)</option>
+                                                    <option t-att-data-opt-code="siblings" value="siblings">Hermano(a)</option>
+                                                    <option t-att-data-opt-code="couple" value="couple">Pareja</option>
+                                                    <option t-att-data-opt-code="grandparents" value="grandparents">Abuelo(a)</option>
+                                                    <option t-att-data-opt-code="grandson" value="grandson">Nieto(a)</option>
+                                                    <option t-att-data-opt-code="other" value="other">Otro</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-font" aria-hidden="true"></i>
+                                                Observacion
+                                            </label>
+                                            <input
+                                                class="form-control"
+                                                type="text"
+                                                placeholder="Agregue observaciones segun el caso"
+                                                name="record_beneficiry_obs"
+                                                id="beneficiary_obs_id"/>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            <button type="submit" class="btn btn-primary px-4">
+                                                <i class="fa fa-save me-1"></i>
+                                                Crear
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div id="tab3" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
+                <div id="tab3" class="tab-pane fade">
                     <div class="table-responsive">
-                        <table class="table table-striped historical_table" >
-                            <thead>
+                        <table class="table table-hover table-striped align-middle historical_table">
+                            <thead class="table-dark">
                                 <tr>
                                     <th class="header_historical">Fecha de Solicitud</th>
                                     <th class="header_historical">Fecha de Entrada</th>
@@ -370,15 +510,44 @@
                     margin: 0;
                 }
 
-                .header_historical{
-                    font-size: 13px !important;
-                    background-color: #008000 !important;
-                    color: #FFFFFF !important;
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
                 }
 
-                .historical_table tbody tr:hover{
-                    background-color: #ABEBC6 !important;
-                    transition: background 0.3s;
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
                 }
             </style>
         </t>

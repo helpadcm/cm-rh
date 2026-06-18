@@ -3,15 +3,31 @@
         <t t-call="portal.portal_layout">
             <div class="tab-content">
                 <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
-                    
-                    <!-- <input type="text" class="d-none" name="turn_na" id="id_turn_na" t-att-value="turn_na_id"/>
+                    <div class="card border-warning shadow-sm mt-4"
+                        style="display: none;"
+                        id="message_not_request_id">
 
-                    <input type="text" class="d-none" name="initial_turn_a" id="id_initial_turn_a" t-att-value="turn_initial_a_id"/>
-                    <input type="text" class="d-none" name="final_turn_a" id="id_final_turn_a" t-att-value="turn_final_a_id"/>
-                    <input type="text" class="d-none" name="initial_turn_b" id="id_initial_turn_b" t-att-value="turn_initial_b_id"/>
-                    <input type="text" class="d-none" name="final_turn_b" id="id_final_turn_b" t-att-value="turn_final_b_id"/> -->
-                    <div class="mb-6 alert alert-danger" style="display: none;" id="message_not_request_id">
-                        <span id="id_message_form" t-esc="message_form" />
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center">
+
+                                <div class="me-3">
+                                    <i class="fa fa-info-circle fa-3x text-warning"></i>
+                                </div>
+
+                                <div>
+                                    <h5 class="mb-1">
+                                        Información
+                                    </h5>
+
+                                    <span id="id_message_form"
+                                        t-esc="message_form"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <div style="display: none;" id="form_view_id">

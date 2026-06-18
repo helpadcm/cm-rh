@@ -2,24 +2,60 @@
     <template id="portal_loan_request_cm" name="Ingreso de Horas">
         <t t-call="portal.portal_layout">
             <div class="tab-content">
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-pills nav-fill mb-4 shadow-sm p-2 bg-white rounded">
                     <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Crear</a>
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tab1">
+                            <i class="fa fa-money me-1"></i>
+                            Crear
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#tab2">Historial</a>
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab2">
+                            <i class="fa fa-history me-1"></i>
+                            Historial
+                        </a>
                     </li>
                 </ul>
-                <div class="container tab-pane fade show active" id="tab1" style="background-color: #F5F5F5;border-radius:10px">
-                    <div class="mb-6 alert alert-danger" style="display: none;" id="message_not_request_id">
-                        <span id="id_message_form" t-esc="messsage_form" />
+                <div class="container tab-pane fade show active" id="tab1" style="background: rgba(255,255,255,0.7);border-radius:10px;">
+                    <div class="card border-warning shadow-sm mt-4"
+                        style="display: none;"
+                        id="message_not_request_id">
+
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center">
+
+                                <div class="me-3">
+                                    <i class="fa fa-info-circle fa-3x text-warning"></i>
+                                </div>
+
+                                <div>
+                                    <h5 class="mb-1">
+                                        Información
+                                    </h5>
+
+                                    <span id="id_message_form"
+                                        t-esc="messsage_form"/>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
                     <div style="display: none;" id="form_view_id">
                         <input type="number" class="d-none" name="years_old" id="id_years_old" t-att-value="years_old"/>
                         <input type="text" class="d-none" name="show_form" id="id_show_form" t-att-value="show_form"/>
 
-                        <h2 class="text-center">Crear Solicitud de Prestamo</h2>
-                        <p class="text-center">Aqui puede solicitar un prestamo interno a la empresa, dicha solicitud debe reunir los requisitos necesarios los cuales seran evaluados para su aprobación.</p>
+                        <div class="text-center py-4 mb-4 border-bottom">
+                            <h1 class="display-6 fw-bold text-primary">
+                                <i class="fa fa-money me-2"></i>
+                                Solicitud de Préstamo
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Solicite préstamos internos sujetos a evaluación y aprobación.
+                            </p>
+                        </div>
 
                         <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
                             <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
@@ -27,85 +63,148 @@
                             </div>
                         </div>
 
-                        <form action="/create_loan_request/submit" method="POST" class="mt-3">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="card shadow border-0">
 
-                            <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
-                                <!-- First Column -->
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Empleado</label>
-                                        <input type="text" class="form-control" disabled="disabled" name="employee_name" id="employee_name_id" t-att-value="employee_name"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Antigüedad</label>
-                                        <input type="text" class="form-control" disabled="disabled" name="seniority" id="seniority_id" t-att-value="seniority"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Fecha de Ingreso</label>
-                                        <input type="date" class="form-control" disabled="disabled" name="income_date" id="income_date_id" t-att-value="income_date"/>
-                                    </div>
-                                </div>
-                                <!-- Second Column -->
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Monto a Solicitar</label>
-                                        <input type="number" class="form-control" name="amount_request" id="amount_request_id" required="required"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Cuotas</label>
-                                        <select class="form-control" name="selection_fees" id="fees_id" required="required">
-                                            <option t-att-value="1">1 Mes</option>
-                                            <option t-att-value="2">2 Meses</option>
-                                            <option t-att-value="3">3 Meses</option>
-                                            <option t-att-value="4">4 Meses</option>
-                                            <option t-att-value="5">5 Meses</option>
-                                            <option t-att-value="6">6 Meses</option>
-                                            <option t-att-value="7">7 Meses</option>
-                                            <option t-att-value="8">8 Meses</option>
-                                            <option t-att-value="9">9 Meses</option>
-                                            <option t-att-value="10">10 Meses</option>
-                                            <option t-att-value="11">11Meses</option>
-                                            <option t-att-value="12">12 Meses</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Motivo del prestamo</label>
-                                        <input type="text" required="required" class="form-control" name="reason_request" id="reason_request_id"/>
-                                    </div>
-                                </div>
-                                <!-- Third Column -->
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label class="form-label">Monto Mensual</label>
-                                        <input type="number" disabled="disabled" class="form-control" name="monthly_amount_request" id="monthly_amount_id"/>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Monto Quincenal</label>
-                                        <input type="number" disabled="disabled" class="form-control" name="fortnight_amount_request" id="fortnight_amount_request_id"/>
-                                    </div>
-                                    <div class="mb-3 alert alert-success" style="display: none;" id="sucess_message_div">
-                                        <label class="form-label">Información</label>
-                                        <input type="text" disabled="disabled" class="form-control" name="sucess_message_request" id="sucess_message_request_id"/>
-                                    </div>
-                                    <div class="mb-3 alert alert-danger" style="display: none;" id="error_message_div">
-                                        <label class="form-label">Información</label>
-                                        <input type="text" disabled="disabled" class="form-control" name="error_message_request" id="error_message_request_id"/>
-                                    </div>
-                                </div>
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fa fa-file-text-o me-2"></i>
+                                    Información de la Solicitud
+                                </h5>
                             </div>
 
-                            <div class="col-12 text-center">
-                                <button type="submit" id="request_button" class="btn btn-primary mt-3">Solicitar</button>
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <form action="/create_loan_request/submit" method="POST" class="mt-3">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                        <div class="row g-2 p-3 border rounded" style="border: 2px solid #999999; border-radius: 15px;">
+                                            <!-- First Column -->
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-user me-1"></i>
+                                                        Empleado
+                                                    </label>
+                                                    <input type="text" class="form-control bg-light fw-bold" disabled="disabled" name="employee_name" id="employee_name_id" t-att-value="employee_name"/>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-clock-o me-1"></i>
+                                                        Antigüedad
+                                                    </label>
+                                                    <input type="text" class="form-control bg-light fw-bold" disabled="disabled" name="seniority" id="seniority_id" t-att-value="seniority"/>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-calendar me-1"></i>
+                                                        Fecha de Ingreso
+                                                    </label>
+                                                    <input type="date" class="form-control bg-light fw-bold" disabled="disabled" name="income_date" id="income_date_id" t-att-value="income_date"/>
+                                                </div>
+                                            </div>
+                                            <!-- Second Column -->
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-money me-1"></i>
+                                                        Monto a Solicitar
+                                                    </label>
+                                                    <input type="number" class="form-control" name="amount_request" id="amount_request_id" required="required"/>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-list-ol me-1"></i>
+                                                        Cuotas
+                                                    </label>
+                                                    <select class="form-control" name="selection_fees" id="fees_id" required="required">
+                                                        <option t-att-value="1">1 Mes</option>
+                                                        <option t-att-value="2">2 Meses</option>
+                                                        <option t-att-value="3">3 Meses</option>
+                                                        <option t-att-value="4">4 Meses</option>
+                                                        <option t-att-value="5">5 Meses</option>
+                                                        <option t-att-value="6">6 Meses</option>
+                                                        <option t-att-value="7">7 Meses</option>
+                                                        <option t-att-value="8">8 Meses</option>
+                                                        <option t-att-value="9">9 Meses</option>
+                                                        <option t-att-value="10">10 Meses</option>
+                                                        <option t-att-value="11">11Meses</option>
+                                                        <option t-att-value="12">12 Meses</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">
+                                                        <i class="fa fa-comment me-1"></i>
+                                                        Motivo del Préstamo
+                                                    </label>
+                                                    <input type="text" required="required" class="form-control" name="reason_request" id="reason_request_id"/>
+                                                </div>
+                                            </div>
+                                            <!-- Third Column -->
+
+                                            <div class="col-md-4">
+                                                <div class="card border-info shadow-sm h-100">
+                                                    <div class="card-header bg-info text-white">
+                                                        Resumen de Pago
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Monto Mensual</label>
+                                                            <input type="number" disabled="disabled" class="form-control" name="monthly_amount_request" id="monthly_amount_id"/>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Monto Quincenal</label>
+                                                            <input type="number" disabled="disabled" class="form-control" name="fortnight_amount_request" id="fortnight_amount_request_id"/>
+                                                        </div>
+                                                        <div class="mb-3 alert alert-success" style="display: none;" id="sucess_message_div">
+                                                            <label class="form-label fw-bold">
+                                                                <i class="fa fa-check-circle me-1"></i>
+                                                                Información
+                                                            </label>
+                                                            <input type="text" disabled="disabled" class="form-control" name="sucess_message_request" id="sucess_message_request_id"/>
+                                                        </div>
+                                                        <div class="mb-3 alert alert-danger" style="display: none;" id="error_message_div">
+                                                            <label class="form-label fw-bold">
+                                                                <i class="fa fa-exclamation-triangle me-1"></i>
+                                                                Información
+                                                            </label>
+                                                            <input type="text" disabled="disabled" class="form-control" name="error_message_request" id="error_message_request_id"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-end mt-4">
+
+                                            <button type="submit"
+                                                    id="request_button"
+                                                    class="btn btn-primary px-5">
+
+                                                <i class="fa fa-paper-plane me-1"></i>
+                                                Solicitar Préstamo
+
+                                            </button>
+
+                                        </div>
+
+                                        <!-- <div class="col-12 text-center">
+                                            <button type="submit" id="request_button" class="btn btn-primary mt-3">Solicitar</button>
+                                        </div> -->
+                                    </form>
+                                </div>
+
                             </div>
-                        </form>
+
+                        </div>
+
                     </div>
                 </div>
 
-                <div id="tab2" class="tab-pane fade" style="background-color: #F5F5F5;border-radius:10px">
+                <div class="container tab-pane fade" id="tab2" style="background: rgba(255,255,255,0.7);border-radius:10px;">
                     <div class="table-responsive">
-                        <table class="table table-striped historical_table" >
-                            <thead>
+                        <table class="table table-hover table-striped align-middle historical_table">
+                            <thead class="table-dark">
                                 <tr>
                                     <th class="header_historical">Fecha</th>
                                     <th class="header_historical">Monto Solicitado</th>
@@ -118,18 +217,47 @@
                             <tbody>
                                 <t t-foreach="historical_request" t-as="req">
                                     <tr>
-                                        <td><t t-esc="req.date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="'{0:,.2f}'.format(req.amount)"/></td>
-                                        <td><t t-esc="req.fees"/></td>
-                                        <td><t t-esc="'{0:,.2f}'.format(req.monthly_amount)"/></td>
-                                        <td><t t-esc="'{0:,.2f}'.format(req.fortnight_amount)"/></td>
-                                        <td t-if="req.state == 'draft'">Borrador</td>
-                                        <td t-if="req.state == 'assessment'">En Evaluación</td>
-                                        <td t-if="req.state == 'waiting'">En Espera</td>
-                                        <td t-if="req.state == 'finance'">Finanzas</td>
-                                        <td t-if="req.state == 'payroll'">Asignar a Nomina</td>
-                                        <td t-if="req.state == 'finalized'">Finalizado</td>
-                                        <td t-if="req.state == 'cancel'">Rechazado</td>
+                                        <td style="text-align:center"><t t-esc="req.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:right"><t t-esc="'{0:,.2f}'.format(req.amount)"/></td>
+                                        <td style="text-align:center"><t t-esc="req.fees"/></td>
+                                        <td style="text-align:right"><t t-esc="'{0:,.2f}'.format(req.monthly_amount)"/></td>
+                                        <td style="text-align:right"><t t-esc="'{0:,.2f}'.format(req.fortnight_amount)"/></td>
+                                        <td style="text-align:center">
+                                            <span t-if="req.state == 'draft'"
+                                                class="badge bg-secondary">
+                                                Borrador
+                                            </span>
+
+                                            <span t-if="req.state == 'assessment'"
+                                                class="badge bg-warning">
+                                                En Evaluación
+                                            </span>
+
+                                            <span t-if="req.state == 'waiting'"
+                                                class="badge bg-info">
+                                                En Espera
+                                            </span>
+
+                                            <span t-if="req.state == 'finance'"
+                                                class="badge bg-primary">
+                                                Finanzas
+                                            </span>
+
+                                            <span t-if="req.state == 'payroll'"
+                                                class="badge bg-dark">
+                                                Nómina
+                                            </span>
+
+                                            <span t-if="req.state == 'finalized'"
+                                                class="badge bg-success">
+                                                Finalizado
+                                            </span>
+
+                                            <span t-if="req.state == 'cancel'"
+                                                class="badge bg-danger">
+                                                Rechazado
+                                            </span>
+                                        </td>
                                     </tr>
                                 </t>
                             </tbody>
@@ -263,15 +391,44 @@
                     border: 1px solid #f5c6cb;
                 }
 
-                .header_historical{
-                    font-size: 13px !important;
-                    background-color: #008000 !important;
-                    color: #FFFFFF !important;
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
                 }
 
-                .historical_table tbody tr:hover{
-                    background-color: #ABEBC6 !important;
-                    transition: background 0.3s;
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
                 }
             </style>
         </t>
