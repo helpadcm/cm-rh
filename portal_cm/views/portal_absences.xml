@@ -214,11 +214,11 @@
                             <tbody>
                                 <t t-foreach="history_absences_ids" t-as="absences">
                                     <tr>
-                                        <td><t t-esc="absences.holiday_status_id.name"/></td>
-                                        <td><t t-esc="absences.name"/></td>
-                                        <td><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
-                                        <td>
+                                        <td style="text-align:center"><t t-esc="absences.holiday_status_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.name"/></td>
+                                        <td style="text-align:center"><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center">
                                             <span t-if="absences.state == 'draft'"
                                                 class="badge bg-secondary">
                                                 A enviar
@@ -239,7 +239,7 @@
                                                 Rechazado
                                             </span>
                                         </td>
-                                        <td t-if="absences.state in ['draft','confirm']">
+                                        <td style="text-align:center" t-if="absences.state in ['draft','confirm']">
                                             <form t-att-action="'/delete_absence/' + str(absences.id)" method="POST">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
@@ -266,9 +266,9 @@
                             <tbody>
                                 <t t-foreach="vacations_details" t-as="vac">
                                     <tr>
-                                        <td><t t-esc="vac.name"/></td>
-                                        <td><t t-esc="vac.assigned_days"/></td>
-                                        <td><t t-esc="vac.pending_days"/></td>
+                                        <td style="text-align:center"><t t-esc="vac.name"/></td>
+                                        <td style="text-align:center"><t t-esc="vac.assigned_days"/></td>
+                                        <td style="text-align:center"><t t-esc="vac.pending_days"/></td>
                                     </tr>
                                 </t>
                             </tbody>

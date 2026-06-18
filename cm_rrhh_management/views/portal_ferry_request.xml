@@ -247,15 +247,15 @@
                                 <t t-foreach="beneficiaries_ids" t-as="beneficary">
                                     <tr>
                                         <td><t t-esc="beneficary.name"/></td>
-                                        <td><t t-esc="beneficary.identity"/></td>
-                                        <td><t t-esc="beneficary.birthday.strftime('%d/%m/%Y')"/></td>
-                                        <td t-if="beneficary.relationship == 'mother'">Madre</td>
-                                        <td t-if="beneficary.relationship == 'father'">Padre</td>
-                                        <td t-if="beneficary.relationship == 'children'">Hijo(a)</td>
-                                        <td t-if="beneficary.relationship == 'siblings'">Hermano(a)</td>
-                                        <td t-if="beneficary.relationship == 'couple'">Pareja</td>
-                                        <td t-if="beneficary.relationship == 'other'">Otro</td>
-                                        <td t-if="beneficary.relationship == 'employee'">Empleado</td>
+                                        <td style="text-align:center"><t t-esc="beneficary.identity"/></td>
+                                        <td style="text-align:center"><t t-esc="beneficary.birthday.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'mother'">Madre</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'father'">Padre</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'children'">Hijo(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'siblings'">Hermano(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'couple'">Pareja</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'other'">Otro</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'employee'">Empleado</td>
                                         <td><t t-esc="beneficary.observation"/></td>
                                     </tr>
                                 </t>
@@ -380,14 +380,14 @@
                             <tbody>
                                 <t t-foreach="history_ids" t-as="req">
                                     <tr>
-                                        <td><t t-esc="req.date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="req.initial_date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="req.exit_date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="req.business_id.name"/></td>
-                                        <td t-if="req.state == 'draft'">Borrador</td>
-                                        <td t-if="req.state == 'to_approve'">Por Aprobar</td>
-                                        <td t-if="req.state == 'approved'">Aprobado</td>
-                                        <td t-if="req.state == 'refused'">Rechazado</td>
+                                        <td style="text-align:center"><t t-esc="req.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="req.initial_date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="req.exit_date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="req.business_id.name"/></td>
+                                        <td style="text-align:center" t-if="req.state == 'draft'">Borrador</td>
+                                        <td style="text-align:center" t-if="req.state == 'to_approve'">Por Aprobar</td>
+                                        <td style="text-align:center" t-if="req.state == 'approved'">Aprobado</td>
+                                        <td style="text-align:center" t-if="req.state == 'refused'">Rechazado</td>
                                     </tr>
                                 </t>
                             </tbody>

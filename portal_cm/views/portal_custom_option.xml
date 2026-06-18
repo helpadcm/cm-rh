@@ -183,27 +183,27 @@
                                 <t t-set="total_eh" t-value="0"/>
                                 <t t-foreach="draft_hours" t-as="days">
                                     <tr>
-                                        <td ><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
-                                        <td ><t t-esc="days.name_day"/></td>
-                                        <td ><t t-esc="days.turn_type_a.name"/></td>
-                                        <td ><t t-esc="days.schedule1_in_id.name"/></td>
-                                        <td ><t t-esc="days.schedule1_out_id.name"/></td>
-                                        <td ><t t-esc="days.turn_type_b.name"/></td>
-                                        <td ><t t-esc="days.schedule2_in_id.name"/></td>
-                                        <td ><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
                                         <!-- <td ><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td ><t t-esc="days.aditional_hours"/></td>
-                                        <td t-if="days.state == 'draft'">
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
+                                        <td style="text-align:center" t-if="days.state == 'draft'">
                                             <span class="badge bg-warning text-dark">
                                                 BORRADOR
                                             </span>
                                         </td>
-                                        <td t-if="days.state == 'validated'">
+                                        <td style="text-align:center" t-if="days.state == 'validated'">
                                             <span class="badge bg-success">
                                                 VALIDADO
                                             </span>
                                         </td>
-                                        <td t-if="days.state == 'draft'">
+                                        <td style="text-align:center" t-if="days.state == 'draft'">
                                             <form t-att-action="'/delete_record/' + str(days.id)" method="POST">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                                 <button type="submit"
@@ -213,7 +213,7 @@
                                                 </button>
                                             </form>
                                         </td>
-                                        <td t-if="days.state == 'validated'">
+                                        <td style="text-align:center" t-if="days.state == 'validated'">
                                             <i class="fa fa-check"></i>
                                         </td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
@@ -226,7 +226,7 @@
                                         TOTAL
                                     </td>
                                     <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td><strong><t t-esc="total_eh"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -255,16 +255,16 @@
                                 <t t-set="total_eh" t-value="0"/>
                                 <t t-foreach="actual_record_ids" t-as="days">
                                     <tr>
-                                        <td><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="days.name_day"/></td>
-                                        <td><t t-esc="days.turn_type_a.name"/></td>
-                                        <td><t t-esc="days.schedule1_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule1_out_id.name"/></td>
-                                        <td><t t-esc="days.turn_type_b.name"/></td>
-                                        <td><t t-esc="days.schedule2_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
                                         <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td><t t-esc="days.aditional_hours"/></td>
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
@@ -275,7 +275,7 @@
                                         TOTAL
                                     </td>
                                     <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td><strong><t t-esc="total_eh"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -304,16 +304,16 @@
                                 <t t-set="total_eh" t-value="0"/>
                                 <t t-foreach="validate_records" t-as="days">
                                     <tr>
-                                        <td><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
-                                        <td><t t-esc="days.name_day"/></td>
-                                        <td><t t-esc="days.turn_type_a.name"/></td>
-                                        <td><t t-esc="days.schedule1_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule1_out_id.name"/></td>
-                                        <td><t t-esc="days.turn_type_b.name"/></td>
-                                        <td><t t-esc="days.schedule2_in_id.name"/></td>
-                                        <td><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
                                         <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td><t t-esc="days.aditional_hours"/></td>
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
                                         <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
@@ -324,7 +324,7 @@
                                         TOTAL
                                     </td>
                                     <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td><strong><t t-esc="total_eh"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>

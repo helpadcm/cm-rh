@@ -323,17 +323,17 @@
                                 <t t-foreach="beneficiaries_ids" t-as="beneficary">
                                     <tr>
                                         <td><t t-esc="beneficary.name"/></td>
-                                        <td><t t-esc="beneficary.identity"/></td>
-                                        <td><t t-esc="beneficary.birthday.strftime('%d/%m/%Y')"/></td>
-                                        <td t-if="beneficary.relationship == 'mother'">Madre</td>
-                                        <td t-if="beneficary.relationship == 'father'">Padre</td>
-                                        <td t-if="beneficary.relationship == 'children'">Hijo(a)</td>
-                                        <td t-if="beneficary.relationship == 'siblings'">Hermano(a)</td>
-                                        <td t-if="beneficary.relationship == 'couple'">Pareja</td>
-                                        <td t-if="beneficary.relationship == 'grandparents'">Abuelo(a)</td>
-                                        <td t-if="beneficary.relationship == 'grandson'">Nieto(a)</td>
-                                        <td t-if="beneficary.relationship == 'other'">Otro</td>
-                                        <td t-if="beneficary.relationship == 'employee'">Empleado</td>
+                                        <td style="text-align:center"><t t-esc="beneficary.identity"/></td>
+                                        <td style="text-align:center"><t t-esc="beneficary.birthday.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'mother'">Madre</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'father'">Padre</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'children'">Hijo(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'siblings'">Hermano(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'couple'">Pareja</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'grandparents'">Abuelo(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'grandson'">Nieto(a)</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'other'">Otro</td>
+                                        <td style="text-align:center" t-if="beneficary.relationship == 'employee'">Empleado</td>
                                         <td><t t-esc="beneficary.observation"/></td>
                                     </tr>
                                 </t>
@@ -463,11 +463,11 @@
                                     <tr>
                                         <td><t t-esc="absences.get('type')"/></td>
                                         <td><t t-esc="absences.get('description')"/></td>
-                                        <td><t t-esc="absences.get('date_from')"/></td>
-                                        <td><t t-esc="absences.get('date_to')"/></td>
-                                        <td><t t-esc="absences.get('ticket_type')"/></td>
-                                        <td><t t-esc="absences.get('tickets_request')"/> Boleto(s)</td>
-                                        <td><t t-esc="absences.get('state')"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.get('date_from')"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.get('date_to')"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.get('ticket_type')"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.get('tickets_request')"/> Boleto(s)</td>
+                                        <td style="text-align:center"><t t-esc="absences.get('state')"/></td>
                                     </tr>
                                 </t>
                             </tbody>
