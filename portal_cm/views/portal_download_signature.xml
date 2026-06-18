@@ -43,7 +43,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold">
+                                                <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-user me-1"></i>
                                                     Nombre
                                                 </label>
@@ -53,7 +53,7 @@
 
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold">
+                                                <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-briefcase me-1"></i>
                                                     Puesto de Trabajo
                                                 </label>
@@ -63,7 +63,7 @@
 
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold">
+                                                <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-map-marker me-1"></i>
                                                     Dirección
                                                 </label>
@@ -73,7 +73,7 @@
 
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold">
+                                                <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-phone me-1"></i>
                                                     Teléfono
                                                 </label>

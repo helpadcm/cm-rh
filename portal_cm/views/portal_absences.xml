@@ -50,7 +50,7 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-bold">
+                                                    <label class="form-label fw-semibold text-secondary">
                                                         <i class="fa fa-list-alt me-1"></i>
                                                         Tipo de Ausencia
                                                     </label>
@@ -151,7 +151,7 @@
 
                                             <div class="col-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-bold">
+                                                    <label class="form-label fw-semibold text-secondary">
                                                         <i class="fa fa-calendar me-1"></i>
                                                         Fecha Inicial
                                                     </label>
@@ -161,7 +161,7 @@
 
                                             <div class="col-12">
                                                 <div class="mb-3" id="final_date_div">
-                                                    <label class="form-label fw-bold">
+                                                    <label class="form-label fw-semibold text-secondary">
                                                         <i class="fa fa-calendar me-1"></i>
                                                         Fecha Final
                                                     </label>
@@ -171,14 +171,20 @@
 
                                             <div class="col-12">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Notas</label>
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-sticky-note" aria-hidden="true"></i>
+                                                        Notas
+                                                    </label>
                                                     <input type="text" name="record_notes" class="form-control" id="notes"/>
                                                 </div>
                                             </div>
 
                                             <div class="col-12" id="adjuntos_div">
                                                 <div class="mb-3">
-                                                    <label class="form-label">Adjuntar Archivos (Opcional)</label>
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-paperclip me-1"></i>
+                                                        Adjuntar Documento
+                                                    </label>
                                                     <input type="file" name="rec_portal_attachments" id="portal_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
                                                     <small class="form-text text-muted">Formatos permitidos: imágenes, PDF, Word, Excel.</small>
                                                 </div>
