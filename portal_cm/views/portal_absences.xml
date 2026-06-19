@@ -13,7 +13,7 @@
                 </li>
             </ul>
 
-            <div class="tab-content" style="background: rgba(255,255,255,0.7);border-radius:10px;">
+            <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
                 <div class="container tab-pane fade show active" id="tab1">
 
                     <div class="text-center py-4 mb-4 border-bottom">

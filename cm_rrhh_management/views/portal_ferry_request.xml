@@ -22,7 +22,7 @@
                 </li>
             </ul>
 
-            <div class="tab-content" style="background: rgba(255,255,255,0.7);border-radius:10px;">
+            <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
                 <div class="container tab-pane fade show active" id="tab1">
 
                     <div class="text-center py-4 mb-4 border-bottom">
@@ -262,9 +262,21 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label">Crear Nuevo Beneficiario</label>
-                        <input type="checkbox" class="form-check-input" name="create_beneficiary" id="create_benficiary_id"/>
+                    <div class="mb-3">
+                        <div style="background-color:#FFFFFF" class="d-inline-flex align-items-center border rounded px-3 py-2">
+                            <label class="fw-bold mb-0 me-4 fw-semibold text-secondary"
+                                for="create_benficiary_id">
+                                <i class="fa fa-user-plus me-2"></i>
+                                Crear Nuevo Beneficiario
+                            </label>
+                            <div class="form-check form-switch mb-0">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="create_beneficiary"
+                                    id="create_benficiary_id"/>
+                            </div>
+                        </div>
                     </div>
                     <div id="beneficiaryForm" style="display: none;">
                         <div class="card shadow border-0 mt-4">

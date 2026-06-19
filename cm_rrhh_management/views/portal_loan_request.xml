@@ -16,7 +16,7 @@
                         </a>
                     </li>
                 </ul>
-                <div class="container tab-pane fade show active" id="tab1" style="background: rgba(255,255,255,0.7);border-radius:10px;">
+                <div class="container tab-pane fade show active" id="tab1" style="background: rgba(255,255,255,0.8);border-radius:10px;">
                     <div class="card border-warning shadow-sm mt-4"
                         style="display: none;"
                         id="message_not_request_id">

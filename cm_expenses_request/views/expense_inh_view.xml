@@ -42,8 +42,8 @@
             <field name="inherit_id" ref="hr_expense.product_product_expense_form_view"/>
             <field name="arch" type="xml">
                 <field name="supplier_taxes_id" position="before">
-                    <field name="budget_account_id" options="{'no_create': True,'no_open': True}"/>
-                    <field name="training_budget_account_id" options="{'no_create': True,'no_open': True}"/>
+                    <field name="budget_account_id" invisible="1" options="{'no_create': True,'no_open': True}"/>
+                    <field name="training_budget_account_id" invisible="1" options="{'no_create': True,'no_open': True}"/>
                 </field>
             </field>
         </record>
