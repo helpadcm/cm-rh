@@ -109,7 +109,7 @@ class HrEmployee(models.Model):
                     'name': employee.name,
                     'login': login,
                     'share': True,
-                    'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+                    'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
                     }
                 )
             employee.user_id = user.id
