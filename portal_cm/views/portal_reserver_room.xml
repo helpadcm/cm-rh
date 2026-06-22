@@ -2,7 +2,7 @@
     <template id="reserve_room_portal" name="Reservar Sala">
         <t t-call="portal.portal_layout">
             <div class="text-center py-4 mb-4 border-bottom" style="background: rgba(255,255,255,0.8);border-radius:10px;">
-                <h1 class="display-6 fw-bold">
+                <h1 class="display-6 fw-bold text-primary">
                     <i class="fa fa-calendar-check-o me-2"></i>
                     Reserva de Sala
                 </h1>
