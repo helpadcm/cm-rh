@@ -91,8 +91,8 @@ class settlementExpensesCont(http.Controller):
             product_id = request.env['product.product'].sudo().browse(int(expense_type_id))
 
             budget_account_id = False
-            if product_id and product_id.property_account_expense_id:
-                budget_account_id = product_id.property_account_expense_id.fbudget_line_ids.filtered(lambda account: account.process_id.id == rec_request_id.process_id.id)
+            if product_id:
+                budget_account_id = request.env['account.budget.account'].search([('process_id','=',rec_request_id.process_id.id),('category_expense_id','=',product_id.id)])
                 if budget_account_id:
                     budget_account_id = budget_account_id.id
                 else:

@@ -30,6 +30,7 @@
             <field name="arch" type="xml">
                 <field name="parent_id" position="after">
                     <field name="process_id" options="{'no_create':True}"/>
+                    <field name="category_expense_id" domain="[('can_be_expensed','=',True)]" options="{'no_create': True}"/>
                 </field>
             </field>
         </record>

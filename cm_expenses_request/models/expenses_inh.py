@@ -76,8 +76,8 @@ class expensesInh(models.Model):
             self.analytic_distribution = {str(analytic): 100.0}
 
         if self.process_id:
-            if self.product_id and self.product_id.property_account_expense_id:
-                budget_account_id = self.product_id.property_account_expense_id.fbudget_line_ids.filtered(lambda account: account.process_id.id == self.process_id.id)
+            if self.product_id:
+                budget_account_id = self.env['account.budget.account'].search([('process_id','=',self.process_id.id),('category_expense_id','=',self.product_id.id)])
                 if budget_account_id:
                     self.budget_account_id = budget_account_id.id
                 else:

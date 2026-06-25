@@ -12,7 +12,7 @@ class accountBudgetInh(models.Model):
     _inherit = 'account.budget.account'
 
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
-
+    category_expense_id = fields.Many2one('product.product',string="Categoria de gastos")
 
 class employeeInh(models.Model):
     _inherit = 'hr.employee'
