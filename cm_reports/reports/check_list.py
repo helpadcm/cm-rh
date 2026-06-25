@@ -43,12 +43,12 @@ class ReportCheckList(models.AbstractModel):
         for info in info_wizard:
             if not info.state:
                 domain_check.append(('state','in',['validated','anulated']))
-                domain_payment.append(('state','in',['posted','sent','reconciled','cancel']))
+                domain_payment.append(('state','in',['in_process','paid','rejected','canceled']))
             else:
                 if info.state == 'validated':
-                    domain_payment.append(('state','in',['posted','sent','reconciled']))
+                    domain_payment.append(('state','in',['in_process','paid']))
                 else:
-                    domain_payment.append(('state','=',info.state))    
+                    domain_payment.append(('state','in',['rejected','canceled']))    
                 domain_check.append(('state','=',info.state))
             if info.payment_date_start:
                 domain_payment.append(('date','>=',info.payment_date_start))
@@ -71,9 +71,9 @@ class ReportCheckList(models.AbstractModel):
         if len(obj_payment)>0:
             for i in obj_payment:
                 if i.partner_type == 'supplier':
-                    if i.state == 'posted' or i.state == 'sent' or i.state == 'reconciled':
+                    if i.state == 'in_process' or i.state == 'paid':
                         state = _('Validado')
-                    elif i.state == 'cancel':
+                    elif i.state == 'canceled' or i.state == 'rejected':
                         state = _('Anulado')
                     info_report.append({
                         'affair':i.communication or '',

@@ -39,5 +39,5 @@ class wizard_check_list(models.TransientModel):
                 raise ValidationError("La fecha inicial no puede ser mayor que la fecha final")
 
     def export_xls(self,datas):
-        context = self._context
+        context = self.env.context
         return self.env.ref('cm_reports.report_check_check_list_xls').report_action(self,data = datas)
