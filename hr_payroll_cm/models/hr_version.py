@@ -51,7 +51,7 @@ class versionInh(models.Model):
         return amount
 
 
-    def calculate_dt_dc(self, payslip):
+    def calculate_dt_dc(self, payslip,double=True):
         payslip_ids =  self.env['hr.payslip'].search([('date_to','>=',payslip.date_from),('date_to','<=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('type_lot','=','normal')])
         basic_amount = 0
         extras = 0
@@ -62,8 +62,11 @@ class versionInh(models.Model):
             basic_salary_line_id = slip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
             if basic_salary_line_id:
                 basic_amount += basic_salary_line_id.total
-
-        contract_actual = (self.wage * 2)
+                print (slip.payslip_run_id.name, basic_salary_line_id.total)
+        if double:
+            contract_actual = (self.wage * 2)
+        else:
+            contract_actual = self.wage
         total = contract_actual + basic_amount - extras
         return (total / 12)
 
