@@ -55,6 +55,7 @@ class versionInh(models.Model):
         payslip_ids =  self.env['hr.payslip'].search([('date_to','>=',payslip.date_from),('date_to','<=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('type_lot','=','normal')])
         basic_amount = 0
         extras = 0
+        other = 0
         for slip in payslip_ids:
             if slip.worked_days_line_ids:
                 extras += sum(slip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
@@ -62,12 +63,17 @@ class versionInh(models.Model):
             basic_salary_line_id = slip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
             if basic_salary_line_id:
                 basic_amount += basic_salary_line_id.total
-                print (slip.payslip_run_id.name, basic_salary_line_id.total)
+
+            if slip.input_line_ids:
+                for l in slip.input_line_ids:
+                    if l.name == "Retroactivo Salario Minimo 2026":
+                        other += l.amount
+
         if double:
             contract_actual = (self.wage * 2)
         else:
             contract_actual = self.wage
-        total = contract_actual + basic_amount - extras
+        total = contract_actual + basic_amount - extras + other
         return (total / 12)
 
     def calculate_rap(self, code):
