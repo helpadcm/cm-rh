@@ -1,3 +1,4 @@
+import pytz
 from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
@@ -479,5 +480,75 @@ class HrPayslipRun(models.Model):
                     # Take only the first version of the first contract founded
                     employee_valid_versions |= version
             valid_versions |= employee_valid_versions
-        print (len(valid_versions.ids))
         return valid_versions.ids
+
+
+    def generate_payslips(self, version_ids=None, employee_ids=None):
+        self.ensure_one()
+
+        if employee_ids and not version_ids:
+            version_ids = self._get_valid_version_ids(employee_ids=employee_ids)
+
+        if not version_ids:
+            raise UserError(self.env._("You must select employee(s) version(s) to generate payslip(s)."))
+
+        valid_versions = self.env["hr.version"].browse(version_ids)
+
+        Payslip = self.env['hr.payslip']
+
+        if self.structure_id and self.type_lot not in ['fourteenth','thirteenth']:
+            valid_versions = valid_versions.filtered(lambda c: c.structure_type_id.id == self.structure_id.type_id.id)
+        valid_versions.generate_work_entries(self.date_start, self.date_end)
+
+        all_work_entries = dict(self.env['hr.work.entry']._read_group(
+            domain=[
+                ('employee_id', 'in', valid_versions.employee_id.ids),
+                ('date', '<=', self.date_end),
+                ('date', '>=', self.date_start),
+            ],
+            groupby=['version_id'],
+            aggregates=['id:recordset'],
+        ))
+
+        utc = pytz.utc
+        for tz, slips_per_tz in self.slip_ids.grouped(lambda s: s.version_id.tz).items():
+            slip_tz = pytz.timezone(tz or utc)
+            for slip in slips_per_tz:
+                date_from = slip_tz.localize(datetime.combine(slip.date_from, time.min)).astimezone(utc).replace(tzinfo=None)
+                date_to = slip_tz.localize(datetime.combine(slip.date_to, time.max)).astimezone(utc).replace(tzinfo=None)
+                if version_work_entries := all_work_entries.get(slip.version_id):
+                    version_work_entries.filtered_domain([
+                        ('date', '<=', date_to),
+                        ('date', '>=', date_from),
+                    ])
+                    version_work_entries._check_undefined_slots(slip.date_from, slip.date_to)
+
+        for work_entries in all_work_entries.values():
+            work_entries = work_entries.filtered(lambda we: we.state != 'validated')
+            if work_entries._check_if_error():
+                work_entries = work_entries.filtered(lambda we: we.state == 'conflict')
+                conflicts = work_entries._to_intervals()
+                time_intervals_str = "".join(
+                    f"\n - {start} -> {end} ({entry.employee_id.name})" for start, end, entry in conflicts._items)
+                raise UserError(self.env._("Some work entries could not be validated. Time intervals to look for:%s", time_intervals_str))
+
+        default_values = Payslip.default_get(Payslip.fields_get())
+        payslips_vals = []
+        for version in valid_versions[::-1]:
+            values = default_values | {
+                'name': self.env._('New Payslip'),
+                'employee_id': version.employee_id.id,
+                'payslip_run_id': self.id,
+                'date_from': self.date_start,
+                'date_to': self.date_end,
+                'version_id': version.id,
+                'company_id': self.company_id.id,
+                'struct_id': self.structure_id.id or version.structure_type_id.default_struct_id.id,
+            }
+            payslips_vals.append(values)
+        self.slip_ids |= Payslip.with_context(tracking_disable=True).create(payslips_vals)
+        self.slip_ids._compute_name()
+        self.slip_ids.compute_sheet()
+        self.state = '01_ready'
+
+        return 1
