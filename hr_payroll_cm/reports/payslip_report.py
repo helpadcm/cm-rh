@@ -28,53 +28,63 @@ class ReportCheckList(models.AbstractModel):
             incomes = []
             deductions = []
             salary_worked = 0
-            if payslip.worked_days_line_ids:
-                line_salary_id = payslip.worked_days_line_ids.filtered(lambda l: l.code == 'WORK100')
-                if line_salary_id:
-                    salary_worked = line_salary_id.amount
-                    incomes.append({
-                        'name': "Salario",
-                        'amount': line_salary_id.amount
-                    })
+            if payslip.type_lot == 'normal':
+                if payslip.worked_days_line_ids:
+                    line_salary_id = payslip.worked_days_line_ids.filtered(lambda l: l.code == 'WORK100')
+                    if line_salary_id:
+                        salary_worked = line_salary_id.amount
+                        incomes.append({
+                            'name': "Salario",
+                            'amount': line_salary_id.amount
+                        })
 
-                if salary_worked == 0:
-                    salary_worked = payslip.employee_id.wage
+                    if salary_worked == 0:
+                        salary_worked = payslip.employee_id.wage
+                        incomes.insert(0,{
+                            'name': 'Salario',
+                            'amount': salary_worked
+                        })
+
+                    for line in payslip.worked_days_line_ids:
+                        if line.code != 'WORK100':
+                            incomes_hours.append({
+                                'name': line.name,
+                                'number_of_hours': line.number_of_hours,
+                                'amount': line.amount
+                            })
+                else:
+                    line_id = payslip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
+                    if line_id:
+                        salary_worked = line_id.total
+                    else:
+                        salary_worked = payslip.employee_id.wage
                     incomes.insert(0,{
                         'name': 'Salario',
                         'amount': salary_worked
                     })
 
-                for line in payslip.worked_days_line_ids:
-                    if line.code != 'WORK100':
-                        incomes_hours.append({
-                            'name': line.name,
-                            'number_of_hours': line.number_of_hours,
-                            'amount': line.amount
-                        })
-            else:
-                line_id = payslip.line_ids.filtered(lambda line: line.salary_rule_id.code == 'BASIC')
-                if line_id:
-                    salary_worked = line_id.total
-                else:
-                    salary_worked = payslip.employee_id.wage
-                incomes.insert(0,{
-                    'name': 'Salario',
-                    'amount': salary_worked
-                })
                         
             for line in payslip.line_ids:
                 if line.total != 0:
-                    if line.salary_rule_id.category_id.code == 'ALW':
-                        incomes.append({
-                            'name': line.name,
-                            'amount': line.total
-                        })
+                    if payslip.type_lot == 'normal':
+                        if line.salary_rule_id.category_id.code == 'ALW':
+                            incomes.append({
+                                'name': line.name,
+                                'amount': line.total
+                            })
+                    else:
+                        if line.salary_rule_id.code in ['CTAVO','DC13']:
+                            incomes.append({
+                                'name': line.name,
+                                'amount': line.total
+                            })
 
                     if line.salary_rule_id.category_id.code == 'DED':
                         deductions.append({
                             'name': line.name,
                             'amount': abs(line.total)
                         })
+
 
 
 
