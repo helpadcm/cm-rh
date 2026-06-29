@@ -142,6 +142,7 @@ class settlementExpensesCont(http.Controller):
             limit=1
         )
         date = post.get("date_record")
+        voucher_number = post.get("voucher_number_record")
         amount = post.get("amount_balance")
         request_id = post.get("request_id")
 
@@ -154,13 +155,13 @@ class settlementExpensesCont(http.Controller):
             'date': date,
             'doc_type': 'deposit',
             'total': amount,
-            'name': f"""Reembolso {employee_id.name}""",
+            'name': f"""Deposito monto sobrante {employee_id.name} voucher {voucher_number}""",
             'request_id': rec_request_id.id
         })
 
         request.env['banks.deposit.name'].sudo().create({
             'account_id': account_id.id,
-            'name': "Reembolso",
+            'name': f"""Deposito sobrante voucher {voucher_number}""",
             'amount': amount,
             'chqmanalitics': rec_request_id.assign_to_id.analytic_account_id.id or False,
             'mcheck_id': deposit_id.id,

@@ -150,6 +150,9 @@ class expensesRequest(models.Model):
         if next_state == 'assigned':
             self.send_email(next_state)
 
+        if next_state == 'approved':
+            self.send_email(next_state)
+
         if next_state == 'pending':
             if len(self.expenses_ids) == 0:
                 raise ValidationError("Debe agregar al menos un gasto")
@@ -174,6 +177,13 @@ class expensesRequest(models.Model):
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.boss_id.name
             email_to = self.boss_id.user_id.login
+            message_txt = f"""El colaborador {self.assign_to_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
+            subject = 'Solicitud de viaticos'
+
+        if state == 'approved':
+            base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+            for_user = 'EDUARDO SEVILLA COELLO'
+            email_to = 'esevilla@cmairlines.com,contabilidad@cmairlines.com'
             message_txt = f"""El colaborador {self.assign_to_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos'
 

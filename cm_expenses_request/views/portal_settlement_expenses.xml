@@ -136,7 +136,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">
                                                 <i class="fa fa-tags me-1"></i>
-                                                Tipo de Gasto
+                                                Categoria de Gasto
                                             </label>
                                             <select
                                                 class="form-select"
@@ -424,6 +424,14 @@
                                                 <input type="date"
                                                     class="form-control"
                                                     name="date_record"
+                                                    required="required"/>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label>Voucher</label>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="voucher_number_record"
                                                     required="required"/>
                                             </div>
 

@@ -29,6 +29,7 @@ class depositExpenses(models.TransientModel):
     amount = fields.Float(string="Monto")
     date = fields.Date(string="Fecha")
     account_id = fields.Many2one('account.account',string="Cuenta")
+    voucher_number = fields.Char(string="Voucher")
 
     def create_deposit(self):
         context = dict(self._context or {})
@@ -41,13 +42,13 @@ class depositExpenses(models.TransientModel):
             'date': self.date,
             'doc_type': 'deposit',
             'total': self.amount,
-            'name': f"""Reembolso {req_id.employee_id.name}""",
+            'name': f"""Deposito monto sobrante {req_id.employee_id.name} voucher {self.voucher_number}""",
             'request_id': req_id.id
         })
 
         self.env['banks.deposit.name'].create({
             'account_id': self.account_id.id,
-            'name': "Reembolso",
+            'name': f"""Deposito monto sobrante voucher {self.voucher_number})""",
             'amount': self.amount,
             'chqmanalitics': req_id.assign_to_id.analytic_account_id.id or False,
             'mcheck_id': deposit_id.id,
