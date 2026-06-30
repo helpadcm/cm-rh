@@ -1,0 +1,66 @@
+<odoo>
+    <template id="mobile_app_page">
+        <t t-call="website.layout">
+            <div class="o_mobile_app_page">
+                <div class="container py-5">
+                    <div class="mt-6 d-flex flex-column align-items-start gap-3">
+                        <a href="https://play.google.com/store/apps/details?id=it.rortos.realflightsimulator&amp;pcampaignid=web_share" class="store-btn">
+                            <img src="/cm_newsletter/static/src/img/playstore.png"/>
+                        </a>
+                        <a href="https://apps.apple.com/es/story/id1895109378" class="store-btn">
+                            <img src="/cm_newsletter/static/src/img/appstore.png"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <style>
+            .o_mobile_app_page {
+                background-image: url('/cm_newsletter/static/src/img/fondocm.png');
+                background-size: cover;
+                background-position: center;
+                min-height: 100vh;
+            }
+
+            .store-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                gap: 10px;
+
+                padding: 12px 80px;
+
+                border: 2px solid #ddd;
+                border-radius: 14px;
+
+                text-decoration: none;
+                font-weight: 600;
+                color: #000;
+
+                width: 220px;   /* tamaño uniforme */
+                background: white;
+
+                transition: all 0.2s ease;
+            }
+
+            .store-btn img {
+                width: 200px;
+                height: 70px;
+            }
+
+            .store-btn:hover {
+                transform: translateY(-2px);
+                border-color: #333;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .mt-6 {
+                margin-top: 320px;
+            }
+        </style>
+
+    </template>
+
+</odoo>

@@ -10,6 +10,8 @@
 	'data':[
 		'security/ir.model.access.csv',
 		'views/newsletter_view.xml',
+		'views/qr_app_view.xml',
+		'views/qr_app_web.xml',
         'views/menus.xml',
 	],
 	'installable':True,
