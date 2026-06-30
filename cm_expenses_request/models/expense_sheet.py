@@ -51,6 +51,8 @@ class expensesSheetRequest(models.Model):
         currency_field='company_currency_id',
         compute='_compute_amount', store=True, readonly=True,
     )
+    exempt_amount = fields.Monetary(string="Monto Excento", currency_field='company_currency_id',
+        compute='_compute_amount', store=True, readonly=True)
 
     def change_state(self):
         next_state = self.env.context.get('state')
@@ -88,6 +90,18 @@ class expensesSheetRequest(models.Model):
                 analytic = self.employee_id.department_id.analytic_account_id.id
                 move_line_vals.update({'analytic_distribution': {str(analytic): 100.0}})
             lines.append((0,0,move_line_vals))
+
+        if self.request_id and self.request_id.refund_amount > 0:
+            deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',self.request_id.id),('state','=','validated')])
+            if deposit_ids:
+                for dep in deposit_ids:
+                    total += dep.total
+                    move_line_vals = {
+                        'name': dep.name,
+                        'account_id': dep.journal_id.default_account_id.id,
+                        'debit': dep.total
+                    }
+                    lines.append((0,0,move_line_vals))
         
         account_id = self.env['account.account'].search([('code','=','105.01')])
         vals = {
@@ -129,7 +143,8 @@ class expensesSheetRequest(models.Model):
         for sheet in self:
             sheet.total_amount = sum(sheet.expenses_ids.mapped('total_amount'))
             sheet.total_tax_amount = sum(sheet.expenses_ids.mapped('tax_amount'))
-            sheet.untaxed_amount = sheet.total_amount - sheet.total_tax_amount
+            sheet.exempt_amount = sum(sheet.expenses_ids.mapped('exempt_amount'))
+            sheet.untaxed_amount = sheet.total_amount - sheet.total_tax_amount - sheet.exempt_amount
 
     def show_move(self):
         if self.move_id:

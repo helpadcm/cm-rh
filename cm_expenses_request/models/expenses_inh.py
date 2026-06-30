@@ -253,3 +253,9 @@ class depositInh(models.Model):
     _inherit = 'banks.deposit'
 
     request_id = fields.Many2one('cm.expenses.request',string="Solicitud de viaticos")
+
+    def unreconciliate_deposit(self):
+        res = super(depositInh, self).unreconciliate_deposit()
+        if self.request_id:
+            self.request_id.refund_amount -= self.total
+        return res

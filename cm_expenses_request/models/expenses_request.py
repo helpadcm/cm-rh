@@ -318,16 +318,25 @@ class expensesRequest(models.Model):
             }
 
     def show_expenses_deposit(self):
-        deposit_id = self.env['banks.deposit'].search([('request_id','=',self.id)])
-        if deposit_id:
-            self.ensure_one()
+        deposit_ids = self.env['banks.deposit'].search([('request_id','=',self.id),('state','=','validated')])
+        self.ensure_one()
+        if len(deposit_ids) == 1:
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',
                 'views': [[False, "form"]],
                 'res_model': 'banks.deposit',
                 'target': 'current',
-                'res_id': deposit_id.id
+                'res_id': deposit_ids.id
+            }
+        if len(deposit_ids) > 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'view_mode': 'list',
+                'views': [(False, 'list'), (False, 'form')],
+                'res_model': 'banks.deposit',
+                'target': 'current',
+                'domain': [('id', 'in', deposit_ids.ids)]
             }
 
     def unlink(self):
