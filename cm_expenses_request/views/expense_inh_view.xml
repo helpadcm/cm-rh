@@ -17,6 +17,15 @@
                 <field name="description" position="attributes">
                     <attribute name="required">1</attribute>
                 </field>
+                <xpath expr="//div[field[@name='total_amount_currency']]" position="after">
+                    <label for="exempt_amount"/>
+                    <div class="o_row">
+                        <field name="exempt_amount"
+                            widget="monetary"
+                            options="{'currency_field': 'currency_id'}"/>
+                    </div>
+
+                </xpath>
             </field>
         </record>
 

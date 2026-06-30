@@ -13,6 +13,64 @@ class expensesInh(models.Model):
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     expense_sheet_req_id = fields.Many2one('expenses.sheet.request', string="Reporte de gasto")
+    exempt_amount = fields.Float(string="Monto Excento")
+
+    @api.depends(
+        'date',
+        'company_id',
+        'currency_id',
+        'company_currency_id',
+        'is_multiple_currency',
+        'total_amount_currency',
+        'product_id',
+        'employee_id.user_id.partner_id',
+        'quantity',
+        'exempt_amount'
+    )
+    def _compute_total_amount(self):
+        AccountTax = self.env['account.tax']
+        for expense in self:
+            if not expense.company_id:
+                # This would be happening when emptying the required company_id field, triggering the "onchange"s.
+                # A traceback would occur because company_currency_id would be set to False.
+                # Instead of using the env company, recomputing the interface just to be blocked when trying to save
+                # we choose not to recompute anything and wait for a proper company to be inputted.
+                continue
+
+            if expense.is_multiple_currency:
+                base_line = expense._prepare_base_line_for_taxes_computation(
+                    price_unit=(expense.total_amount_currency + expense.exempt_amount) * expense.currency_rate,
+                    quantity=1.0,
+                    currency_id=expense.company_currency_id,
+                    rate=1.0,
+                )
+                AccountTax._add_tax_details_in_base_line(base_line, expense.company_id)
+                AccountTax._round_base_lines_tax_details([base_line], expense.company_id)
+                expense.total_amount = base_line['tax_details']['total_included_currency']
+            else:  # Mono-currency case computation shortcut
+                expense.total_amount = expense.total_amount_currency + expense.exempt_amount
+
+    def _inverse_total_amount(self):
+        """ Allows to set a custom rate on the expense, and avoid the override when it makes no sense """
+        AccountTax = self.env['account.tax']
+        for expense in self:
+            if expense.is_multiple_currency:
+                base_line = expense._prepare_base_line_for_taxes_computation(
+                    price_unit=expense.total_amount,
+                    quantity=1.0,
+                    currency=expense.company_currency_id,
+                )
+                AccountTax._add_tax_details_in_base_line(base_line, expense.company_id)
+                AccountTax._round_base_lines_tax_details([base_line], expense.company_id)
+                tax_details = base_line['tax_details']
+                expense.tax_amount = tax_details['total_included_currency'] - tax_details['total_excluded_currency']
+                expense.untaxed_amount =  tax_details['total_excluded_currency']
+            else:
+                expense.total_amount_currency = expense.total_amount - expense.exempt_amount
+                expense.tax_amount = expense.tax_amount_currency
+                expense.untaxed_amount = expense.untaxed_amount_currency
+            expense.currency_rate = (expense.total_amount - expense.exempt_amount) / expense.total_amount_currency if expense.total_amount_currency else 1.0
+            expense.price_unit = expense.total_amount / expense.quantity if expense.quantity else expense.total_amount
 
     @api.constrains('invoice_number')
     def _check_invoice_number(self):

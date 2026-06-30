@@ -200,6 +200,23 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">
                                                 <i class="fa fa-money me-1"></i>
+                                                Monto Exento
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">L</span>
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    name="exempt_amount"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="0.00"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-money me-1"></i>
                                                 Saldo en control del empleado
                                             </label>
                                             <div class="input-group">

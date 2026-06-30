@@ -23,9 +23,9 @@ class settlementExpensesCont(http.Controller):
 
         expenses_data = []
         expenses_ids = request.env['hr.expense'].sudo().search([('request_id','=',expense_request_id.id)])
-        deposit_id = False
+        deposit_ids = False
         if expense_request_id:
-            deposit_id = request.env['banks.deposit'].sudo().search([('request_id','=',expense_request_id.id),('state','=','validated')])
+            deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',expense_request_id.id),('state','=','validated')])
 
         if expenses_ids:
             for expense in expenses_ids:
@@ -44,16 +44,17 @@ class settlementExpensesCont(http.Controller):
                     'id': expense.id
                 })
 
-        if deposit_id:
-            expenses_data.append({
-                'description': "Deposito creado",
-                'name': deposit_id.name,
-                'invoice_number': deposit_id.number,
-                'date': deposit_id.date.strftime('%d/%m/%Y'),
-                'amount': deposit_id.total,
-                'att_created': False,
-                'category': 'Deposito'
-            })
+        if deposit_ids:
+            for dep in deposit_ids:
+                expenses_data.append({
+                    'description': "Deposito creado",
+                    'name': dep.name,
+                    'invoice_number': dep.number,
+                    'date': dep.date.strftime('%d/%m/%Y'),
+                    'amount': dep.total,
+                    'att_created': False,
+                    'category': 'Deposito'
+                })
 
         values = {
             "expenses_categories": expenses_categories,
@@ -81,6 +82,7 @@ class settlementExpensesCont(http.Controller):
             invoice_number = post.get("invoice_record")
             description = post.get("description_record")
             amount = post.get("amount")
+            exempt_amount = post.get("exempt_amount")
             notes = post.get("record_notes") or False
             request_id = post.get("request_id")
             
@@ -107,6 +109,7 @@ class settlementExpensesCont(http.Controller):
                 'process_id': rec_request_id.process_id.id,
                 'reason_expense': rec_request_id.reason_expense,
                 'total_amount_currency': amount,
+                'exempt_amount': exempt_amount,
                 'budget_account_id': budget_account_id,
                 'request_id': int(request_id)
             }
