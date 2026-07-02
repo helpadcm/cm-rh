@@ -9,12 +9,14 @@ class versionInh(models.Model):
 
     def calculate_deductions(self, code, payslip=False):
         amount = 0
+        name = ''
         if code not in self.employee_id.skip_rules_ids.mapped('code'):
             if code in ['RAP','SSH']:
-                amount = self.calculate_rap(code)
+                amount, name = self.calculate_rap(code)
             else:
                 deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('other_input_type_id.code','=',code)])
                 if deduction_ids:
+                    name = ','.join([dedu.description for dedu in deduction_ids])
                     for ded in deduction_ids:
                         if ded.other_input_type_id.code == code:
                             payslip.salary_attachment_ids = [(4, ded.id)]
@@ -29,7 +31,7 @@ class versionInh(models.Model):
                                     amount += line_id.amount
                                     line_id.payslip_id = payslip.id
                                     line_id.state = 'paid'
-        return amount
+        return amount, name
 
     def get_transport_bonus(self, payslip):
         domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
@@ -78,6 +80,7 @@ class versionInh(models.Model):
 
     def calculate_rap(self, code):
         amount = 0
+        name = ''
         if code not in self.employee_id.skip_rules_ids.mapped('code'):
             rap_id = self.env['hr.settings.rap'].search([])
             if len(rap_id) == 0:
@@ -85,9 +88,11 @@ class versionInh(models.Model):
             if code == 'RAP':
                 percentage = (rap_id.percentage) / 100
                 total_salary = self.wage * 2
+                name = 'RAP'
 
                 amount = ((total_salary - rap_id.min_salary) * percentage) / 2
             elif code == 'SSH':
                 amount = rap_id.ihss_amount / 2
+                name = 'IHSS'
 
-        return amount * -1
+        return amount * -1, name
