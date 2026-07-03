@@ -2,184 +2,823 @@
     <template id="recruitment_public_form" name="Formulario Público Completo de Postulación">
         <t t-call="website.layout">
             <div class="container my-5">
-                <h2 class="text-center mb-4">Formulario de Postulación</h2>
+                <div class="text-center py-4 mb-4 border-bottom" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    <h1 class="display-5 fw-bold">
+                        <i class="fa fa-user-plus me-2"></i>
+                        Formulario de Postulación
+                    </h1>
+                    <p class="lead text-muted mb-0">
+                        Complete la información solicitada para participar en nuestros procesos de selección.
+                    </p>
+                </div>
                 <form action="/job/apply/submit" method="post" enctype="multipart/form-data" class="o_website_form">
                     <input type="text" class="d-none" name="requirement" id="id_requirement" t-att-value="requirement_id"/>
 
-                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
-                        <h4>Datos Personales</h4>
-                        <div class="col-md-6"><label>Nombre Completo</label><input name="partner_name" class="form-control" required="required"/></div>
-                        <div class="col-md-6"><label>Correo Electrónico</label><input type="email" name="email_from" class="form-control" required="required"/></div>
-                        <div class="col-md-6"><label>Numero de Identidad</label><input name="identity" class="form-control" required="required"/></div>
-                        <div class="col-md-6"><label>Fecha de Nacimiento</label><input type="date" name="birthday" class="form-control" required="required"/></div>
-                        <div class="col-md-6"><label>Ciudad</label><input name="city" class="form-control"/></div>
-                        <div class="col-md-6"><label>Dirección</label><input name="address" class="form-control"/></div>
-                        <div class="col-md-6"><label>No. Celular</label><input name="partner_mobile" class="form-control" required="required"/></div>
-                        <div class="col-md-6"><label>Estado Civil</label>
-                            <select name="marital_status" class="form-select">
-                                <option value="">Seleccionar...</option>
-                                <option value="single">Soltero(a)</option>
-                                <option value="married">Casado(a)</option>
-                                <option value="free_union">Unión Libre</option>
-                                <option value="widower">Viudo(a)</option>
-                            </select>
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-user me-2"></i>
+                                Datos Personales
+                            </h5>
                         </div>
-                        <div class="col-md-6"><label>Hijo(s) Género y Edad</label><input name="children" class="form-control" required="required"/></div>
-                    </div>
-
-                    <br></br>
-
-                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
-                        <div class="col-md-6"><label>Aspiracion Salarial(Especificar en números)</label><input type="number" step="0.01" name="salary_expected" t-attf-name="salary_expected" class="form-control"/></div>
-                        <div class="col-md-6"><label>Negociable</label><input type="checkbox" name="negotiable"/></div>
-                        <div class="col-md-6"><label>Disponibilidad Inmediata</label><input type="checkbox" name="immediate_availability"/></div>
-                    </div>
-
-                    <br></br>
-
-                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
-                        <h4 class="mt-4">Ultimo Grado Academico</h4>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label>Nivel Académico</label>
-                                <select name="academic_level" class="form-select" required="required">
-                                    <option value="1">Primaria Completa</option>
-                                    <option value="2">Secundaria Completa</option>
-                                    <option value="3">Diversificado</option>
-                                    <option value="4">Pregrado</option>
-                                    <option value="5">Postgrado</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6"><label>Colegio/Universidad</label><input name="last_institute" class="form-control" required="required"/></div>
-                            <div class="col-md-6"><label>Año de Graduación</label><input name="graduation_year" class="form-control" required="required"/></div>
-                            <div class="col-md-6"><label>Nombre de la Carrera</label><input name="career_name" class="form-control" required="required"/></div>
-
-                            <div class="col-md-6"><label>Actualmente Estudia</label><input type="checkbox" id="currently_studying_id" name="currently_studying"/></div>
-                            <div id="currently_studying_div" class="row g-3">
-                                <div class="col-md-6"><label>En que colegio o Universidad</label><input name="current_institute" class="form-control"/></div>
-                                <div class="col-md-6"><label>Carrera y Promedio Cursado</label><input name="career_promedy" class="form-control"/></div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-user me-1"></i>
+                                        Nombre Completo
+                                    </label>
+                                    <input
+                                        name="partner_name"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-envelope me-1"></i>
+                                        Correo Electrónico
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email_from"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-id-card me-1"></i>
+                                        Número de Identidad
+                                    </label>
+                                    <input
+                                        name="identity"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-calendar me-1"></i>
+                                        Fecha de Nacimiento
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="birthday"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-map-marker me-1"></i>
+                                        Ciudad
+                                    </label>
+                                    <input
+                                        name="city"
+                                        class="form-control"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-home me-1"></i>
+                                        Dirección
+                                    </label>
+                                    <input
+                                        name="address"
+                                        class="form-control"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-phone me-1"></i>
+                                        No. Celular
+                                    </label>
+                                    <input
+                                        name="partner_mobile"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-heart me-1"></i>
+                                        Estado Civil
+                                    </label>
+                                    <select
+                                        name="marital_status"
+                                        class="form-select">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="single">Soltero(a)</option>
+                                        <option value="married">Casado(a)</option>
+                                        <option value="free_union">Unión Libre</option>
+                                        <option value="widower">Viudo(a)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-users me-1"></i>
+                                        Hijo(s), Género y Edad
+                                    </label>
+                                    <input
+                                        name="children"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <br></br>
 
-                    <div class="border rounded p-3 mb-3 row g-3" style="background-color: #F5F5F5">
-                        <h4 class="mt-4">Información Adicional</h4>
-                        <div class="row g-3">
-                            <div class="col-md-6"><label>Cuenta con</label>
-                                <select name="has_with" class="form-select">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="own_house">Casa Propia</option>
-                                    <option value="rent">Alquila</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6"><label>Nivel de Ingles</label>
-                                <select name="english_level" class="form-select" required="required">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="low">Bajo</option>
-                                    <option value="medium">Medio</option>
-                                    <option value="high">Alto</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6"><label>Nivel de Excel</label>
-                                <select name="excel_level" class="form-select" required="required">
-                                    <option value="">Seleccionar...</option>
-                                    <option value="low">Bajo</option>
-                                    <option value="medium">Medio</option>
-                                    <option value="high">Alto</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6"><label>Vechiculo Propio</label>
-                                <select name="own_vehicle" class="form-select" required="required">
-                                    <option value="car">Carro</option>
-                                    <option value="motorcycle">Moto</option>
-                                    <option value="no">Ninguno</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6"><label>Tiene alguna relacion financiera con el banco BANPAIS</label><input type="checkbox" name="banpais_relation"/></div>
-                            <div class="col-md-6"><label>Posee Licencia Vigente</label><input type="checkbox" name="vigent_licence"/></div>
-                            <div class="col-md-6"><label>Disponibilidad para Viajar</label><input type="checkbox" name="availability_travel"/></div>
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-1">
+                                <i class="fa fa-money me-2"></i>
+                                Aspiración Salarial y Disponibilidad
+                            </h5>
+
+                            <small class="opacity-75">
+                                Indique el salario esperado y su disponibilidad para incorporarse.
+                            </small>
                         </div>
+
+                        <div class="card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-money me-1"></i>
+                                        Aspiración Salarial
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text">L</span>
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="salary_expected"
+                                            t-attf-name="salary_expected"
+                                            class="form-control"
+                                            placeholder="0.00"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="d-flex flex-column justify-content-center h-100">
+
+                                        <div class="form-check form-switch mb-3">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="negotiable"
+                                                id="negotiable_id"/>
+
+                                            <label
+                                                class="form-check-label fw-bold"
+                                                for="negotiable_id">
+
+                                                <i class="fa fa-handshake-o me-1"></i>
+                                                Salario Negociable
+
+                                            </label>
+
+                                        </div>
+
+                                        <div class="form-check form-switch">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="immediate_availability"
+                                                id="availability_id"/>
+
+                                            <label
+                                                class="form-check-label fw-bold"
+                                                for="availability_id">
+
+                                                <i class="fa fa-clock-o me-1"></i>
+                                                Disponibilidad Inmediata
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <br></br>
 
-                    <div class="border rounded row g-3" style="background-color: #F5F5F5">
-                        <div class="col-md-6"><label>¿Padece o ha padecido de alguna enfermedad?</label><input type="checkbox" name="disease"/></div>
-                        <div class="col-12"><label>¿Desde cuando esta sin empleo y por que?</label><textarea name="unemployed" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Cual es su expectativa de CM Airlines?</label><textarea name="expectatives" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Experiencia en otras Areas?</label><textarea name="experience" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Que conocimientos tiene del puesto que solicita?</label><textarea name="knowledge_position" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Tiene experiencia en el manejo de personal, y cuantas personas?</label><textarea name="personal_experience" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Cual es su situacion economica actual con el banco BANPAIS?</label>
-                            <select name="banpais_situation" class="form-select" required="required">
-                                <option value="1">No tengo cuenta ni relación</option>
-                                <option value="2">Tengo una cuenta de ahorro</option>
-                                <option value="3">Tengo una cuenta de cheques</option>
-                                <option value="4">Tengo un crédito activo</option>
-                                <option value="5">Estoy en proceso de abrir una cuenta</option>
-                                <option value="6">Tengo mora o situación irregular</option>
-                            </select>
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-graduation-cap me-2"></i>
+                                Último Grado Académico
+                            </h5>
                         </div>
-                        <div class="col-12"><label>¿Que otras responsabilidades tiene aparte de trabajar?</label><textarea name="other_responsabilities" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Que hace en su tiempo libre?</label><textarea name="free_time" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Con quien vive?</label><textarea name="with_life" class="form-control"></textarea></div>
-                        <div class="col-12"><label>¿Cuales son sus planes a mediano y largo plazo?</label><textarea name="plans" class="form-control"></textarea></div>
+
+                        <div class="card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-book me-1"></i>
+                                        Nivel Académico
+                                    </label>
+
+                                    <select
+                                        name="academic_level"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="1">Primaria Completa</option>
+                                        <option value="2">Secundaria Completa</option>
+                                        <option value="3">Diversificado</option>
+                                        <option value="4">Pregrado</option>
+                                        <option value="5">Postgrado</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-university me-1"></i>
+                                        Colegio / Universidad
+                                    </label>
+
+                                    <input
+                                        name="last_institute"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-calendar me-1"></i>
+                                        Año de Graduación
+                                    </label>
+
+                                    <input
+                                        name="graduation_year"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-certificate me-1"></i>
+                                        Nombre de la Carrera
+                                    </label>
+
+                                    <input
+                                        name="career_name"
+                                        class="form-control"
+                                        required="required"/>
+                                </div>
+
+                                <div class="col-12">
+
+                                    <div class="form-check form-switch">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="currently_studying_id"
+                                            name="currently_studying"/>
+
+                                        <label
+                                            class="form-check-label fw-bold"
+                                            for="currently_studying_id">
+
+                                            <i class="fa fa-pencil-square-o me-1"></i>
+                                            Actualmente me encuentro estudiando
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div id="currently_studying_div"
+                                    class="row g-3 mt-2 p-3 rounded bg-light border">
+
+                                    <div class="col-12">
+                                        <h6 class="text-success fw-bold mb-3">
+                                            <i class="fa fa-info-circle me-1"></i>
+                                            Información de los estudios actuales
+                                        </h6>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-university me-1"></i>
+                                                Colegio o Universidad
+                                            </label>
+
+                                            <input
+                                                name="current_institute"
+                                                class="form-control"/>
+
+                                        </div>
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-line-chart me-1"></i>
+                                                Carrera y Promedio Cursado
+                                            </label>
+
+                                            <input
+                                                name="career_promedy"
+                                                class="form-control"/>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <br></br>
 
-                    <ul class="border rounded nav nav-tabs" style="background-color: #F5F5F5">
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-info-circle me-2"></i>
+                                Información Adicional
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-home me-1"></i>
+                                        Vivienda
+                                    </label>
+
+                                    <select
+                                        name="has_with"
+                                        class="form-select">
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="own_house">Casa Propia</option>
+                                        <option value="rent">Alquila</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-car me-1"></i>
+                                        Vehículo Propio
+                                    </label>
+
+                                    <select
+                                        name="own_vehicle"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="car">Carro</option>
+                                        <option value="motorcycle">Moto</option>
+                                        <option value="no">Ninguno</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-language me-1"></i>
+                                        Nivel de Inglés
+                                    </label>
+
+                                    <select
+                                        name="english_level"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="low">Bajo</option>
+                                        <option value="medium">Medio</option>
+                                        <option value="high">Alto</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-file-excel-o me-1"></i>
+                                        Nivel de Excel
+                                    </label>
+
+                                    <select
+                                        name="excel_level"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="low">Bajo</option>
+                                        <option value="medium">Medio</option>
+                                        <option value="high">Alto</option>
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="form-check form-switch mt-4">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="banpais_relation_id"
+                                            name="banpais_relation"/>
+
+                                        <label
+                                            class="form-check-label fw-bold"
+                                            for="banpais_relation_id">
+
+                                            <i class="fa fa-university me-1"></i>
+                                            Relación con BANPAIS
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="form-check form-switch mt-4">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="vigent_licence_id"
+                                            name="vigent_licence"/>
+
+                                        <label
+                                            class="form-check-label fw-bold"
+                                            for="vigent_licence_id">
+
+                                            <i class="fa fa-id-card me-1"></i>
+                                            Licencia Vigente
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <div class="form-check form-switch mt-4">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="availability_travel_id"
+                                            name="availability_travel"/>
+
+                                        <label
+                                            class="form-check-label fw-bold"
+                                            for="availability_travel_id">
+
+                                            <i class="fa fa-plane me-1"></i>
+                                            Disponibilidad para Viajar
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <br></br>
+
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-question-circle"></i> 
+                                Información Complementaria
+                            </h5>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <div class="form-check form-switch mt-4">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="disease_id"
+                                            name="disease"/>
+
+                                        <label
+                                            class="form-check-label fw-bold"
+                                            for="disease_id">
+
+                                            <i class="fa fa-heartbeat me-1"></i>
+                                            ¿Padece o ha padecido alguna enfermedad?
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-university me-1"></i>
+                                        Situación con BANPAIS
+                                    </label>
+
+                                    <select
+                                        name="banpais_situation"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="1">No tengo cuenta ni relación</option>
+                                        <option value="2">Tengo una cuenta de ahorro</option>
+                                        <option value="3">Tengo una cuenta de cheques</option>
+                                        <option value="4">Tengo un crédito activo</option>
+                                        <option value="5">Estoy en proceso de abrir una cuenta</option>
+                                        <option value="6">Tengo mora o situación irregular</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-briefcase me-1"></i>
+                                        ¿Desde cuándo está sin empleo y por qué?
+                                    </label>
+
+                                    <textarea
+                                        name="unemployed"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-building me-1"></i>
+                                        ¿Cuál es su expectativa de CM Airlines?
+                                    </label>
+
+                                    <textarea
+                                        name="expectatives"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-briefcase me-1"></i>
+                                        ¿Experiencia en otras áreas?
+                                    </label>
+
+                                    <textarea
+                                        name="experience"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-book me-1"></i>
+                                        ¿Qué conocimientos tiene del puesto que solicita?
+                                    </label>
+
+                                    <textarea
+                                        name="knowledge_position"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-users me-1"></i>
+                                        ¿Tiene experiencia en manejo de personal? ¿Cuántas personas?
+                                    </label>
+
+                                    <textarea
+                                        name="personal_experience"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-tasks me-1"></i>
+                                        ¿Qué otras responsabilidades tiene además de trabajar?
+                                    </label>
+
+                                    <textarea
+                                        name="other_responsabilities"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-coffee me-1"></i>
+                                        ¿Qué hace en su tiempo libre?
+                                    </label>
+
+                                    <textarea
+                                        name="free_time"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-home me-1"></i>
+                                        ¿Con quién vive?
+                                    </label>
+
+                                    <textarea
+                                        name="with_life"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-line-chart me-1"></i>
+                                        ¿Cuáles son sus planes a mediano y largo plazo?
+                                    </label>
+
+                                    <textarea
+                                        name="plans"
+                                        class="form-control"
+                                        rows="3"></textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <br></br>
+
+                    <ul class="nav nav-pills nav-fill mb-4 shadow-sm rounded p-2 bg-light" style="background: rgba(255,255,255,0.3)">
+
                         <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#tab1"><strong>Historial Laboral (hasta 3)</strong></a>
+                            <a class="nav-link active" data-bs-toggle="tab" href="#tab1">
+                                <i class="fa fa-briefcase me-2"></i>
+                                Historial Laboral
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab2"><strong>Relaciones</strong></a>
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab2">
+                                <i class="fa fa-users me-2"></i>
+                                Relaciones
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab3"><strong>Referencias Laborales</strong></a>
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab3">
+                                <i class="fa fa-building me-2"></i>
+                                Referencias Laborales
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab4"><strong>Referencias Personales</strong></a>
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab4">
+                                <i class="fa fa-address-book me-2"></i>
+                                Referencias Personales
+                            </a>
                         </li>
+
                     </ul>
                     <div class="tab-content">
                         <div class="container tab-pane fade show active" id="tab1">
                             <t t-foreach="[1,2,3]" t-as="n">
-                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
-                                    <h6>Experiencia <t t-esc="n"/></h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label>Empresa</label>
-                                            <input t-attf-name="company_name_{{n}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Puesto</label>
-                                            <input t-attf-name="position_name_{{n}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Tiempo Laborado</label>
-                                            <input t-attf-name="time_worked_{{n}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Salario</label>
-                                            <input type="number" step="0.01" t-attf-name="salary_{{n}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-12">
-                                            <label>¿Cuales fueron las principales funciones que desempeño en sus trabajos anteriores?</label>
-                                            <textarea t-attf-name="functions_{{n}}" class="form-control"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label>¿Cual fue la razon por la cual abandono?</label>
-                                            <textarea t-attf-name="reason_{{n}}" class="form-control"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label>¿Que es lo que mas le gustó?</label>
-                                            <textarea t-attf-name="tastes_{{n}}" class="form-control"></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label>¿Que es lo que menos le ha gustado?</label>
-                                            <textarea t-attf-name="no_tastes_{{n}}" class="form-control"></textarea>
+                                <div class="card shadow-sm border-success mb-4" style="background: rgba(255,255,255,0.3)">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-1">
+                                            <i class="fa fa-briefcase me-2"></i>
+                                            Experiencia Laboral <t t-esc="n"/>
+                                        </h6>
+                                        <small class="opacity-75">
+                                            Complete esta sección únicamente si cuenta con esta experiencia laboral.
+                                        </small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-building me-1"></i>
+                                                    Empresa
+                                                </label>
+                                                <input t-attf-name="company_name_{{n}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-id-badge me-1"></i>
+                                                    Puesto
+                                                </label>
+                                                <input t-attf-name="position_name_{{n}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-clock-o me-1"></i>
+                                                    Tiempo
+                                                </label>
+                                                <input t-attf-name="time_worked_{{n}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-money me-1"></i>
+                                                    Salario
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">
+                                                        L
+                                                    </span>
+                                                    <input
+                                                        type="number"
+                                                        t-attf-name="salary_{{n}}"
+                                                        class="form-control"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-tasks me-1"></i>
+                                                    ¿Cuales fueron las principales funciones que desempeño en sus trabajos anteriores?
+                                                </label>
+                                                <textarea t-attf-name="functions_{{n}}" class="form-control" placeholder="Describa brevemente las funciones realizadas..."/>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-sign-out me-1"></i>
+                                                    ¿Cual fue la razon por la cual abandono?
+                                                </label>
+                                                <textarea t-attf-name="reason_{{n}}" class="form-control" placeholder="Describa brevemente la razon..."/>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-thumbs-up me-1"></i>
+                                                    ¿Que es lo que mas le gustó?
+                                                </label>
+                                                <textarea t-attf-name="tastes_{{n}}" class="form-control" placeholder="Describa brevemente lo que mas le gusto..."/>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-thumbs-down me-1"></i>
+                                                    ¿Que es lo que menos le ha gustado?
+                                                </label>
+                                                <textarea t-attf-name="no_tastes_{{n}}" class="form-control" placeholder="Describa brevemente que fue lo que menos le gusto..."/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -187,50 +826,99 @@
                         </div>
                         <div class="tab-pane fade" id="tab2">
                             <t t-foreach="[1,2,3]" t-as="r">
-                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
-                                    <h6>Relacion Colaborador/Ex Colaborador <t t-esc="r"/></h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label>Nombre</label>
-                                            <input t-attf-name="relation_name_{{r}}" class="form-control"/>
+                                <div class="card shadow-sm border-info mb-4" style="background: rgba(255,255,255,0.3)">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fa fa-users me-2"></i>
+                                            Relacion Colaborador/Ex Colaborador
+                                            <t t-esc="r"/>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-user me-1"></i>
+                                                    Nombre
+                                                </label>
+                                                <input t-attf-name="relation_name_{{r}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-users me-1"></i>
+                                                    Parentesco
+                                                </label>
+                                                <input t-attf-name="relationship_name_{{r}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-university me-1"></i>
+                                                    Sucursal
+                                                </label>
+                                                <input t-attf-name="branch_{{r}}" class="form-control"></input>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-building me-1"></i>
+                                                    Departamento
+                                                </label>
+                                                <input t-attf-name="department_{{r}}" class="form-control"></input>
+                                            </div>
+                                            <div class="form-check form-switch mt-4">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    t-attf-name="currently_work_{{r}}"/>
+                                                <label class="form-check-label fw-bold">
+                                                    Trabaja Actualmente
+                                                </label>
+
+                                            </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label>Parentesco</label>
-                                            <input t-attf-name="relationship_name_{{r}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-6">
-                                            <label>Sucursal</label>
-                                            <input t-attf-name="branch_{{r}}" class="form-control"></input>
-                                        </div>
-                                        <div class="col-6">
-                                            <label>Departamento</label>
-                                            <input t-attf-name="department_{{r}}" class="form-control"></input>
-                                        </div>
-                                        <div class="col-md-6"><label>Trabaja Actualmente</label><input type="checkbox" t-attf-name="currently_work_{{r}}"/></div>
                                     </div>
                                 </div>
                             </t>
                         </div>
                         <div class="tab-pane fade" id="tab3">
                             <t t-foreach="[1,2,3]" t-as="l">
-                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
-                                    <h6>Referencia Laboral <t t-esc="l"/></h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label>Nombre</label>
-                                            <input t-attf-name="laboral_name_{{l}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Empresa</label>
-                                            <input t-attf-name="lcompany_name_{{l}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Puesto</label>
-                                            <input t-attf-name="lposition_{{l}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-6">
-                                            <label>Numero de Telefono/Celular</label>
-                                            <input t-attf-name="lphone_{{l}}" class="form-control"></input>
+                                <div class="card shadow-sm border-info mb-4" style="background: rgba(255,255,255,0.3)">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fa fa-users me-2"></i>
+                                            Referencia Laboral
+                                            <t t-esc="l"/>
+                                        </h6>       
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-user me-1"></i>
+                                                    Nombre
+                                                </label>
+                                                <input t-attf-name="laboral_name_{{l}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-building me-1"></i>
+                                                    Empresa
+                                                </label>
+                                                <input t-attf-name="lcompany_name_{{l}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-id-badge me-1"></i>
+                                                    Puesto
+                                                </label>
+                                                <input t-attf-name="lposition_{{l}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Numero de Telefono/Celular
+                                                </label>
+                                                <input t-attf-name="lphone_{{l}}" class="form-control"></input>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -238,24 +926,44 @@
                         </div>
                         <div class="tab-pane fade" id="tab4">
                             <t t-foreach="[1,2,3]" t-as="p">
-                                <div class="border rounded p-3 mb-3" style="background-color: #DBEDDC">
-                                    <h6>Referencia Personal <t t-esc="n"/></h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label>Nombre</label>
-                                            <input t-attf-name="p_personal_name_{{p}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Parentesco (pueden ser familiares o amistades)</label>
-                                            <input t-attf-name="p_relationship_{{p}}" class="form-control"/>
-                                        </div>
-                                        <div class="col-6">
-                                            <label>Numero de Telefono/Celular</label>
-                                            <input t-attf-name="p_phone_{{p}}" class="form-control"></input>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label>Empresa</label>
-                                            <input t-attf-name="p_company_name_{{p}}" class="form-control"/>
+                                <div class="card shadow-sm border-info mb-4" style="background: rgba(255,255,255,0.3)">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fa fa-users me-2"></i>
+                                            Referencia Personal
+                                            <t t-esc="p"/>
+                                        </h6>       
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-user me-1"></i>
+                                                    Nombre
+                                                </label>
+                                                <input t-attf-name="p_personal_name_{{p}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-users me-1"></i>
+                                                    Parentesco (pueden ser familiares o amistades)
+                                                </label>
+                                                <input t-attf-name="p_relationship_{{p}}" class="form-control"/>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Numero de Telefono/Celular
+                                                </label>
+                                                <input t-attf-name="p_phone_{{p}}" class="form-control"></input>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-building me-1"></i>
+                                                    Empresa
+                                                </label>
+                                                <input t-attf-name="p_company_name_{{p}}" class="form-control"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -263,26 +971,78 @@
                         </div>
                     </div>
 
-                    <div class="border rounded row g-3" style="background-color: #F5F5F5;margin-top: 10px;padding-boottom: 10px">
-                        <h4 class="mt-4">Puesto de su interes</h4>
-                        <div class="col-md-6">
-                            <label>Puesto</label>
-                            <select name="job_id" class="form-select" required="required">
-                                <t t-foreach="jobs" t-as="job">
-                                    <option t-att-value="job.id"><t t-esc="job.name"/></option>
-                                </t>
-                            </select>
+                    <div class="card shadow border-0 mt-4" style="background: rgba(255,255,255,0.3)">
+
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-briefcase me-2"></i>
+                                Puesto de Interés
+                            </h5>
                         </div>
 
-                        <div class="col-md-6">
-                            <label for="cv_file" class="form-label">Adjuntar Currículum (PDF o Word)</label>
-                            <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" class="form-control" required="required"/>
+                        <div class="card-body">
+
+                            <div class="row g-4">
+
+                                <!-- Puesto -->
+                                <div class="col-lg-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-user-circle me-1"></i>
+                                        Puesto al que desea aplicar
+                                    </label>
+
+                                    <select name="job_id"
+                                            class="form-select shadow-sm"
+                                            required="required">
+                                        <t t-foreach="jobs" t-as="job">
+                                            <option t-att-value="job.id">
+                                                <t t-esc="job.name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Seleccione el puesto para el cual desea enviar su postulación.
+                                    </small>
+                                </div>
+
+                                <!-- Curriculum -->
+                                <div class="col-lg-6">
+                                    <label for="cv_file" class="form-label fw-bold">
+                                        <i class="fa fa-file-pdf-o me-1"></i>
+                                        Currículum Vitae
+                                    </label>
+
+                                    <input type="file"
+                                        id="cv_file"
+                                        name="cv_file"
+                                        accept=".pdf,.doc,.docx"
+                                        class="form-control shadow-sm"
+                                        required="required"/>
+
+                                    <small class="text-muted">
+                                        Formatos permitidos: PDF, DOC y DOCX.
+                                    </small>
+                                </div>
+
+                            </div>
+
                         </div>
-                    </div>
 
+                        <div class="card-footer bg-light">
 
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary px-4 py-2">Enviar Postulación</button>
+                            <div class="d-flex justify-content-center">
+
+                                <button type="submit"
+                                        class="btn btn-primary btn-lg px-5 shadow-sm">
+                                    <i class="fa fa-paper-plane me-2"></i>
+                                    Enviar Postulación
+                                </button>
+
+                            </div>
+
+                        </div>
+
                     </div>
                 </form>
             </div>
@@ -310,7 +1070,7 @@
 
     <template id="recruitment_thank_you" name="Gracias por Postularse">
         <t t-call="website.layout">
-            <div class="container text-center my-5">
+            <div class="container text-center my-5" style="background: rgba(255,255,255,0.8);border-radius:10px;">
                 <h2>¡Gracias por su postulación, <t t-esc="applicant.partner_name"/>!</h2>
                 <p>Su información ha sido registrada correctamente.</p>
             </div>

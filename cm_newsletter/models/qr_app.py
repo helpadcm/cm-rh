@@ -13,6 +13,7 @@ from io import BytesIO
 
 class QRGenerator(models.Model):
     _name = "qr.generator"
+    _description = "Generador de Código QR"
 
     name = fields.Char(required=True)
     qr_url = fields.Char(compute="_compute_qr")
