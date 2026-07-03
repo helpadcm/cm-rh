@@ -1,12 +1,14 @@
 import dateutil
 import pytz
+import calendar
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time, timedelta
-import calendar
+
+from odoo.tools.safe_eval import safe_eval, datetime as safe_eval_datetime, dateutil as safe_eval_dateutil
 
 class HrPayslipBonus(models.Model):
     _inherit = 'hr.payslip'
@@ -311,6 +313,35 @@ class HrPayslipBonus(models.Model):
 
     def _action_create_account_move(self):
         return True
+
+    def _generate_pdf(self):
+        print ("#####################################")
+        mapped_reports = self._get_pdf_reports()
+        attachments_vals_list = []
+        generic_name = _("Payslip")
+        for report, payslips in mapped_reports.items():
+            for payslip in payslips:
+                pdf_content, dummy = self.env['ir.actions.report'].sudo().with_context(lang=payslip.employee_id.lang or self.env.lang)._render_qweb_pdf(report, payslip.id)
+                if report.print_report_name:
+                    pdf_name = safe_eval(report.print_report_name, {'object': payslip})
+                else:
+                    pdf_name = generic_name
+                attachments_vals_list.append({
+                    'name': pdf_name,
+                    'type': 'binary',
+                    'raw': pdf_content,
+                    'res_model': payslip._name,
+                    'res_id': payslip.id
+                })
+
+        self.env['ir.attachment'].sudo().create(attachments_vals_list)
+        # Send email to employees (after attachment is created to include it in the mail by other bridge module)
+        for payslips in mapped_reports.values():
+            for payslip in payslips:
+                template = payslip._get_email_template()
+                # if template and payslip._check_send_payslip_mail():
+                #     template.send_mail(payslip.id, email_layout_xmlid='mail.mail_notification_light')
+                return True
 
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
