@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="aircraft_form_view" model="ir.ui.view">
+            <field name="name">Aeronaves</field>
+            <field name="model">aff.aircraf</field>
+            <field name="arch" type="xml">
+                <form string="Aeronaves">
+                    <sheet>
+                        <h1>
+                            <field name="msn" placeholder="MSN" required="1"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="tuition" required="1"/>
+                                <field name="seats_qty"/>
+                                <field name="fleet_id" options="{'no_create': True}"/>
+                                <field name="brand" required="1"/>
+                                <field name="year_of_manufacture" required="1"/>
+                            </group>
+                            <group>
+                                <field name="renewal_sequence" />
+                                <field name="contract_type" />
+                                <field name="start_date" />
+                                <field name="final_date" />
+                                <field name="months_duration" />
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter reload_on_attachment="True"/>
+                </form>
+            </field>
+        </record>
+        
+        <record id="aff_aircraft_list_view" model="ir.ui.view">
+            <field name="name">Lista Aeronaves</field>
+            <field name="model">aff.aircraf</field>
+            <field name="arch" type="xml">
+                <list string="Lista Aeronaves">
+                    <field name="msn"/>
+                    <field name="tuition"/>
+                    <field name="seats_qty"/>
+                    <field name="brand"/>
+                    <field name="year_of_manufacture"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- <record id="order_bill_search_view" model="ir.ui.view">
+            <field name="name">Guiar de carga search</field>
+            <field name="model">aff.aircraf</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_name" filter_domain="[('sender_name', 'ilike', self)]"/>
+                    <field name="receiver_name" filter_domain="[('receiver_name', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creadas" name="created_filter" domain="[('state','=','created')]"/>
+                    <filter string="Enviadas" name="send_filter" domain="[('state','=','sent')]"/>
+                    <filter string="Recibidas" name="received_filter" domain="[('state','=','received')]"/>
+                    <filter string="Entregadas" name="delivered_filter" domain="[('state','=','delivered')]"/>
+                    <filter string="Abandonadas" name="abandoned_filter" domain="[('state','=','abandoned')]"/>
+                    <filter string="Desechadas" name="desechada_filter" domain="[('state','=','desechada')]"/>
+                    <filter string="Canceladas" name="canceled_filter" domain="[('state','=','canceled')]"/>
+                    <group>
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="action_aff_aircraft" model="ir.actions.act_window">            
+            <field name="name">Aeronaves</field>
+            <field name="res_model">aff.aircraf</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+            <field name="domain" eval="[]"/>
+        </record>
+
+</odoo>

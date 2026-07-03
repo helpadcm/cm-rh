@@ -315,7 +315,6 @@ class HrPayslipBonus(models.Model):
         return True
 
     def _generate_pdf(self):
-        print ("#####################################")
         mapped_reports = self._get_pdf_reports()
         attachments_vals_list = []
         generic_name = _("Payslip")
