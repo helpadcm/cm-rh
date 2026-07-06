@@ -4,10 +4,10 @@
             <div class="o_mobile_app_page">
                 <div class="container py-5">
                     <div class="mt-6 d-flex flex-column align-items-start gap-3">
-                        <a href="https://play.google.com/store/apps/details?id=it.rortos.realflightsimulator&amp;pcampaignid=web_share" class="store-btn">
+                        <a href="https://play.google.com/store/apps/details?id=com.cmairlines.app" class="store-btn">
                             <img src="/cm_newsletter/static/src/img/playstore.png"/>
                         </a>
-                        <a href="https://apps.apple.com/es/story/id1895109378" class="store-btn">
+                        <a href="https://apps.apple.com/hn/app/cm-airlines/id6755574572 " class="store-btn">
                             <img src="/cm_newsletter/static/src/img/appstore.png"/>
                         </a>
                     </div>
