@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_turn_work_teams" model="ir.ui.view">
+        <field name="name">turn.work.teams.form</field>
+        <field name="model">hr.work.teams</field>
+        <field name="arch" type="xml">
+            <form string="Equipos de trabajo">
+                <sheet>
+                    <h1>
+                        <field name="name" required="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="leader_id" options="{'no_create': True}" required="1" widget="many2one_avatar_employee"/>
+                            <field name="send_email" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id" options="{'no_create': True}" required="1" widget="many2one_avatar_employee"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Miembros de equipo">
+                            <field name="member_employees_ids">
+                                <list editable="bottom">
+                                    <field name="employee_id" options="{'no_create': True}"/>
+                                    <field name="job_id" readonly="1" force_save="1" options="{'no_open': True}"/>
+                                    <field name="template_id" options="{'no_create': True}"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_teams_work_search" model="ir.ui.view">
+        <field name="name">hr.teams.work.search</field>
+        <field name="model">hr.work.teams</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda Equipos">
+                <field name="name"/>
+                <filter string="Inactivo" name="active_filter" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+    
+    <record id="view_turn_eork_teams_tree" model="ir.ui.view">
+        <field name="name">hr.work.teams.tree</field>
+        <field name="model">hr.work.teams</field>
+        <field name="arch" type="xml">
+            <list string="Registro de Asistencias">
+                <field name="name"/>
+                <field name="leader_id" widget="many2one_avatar_user"/>
+                <field name="responsible_id" widget="many2one_avatar_user"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_turn_work_teams" model="ir.actions.act_window">
+        <field name="name">Equipos de trabajo</field>
+        <field name="res_model">hr.work.teams</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

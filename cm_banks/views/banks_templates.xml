@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+  		<record model="ir.ui.view" id="view_banks_templates_form">
+            <field name="name">banks.templates.form</field>
+            <field name="model">banks.template</field>
+            <field name="arch" type="xml">
+				<form string="Plantilla Bancaria" create="true">
+					<header>
+						<button name="%(cm_banks.banks_doc_id_select_action)d" type='action' string='Seleccionar Documento' invisible="context.get('hide_buttons') in (True,1)"/>
+					</header>
+					<sheet>
+						<group> 
+							<group>
+								<field name="name"/>
+								<field name="doc_id" readonly="1" invisible="context.get('hide_buttons') in (True,1)"/>
+							</group>
+							<group>
+								<field name="doc_type" readonly="1" invisible="context.get('hide_buttons') in (True,1)"/>
+							</group>
+						</group> 
+					</sheet>
+			 	</form>
+            </field>
+        </record>
+
+	 	<record model="ir.ui.view" id="view_banks_templates_tree">
+            <field name="name">banks.template.tree</field>
+            <field name="model">banks.template</field>
+            <field name="arch" type="xml">
+                <list string="Templates" create="true">  	
+					<field name="name" colspan="2"/>
+					<field name="doc_type" colspan="2"/>
+                </list>
+            </field>
+        </record>
+	
+		<record id="banks_template_action" model="ir.actions.act_window">
+			<field name="name">Plantillas</field>
+			<field name="res_model">banks.template</field>
+			<field name="view_mode">list,form</field>
+			<field name="domain">[]</field>
+			<field name="help" type="html">
+				<p class="oe_view_nocontent_create">
+				Click to add a new mcheck.
+				</p>
+				<p>
+				With just a quick glance on the Odoo Templates screen, you
+				can easily find all the information about your each day templates;					
+				</p>
+			</field>
+		</record>
+
+    </data>
+</odoo>

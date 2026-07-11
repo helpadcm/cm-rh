@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem 
+        id="main_menu_retention" 
+        name="Retenciones" 
+        sequence="4" 
+        parent="accountant.menu_accounting"
+        groups="group_retention"
+    />
+    <menuitem 
+        id="action_retentions" 
+        name="Retenciones" 
+        sequence="1" 
+        parent="main_menu_retention" 
+        action="retentions_form_view_action" 
+        groups="group_retention"
+        
+    />
+    <menuitem 
+        id="retentions_menuitem" 
+        name="Reporte de retenciones"
+        parent="main_menu_retention"
+        action="action_wizard_retentions_menu"
+        groups="grp_ret_print"
+        sequence="5"
+        />
+
+    <menuitem id="wizard_retentions_menuitem" 
+        name="Retenciones"
+        parent="account.menu_finance_reports"
+        action="action_retentions_menu"
+        sequence="1"
+        groups="grp_ret_print"
+        />
+</odoo>

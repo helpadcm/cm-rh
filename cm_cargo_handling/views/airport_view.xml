@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="cargo_airport_tree_view" model="ir.ui.view">
+            <field name="name">Lista de CTIS</field>
+            <field name="model">cargo.airport</field>
+            <field name="arch" type="xml">
+                <list string="Ctis" editable="bottom">
+                    <field name="name" />
+                    <field name="ref" />
+                    <field name="city" />
+                    <field name="cargo_manifest_sequence_id" />
+                    <field name="valid_destinations" options="{'no_create':True}" widget="many2many_tags"/>
+                    <field name="color" widget="color"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="cargo_manifest_dashboard_kanban_view" model="ir.ui.view">
+            <field name="name">cargo.manifest.kanban</field>
+            <field name="model">cargo.airport</field>
+            <field name="arch" type="xml">
+                <kanban 
+                    highlight_color="color"
+                    disable_open="1"
+                    create = "false"
+                    quick_create="0"
+                    records_draggable="0"
+                    js_class="payslip_run_kanban"
+                    group_create="false">
+                    <field name="id"/>
+                    <field name="name"/>
+                    <field name="color"/>
+                    <field name="kanban_dashboard"/>
+                    <field name="to_send"/>
+                    <field name="to_receive"/>
+                    <templates>
+                        <t t-name="menu" class="d-flex flex-column">
+                            <button type="object" name="action_create_new" class="btn btn-primary btn-sm">
+                                <span><h4>Nuevo Manifiesto</h4></span>
+                            </button>
+                        </t>
+                        <t t-name="card" class="o_payrun_card o_kanban_no_open gap-4 w-100 px-3 py-1 d-grid justify-items-center align-items-center align-content-center mb-3">
+                            <div class="o_cell d-flex flex-column o_payrun_info">
+                                <div class="fs-2">
+                                    <h2><field name="name"/></h2>
+                                </div>
+                                <div class="small fw-medium d-flex gap-2 align-items-center">
+                                    <span>
+                                        <field name="city"/>
+                                        <i class="oi oi-arrow-right px-2"></i>
+                                        <field name="ref"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="o_cell o_payrun_cost">
+                                <button type="object"
+                                        name="action_view_to_send"
+                                        class="btn btn-link p-0 text-decoration-none d-flex flex-column align-items-center">
+                                    <div class="fs-2">
+                                        <field name="to_send"/>
+                                    </div>
+                                    <div class="small fw-medium">
+                                        Para Enviar
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="o_cell o_payrun_cost">
+                                <button type="object"
+                                        name="action_view_to_receive"
+                                        class="btn btn-link p-0 text-decoration-none d-flex flex-column align-items-center">
+                                    <div class="fs-2">
+                                        <field name="to_receive"/>
+                                    </div>
+                                    <div class="small fw-medium">
+                                        Para Recibir
+                                    </div>
+                                </button>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="action_cargo_airport_object" model="ir.actions.act_window">            
+            <field name="name">CTIS</field>
+            <field name="res_model">cargo.airport</field>
+            <field name="view_mode">list</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+
+        <record id="cargo_manifest_dashboard_kanban" model="ir.actions.act_window">
+            <field name="name">Tablero de Manifiestos de carga</field>
+            <field name="res_model">cargo.airport</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="usage">menu</field>
+            <field name="context">{}</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p>
+                    Este es un tablero de manifiestos
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

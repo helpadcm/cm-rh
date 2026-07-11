@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_schedules_tree" model="ir.ui.view">
+        <field name="name">hr.options.schedules.tree</field>
+        <field name="model">hr.options.schedules</field>
+        <field name="arch" type="xml">
+            <list string="Horarios" editable="bottom">
+                <field name="name"/>
+                <field name="alphabetical"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_turn_types_tree" model="ir.ui.view">
+        <field name="name">hr.turn.types.tree</field>
+        <field name="model">hr.turn.types</field>
+        <field name="arch" type="xml">
+            <list string="Tipos" editable="bottom">
+                <field name="name" required="1"/>
+                <field name="opt_turn"/>
+                <field name="code"/>
+                <field name="default_turn"/>
+                <field name="color" widget="color"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_schedules_options" model="ir.actions.act_window">
+        <field name="name">Horarios de trabajo</field>
+        <field name="res_model">hr.options.schedules</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_turn_types" model="ir.actions.act_window">
+        <field name="name">Tipos de Turno</field>
+        <field name="res_model">hr.turn.types</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

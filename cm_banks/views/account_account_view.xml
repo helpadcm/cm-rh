@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<!-- <record id="view_bank_res_company_form_reconciliation" model="ir.ui.view">
+			<field name="name">res.company_inherit_banks</field>
+			<field name="model">res.company</field>
+			<field name="inherit_id" ref="base.view_company_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='currency_id']" position="after" >
+					<field name="ilc_permit"/>
+				</xpath>
+			</field>
+		</record> -->
+		
+		<record id="view_bank_account_account_form_reconciliation" model="ir.ui.view">
+			<field name="name">account_account_inherit_banks</field>
+			<field name="model">account.account</field>
+			<field name="inherit_id" ref="account.view_account_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='group_id']" position="after" >
+					<field name="use_4_retention" />
+					<field name="tax_description" invisible="use_4_retention != True" />
+				</xpath>
+			</field>
+		</record>
+	</data>
+</odoo>

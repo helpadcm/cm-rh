@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+	    <record id="sequence_client_account" model="ir.sequence">
+            <field name="name">Sequence Client Account</field>
+            <field name="code">client.account.cargo</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">CE-</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="sequence_sale_order_handling" model="ir.sequence">
+            <field name="name">Sequence Sale Order Handling</field>
+            <field name="code">sale.order.handling.seq</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">OV</field>
+            <field name="padding">6</field>
+        </record>
+
+        <record id="sequence_guide_group_handling" model="ir.sequence">
+            <field name="name">Sequence Guide Groups</field>
+            <field name="code">guide.groups.invoice</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">IGG-</field>
+            <field name="padding">6</field>
+        </record>
+
+        <record id="sequence_tracking_bill" model="ir.sequence">
+            <field name="name">Sequence tracking bill</field>
+            <field name="code">cargo.bill.tracking</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">%(y)s%(month)s-</field>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>

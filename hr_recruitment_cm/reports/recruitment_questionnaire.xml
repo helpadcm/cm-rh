@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="recruitment_questionnaire_format_cm">
+        <t t-call="web.html_container">
+            <head>
+                <meta charset="utf-8"/>
+            </head>
+            <t t-foreach="docs" t-as="o">
+                <style>
+                    table{
+                        width:100%;
+                        border-collapse: collapse;
+                    }
+
+                    td{
+                        text-align:center;
+                        border:1px solid #9F9FA9;
+                        padding:3px;
+                        font-size:15px
+                    }
+
+                    .answer{
+                        background-color: #F5F5F4
+                    }
+                </style>
+                <div class="page">
+                    <body>
+                        <table style="width:100%">
+                            <thead>
+                                <tr>
+                                    <td style="width:20%;border:0px" rowspan="3">
+                                        <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height: 100px;" alt="Logo"/>
+                                    </td>
+                                    <td style="text-align:center;font-size:15px;border:0px">Cuestionario de reclutamiento y selección</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center;font-size:15px;border:0px">DATOS GENERALES</td>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <table style="width:100%;margin-top:2%">
+                            <tr>
+                                <td style="">Plaza de su interés</td>
+                                <td style="">Nombre completo</td>
+                                <td style="">Numero de identidad</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><span t-field="o.job_id"/></td>
+                                <td style="" class="answer"><span t-field="o.partner_name"/></td>
+                                <td style="" class="answer"><span t-field="o.identity"/></td>
+                            </tr>
+                            <tr>
+                                <td style="" colspan="2"><strong>Aspiración salarial (Especificar en números) - Negociable (SI / NO)</strong></td>
+                                <td style="">Disponibilidad Inmediata (SI / NO)</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer" colspan="2"><span t-esc="'{:,.2f}'.format(o.salary_expected)"/> <t t-if="o.negotiable">(Negociable)</t> <t t-if="not o.negotiable">(No negociable)</t></td>
+                                <td style="" class="answer"><t t-if="o.immediate_availability">SI</t> <t t-if="not o.immediate_availability">NO</t></td>
+                            </tr>
+                            <tr>
+                                <td style="">Fecha de nacimiento</td>
+                                <td style="">Edad</td>
+                                <td style="">Estado Civil</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><span t-field="o.birthday"/></td>
+                                <td style="" class="answer"><span t-field="o.age"/></td>
+                                <td style="" class="answer"><span t-field="o.marital_status"/></td>
+                            </tr>
+                            <tr>
+                                <td style="">No. Celular</td>
+                                <td style="">Correo electrónico</td>
+                                <td style="">Hijo (s) género y edad</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><span t-field="o.partner_phone"/></td>
+                                <td style="" class="answer"><span t-field="o.email_from"/></td>
+                                <td style="" class="answer"><span t-field="o.children"/></td>
+                            </tr>
+                            <tr>
+                                <td style="">Nivel académico (graduado)</td>
+                                <td style="">Colegio / Universidad y año de graduación</td>
+                                <td style="">Nombre de la carrera</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><span t-field="o.academic_level"/></td>
+                                <td style="" class="answer"><span t-field="o.last_institute"/> <span t-field="o.graduation_year"/></td>
+                                <td style="" class="answer"><span t-field="o.career_name"/></td>
+                            </tr>
+                            <tr>
+                                <td style="">Actualmente estudia (SI / NO)</td>
+                                <td style="">En que Colegio o Universidad</td>
+                                <td style="">Carrera y promedio cursado</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><t t-if="o.currently_studying">SI</t> <t t-if="not o.currently_studying">NO</t></td>
+                                <td style="" class="answer"><span t-field="o.current_institute"/></td>
+                                <td style="" class="answer"><span t-field="o.career_promedy"/></td>
+                            </tr>
+                            <tr>
+                                <td style="">Nivel de ingles</td>
+                                <td style="">Vehiculo propio</td>
+                                <td style="">Cuenta con</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><span t-field="o.english_level"/></td>
+                                <td style="" class="answer"><span t-field="o.own_vehicle"/></td>
+                                <td style="" class="answer"><span t-field="o.has_with"/></td>
+                            </tr>
+                            <tr>
+                                <td style=""><strong>Tiene disponibilidad para viajar (SI / NO)</strong></td>
+                                <td style="">Nivel de Excel</td>
+                                <td style="">Tiene alguna relación financiera con el banco BANPAIS (SI / NO)</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer"><t t-if="o.availability_travel">SI</t> <t t-if="not o.availability_travel">NO</t></td>
+                                <td style="" class="answer"><span t-field="o.excel_level"/></td>
+                                <td style="" class="answer"><t t-if="o.banpais_relation">SI</t> <t t-if="not o.banpais_relation">NO</t></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left" colspan="3">Dirección completa incluya la ciudad:</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left" class="answer" colspan="3"><span t-field="o.address"/> <span t-field="o.city"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;font-size:15px;border:0px;padding-top:30px" colspan="3">CUESTIONARIO</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:10px" colspan="3">1. Experiencia laboral: <strong>empresa, puesto, tiempo laborado y salario.</strong> inicie con el más reciente.</td>
+                            </tr>
+                            <t t-foreach="o.laboral_history_ids" t-as="hist">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Empresa:</strong> <span t-field="hist.company_name"/>,
+                                        <strong>Puesto:</strong> <span t-field="hist.position_name"/>,
+                                        <strong>Tiempo Laborado:</strong> <span t-field="hist.time_worked"/>,
+                                        <strong>Salario:</strong> <span t-esc="'{:,.2f}'.format(hist.salary)"/></td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">2. ¿Cuál fue la razón por la cual dejo sus trabajos anteriores? Empresa y razón.</td>
+                            </tr>
+                            <t t-foreach="o.laboral_history_ids" t-as="hist">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Motivo:</strong> <span t-field="hist.reason"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">3. ¿Cuáles fueron las principales funciones que desempeño en sus trabajos anteriores? Empresa y funciones.</td>
+                            </tr>
+                            <t t-foreach="o.laboral_history_ids" t-as="hist">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Funciones:</strong> <span t-field="hist.functions"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">4. ¿Qué es lo que más le ha gustado de los trabajos anteriores? </td>
+                            </tr>
+                            <t t-foreach="o.laboral_history_ids" t-as="hist">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <span t-field="hist.tastes"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">5. ¿Qué es lo que menos le ha gustado de los trabajos anteriores?</td>
+                            </tr>
+                            <t t-foreach="o.laboral_history_ids" t-as="hist">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <span t-field="hist.no_tastes"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">6. ¿Desde cuándo esta sin empleo y por qué?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.unemployed"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">7. ¿Qué conocimientos tiene del puesto que solicita?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.knowledge_position"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">8. ¿Cuál es su expectativa en CM Airlines?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.expectatives"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">9. ¿Experiencia en otras aéreas?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.experience"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">10. ¿Cuál es su situación económica actual con el banco BANPAÍS?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.banpais_situation"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">11. Relaciones con ex-colaboradores y/o colabores de la empresa CM Airlines</td>
+                            </tr>
+                            <t t-foreach="o.relations_ids" t-as="rel">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Nombre:</strong> <span t-field="rel.name"/>,
+                                        <strong>Parentesco:</strong> <span t-field="rel.relationship"/>,
+                                        <strong>Trabaja actualmente:</strong> <t t-if="rel.currently_work">SI</t><t t-if="not rel.currently_work">NO</t>,
+                                        <strong>Sucursal:</strong> <span t-field="rel.branch"/>,
+                                        <strong>Departamento:</strong> <span t-field="rel.department"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">12. ¿Tiene experiencia en el manejo de personal, y cuantas personas?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.personal_experience"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">13. ¿Padece o ha padecido de alguna enfermedad?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><t t-if="o.disease">SI</t><t t-if="not o.disease">NO</t></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">14. ¿Qué otras responsabilidades tienen aparte de trabajar?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.other_responsabilities"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">15. ¿Qué hace en su tiempo libre?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.free_time"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">16. ¿Con quién vive?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.with_life"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">17. ¿Cuáles son sus planes a mediano y largo plazo?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.plans"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3"><strong>Referencias LABORALES:</strong> nombre, empresa, puesto, número de teléfono o celular</td>
+                            </tr>
+                            <t t-foreach="o.laboral_reference_ids" t-as="ref">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Nombre:</strong> <span t-field="ref.name"/>,
+                                        <strong>Empresa:</strong> <span t-field="ref.company"/>,
+                                        <strong>Puesto:</strong> <span t-field="ref.position"/>,
+                                        <strong>Telefono:</strong> <span t-field="ref.phone"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3"><strong>Referencias PERSONALES:</strong> nombre, parentesco (pueden ser familiares o amistades), número de teléfono o celular, donde trabaja dicha persona</td>
+                            </tr>
+                            <t t-foreach="o.personal_reference_ids" t-as="ref">
+                                <tr>
+                                    <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                        <strong>Nombre:</strong> <span t-field="ref.name"/>,
+                                        <strong>Parentesco:</strong> <span t-field="ref.relationship"/>,
+                                        <strong>Telefono:</strong> <span t-field="ref.phone"/>,
+                                        <strong>Empresa:</strong> <span t-field="ref.company"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </body>
+                </div>
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div> 
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

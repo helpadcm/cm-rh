@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="cargo_airport_rel_form_view" model="ir.ui.view">
+            <field name="name">Relacion CTIPAIR</field>
+            <field name="model">cargo.airport.airport.rel</field>
+            <field name="arch" type="xml">
+                <form string="Relacion entre CTIPAIR">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="origin_id" required='1'/>
+                                <field name="kilometers" required='1' />
+                            </group>
+                            <group>
+                                <field name="destination_id" required='1' />
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Calculos">
+                                <field name='calculation_ids' required='1'>
+                                    <list string='Calculations'>
+                                        <field name="type_cargo" required='1' />
+                                        <field name="options" />
+                                        <field name="type" required='1' />
+                                        <field name="include_km" required='1' invisible="type == 'fixed_value'" />
+                                        <field name="factor_amount"     invisible="type == 'fixed_value'" required="type in ['factor', 'weight_with_grace']" />
+                                        <field name="factor_volumetric" invisible="options != 'is_package'" required="options == 'is_package'" />                                                                
+                                        <field name="fixed_amount"      invisible="type == 'factor'" required="type in ['fixed_value', 'weight_with_grace']" />
+                                        <field name="weight_with_grace"  invisible="type != 'weight_with_grace'" required="type == 'weight_with_grace'"/>
+                                    </list>
+                                    <form string="Calculations">
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="type_cargo" options="{'no_create': True}" required='1' />
+                                                    <field name="options" invisible='1' />
+                                                    <field name="type" required='1' />
+                                                    <field name="minim_weight" required="type in ['factor','weight_with_grace']" invisible="type not in ['factor','weight_with_grace']"/>
+                                                </group>
+                                                
+                                                <group>
+                                                    <field name="include_km" required='1' invisible="type == 'fixed_value'" />
+                                                    <field name="factor_amount"     invisible="type == 'fixed_value'" required="type in ['factor', 'weight_with_grace']" />
+                                                    <field name="factor_volumetric" invisible="options != 'is_package'" required="options == 'is_package'" />
+                                                    <field name="fixed_amount"      invisible="type == 'factor'" required="type == 'fixed_value'" />
+                                                    <field name="weight_with_grace" invisible="type != 'weight_with_grace'"/>
+                                                </group>
+                                            
+                                            </group>
+                                        
+                                        </sheet>
+                                    </form>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="cargo_airport_rel_tree_view" model="ir.ui.view">
+            <field name="name">Relacion CTIPAIR</field>
+            <field name="model">cargo.airport.airport.rel</field>
+            <field name="arch" type="xml">
+                <list string="Relacion entre CTIPAIR">
+                    <field name="name" />
+                    <field name="origin_id" />
+                    <field name="destination_id" />
+                    <field name="kilometers" />
+                </list>
+            </field>
+        </record>
+
+        <record id="ctipair_search_view" model="ir.ui.view">
+            <field name="name">CTIPAIR search</field>
+            <field name="model">cargo.airport.airport.rel</field>
+            <field name="arch" type="xml">
+                <search string="CTIPAIR">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <group>
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_cargo_airport_rel_object" model="ir.actions.act_window">            
+            <field name="name">Relacion CTIPAIR</field>
+            <field name="res_model">cargo.airport.airport.rel</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+
+</odoo>

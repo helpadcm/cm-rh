@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_get_markings" model="ir.ui.view">
+        <field name="name">get.markings.form</field>
+        <field name="model">hr.get.markings</field>
+        <field name="arch" type="xml">
+            <form string="Obtener Marcajes">
+                <group>
+                    <group >
+                        <field name="date"/>
+                        <field name="option_form" required="1"/>
+                    </group>                
+                    <group >
+                        <field name="employee_id" options="{'no_create': True}"/>
+                    </group>                    
+                </group>
+                <footer>
+                    <button string="Obtener" name="get_info_options" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_get_markings" model="ir.actions.act_window">
+        <field name="name">Obtener Marcajes</field>
+        <field name="res_model">hr.get.markings</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_get_markings"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

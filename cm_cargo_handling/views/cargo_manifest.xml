@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="cargo_manifest_form_view" model="ir.ui.view">
+            <field name="name">Cargo manifest form</field>
+            <field name="model">cargo.manifest</field>
+            <field name="arch" type="xml">
+                <form string="Manifiesto de Carga">
+                    <header>
+                        <button name="send" type="object" string="Enviar" class="oe_highlight" invisible="state != 'draft'" confirm="¿Esta seguro de querer enviar este manifiesto?"/>
+                        <button name="%(action_wizard_receive_cargo_manifest)d" class="oe_highlight" type="action" invisible="state != 'sent'" string="Recibir"/>
+                        <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':False}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_add" string="Agregar Guia de Carga"/>
+                        <button name="%(action_wizard_modify_cargo_manifest)d" context="{'remove_bill_landing':True}" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_remove" string="Remover Guia de Carga"/>
+                        <button name="%(action_wizard_cancel_cargo_manifest)d" type="action" invisible="state != 'sent'" groups="cm_cargo_handling.group_cargo_manifest_cancel" string="Cancelar"/>
+                        <!-- <button name="print_abandonment_report" type="object" string="Imprimir acta" class="oe_highlight" invisible="not abandoned_guides" groups="cm_cargo_handling.group_guia_cargar_group_reports"/> -->
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="flight" placeholder="Numero de Vuelo"  readonly="state != 'draft'" required="1"/>
+                            </group>
+                            <group>
+                                <field name="name" readonly="1" invisible="state == 'draft'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="ENVIO">
+                                <field name="shipping_date" readonly="state != 'draft'" required="1"/>
+                                <field name="shipping_airport" readonly="state != 'draft'" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}' required="1"/>
+                                <field name="abandoned_guides"/>
+                                <field name="shipping_observations" readonly="state != 'draft'"/>
+                            </group>
+
+                            <group string="RECEPCION">
+                                <field name="reception_date" readonly="state != 'draft'" required="1"/>
+                                <field name="reception_airport" readonly="state != 'draft'" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}' required="1"/>
+                                <field name="reception_observations" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="bill_landing_barcode" readonly="state != 'draft'" invisible="state != 'draft'" default_focus="1"/>
+                            </group>
+                            <group>
+                                <field name="total_weight"/>
+                                <!-- <field name="total_vol_weight"/> -->
+                            </group>
+                        </group>
+                        <group string="Informacion de abandono" invisible="not abandoned_guides" groups="cm_cargo_handling.group_guia_cargar_group_reports">
+                            <group>
+                                <field name="abandoned_date"/>
+                                <field name="abandoned_members"/>
+                            </group>
+                            <group>
+                                <field name="abandoned_place"/>
+                                <field name="abandoned_city"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Guias de Carga">
+                                <field name="cargo_bill_landing_ids" readonly="state != 'draft'">
+                                    <list string="Cargo bills" create="false" edit="false" editable="bottom">
+                                        <field name="bill_landing_id" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}' />
+                                        <field name="modality"/>
+                                        <field name="sender_name"/>
+                                        <field name="weight" sum="Total Peso"/>
+                                        <field name="destination_id"/>
+                                        <field name="description"/>
+                                        <field name="observations"/>
+                                        <!-- <field name="international_number"/> -->
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Bitacora" groups="cm_cargo_handling.group_cargo_manifest_logs">
+                                <field name="cargo_manifest_log_ids" readonly="1">
+                                    <list string="Logs" editable="bottom">
+                                        <field name="date"/>
+                                        <field name="observations"/>
+                                        <field name="bill_landing_ids" widget="many2many_tags"/>
+                                        <field name="type"/>
+                                        <field name="create_uid" string="Realizado por"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter reload_on_attachment="True"/>
+                </form>
+
+            </field>
+        </record>
+
+        <record id="cargo_manifest_tree_view" model="ir.ui.view">
+            <field name="name">Lista de Manifiestos</field>
+            <field name="model">cargo.manifest</field>
+            <field name="arch" type="xml">
+                <list string="Lista de Manifiestos">
+                    <field name="name"/>
+                    <field name="flight"/>
+                    <field name="shipping_date"/>
+                    <field name="reception_date"/>
+                    <field name="shipping_airport"/>
+                    <field name="reception_airport"/>
+                    <field name="total_weight"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="cargo_manifest_search_view" model="ir.ui.view">
+            <field name="name">Cargo manifest search</field>
+            <field name="model">cargo.manifest</field>
+            <field name="arch" type="xml">
+                <search string="Manifiesto de Carga">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="shipping_airport" operator="child_of"/>
+                    <field name="reception_airport" operator="child_of"/>
+                    <filter name="to_sent" string="Para Enviar" domain="[('state','=','draft')]"/>
+                    <filter name="to_receive" string="Para Recibir" domain="[('state','=','sent')]"/>
+                    <filter name="cancelled" string="Cancelado" domain="[('state','=','cancelled')]"/>
+                    <group>
+                        <filter name="state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="shipping_airport" string="CTI de Envio" domain="[]" context="{'group_by':'shipping_airport'}"/>
+                        <filter name="reception_airport" string="CTI de Recepcion" domain="[]" context="{'group_by':'reception_airport'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_cargo_manifest" model="ir.actions.act_window">            
+            <field name="name">Manifiesto de Carga</field>
+            <field name="res_model">cargo.manifest</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>  
+            <field name="domain">[]</field>
+        </record>
+        
+</odoo>

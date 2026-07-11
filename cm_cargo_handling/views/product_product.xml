@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="cargo_product_template_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo product template</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Encomiendas">
+                        <group col="3">
+                            <group>
+                                <field name="for_cargo"/>
+                                <field name="type_cargo" options="{'no_create': True}" invisible="not for_cargo"/>
+                                <field name="modality" options="{'no_create': True}" invisible="not for_cargo"/>
+                                <field name="for_recargo" invisible="1"/>
+                            </group>
+                            <group invisible="not for_cargo">
+                                <field name="rute_ids" widget="many2many_tags" options="{'no_create': True}" invisible="not for_cargo"/>
+                                <field name="price" invisible="not for_cargo"/>
+                                <field name="qty_min" invisible="not for_cargo"/>
+                                <field name="price_qty_min" invisible="not for_cargo"/>
+                            </group>
+                            <group>
+                                <field name="by_size" invisible="not for_cargo"/>
+                                <field name="little_amount" invisible="not by_size"/>
+                                <field name="big_amount" invisible="not by_size"/>
+                            </group>
+                        </group>
+                        <button name="add_values" type="object" string="Agregar Rutas/Montos" class="oe_highlight" invisible="not for_cargo"/>
+                        <notebook>
+                            <page string="Lista de precios" invisible="not for_cargo">
+                                <field name="price_list_ids" invisible="not for_cargo">
+                                    <list editable="bottom">
+                                        <field name="rute_id" />
+                                        <field name="price" />
+                                        <field name="min_price" />
+                                        <field name="qty_min" />
+                                        <field name="currency_id" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="action_product_handling" model="ir.actions.act_window">            
+            <field name="name">Productos</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{'default_for_cargo': True}</field>         
+            <field name="domain" eval="[('for_cargo','=',True)]"/>
+        </record>
+</odoo>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="report_ticket_report_ticket" model="ir.actions.report">
+		<field name="name">Boletos</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.report_ticket</field>
+		<field name="report_file">cm_reports.report_ticket</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_order"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+	</record>
+
+	<record id="report_accounting_seat" model="ir.actions.report">
+		<field name="name">Asiento Contable</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.accounting_seat</field>
+		<field name="report_file">cm_reports.accounting_seat</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_accounting_seat"/>
+		<field name="binding_model_id" ref="account.model_account_move"/>
+	</record>
+
+	<record id="report_invoice_export_general_invoice" model="ir.actions.report">
+		<field name="name">Reporte de Facturas</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.general_invoice</field>
+		<field name="report_file">cm_reports.general_invoice</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_general_invoice"/>
+		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
+	</record>
+
+	<record id="account_status_report_account_status" model="ir.actions.report">
+		<field name="name">Estado de Cuenta</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.report_account_status</field>
+		<field name="report_file">cm_reports.report_account_status</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_accounting_seat"/>
+		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
+	</record>
+
+	<record id="report_check_check_list" model="ir.actions.report">
+		<field name="name">Reporte de Cheques</field>
+		<field name="model">account.move</field>
+		<field name="report_type">qweb-pdf</field>
+		<field name="report_name">cm_reports.report_check_list</field>
+		<field name="report_file">cm_reports.report_check_list</field>
+		<field name="binding_type">report</field>
+		<field name="paperformat_id" ref="cm_reports.paperformat_check_list"/>
+		<!-- <field name="binding_model_id" ref="account.model_account_move"/> -->
+	</record>
+
+	<record id="report_invoice_export_general_invoice_xls" model="ir.actions.report">
+		<field name="name">Reporte de Facturas XLSX</field>
+		<field name="model">account.move</field>
+		<field name="report_type">xlsx</field>
+		<field name="report_name">cm_reports.general_invoice_xls</field>
+		<field name="report_file">cm_reports.general_invoice_xls</field>
+	</record>
+
+	<record id="report_check_check_list_xls" model="ir.actions.report">
+		<field name="name">Listado de Cheques XLS</field>
+		<field name="model">account.move</field>
+		<field name="report_type">xlsx</field>
+		<field name="report_name">cm_reports.check_list_xls</field>
+		<field name="report_file">cm_reports.check_list_xls</field>
+	</record>
+
+	<record id="report_account_status_xls" model="ir.actions.report">
+		<field name="name">Estado de Cuenta XLS</field>
+		<field name="model">account.move</field>
+		<field name="report_type">xlsx</field>
+		<field name="report_name">cm_reports.account_status_xls</field>
+		<field name="report_file">cm_reports.account_status_xls</field>
+	</record>
+</odoo>

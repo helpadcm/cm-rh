@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <record model="ir.ui.view" id="config_cai_sequence">
+        <field name="name">ir.sequence.sar.view.form.inh</field>
+            <field name="model">ir.sequence</field>
+            <field name="inherit_id" ref="base.sequence_view" />
+            <field name="arch" type="xml">
+                <field name="active" position="after">
+                    <field name="is_fiscal_sequence"/> 
+                </field>
+                <notebook position="inside">
+                    <page string="Registros CAI" invisible="is_fiscal_sequence != True">
+                        <group col="2" colspan="2">           
+                            <separator string="Fiscal Sequences" colspan="2"/>
+                            <group>
+                                <field name="expiration_date"/>
+                                <field name="dis_min_value" />
+                                <field name="dis_max_value"/>
+                                <field name="vitt_number_next_actual"/>
+                            </group>
+                            <group>
+                                <field name="max_value"/>
+                                <field name="l_prefix"/>
+                                <field name="vitt_padding"/>
+                                <spearator string="Alerts" colspan="2"/>
+                                <field name="percentage_alert"/>
+                                <field name="percentage" widget="progressbar"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Registros de CAI">
+                                <field name="cai_ids" >
+                                    <list editable="top">
+                                        <field name="cai_id"/>
+                                        <field name="number_from"/>
+                                        <field name="number_to"/>
+                                        <field name="selected"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="cm_planning_view_form_inherit" model="ir.ui.view">
+    <!-- <record id="cm_planning_view_form_inherit" model="ir.ui.view">
         <field name="name">planning.slot.form.inherit</field>
         <field name="model">planning.slot</field>
         <field name="inherit_id" ref="planning.planning_view_form"/>
@@ -45,9 +45,9 @@
                     planning_cm.group_cm_supervisor</attribute>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
-    <record id="planning_view_form_in_gant_inherit" model="ir.ui.view">
+    <!-- <record id="planning_view_form_in_gant_inherit" model="ir.ui.view">
         <field name="name">planning.slot.gantt.inherit</field>
         <field name="model">planning.slot</field>
         <field name="inherit_id" ref="planning.planning_view_form_in_gantt"/>
@@ -77,24 +77,24 @@
                     planning_cm.group_cm_supervisor</attribute>
             </xpath>
         </field>
-    </record>
+    </record> -->
 
-    <record id="planning.model_planning_slot_action_reset_to_draft"
+    <!-- <record id="planning.model_planning_slot_action_reset_to_draft"
             model="ir.actions.server">
         <field name="groups_id"
                eval="[(4, ref('planning_cm.group_cm_supervisor'))]"/>
-    </record>
+    </record> -->
 
     <record id="planning_role_view_tree_inherit" model="ir.ui.view">
         <field name="name">planning.role.tree.inherit</field>
         <field name="model">planning.role</field>
         <field name="inherit_id" ref="planning.planning_role_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='name']" position="after">
+            <xpath expr="//list/field[@name='name']" position="after">
                 <field name="department_id"/>
                 <field name="work_entry_type_id"/>
             </xpath>
-            <xpath expr="//tree/field[@name='color']"
+            <xpath expr="//list/field[@name='color']"
                    position="after">
                 <field name="cm_color"/>
             </xpath>
@@ -106,15 +106,11 @@
         <field name="model">planning.role</field>
         <field name="inherit_id" ref="planning.planning_role_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet/group/field[@name='name']"
-                   position="after">
+            <field name="name" position="after">
                 <field name="department_id"/>
                 <field name="work_entry_type_id"/>
-            </xpath>
-            <xpath expr="//form/sheet/group/field[@name='color']"
-                   position="after">
                 <field name="cm_color"/>
-            </xpath>
+            </field>
         </field>
     </record>
 </odoo>

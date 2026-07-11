@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+		<record model="ir.ui.view" id="cm_view_account_payment_invoices_form_inherit">
+			<field name="name">account.payment.invoices.inherit</field>
+			<field name="model">account.payment.register</field>
+			<field name="inherit_id" ref="account.view_account_payment_register_form"/>
+			<field name="arch" type="xml">
+				<field name="line_ids" position="replace">
+					<h1><field name="next_number" readonly="1" force_save="1"/></h1>
+				</field>
+
+				<group name="group1" position="replace">
+					<group name="group1">
+						<field name="journal_id" options="{'no_open': True, 'no_create': True}" required="1"/>
+						<field name="pay_method_type" invisible="partner_type == 'customer'"/>
+						<field name="payment_method_line_id"
+								context="{'hide_payment_journal_id': 1}"
+								invisible="1"
+								required="1"  options="{'no_create': True, 'no_open': True}"/>
+						<field name="analytic_account_id" invisible="journal_id == False or partner_type == 'customer'" options="{'no_quick_create':True,'no_create_edit':True,'no_open':True}" groups="analytic.group_analytic_accounting"/>
+						<!-- <field name="partner_bank_id"
+								invisible="not show_partner_bank_account or not can_edit_wizard or (can_group_payments and not group_payment)"
+								readonly="payment_type == 'inbound'"
+								required="require_partner_bank_account and can_edit_wizard and (not can_group_payments or not group_payment)"
+								placeholder="Account Number"
+								context="{'display_account_trust': True, 'default_partner_id': partner_id}"/> -->
+						<field name="partner_bank_id"
+								invisible="1"
+								readonly="payment_type == 'inbound'"
+								required="require_partner_bank_account and can_edit_wizard and (not can_group_payments or not group_payment)"
+								placeholder="Account Number"
+								context="{'display_account_trust': True, 'default_partner_id': partner_id}"/>
+						<field name="group_payment"
+								invisible="not can_group_payments"/>
+						<label for="payment_difference" invisible="payment_difference == 0"/>
+						<div invisible="payment_difference == 0">
+							<field name="payment_difference"/>
+							<field name="payment_difference_handling" widget="radio" nolabel="1" invisible="is_register_payment_on_draft"/>
+							<div class="o_inner_group grid col-lg-12 p-0"
+									invisible="1">
+								<div class="o_wrap_field d-flex d-sm-contents flex-column mb-3 mb-sm-0">
+									<div class="o_cell o_wrap_label text-break text-900">
+										<label for="writeoff_account_id"
+												string="Post Difference In"
+												class="oe_edit_only"/>
+									</div>
+									<div class="o_cell o_wrap_input text-break">
+										<field name="writeoff_account_id"
+												string="Post Difference In"
+												options="{'no_create': True}"
+												required="0"/>
+									</div>
+								</div>
+								<div class="o_wrap_field d-flex d-sm-contents flex-column mb-3 mb-sm-0">
+									<div class="o_cell o_wrap_label text-break text-900">
+										<label for="writeoff_label"
+												class="oe_edit_only"
+												string="Label"
+												invisible="writeoff_is_exchange_account"/>
+									</div>
+									<div class="o_cell o_wrap_input text-break">
+										<field name="writeoff_label"
+												required="0"
+												invisible="writeoff_is_exchange_account"/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</group>
+				</group>
+
+				<xpath expr="//group" position="after">
+					<label for="partner_id"/>
+					<field name="partner_id"/>
+					<notebook>
+						<page string="Lineas de Pago">
+							<field name="line_ids">
+								<list delete="false" create="false">
+									<field name="move_id" readonly="1"/>
+									<field name="account_id" readonly="1"/>
+									<field name="date" readonly="1"/>
+									<field name="date_maturity" readonly="1"/>	
+									<field name="amount_residual" readonly="1"/>
+									<field name="reconciled"/>
+								</list>
+							</field>
+							<field name="payment_line_ids" invisible="1" widget="one2many" context="{'partner':partner_id}">
+								<list string="Lines" editable="bottom" create="false" delete="false">
+									<field name="move_line_id" options="{'no_open': True}" readonly="1" force_save="1"/>
+									<field name="account_id" optional="hide" readonly="1" force_save="1"/>
+									<field name="chqmanalitics" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" string="Analitica"/>
+									<field name="date_original" readonly="1" optional="hide" force_save="1"/>
+									<field name="date_due" optional="hide" readonly="1" force_save="1"/>
+									<field name="currency_id" column_invisible="1"/>
+									<field name="amount_original" readonly="1" force_save="1"/>
+									<field name="amount_unreconcilied" readonly="1" force_save="1"/>
+									<field name="reconcile"/>
+									<field name="amount" force_save="1" readonly="reconcile" sum="Total"/>
+								</list>
+							</field>
+						</page>
+						<page string="Distribuir Saldo" invisible="payment_difference_handling != 'reconcile'">
+							<label for="writeoff_amount" string="Diferencia" />
+							<field name="writeoff_amount" widget="monetary"/>
+							<separator string="Distribucion de cuentas"/>
+							<field name="write_off_lines">
+								<list editable="bottom">
+									<field name="account_id" domain="[('active','=',True)]" options="{'no_create': True}"/>
+									<field name="partner_id" options="{'no_create': True}"/>
+									<field name="analytic_account_id" options="{'no_create': True}"/>
+									<field name="description"/>
+									<field name="currency_id" column_invisible="1"/>
+									<field name="debit"/>
+									<field name="credit"/>
+								</list>
+							</field>
+						</page>
+					</notebook>
+				</xpath>
+			</field>
+		</record>
+    </data>
+</odoo>

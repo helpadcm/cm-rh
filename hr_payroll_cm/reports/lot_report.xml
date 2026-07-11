@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="lot_format_cm">
+        <t t-call="web.html_container">
+            <template>
+                <div class="page" style="page-break-before: always;">
+                    <style>
+                        .td-style{
+                            padding: 5px;
+                            border: 1px solid black;
+                            font-size: 10px
+                        }
+                    </style>
+                    <table style="width:100%;border-collapse:collapse">
+                        <tr>
+                            <td class="td-style"><strong>No</strong></td>
+                            <td class="td-style"><strong>Fecha de Ingreso</strong></td>
+                            <td class="td-style"><strong>ID</strong></td>
+                            <td class="td-style"><strong>N. de cuenta</strong></td>
+                            <td class="td-style"><strong>Empleado</strong></td>
+                            <td class="td-style"><strong>Puesto</strong></td>
+                            <td class="td-style"><strong>Salario Mensual</strong></td>
+                            <td class="td-style"><strong>Salario Quincenal</strong></td>
+                        </tr>
+                        <t t-set="cont" t-value="1"/>
+                        <t t-foreach="docs.get('department_data')" t-as="department">
+                            <t t-foreach="department.get('employees')" t-as="emp">
+                                <tr>
+                                    <td class="td-style"><span t-esc="cont"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('entry_date')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('identity')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('bank_account')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('employee')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('job')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('monthly_salary')"/></td>
+                                    <td class="td-style"><span t-esc="emp.get('salary')"/></td>
+                                </tr>
+                                <t t-set="cont" t-value="cont + 1"/>
+                            </t>
+                            <tr>
+                                <td colspan="8"><span t-esc="department.get('department')"/></td>
+                            </tr>
+                        </t>
+                    </table>
+                </div>
+            </template>
+        </t>
+    </template>
+</odoo>

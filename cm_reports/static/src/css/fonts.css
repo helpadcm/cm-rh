@@ -1,0 +1,9 @@
+@font-face {
+    font-family: "Roboto";
+    src: url(cm_reports/static/src/fonts/Roboto-VariableFont_wdth,wght.ttf);
+}
+
+@font-face {
+    font-family: "DejaVu";
+    src: url(/cm_reports/static/src/fonts/DejaVuSans.ttf);
+}

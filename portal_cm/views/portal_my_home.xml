@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="custom_portal_my_home" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/portal_cm/static/src/img/schedule.png'"/>
+                <t t-set="title">Ingreso de horas de turno</t>
+                <t t-set="text">Ingresar horas trabajadas al dia para calculo de nomina</t>
+                <t t-set="url" t-value="'/turns/record_hours_team'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_absences_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/absent.png'"/>
+                    <t t-set="title">Ausencias</t>
+                    <t t-set="text">Solicitar y ver mis ausencias</t>
+                    <t t-set="url" t-value="'/absences/record_absences_employee'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_reserve_room_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/meeting.png'"/>
+                    <t t-set="title">Reservar Sala</t>
+                    <t t-set="text">Reservar sala de conferencias en oficina principal</t>
+                    <t t-set="url" t-value="'/reserveroom/record_reserve_room'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_download_signature_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/digital_signature.png'"/>
+                    <t t-set="title">Descargar Firma</t>
+                    <t t-set="text">Descargar Firma Digital</t>
+                    <t t-set="url" t-value="'/digitalSignature/downloadSignature'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+            <!-- <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).program_to_fly &gt; 0 and request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
+                    <t t-set="title">Solicitud de Vuelos</t>
+                    <t t-set="text">Programa a volar, Service Charge Positivo, Service Charge Sujeto a Espacio</t>
+                    <t t-set="url" t-value="'/absences/record_program_fly'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t> -->
+
+        </xpath>
+    </template>
+
+    <template id="custom_portal_flight_request" inherit_id="cm_rrhh_management.portal_request_home_cm">
+        <xpath expr="//div[@id='portal_home_request_cm']" position="inside">
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
+                    <t t-set="title">Solicitud de Vuelos</t>
+                    <t t-set="text">Programa a volar, Boleto Sujeto a Espacio, Boleto Espacio Positivo</t>
+                    <t t-set="url" t-value="'/absences/record_program_fly'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>

@@ -7,14 +7,19 @@
             <form string="Branch">
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="code"/>
-                        <field name="company_id"/>
-                        <field name="city_id"/>
-                        <field name="parent_id"/>
-                        <field name="manager_id"/>
-                        <field name="active"/>
-                        <field name="color"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="company_id"/>
+                            <field name="city_id"/>
+                            <field name="exact_address"/>
+                        </group>
+                        <group>
+                            <field name="parent_id"/>
+                            <field name="manager_id"/>
+                            <field name="active"/>
+                            <field name="color"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Child Branches">
@@ -33,14 +38,14 @@
         <field name="name">hr.branch.tree</field>
         <field name="model">hr.branch</field>
         <field name="arch" type="xml">
-            <tree string="Branches">
+            <list string="Branches">
                 <field name="name"/>
                 <field name="code"/>
                 <field name="company_id"/>
                 <field name="city_id"/>
                 <field name="manager_id"/>
                 <field name="active"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -53,7 +58,7 @@
                 <field name="code"/>
                 <field name="company_id"/>
                 <field name="city_id"/>
-                <group expand="1" string="Group By">
+                <group>
                     <filter string="City" name="group_by_city" context="{'group_by':'city_id'}"/>
                 </group>
             </search>
@@ -63,12 +68,12 @@
     <record id="action_hr_branch" model="ir.actions.act_window">
         <field name="name">Branches</field>
         <field name="res_model">hr.branch</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem
             id="menu_hr_branch"
-            name="Branches"
+            name="Sucursales"
             parent="hr.menu_config_employee"
             groups="hr.group_hr_user"
             sequence="90"

@@ -1,0 +1,43 @@
+<odoo>
+    <template id="portal_request_home_cm" name="Menu principal de solicitudes">
+        <t t-call="portal.portal_layout">
+            <div class="tab-content">
+                <div class="o_portal_my_home">
+                    <div class="o_portal_docs row g-2">
+                        <div class="o_portal_doc_spinner spinner-border text-o-color-2 align-self-center mt-5"/>
+                        <p class="o_portal_no_doc_message d-none">No hay nada que mostrar</p>
+                        <div t-if="portal_alert_category_enable" class="o_portal_category row g-2 mt-3" id="portal_alert_category"/>
+                        <div t-if="portal_client_category_enable" class="o_portal_category row g-2 mt-3" id="portal_client_category"/>
+                        <div t-if="portal_service_category_enable" class="o_portal_category row g-2 mt-3" id="portal_service_category"/>
+                        <div t-if="portal_vendor_category_enable" class="o_portal_category row g-2 mt-3" id="portal_vendor_category"/>
+                        <div class="o_portal_category row g-2 mt-3" id="portal_home_request_cm">
+
+                            <!-- <t t-call="portal.portal_docs_entry">
+                                <t t-set="icon" t-value="'/cm_rrhh_management/static/src/img/requests.png'"/>
+                                <t t-set="title">Otras Solicitudes</t>
+                                <t t-set="text">Puede solicitar cotizaciones de hotel</t>
+                                <t t-set="url" t-value="'/requests_cm/other_request_cm'"/>
+                                <t t-set="config_card" t-value="True"/>
+                            </t> -->
+
+                            <t t-call="portal.portal_docs_entry">
+                                <t t-set="icon" t-value="'/cm_rrhh_management/static/src/img/ferry_icon.png'"/>
+                                <t t-set="title">Boletos de Ferry</t>
+                                <t t-set="text">Solicitud de boletos de ferry</t>
+                                <t t-set="url" t-value="'/benefits/record_ferry_request'"/>
+                                <t t-set="config_card" t-value="True"/>
+                            </t>
+                            <t t-call="portal.portal_docs_entry">
+                                <t t-set="icon" t-value="'/cm_rrhh_management/static/src/img/loan_icon.png'"/>
+                                <t t-set="title">Prestamos Internos</t>
+                                <t t-set="text">Puede solicitar su prestamo interno a la empresa</t>
+                                <t t-set="url" t-value="'/requests_cm/loan_request_cm'"/>
+                                <t t-set="config_card" t-value="True"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

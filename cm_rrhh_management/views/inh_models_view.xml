@@ -1,0 +1,25 @@
+<odoo>
+    <record id="hr_department_inherit_rrhh" model="ir.ui.view">
+        <field name="name">hr.department.inherit.rrhh</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <field name="color" position="before">
+                <field name="request_approve_id" options="{'no_create': True}"/>
+                <field name="apply_ranking"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_employee_inherit_rrhh" model="ir.ui.view">
+        <field name="name">hr.employee.inherit.rrhh</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <field name="work_location_id" position="after">
+                <field name="template_id" domain="[('leader_id','=',coach_id)]" options="{'no_create': True}"/>
+                <field name="role_in_loans" />
+            </field>
+        </field>
+    </record>
+</odoo>

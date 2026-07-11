@@ -1,0 +1,466 @@
+<odoo>
+    <template id="portal_employee_absences" name="Ingreso de Horas">
+        <t t-call="portal.portal_layout">
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm p-2 bg-white rounded">
+                <li class="nav-item">
+                    <a class="nav-link active fw-bold" data-bs-toggle="tab" href="#tab1">Solicitar Ausencia</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#tab2">Historial Ausencias</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#tab3">Detalle de Vacaciones</a>
+                </li>
+            </ul>
+
+            <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                <div class="container tab-pane fade show active" id="tab1">
+
+                    <div class="text-center py-4 mb-4 border-bottom">
+                        <h1 class="display-6 fw-bold text-primary">
+                            <i class="fa fa-calendar-times-o me-2"></i>
+                            Solicitud de Ausencias
+                        </h1>
+
+                        <p class="lead text-muted mb-0">
+                            Registre solicitudes de vacaciones, permisos y otras ausencias laborales.
+                        </p>
+                    </div>
+
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_absences/submit" method="POST" class="mt-2" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="card shadow border-0">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-edit me-2"></i>
+                                            Registro de Solicitud
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-list-alt me-1"></i>
+                                                        Tipo de Ausencia
+                                                    </label>
+                                                    <select class="form-control" name="selection_absence_type" id="absence_type" required="required">
+                                                        <t t-foreach="types_absences_ids" t-as="type">
+                                                            <option t-att-value="type.id" t-att-data-opt-code="type.code"><t t-esc="type.name"/></option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12" id="vac_div_id">
+                                                <div class="card border-success shadow-sm mb-3">
+                                                    <div class="card-body text-center">
+
+                                                        <h6 class="text-success">
+                                                            <i class="fa fa-bed" aria-hidden="true"></i>
+                                                            Vacaciones Disponibles
+                                                        </h6>
+
+                                                        <input type="text"
+                                                            disabled="disabled"
+                                                            class="form-control text-center fw-bold"
+                                                            name="record_vacations"
+                                                            id="vacations_id"
+                                                            t-att-value="vacations"/>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12" id="hcomp_div_id">
+                                                <div class="card border-success shadow-sm mb-3">
+                                                    <div class="card-body text-center">
+
+                                                        <h6 class="text-success">
+                                                            <i class="fa fa-bed" aria-hidden="true"></i>
+                                                            Compensatorios Disp.
+                                                        </h6>
+
+                                                        <input type="text"
+                                                            disabled="disabled"
+                                                            class="form-control text-center fw-bold"
+                                                            name="record_comp_days"
+                                                            id="comp_days_id"
+                                                            t-att-value="comp_days"/>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12" id="paid_leave_div_id">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tipo de permiso</label>
+                                                    <select class="form-control" name="selection_paid_leave" id="paid_leave_type">
+                                                        <t t-foreach="paid_leave_ids" t-as="paid_leave">
+                                                            <option t-att-value="paid_leave.id" t-att-data-opt-concept="paid_leave.concept"><t t-esc="paid_leave.name"/></option>
+                                                        </t>
+                                                    </select>
+                                                    <input type="text" name="record_concept" class="form-control" id="concept_paid_leave" disabled="disabled"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6" id="middle_day_div_id">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Medio Día</label>
+                                                    <input type="checkbox" class="form-check-input" name="record_middle_day" id="middle_day"/>
+                                                    <div id="hours_request_checkbox_div"> 
+                                                        <label class="form-label">Por Horas</label>
+                                                        <input type="checkbox" class="form-check-input" name="record_hours" id="hours_request"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="mb-3" id="period_div_id">
+                                                    <label class="form-label">Periodo</label>
+                                                    <select class="form-control" name="selection_period" id="period_time">
+                                                        <option t-att-value="am">Mañana</option>
+                                                        <option t-att-value="pm">Tarde</option>
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3" id="hours_div_id">
+                                                    <label class="form-label">Desde</label>
+                                                    <select id="start_hour_select" name="selected_start_hour" class="form-control">
+                                                        <t t-foreach="hours" t-as="hour">
+                                                            <option t-att-value="hour[0]"><t t-esc="hour[1]"/></option>
+                                                        </t>
+                                                    </select>
+                                                    <label class="form-label">Hasta</label>
+                                                    <select id="end_hour_select" name="selected_end_hour" class="form-control">
+                                                        <t t-foreach="hours" t-as="hour">
+                                                            <option t-att-value="hour[0]"><t t-esc="hour[1]"/></option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-calendar me-1"></i>
+                                                        Fecha Inicial
+                                                    </label>
+                                                    <input class="form-control" type="date" name="initial_date" id="initial_date_id" required="required"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3" id="final_date_div">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-calendar me-1"></i>
+                                                        Fecha Final
+                                                    </label>
+                                                    <input class="form-control" type="date" name="final_date" id="final_date_id" required="required"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-sticky-note" aria-hidden="true"></i>
+                                                        Notas
+                                                    </label>
+                                                    <input type="text" name="record_notes" class="form-control" id="notes"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12" id="adjuntos_div">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-secondary">
+                                                        <i class="fa fa-paperclip me-1"></i>
+                                                        Adjuntar Documento
+                                                    </label>
+                                                    <input type="file" name="rec_portal_attachments" id="portal_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                                                    <small class="form-text text-muted">Formatos permitidos: imágenes, PDF, Word, Excel.</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 text-end">
+                                                <button type="submit" class="btn btn-primary px-4">
+                                                    <i class="fa fa-save me-1"></i>
+                                                    Registrar Solicitud
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab2" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle historical_table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="header_historical">Tipo de Ausencia</th>
+                                    <th class="header_historical">Descripcion</th>
+                                    <th class="header_historical">Fecha de Inicio</th>
+                                    <th class="header_historical">Fecha de Finalizacion</th>
+                                    <!-- <th class="header_historical">Solicitado</th> -->
+                                    <th class="header_historical">Estado</th>
+                                    <th class="header_historical">Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="history_absences_ids" t-as="absences">
+                                    <tr>
+                                        <td style="text-align:center"><t t-esc="absences.holiday_status_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="absences.name"/></td>
+                                        <td style="text-align:center"><t t-esc="(absences.date_from - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="(absences.date_to - datetime.timedelta(hours=6)).strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center">
+                                            <span t-if="absences.state == 'draft'"
+                                                class="badge bg-secondary">
+                                                A enviar
+                                            </span>
+
+                                            <span t-if="absences.state == 'confirm'"
+                                                class="badge bg-warning">
+                                                A aprobar
+                                            </span>
+
+                                            <span t-if="absences.state == 'validate'"
+                                                class="badge bg-success">
+                                                Aprobado
+                                            </span>
+
+                                            <span t-if="absences.state == 'refuse'"
+                                                class="badge bg-danger">
+                                                Rechazado
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center" t-if="absences.state in ['draft','confirm']">
+                                            <form t-att-action="'/delete_absence/' + str(absences.id)" method="POST">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro?')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="tab3" class="tab-pane fade">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle historical_table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="header_historical">Periodo</th>
+                                    <th class="header_historical">Dias Asignados</th>
+                                    <th class="header_historical">Dias Pendientes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="vacations_details" t-as="vac">
+                                    <tr>
+                                        <td style="text-align:center"><t t-esc="vac.name"/></td>
+                                        <td style="text-align:center"><t t-esc="vac.assigned_days"/></td>
+                                        <td style="text-align:center"><t t-esc="vac.pending_days"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    var absence_type = document.getElementById("absence_type");
+                    var vacDiv = document.getElementById("vac_div_id");
+                    var hcompDiv = document.getElementById("hcomp_div_id");
+                    var middleDayDiv = document.getElementById("middle_day_div_id");
+                    var periodDiv = document.getElementById("period_div_id");
+                    var middleDay = document.getElementById("middle_day");
+                    var finalDateDiv = document.getElementById("final_date_div");
+                    var finalDate = document.getElementById("final_date_id");
+                    var hoursRequest = document.getElementById("hours_request");
+                    var hoursDiv = document.getElementById("hours_div_id");
+                    var adjuntosDiv = document.getElementById("adjuntos_div");
+                    var hoursRequestCheckboxDiv = document.getElementById("hours_request_checkbox_div");
+                    var paidLeaveDiv = document.getElementById("paid_leave_div_id");
+                    var paidLeaveTypeSelect = document.getElementById("paid_leave_type");
+                    var conceptPaidLeaveInput = document.getElementById("concept_paid_leave");
+
+                    function setDefaultValues() {
+                        var selectedOption = absence_type.options[absence_type.selectedIndex];
+                        var type_code = selectedOption.getAttribute("data-opt-code");
+
+                        // Mostrar u ocultar VAC y HCOMP
+                        vacDiv.style.display = (type_code === "VAC") ? "block" : "none";
+                        hcompDiv.style.display = (type_code === "HCOMP") ? "block" : "none";
+
+                        hoursRequestCheckboxDiv.style.display = (type_code === "PGS") ? "inline-block" : "none";
+                        paidLeaveDiv.style.display = (type_code === "PGS") ? "inline-block" : "none";
+
+                        // Mostrar u ocultar horas
+                        if (hoursRequest.checked) {
+                            hoursDiv.style.display = "block";
+                        } else {
+                            hoursDiv.style.display = "none";
+                        }
+
+                        // Lógica de finalDateDiv y periodDiv (según prioridad)
+                        if (hoursRequest.checked) {
+                            finalDateDiv.style.display = "none";
+                            finalDate.required = false;
+                            periodDiv.style.display = "none";
+                        } else if (middleDay.checked) {
+                            periodDiv.style.display = "block";
+                            finalDateDiv.style.display = "none";
+                            finalDate.required = false;
+                        } else {
+                            periodDiv.style.display = "none";
+                            finalDateDiv.style.display = "block";
+                            finalDate.required = true;
+                        }
+
+                        <!-- adjuntosDiv.style.display = (type_code === "PGS") ? "block" : "none"; -->
+
+                        if (paidLeaveDiv.style.display === "block") {
+                            updatePaidLeaveConcept();
+                        } else {
+                            // Si el div no está visible, limpia el campo de concepto
+                            conceptPaidLeaveInput.value = "";
+                        }
+
+                    }
+
+                    function updatePaidLeaveConcept() {
+                        if (paidLeaveTypeSelect) {
+                            var selectedPaidLeaveOption = paidLeaveTypeSelect.options[paidLeaveTypeSelect.selectedIndex];
+                            var concept = selectedPaidLeaveOption.getAttribute("data-opt-concept");
+                            conceptPaidLeaveInput.value = concept || ""; // Pone el concepto o una cadena vacía si no hay
+                        }
+                    }
+
+                    setDefaultValues();
+                    absence_type.addEventListener("change", setDefaultValues);
+                    middleDay.addEventListener("change", setDefaultValues);
+                    hoursRequest.addEventListener("change", setDefaultValues);
+
+                    middleDay.addEventListener("change", function() {
+                        if (this.checked) {
+                            hoursRequest.checked = false;
+                            // Vuelve a llamar a setDefaultValues para recalcular la visibilidad de hoursDiv
+                            setDefaultValues();
+                        }
+                    });
+
+                    hoursRequest.addEventListener("change", function() {
+                        if (this.checked) {
+                            middleDay.checked = false;
+                            // Vuelve a llamar a setDefaultValues para recalcular la visibilidad de periodDiv
+                            setDefaultValues();
+                        }
+                    });
+
+                    absence_type.addEventListener("change", function() {
+                        middleDay.checked = false;
+                        hoursRequest.checked = false;
+                        setDefaultValues();
+                    });
+
+                    if (paidLeaveTypeSelect) { // Asegura que el elemento exista antes de añadir el listener
+                        paidLeaveTypeSelect.addEventListener("change", updatePaidLeaveConcept);
+                    }
+                });
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

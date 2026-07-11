@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="ticket_request_menu_root"
+            name="Solicitud de Boletos"
+            web_icon="cm_airline_ticket_request,static/description/icon.jpg"
+            action="action_ticket_request_cm"
+            groups="group_ticket_request_manager,group_ticket_request_user,group_ticket_request_admin"
+            sequence="6"/>
+
+<!-- ##################################  REQUESTS  ##################################################  -->
+
+        <menuitem
+            id="ticket_request_menu"
+            name="Solicitudes"
+            parent="ticket_request_menu_root"
+            sequence="1"/>
+
+        <menuitem
+            id="ticket_request_menuitem"
+            name="Solicitudes de boleto"
+            parent="ticket_request_menu"
+            action="action_ticket_request_cm"
+            sequence="1"/>
+
+        <menuitem
+            id="tickets_menuitem"
+            name="Boletos Solicitados"
+            parent="ticket_request_menu"
+            action="pax_request_cm"
+            groups="group_ticket_request_manager,group_ticket_request_admin"
+            sequence="2"/>
+
+<!-- ##################################  EXTERNAL  ##################################################  -->
+
+        <menuitem
+            id="external_request_menuitem"
+            name="Externos"
+            parent="ticket_request_menu_root"
+            action="external_request_cm"
+            sequence="2"/>
+
+<!-- ##################################  CONFIGURATION  ##################################################  -->
+
+        <menuitem
+            id="conf_ticket_request_menu"
+            name="Configuraciones"
+            parent="ticket_request_menu_root"
+            groups="group_ticket_request_admin"
+            sequence="3"/>
+
+        <menuitem
+            id="conf_ticket_request_menuitem"
+            name="Programas"
+            parent="conf_ticket_request_menu"
+            groups="group_ticket_request_admin"
+            action="program_request_cm_action"
+            sequence="1"/>
+    </data>
+
+</odoo>

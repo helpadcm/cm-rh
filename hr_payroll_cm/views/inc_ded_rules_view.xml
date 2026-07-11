@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_inc_ded_rules_tree" model="ir.ui.view">
+        <field name="name">rap.settings.tree</field>
+        <field name="model">hr.inc.ded.rules</field>
+        <field name="arch" type="xml">
+            <list string="Resumen reglas salariales" editable="bottom">
+                <field name="name" required="1"/>
+                <field name="code" required="1"/>
+                <field name="category_id" options="{'no_create': True}" required="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_inc_ded_rules" model="ir.actions.act_window">
+        <field name="name">Resumen reglas salariales</field>
+        <field name="res_model">hr.inc.ded.rules</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_validate_turns" model="ir.ui.view">
+        <field name="name">validate.turns.form</field>
+        <field name="model">hr.validate.turns</field>
+        <field name="arch" type="xml">
+            <form string="Validar Turnos">
+                <group>
+                    <group >
+                        <field name="user_id" readonly="1"/>
+                    </group>                
+                    <group >
+                        <field name="turn" required="1"/>
+                    </group>                    
+                </group>
+                <footer>
+                    <button string="Validar" name="validate_turns" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_validate_turns" model="ir.actions.act_window">
+        <field name="name">Validar Turnos</field>
+        <field name="res_model">hr.validate.turns</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_validate_turns"/>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

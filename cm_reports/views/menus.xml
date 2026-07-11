@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem 
+        action="action_invoice_wizard_menu" 
+        name="Reporte de Facturas"
+        parent="account.menu_finance_reports"
+        id="report_invoice_menuitem" 
+        sequence="5"/>
+
+    <menuitem 
+        action="action_account_status_wizard_menu" 
+        name="Reporte Estado de Cuenta"
+        parent="account.menu_finance_reports"
+        id="report_account_status_menuitem" 
+        sequence="6"/>
+
+    <menuitem id="report_check_list_menuitem" 
+        name="Reporte de Cheques"
+        parent="account.menu_finance_reports"
+        action="action_check_list_wizard_menu"
+        sequence="7"/>
+
+</odoo>

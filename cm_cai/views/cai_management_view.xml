@@ -1,0 +1,61 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<odoo>
+    <data>
+        <record id="management_cai_tree_view" model="ir.ui.view">
+            <field name="name">management_cai_tree_view</field>
+            <field name="model">management.cai</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <field name="expiration_date"/>
+                    <field name="document_type"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="management_cai_form_view" model="ir.ui.view">
+            <field name="name">management.cai_form_view</field>
+            <field name="model">management.cai</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form string="CAI">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="document_type" required="1"/>
+                            <field name="is_active"/>
+                        </group>
+                        <group>
+                            <field name="expiration_date" required="1"/>
+                            <field name="company_id" required="1" options="{'no_create': True}"/>
+                            <field name="supplier_id" domain="[('is_supplier','=',True)]" required="document_type == 'purchase'" invisible="document_type != 'purchase'" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sequencias" invisible="document_type == 'purchase'">
+                            <field name="line_ids" invisible="document_type == 'purchase'">
+                                <list editable="bottom">
+                                    <field name="sequence_id" required="1" options="{'no_create': True}"/>
+                                    <field name="number_from"/>
+                                    <field name="number_to"/>
+                                    <field name="selected"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_management_cai">
+            <field name="name">CAI</field>
+            <field name="res_model">management.cai</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+    </data>
+</odoo>

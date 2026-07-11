@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_status_wizard_view" model="ir.ui.view">
+        <field name="name">Account Status</field>
+        <field name="model">cm_reports.wizard_account_status</field>
+        <field name="arch" type="xml">
+        <form string="Report Options">
+            <group col="2">
+                <group col="2">
+		            <field name="date_start" required="1"/>
+                    <field name="payment_state" required="1"/>
+                </group>
+                <group>
+		            <field name="date_to" required="1"/>
+                    <field name="zero_balance" invisible="1"/>
+                </group>
+            </group>
+            
+             <field name="partner_id" invisible="1"/>
+             <label for="partner_ids"/>
+            <field name="partner_ids" domain="[('is_customer','=',True)]" widget="many2many_tags" options="{'no_create':True}" invisible="context.get('from_partner')"/>
+
+
+            <footer>
+                <button name="report_status" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+                <button name="report_status" string="Excel" type="object" class="oe_highlight" context="{'export_excel':True}"/>
+                <button string="Cancelar" class="oe_link" special="cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
+
+    <record id="action_account_status_wizard_menu" model="ir.actions.act_window">
+        <field name="name">Reporte Estado de cuenta</field>
+        <field name="res_model">cm_reports.wizard_account_status</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_status_wizard_view"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

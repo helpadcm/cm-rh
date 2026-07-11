@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+cm_cai.access_management_cai,access_management_cai,cm_cai.model_management_cai,base.group_user,1,0,0,0
+cm_cai.access_cai_lines_sequence,access_cai_lines_sequence,cm_cai.model_cai_lines_sequence,base.group_user,1,1,1,1
+
+cm_cai.access_management_cai_manager,access_management_cai_manager,cm_cai.model_management_cai,account.group_account_manager,1,1,1,1

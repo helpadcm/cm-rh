@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="main_template_guides">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <t t-if="not doc.discount_id or doc.discount_id.code not in ['G10','COMAIL']">
+                        <t t-if="doc.modality in ['credit', 'upon_delivery']">
+                            <t t-call="{{ guide_mother }}"/>
+                            <t t-call="{{ child_guide }}"/>
+                        </t>
+                        <t t-if="doc.modality == 'counted'">
+                            <t t-call="{{ invoice_order }}"/>
+                            <t t-call="{{ child_guide }}"/>
+                        </t>
+                    </t>
+                    <t t-if="doc.discount_id and doc.discount_id.code == 'G10'">
+                        <t t-call="{{ guide_mother }}"/>
+                        <t t-call="{{ child_guide }}"/>
+                    </t>
+                    <t t-if="doc.discount_id and doc.discount_id.code == 'COMAIL'">
+                        <t t-call="{{ child_guide }}"/>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -15,7 +15,6 @@ class Branch(models.Model):
     employee_ids = fields.One2many('hr.employee', 'branch_id', string='Employees')
     active = fields.Boolean('Active', default=True)
     color = fields.Integer('Color Index')
+    exact_address = fields.Char(string="Direccion Exacta")
 
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', "The code of the branch must be unique!"),
-    ]
+    _code_unique = models.Constraint('unique(code)', message='El codigo debe ser unico por sucursal!')

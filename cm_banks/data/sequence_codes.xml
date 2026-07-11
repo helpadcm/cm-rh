@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+	    <record id="sequence_pay_order" model="ir.sequence">
+            <field name="name">Sequence Pay Order</field>
+            <field name="code">innova.pay.order</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field name="prefix">OP/%(year)s/</field>        
+        </record>
+
+		<record id="codes_for_ir_sequence_type_other" model="ir.sequence.type">
+			<field name="name">Other</field>
+			<field name="code">other</field>
+		</record>
+
+	   	<record id="codes_for_ir_sequence_type_ch" model="ir.sequence.type">
+			<field name="name">check</field>
+			<field name="code">check</field>
+		</record>
+  	
+		<record id="codes_for_ir_sequence_type_tr" model="ir.sequence.type">
+			<field name="name">transference</field>
+			<field name="code">transference</field>
+		</record>
+	  
+	  	<record id="codes_for_ir_sequence_type_tr_c" model="ir.sequence.type">
+			<field name="name">transference_cancel</field>
+			<field name="code">transference_cancel</field>
+		</record>
+	  
+	  	<record id="codes_for_ir_sequence_type_ch_c" model="ir.sequence.type">
+			<field name="name">check_cancel</field>
+			<field name="code">check_cancel</field>
+		</record>
+	  
+	  	<record id="codes_for_ir_sequence_type_cre" model="ir.sequence.type">
+			<field name="name">credit</field>
+			<field name="code">credit</field>
+		</record>
+  	
+		<record id="codes_for_ir_sequence_type_deb" model="ir.sequence.type">
+			<field name="name">debit</field>
+			<field name="code">debit</field>
+		</record>
+ 	 
+	 	<record id="codes_for_ir_sequence_type_dep" model="ir.sequence.type">
+			<field name="name">deposit</field>
+			<field name="code">deposit</field>
+		</record>
+
+ 		<record id="codes_for_ir_sequence_type_dep_bank_transfer" model="ir.sequence.type">
+			<field name="name">banks_transferences</field>
+			<field name="code">banks_transferences</field>
+		</record>
+
+    </data>
+</odoo>

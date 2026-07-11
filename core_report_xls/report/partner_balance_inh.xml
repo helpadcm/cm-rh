@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_aged_partner_balance" inherit_id="accounting_pdf_reports.report_agedpartnerbalance">
+          	<xpath expr="//table[hasclass('table', 'table-sm', 'table-reports')]" position="replace">
+                <table class="table table-sm table-reports">
+                    <thead>
+                        <tr>
+                            <th>Contactos</th>
+                            <th class="text-end">
+                                <span>No Adeudado</span>
+                            </th>
+                            <th class="text-end"><span t-esc="data['4']['name']"/></th>
+                            <th class="text-end"><span t-esc="data['3']['name']"/></th>
+                            <th class="text-end"><span t-esc="data['2']['name']"/></th>
+                            <th class="text-end"><span t-esc="data['1']['name']"/></th>
+                            <th class="text-end"><span t-esc="data['0']['name']"/></th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                        <tr t-if="get_partner_lines">
+                            <th>Cuenta Total</th>
+                            <th class="text-end"><span t-esc="get_direction[6]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[4]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[3]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[2]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[1]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[0]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                            <th class="text-end"><span t-esc="get_direction[5]" t-options="{'widget': 'monetary', 'display_currency': currency}"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="get_partner_lines" t-as="partner">
+                            <td>
+                                <span t-esc="partner['name']"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['direction']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['4']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['3']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['2']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['1']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['0']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-esc="partner['total']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+	    	</xpath>
+        </template>
+    </data>
+</odoo>
+
+

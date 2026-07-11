@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+		<record model="ir.ui.view" id="view_credit_debit_form">
+            <field name="name">debit.credit.form</field>
+            <field name="model">debit.credit</field>
+			<field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="miscellaneous checks">
+                  	<header>
+						<button name="anulate_draft_voucher" string="Invalidar Voucher" type="object" invisible="state != 'draft'" groups="cm_banks.group_banks_banks_anullation" confirm="Esta seguro de querer invalidar este voucher?"/>
+						<button name="set_as_template" string="Usar como Plantilla" type="object" invisible="state != 'validated'"/>
+						<button name="unreconciliate_debit" string="Desconciliar" type="object" invisible="state != 'validated'" confirm="Esta seguro de querer desconciliar este documento?"/>
+						<button name="reset_to_draft" type="object" string="Cambiar a Borrador" invisible="state != 'anulated'" groups="cm_banks.group_banks_banks_reset"  class="oe_highlight"/>
+						<button name="action_validate" type="object" string="Validar" invisible="state != 'draft'" class="oe_highlight"/>	
+						<field name="state" widget="statusbar"/>
+                  	</header>
+					<sheet>
+						<h1><field name="number"  class="oe_inline" readonly='1'/></h1>
+						<group>
+							<group> 
+								<field name="journal_id" domain="[('allow_creditdebit','=',True)]" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" readonly="state != 'draft' or was_unreconcilied == True" />
+								<field name="require_analytic_account" invisible="1"/>
+								<field name="date" readonly="state != 'draft'"/>
+								<field name="doc_type" readonly="state != 'draft'or was_unreconcilied == True" required="1"/>
+								<field name="template_id"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('doc_type','in',['credit','debit','deposit'])]"  invisible="state != 'draft'" readonly="state != 'draft'" />
+								<field name="same_currency" invisible="1"/>
+							</group>
+							<group>    
+								<field name="total" readonly="state != 'draft'" />
+								<field name="account_analytic_id" required="require_analytic_account == True" readonly="state != 'draft'" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+								<field name="total_equivalent" invisible="same_currency" readonly='1'/>
+								<field name="currency" invisible="same_currency" force_save="1" readonly="1" />
+								<field name="analytic_account_ids" invisible="1"/>
+								<field name="user_id" invisible="1" readonly="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+								<field name="for_founds" readonly="state != 'draft'" />
+								<field name="account_found_id" required="for_founds" invisible="not for_founds" readonly="state != 'draft'" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}"/>
+							</group>
+						</group>
+
+						<group col="2" colspan="4">    
+							<field name="name" readonly="state != 'draft'"/>					
+						</group>
+
+						<notebook colspan="4">
+							<page string="Entrada de Voucher">
+								<group col="4" colspan="4"> 
+									<field name="pay_comp_currency" string="Use company currency" invisible="journal_id.currency == True"/>
+								</group>
+								<field name="mcheck_ids"  mode="list" widget="one2many_list" readonly="state != 'draft'" context="{'type':doc_type}">
+									<list editable="bottom">
+										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('active','=',True)]"/>
+										<field name="name"/>
+										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
+										<field name="budget_account_id" domain="[('id','in',fbudget_line_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="process_id" domain="[('id','in',factivity_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="source_id" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="fbudget_line_ids" column_invisible="1" widget="many2many_tags"/>
+										<field name="factivity_ids" column_invisible="1" widget="many2many_tags"/>
+										<field name="chqmanalitics" string="Analitica"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
+										<field name="amount"/>
+										<field name="type"/>
+									</list>
+								</field>
+							</page>
+                        	<page string="Apuntes Contables" invisible="state not in ['validated','anulated']">
+								<field name="move_ids" readonly="1">
+									<list string="Apuntes Contables">
+										<field name="move_id" optional="hide"/>
+										<field name="date"/>
+										<field name="statement_id" optional="hide"/>
+										<field name="account_id" domain="[('active','=',True)]"/>
+										<field name="analytic_account_id" optional="show"/>
+										<field name="activity_id" optional="show"/>
+										<field name="source_id" optional="show"/>
+										<field name="name"/>
+										<field name="debit" sum="Debit"/>
+										<field name="credit" sum="Credit"/>
+									</list>
+								</field>
+							</page>
+                       		<page string="Otra Informacion" invisible="state not in ['validated']">
+								<group col="4" colspan="4"> 
+									<field name="move_id" string="Asiento Contable" readonly="1"/>
+									<!-- <field name="voucher_id" string="Voucher Reference" readonly="1"/>
+									<field name="mcheck_mcheck_id" string="Mcheck Reference" readonly="1"/> -->
+								</group> 
+                       		</page>
+                    	</notebook>
+
+						<group >
+							<group class="oe_subtotal_footer oe_right">
+								<field name="rest_credit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+							</group>
+							<field name="obs" invisible="state != 'anulated'"/>
+							<field name="number"  class="oe_inline" invisible='1'/>     
+							<field name="was_unreconcilied" invisible='1'/>  
+						</group>
+					</sheet>
+					<chatter reload_on_attachment="True"/>
+				</form>
+            </field>
+        </record>
+
+		<record model="ir.ui.view" id="view_credit_debit_tree">
+            <field name="name">debit.credit.tree</field>
+            <field name="model">debit.credit</field>
+            <field name="arch" type="xml">
+                <list string="Debitos y Creditos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
+					<field name="number" />
+					<field name="date" />
+					<field name="journal_id" widget="selection" />
+					<field name="name" colspan="2"/>
+					<field name="total" sum="total"/>
+					<field name="state"/>
+				</list>
+            </field>
+        </record>
+
+		<record id="view_credit_debit_search" model="ir.ui.view">
+			<field name="name">debit.credit.search</field>
+			<field name="model">debit.credit</field>
+			<field name="arch" type="xml">
+				<search string="Busqueda Equipos">
+					<field name="number" />
+					<field name="name"/>
+					<group>
+						<filter string="Fecha" name="date" context="{'group_by':'date'}"/>
+						<filter string="Tipo Documento" name="doc_type_group" context="{'group_by':'doc_type'}"/>
+						<filter string="Diario" name="journal_group" context="{'group_by':'journal_id'}"/>
+						<filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
+	
+		<record id="debit_credit_action_form" model="ir.actions.act_window">
+			<field name="name">Debitos y Creditos</field>
+			<field name="res_model">debit.credit</field>
+			<field name="view_mode">list,form</field>   
+			<field name="help" type="html">
+				<p class="oe_view_nocontent_create">
+				Click to add a new credit or debit.
+				</p>
+				<p>
+				With just a quick glance on the Odoo credit and debit screen, you
+				can easily find all the information about your each day debit or credit;					
+				</p>
+			</field>
+		</record>
+    </data>
+</odoo>

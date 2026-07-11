@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+	<data>
+		<template id="general_invoice">
+			<t t-call="web.html_container">
+				<head>
+                    <meta charset="utf-8"/>
+                </head>
+ 				<t t-set="company" t-value="res_company"></t>
+				<div class="page" style="font-size:11px;">
+					<style>
+						td{
+							font-size: 11px;
+							border-top: 1px solid #eeeeee;
+						}
+						th{
+							font-size: 12px;
+							border-top: 1px solid #eeeeee;
+						}
+						table{
+							border-collapse: collapse;
+						}
+					</style>
+					<table style="display:inline;page-break-before:auto;border:0px ;width:100%;padding:0px;font-size:16px;">
+						<tbody>
+							<tr style="height: 20px;padding:0px;border:0px;" >
+								<td style="width:20%;border:0px" rowspan="4">
+									<img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height: 100x;" alt="Logo"/>
+								</td>
+								<td style="width:80%;;text-align:center;font-size:16px;border:0px">
+									<strong> <span t-esc="company.name"/></strong>
+								</td>
+							</tr>
+							<tr style="height: 20px;">
+								<td style="width:350px;text-align:center;font-size:16px;border:0px"> <strong><span t-esc="company.company_motto"/></strong></td>
+							</tr>
+							<tr  style="height: 20px;">
+								<td style="width:350px;text-align:center;font-size:16px;border:0px"><strong> "Reporte de Facturas"</strong></td>    
+							</tr>
+						</tbody>
+					</table>
+					<br/><br/>
+					<table style="width:100%;padding:2px">
+						<tr>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('date_from')"><strong>Fecha de Inicio</strong></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('date_from')"><span t-esc="option.get('date_from')" /></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('date_to')"><strong>Fecha Final</strong></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('date_to')"><span t-esc="option.get('date_to')" /></t></td>
+						</tr>
+						<tr>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('type_of')"><strong>Tipo</strong></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('type_of')"><span t-esc="option.get('type_of')" /></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('group_ledger')"><strong>Agrupar por</strong></t></td>
+							<td style="width:25%;padding:5px;border:0px"><t t-if="option.get('group_ledger')"><span t-esc="option.get('group_ledger')" /></t></td>
+						</tr>
+					</table>
+					<br/><br/>
+	
+	    			<table style="width:100%;padding:0px;margin:0px;">
+						<tbody>
+							<tr  >
+								<th style="background-color: #cdc9c9;text-align:center;width:3%"></th>
+								<th style="background-color: #cdc9c9;text-align:center;width:12%">Número</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:11%">PNR</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:11%">Empresa</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:8%">Estacion</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:6%">Fecha</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:9%">Monto <br/>Exonerado</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:9%">Monto <br/>Isv 15</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:9%">Isv 15</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:7%">Monto <br/>Isv 18</th>
+								<th style="background-color: #cdc9c9;text-align:center;width:6%">Isv 18</th>			
+								<th style="background-color: #cdc9c9;text-align:center;width:16%">Total</th>
+							</tr>
+							<t t-foreach="data" t-as="o" style="padding:0px;">
+								<tr>
+									<t t-if="not o.get('sub')">
+										<td></td>
+										<td><span t-esc="o.get('title_name')" /></td>
+										<td><span t-esc="o.get('name')" /></td>
+										<td><span t-esc="o.get('subtitle_name')" /></td>
+										<td ><span t-esc="o.get('user_id')" /> </td>
+										<td> <span t-esc="o.get('date')" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_0',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_15',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('isv_15',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_18',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('isv_18',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_total',0))" /></td>
+									</t>
+									<t t-if="o.get('sub')">
+										<th style="" colspan="2"> <span t-esc="o.get('title_name')" /></th>
+										<th style=""><span t-esc="o.get('name')" /></th>
+										<th style=""><span t-esc="o.get('subtitle_name')" /></th>
+										<th style="text-align:right;"></th>
+										<th style=""></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_0',0))" /></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_15',0))" /></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('isv_15',0))" /></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_18',0))" /></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('isv_18',0))" /></th>
+										<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(o.get('amount_total',0))" /></th>
+									</t>
+								</tr>
+								<t t-if="o.get('tlines')">
+									<t t-foreach="o.get('tlines')" t-as="oo" style="padding:0px;">
+										<tr>
+											<t t-if="not oo.get('sub')">
+												<td></td>
+												<td><span t-esc="oo.get('title_name')" /></td>
+												<td><span t-esc="oo.get('name')" /></td>
+												<td><span t-esc="oo.get('subtitle_name')" /></td>
+												<td ><span t-esc="oo.get('user_id')" /> </td>
+												<td> <span t-esc="oo.get('date')" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_0',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_15',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('isv_15',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_18',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('isv_18',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_total',0))" /></td>
+											</t>
+											<t t-if="oo.get('sub')">
+												<th  colspan="2"> <span t-esc="oo.get('title_name')" /></th>
+												<th><span t-esc="oo.get('name')" /></th>
+												<th><span t-esc="oo.get('subtitle_name')" /></th>
+												<th style="text-align:right;"></th>
+												<th></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_0',0))" /></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_15',0))" /></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('isv_15',0))" /></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_18',0))" /></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('isv_18',0))" /></th>
+												<th style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(oo.get('amount_total',0))" /></th>
+											</t>
+										</tr> 
+										<t t-if="oo.get('lines')">
+											<tr t-foreach="oo.get('lines')" t-as="a" style="padding:0px;">
+												<td></td>
+												<td><span t-esc="a.get('title_name')" /></td>
+												<td><span t-esc="a.get('name')" /></td>
+												<td colspan="1"><span t-esc="a.get('subtitle_name')" /></td>
+												<td ><span t-esc="a.get('user_id')" /> </td>
+												<td> <span t-esc="a.get('date')" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_10',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_15',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('isv_15',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_18',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('isv_18',0))" /></td>
+												<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_total',0))" /></td>
+											</tr>
+										</t>
+									</t>
+								</t>
+								<t t-if="o.get('lines')">
+									<tr t-foreach="o.get('lines')" t-as="a" style="padding:0px;">
+										<td></td>
+										<td><span t-esc="a.get('title_name')" /></td>
+										<td><span t-esc="a.get('name')" /></td>
+										<td colspan="1"><span t-esc="a.get('subtitle_name')" /></td>
+										<td ><span t-esc="a.get('user_id')" /> </td>
+										<td> <span t-esc="a.get('date')" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_0',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_15',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('isv_15',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_18',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('isv_18',0))" /></td>
+										<td style="text-align:right;"><span t-esc="symbol+'{:,.2f}'.format(a.get('amount_total',0))" /></td>
+					
+									</tr>
+								</t>
+							</t>
+						</tbody>
+	    			</table>
+				</div>
+				<div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div> 
+                </div>
+			</t>
+		</template>
+	</data>
+</odoo>
+

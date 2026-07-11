@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+      <data noupdate="0">
+        <!-- #######################  CATEGORY  ####################################################### -->
+        <record model="ir.module.category" id="module_category_fiscal_year">
+            <field name="name">Años Fiscales</field>
+            <field name="description"></field>
+            <field name="sequence">114</field>
+        </record>
+
+        <!-- #######################  PRIVILEGES  ####################################################### -->
+
+        <record id="privilege_define_fiscal_year" model="res.groups.privilege">
+            <field name="name">Definir ejercicios fiscales</field>
+            <field name="category_id" ref="module_category_fiscal_year"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="privilege_create_periods" model="res.groups.privilege">
+            <field name="name">Crear Periodos</field>
+            <field name="category_id" ref="module_category_fiscal_year"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="privilege_close_periods" model="res.groups.privilege">
+            <field name="name">Cerrar Periodos</field>
+            <field name="category_id" ref="module_category_fiscal_year"/>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="privilege_open_close_periods" model="res.groups.privilege">
+            <field name="name">Abrir/Cerrar Periodos</field>
+            <field name="category_id" ref="module_category_fiscal_year"/>
+            <field name="sequence">10</field>
+        </record>
+
+
+        <!-- #######################  GROUPS  ####################################################### -->
+
+        <record id="group_define_fiscal_year" model="res.groups">
+            <field name="name">Permitir definir ejercicios fiscales para mas de un año o menos</field>
+            <field name="sequence">1</field>
+            <field name="privilege_id" ref="privilege_define_fiscal_year"/>
+        </record>
+
+
+        <record id="group_fiscal_year_create" model="res.groups">
+            <field name="name">Crear Periodos</field>
+            <field name="privilege_id" ref="privilege_create_periods"/>
+            <field name="sequence">2</field>
+        </record>
+
+
+        <record id="group_fiscal_year_close" model="res.groups">
+            <field name="name">Cerrar Periodos</field>
+            <field name="privilege_id" ref="privilege_close_periods"/>
+            <field name="sequence">3</field>
+        </record>
+
+
+        <record id="group_fiscal_year_open_close" model="res.groups">
+            <field name="name">Abrir/Cerrar mes</field>
+            <field name="privilege_id" ref="privilege_open_close_periods"/>
+            <field name="sequence">4</field>
+        </record>
+
+        <!-- #######################  RULES  ####################################################### -->
+        
+        <record id="account_fiscal_year_comp_rule" model="ir.rule">
+            <field name="name">Fiscal Year multi-company</field>
+            <field name="model_id" ref="model_account_fiscal_year"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+
+
+        <record id="account_fiscalyear_periods_comp_rule" model="ir.rule">
+            <field name="name">Fiscal Period multi-company</field>
+            <field name="model_id" ref="model_account_fiscalyear_periods"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+        
+        <record id="account_month_period_comp_rule" model="ir.rule">
+            <field name="name">Fiscal Month Period multi-company</field>
+            <field name="model_id" ref="model_account_month_period"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_mcheck_form">
+            <field name="name">mcheck.mcheck.form</field>
+            <field name="model">mcheck.mcheck</field>
+            <field name="arch" type="xml">
+				<form string="miscellaneous checks" >
+					<header>
+						<button name="anullation_date_load" type='object' string='Fecha de Anulacion' invisible="state != 'validated'" groups="cm_banks.group_banks_banks_anullation"/>
+						<button name="set_as_template" string="Usar como Plantilla" type="object" invisible="state not in ['draft','validated']"/>
+						<button name="unreconciliate_mcheck" string="Desconciliar" type="object" invisible="state != 'validated'"  confirm="Esta seguro que quiere desconciliar este pago?"/>
+						<button name="anulate_draft_voucher" string="Anular Voucher" invisible="state not in ['draft']" type="object" groups="cm_banks.group_banks_banks_anullation" confirm="Esta seguro de querer anular este pago?"/>
+						<button name="action_validate" type="object" string="Validar" invisible="state != 'draft'" class="oe_highlight"/>
+						<button name="reset_to_draft" type="object" string="Enviar a Borrador" invisible="state != 'anulated'"  groups="cm_banks.group_banks_banks_reset"  class="oe_highlight"/>
+						
+						<field name="state" widget="statusbar" statusbar_visible="draft,validated" statusbar_colors='{"validated":"blue"}'/>
+					</header>
+                  	 <sheet string="Accounting Voucher">
+					    <!-- <div class="oe_button_box" name="button_box">
+							<button name="button_delivery" type="object" class="oe_stat_button" icon="fa-truck" invisible="delivery == True" >
+								<field name="delivery"  string="Entrega" widget="statinfo"/>
+							</button>
+                    	</div> -->
+						<h1><field name="number"  class="oe_inline" readonly='1'/> </h1>
+				
+						<group>
+							<group>
+								<field name="journal_id"  options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('checkmiscelaneous','=',True)]" readonly="state != 'draft' or was_unreconcilied == True" />
+								<field name="date" readonly="state != 'draft'"  on_change="onchange_date(journal_id,date,total)" />
+								<field name="doc_type" readonly="state != 'draft' or was_unreconcilied == True" required="1"/>
+								<field name="template_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"  domain="[( 'doc_type' ,'in', ['check','transference'])]" invisible="state != 'draft'" readonly="state != 'draft'"/>
+								<field name="anulation_date" invisible="state not in ('anulated')" readonly="1"/>
+								<field name="same_currency" invisible="1"/>
+							</group>
+							<group>
+								<field name="total"  widget = "monetary" readonly="state != 'draft'"/>
+								<field name="total_equivalent" invisible="same_currency"/>
+								<field name="currency" readonly="1" force_save="1" invisible="same_currency"/>
+								<field name="commission" widget="monetary" readonly="state != 'draft'" />
+								<field name="anulation_ref" invisible="state != 'anulated' or debit_credit_id != False" readonly="1"/>
+								<field name="debit_credit_id" readonly="state != 'draft'" invisible="state != 'anulated' or anulation_ref != False" />
+							</group>
+						</group>
+						<group>
+							<group>
+								<field name="reference" readonly="state != 'draft'"/>
+							</group>
+							<group>
+								<field name="identy" readonly="state != 'draft'"/>
+							</group>
+						</group> 
+						<group>
+							<field name="name" readonly="state != 'draft'"/>
+						</group>
+						<notebook colspan="4" invisible="state in ['anulated']">
+							<page string="Entrada de Voucher">
+								<group col="4" colspan="4"> 
+									<field name="pay_comp_currency" readonly="state != 'draft'"/>
+								</group>
+								<field name="mcheck_ids"  mode="list" widget="one2many_list" readonly="state != 'draft'">
+									<list editable="bottom">
+										<field name="account_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="[('account_type','!=','view'),('active','=',True)]"/>
+										<field name="name"/>
+										<field name="partner_id" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}" domain="['|', ('parent_id', '=', False), ('is_company', '=', False)]" />
+										<field name="budget_account_id" domain="[('id','in',fbudget_line_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="process_id" domain="[('id','in',factivity_ids)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="source_id" options="{'no_quick_create':True,'no_create_edit':True}"/>
+										<field name="fbudget_line_ids" column_invisible="1" widget="many2many_tags"/>
+										<field name="factivity_ids" column_invisible="1" widget="many2many_tags"/>
+										<field name="chqmanalitics" options="{'no_quick_create':True,'no_create_edit':True,'limit':1}"/>
+										<field name="amount"  />
+										<field name="type"/>
+									</list>
+								</field>
+							</page>
+							<page string="Apuntes Contables" invisible="state not in ['validated','anulated']">
+								<field name="move_ids" readonly="1">
+									<list string="Journal Items">
+										<field name="move_id" optional="hide"/>
+										<field name="ref"/>
+										<field name="date"/>
+										<field name="statement_id" optional="hide"/>
+										<field name="account_id" domain="[('active','=',True)]"/>
+										<field name="analytic_account_id" optional="show"/>
+										<field name="activity_id" optional="show"/>
+										<field name="source_id" optional="show"/>
+										<field name="name"/>
+										<field name="debit" sum="Debit"/>
+										<field name="credit" sum="Credit"/>
+									</list>
+								</field>
+							</page>
+							<page string="Otra Informacion" invisible="state not in ['validated']">
+								<group col="4" colspan="4"> 
+									<field name="move_id" string="Journal Entry" readonly="1"/>
+								</group> 
+							</page>
+						</notebook>
+						<group>
+							<group class="oe_subtotal_footer oe_right">
+								<field name="rest_credit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+							</group>
+							<field name="obs" invisible="state != 'cancel'"/>
+							<field name="number"  class="oe_inline" invisible='1'/>   
+							<field name="was_unreconcilied" invisible='1'/>
+						</group>
+                  	</sheet>
+					<chatter reload_on_attachment="True"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mcheck_tree">
+            <field name="name">mcheck.mcheck.tree</field>
+            <field name="model">mcheck.mcheck</field>
+            <field name="arch" type="xml">
+                <list string="Pagos Miscelaneos" decoration-info="state == 'draft'" decoration-muted="state == 'anulated'" decoration-bf="state == 'validated'">  
+					<field name="number" invisible="context.get('is_for_template') in [True]"/>               
+					<field name="date" invisible="context.get('is_for_template') in [True]"/>
+					<field name="journal_id" widget="selection" invisible="context.get('is_for_template') in ['True']"/>
+					<field name="name" colspan="2"/>
+					<field name="reference"/>
+					<field name="total" sum="total"/>
+					<field name="state"/>
+                </list>
+            </field>
+        </record>
+
+		<record model="ir.ui.view" id="view_mcheck_mcheck_search">
+			<field name="name">mcheck.search</field>
+			<field name="model">mcheck.mcheck</field>
+			<field name="arch" type="xml">
+				<search string = 'search'>
+					<field name="number"/>
+					<field name="name"/>			
+					<field name="reference"/>
+					<group>
+						<filter string="Fecha" name="name_group" context="{'group_by':'date'}"/>
+						<filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
+						<filter string="Diario" name="journal_group" context="{'group_by':'journal_id'}"/>
+						<filter string="Pagar a" name="pay_to_group" context="{'group_by':'reference'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
+	
+		<record id="mcheck_action_form_mcheck" model="ir.actions.act_window">
+			<field name="name">Pagos Miscelaneos</field>
+			<field name="res_model">mcheck.mcheck</field>
+			<field name="view_mode">list,form</field>
+			<field name="domain">[]</field>
+			<field name="context">{'mis_check_filter_tot':1,'check_id': 'id'}</field>   
+			<field name="help" type="html">
+				<p class="oe_view_nocontent_create">
+				Click to add a new mcheck.
+				</p>
+				<p>
+				With just a quick glance on the Odoo mcheck screen, you
+				can easily find all the information about your each day mcheck;					
+				</p>
+			</field>
+		</record>
+
+    </data>
+</odoo>

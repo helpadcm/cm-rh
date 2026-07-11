@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="cargo_station_form_view" model="ir.ui.view">
+            <field name="name">Estacion de Ventas</field>
+            <field name="model">cargo.station</field>
+            <field name="arch" type="xml">
+                <form string="Station">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="ref" />
+                                <field name="name" />
+                                <field name="address"/>
+                                <field name="address_send"/>
+                                <field name="boss_station_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="airport_id" options="{'no_create': True}"/>
+                                <field name="internal_load_ori"/>
+                                <field name="internal_load_dest"/>
+                                <field name="use_discounts"/>
+                                <field name="active" groups="base.group_no_one"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Servicios Adicionales">
+                                <field name="additional_services">
+                                    <list string="Caption">
+                                        <field name="modality"/>
+                                        <field name="additional_service"/>
+                                        <field name="type_service"/>
+                                        <field name="total"/>
+                                    </list>
+                                    <form string="Additional Services">
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="modality"/>
+                                                    <field name="type_service" invisible="1"/>
+                                                    <field name="rent_product" invisible="type_service != 'rent'" readonly="1"/>
+                                                    <field name="by_value" invisible="type_service != 'value'" readonly="1"/>
+                                                    <field name="by_weight" invisible="type_service != 'weight'" readonly="1"/>
+                                                    <field name="date_send" invisible="type_service != 'date'"/>
+                                                    <field name="total"/>
+                                                </group>
+                                                <group>
+                                                    <field name="additional_service" options="{'no_create': True}"/>
+                                                    <field name="currency_id" invisible="1"/>
+                                                    <field name="fixed_value" invisible="type_service != 'fixed'" readonly="1"/>
+                                                    <field name="weight" invisible="type_service != 'weight'"/>
+                                                    <field name="commercial_value" invisible="type_service != 'value'"/>
+                                                    <field name="size_id" invisible="type_service != 'rent'"/>
+                                                </group>
+                                            </group>
+                                        </sheet>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Descuentos" invisible="use_discounts == False">
+                                <field name="discount_ids">
+                                    <list editable="top">
+                                        <field name="product_id" domain="[('for_cargo','=',True)]" required="1" options='{"no_open": True,"no_create":True,"no_quick_create": 1, "no_create_edit": 1}'/>
+                                        <field name="discount"/>
+                                    </list>
+                                </field>    
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="cargo_station_tree_view" model="ir.ui.view">
+            <field name="name">Punto de Envio</field>
+            <field name="model">cargo.station</field>
+            <field name="arch" type="xml">
+                <list string="Estaciones de Venta">
+                    <field name="ref" />
+                    <field name="name" />
+                    <field name="airport_id"/>
+                    <field name="address"/>
+                    <field name="address_send"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_cargo_station_object" model="ir.actions.act_window">            
+            <field name="name">Punto de Envio</field>
+            <field name="res_model">cargo.station</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>         
+            <field name="domain" eval="[]"/>
+        </record>
+</odoo>

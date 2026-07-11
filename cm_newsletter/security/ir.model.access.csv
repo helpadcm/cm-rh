@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+cm_newsletter.access_cm_newsletter_list,access_cm_newsletter_list,cm_newsletter.model_cm_newsletter_list,base.group_user,1,1,1,1
+cm_newsletter.access_qr_generator,access_qr_generator,cm_newsletter.model_qr_generator,base.group_user,1,1,1,1

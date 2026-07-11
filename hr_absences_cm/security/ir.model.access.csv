@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+hr_absences_cm.access_vacations_detail_list,access_vacations_detail_list,hr_absences_cm.model_vacations_detail_list,base.group_user,1,1,1,1
+hr_absences_cm.access_beneficiaries_detail_list,access_beneficiaries_detail_list,hr_absences_cm.model_beneficiaries_detail_list,base.group_user,1,1,1,1
+hr_absences_cm.access_flight_routes,access_flight_routes,hr_absences_cm.model_flight_routes,base.group_user,1,1,1,1
+hr_absences_cm.access_paid_leave,access_paid_leave,hr_absences_cm.model_paid_leave,base.group_user,1,1,1,1
+
+access_mail_activity_portal,access_mail_activity_portal,mail.model_mail_activity,base.group_portal,1,1,1,0

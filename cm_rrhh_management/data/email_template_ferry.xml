@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <data>
+        <record id="ferry_request_email_template" model="mail.template">
+            <field name="name">Boletos Ferry</field>
+            <field name="model_id" ref="cm_rrhh_management.model_rrhh_others_requests"/>
+            <field name="subject">Solicitud</field>
+            <!-- <field name="email_from">{{object.employee_id.user_id.login}}</field> -->
+            <field name="email_to">{{object.business_id.email}}</field>
+            <!-- <field name="email_cc">{{object.employee_id.private_email,object.business_id.cc_email}}</field> -->
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td rowspan="3" style="text-align:center; padding-bottom:10px;">
+                                                        <img t-att-src="'/web/image/res.company/%s/logo' % object.employee_id.user_id.company_id.id"
+                                                            style="height:80px;"
+                                                            t-att-alt="object.employee_id.user_id.company_id.name"/>
+                                                    </td>
+                                                    <td style="text-align:center;" valign="middle">
+                                                        Solicitud de boletos para <span style="font-size: 13px; font-weight: bold;" t-out="object.employee_id.name or ''"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            Se ha aprobado <t t-out="object.people_qty or ''"/> Boleto(s) de <t t-if="object.exit_only">Ida</t><t t-if="not object.exit_only">Ida / Vuelta</t><br/><br/>
+                                                            Ruta y fecha ida: <t t-out="object.exit_route_id.name or ''"/>, <t t-out="object.char_date_from or ''"/>.<br/><br/>
+                                                            <t t-if="not object.exit_only and not object.open_back">
+                                                                Ruta y fecha regreso: <t t-out="object.return_route_id.name or ''"/>, <t t-out="object.char_date_to or ''"/>.<br/><br/>
+                                                            </t>
+                                                            <t t-if="object.open_back">
+                                                                Ruta y fecha regreso: <t t-out="object.return_route_id.name or ''"/>, Open.<br/><br/>
+                                                            </t>
+                                                            <table style="border:1px solid black;border-collapse: collapse;width:100%">
+                                                                <tr>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px" colspan="3"><strong>BENEFICIARIOS</strong></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px"><strong>Nombre</strong></td>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px"><strong>Identidad</strong></td>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px"><strong>Fecha de Nacimiento</strong></td>
+                                                                </tr>
+                                                                <t t-foreach="object.beneficiary_ids" t-as="ben">
+                                                                    <tr>
+                                                                        <td style="border:1px solid black;padding:3px">
+                                                                            <t t-out="ben.beneficiary_id.name or ''"/>
+                                                                        </td>
+                                                                        <td style="border:1px solid black;padding:3px">
+                                                                            <t t-out="ben.identity or ''"/>
+                                                                        </td>
+                                                                        <td style="border:1px solid black;padding:3px;text-align:center">
+                                                                            <t t-out="ben.birthday.strftime('%d/%m/%Y') or ''"/>
+                                                                        </td>
+                                                                    </tr>
+                                                                </t>
+                                                            </table>
+
+                                                            <table style="margin-top:1%;width:100%">
+                                                                <tr>
+                                                                    <td style="padding:3px" t-if="object.observations">
+                                                                        Observaciones: <t t-out="object.observations"/>.
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="padding:3px" t-if="object.employee_id.private_email">
+                                                                        Correo: <t t-out="object.employee_id.private_email"/>.
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="padding:3px" t-if="object.employee_id.private_phone">
+                                                                        Telefono: <t t-out="object.employee_id.private_phone"/>.
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="padding:3px" t-if="object.business_id.phone">
+                                                                        Telefono <t t-out="object.business_id.name"/>: <t t-out="object.business_id.phone"/>.
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+
+                                                            <br/>Saludos.<br/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </field>
+        </record>
+
+   </data>
+</odoo>

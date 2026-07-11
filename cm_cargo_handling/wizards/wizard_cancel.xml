@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="view_wizard_cancel_cargo_manifest" model='ir.ui.view'>
+            <field name="name">Cancel cargo manifest</field>
+            <field name="model">wizard.cancel_cargo_manifest</field>
+            <field name="arch" type="xml">
+                <form string='Cancelar Manifiesto'>
+                    <group>
+                        <field name="observations" required="1"/>
+                    </group>
+                    <footer>
+                        <button name="accept" class="oe_highlight" string="Aceptar" type="object"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_wizard_cancel_cargo_manifest" model="ir.actions.act_window">
+            <field name="name">Cancel cargo manifest</field>
+            <field name="res_model">wizard.cancel_cargo_manifest</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wizard_cancel_cargo_manifest"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

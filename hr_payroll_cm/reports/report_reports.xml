@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_payslip_report_cm" model="ir.actions.report">
+        <field name="name">Recibo de pago CM</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_payroll_cm.payslip_receipt_cm</field>
+        <field name="report_file">hr_payroll_cm.payslip_receipt_cm</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+        <!-- <field name="print_report_name">'Factura - %s'%(object._get_report_base_filename())</field> -->
+        <field name="paperformat_id" ref="hr_payroll_cm.paperformat_payslip_cm"/>
+    </record>
+    
+    <record id="action_marking_report_cm" model="ir.actions.report">
+        <field name="name">Formato de marcajes CM</field>
+        <field name="model">hr.employee.attendance.record</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_payroll_cm.marking_format_cm</field>
+        <field name="report_file">hr_payroll_cm.marking_format_cm</field>
+        <field name="binding_model_id" ref="hr_payroll_cm.model_hr_employee_attendance_record"/>
+        <field name="binding_type">report</field>
+        <!-- <field name="print_report_name">'Factura - %s'%(object._get_report_base_filename())</field> -->
+        <field name="paperformat_id" ref="hr_payroll_cm.paperformat_markings"/>
+    </record>
+
+    <!-- <record id="action_lot_report_cm" model="ir.actions.report">
+        <field name="name">Formato de Planilla CM</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_payroll_cm.lot_format_cm</field>
+        <field name="report_file">hr_payroll_cm.lot_format_cm</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="hr_payroll_cm.paperformat_markings"/>
+    </record> -->
+
+    <record id="action_lot_report_cm_xlsx" model="ir.actions.report">
+        <field name="name">Planilla XLSX</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_payroll_cm.lot_format_cm_xlsx</field>
+        <field name="report_file">hr_payroll_cm.lot_format_cm_xlsx</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip_run"/>
+    </record>
+
+    <record id="action_employee_payslip_xlsx" model="ir.actions.report">
+        <field name="name">Resumen Nominas Empleado XLSX</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_payroll_cm.employee_payslip_xlsx</field>
+        <field name="report_file">hr_payroll_cm.employee_payslip_xlsx</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+    </record>
+
+    <record id="action_inc_ded_payslip_xlsx" model="ir.actions.report">
+        <field name="name">Ingresos y Deducciones Empleados XLSX</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">hr_payroll_cm.inc_ded_xlsx</field>
+        <field name="report_file">hr_payroll_cm.inc_ded_xlsx</field>
+    </record>
+</odoo>

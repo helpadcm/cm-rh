@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="payslip_receipt_cm">
+        <t t-call="web.html_container">
+            <head>
+                <meta charset="utf-8"/>
+            </head>
+            <t t-foreach="info_report" t-as="o">
+            <!-- <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/> -->
+            <!-- <t t-call="hr_payroll_cm.report_payslip_cm"/> -->
+                <t t-set="company" t-value="res_company"></t>	
+                <t t-set="symbol" t-value="company.currency_id.symbol"/>	
+                <div class="page">
+                    <table style="align:center;width:100%;border-bottom: 2px solid #016630">
+                        <tbody>
+                            <tr style="height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="5">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="width:150px;height:100px" alt="Logo"/>
+                                </td>
+                                <td style="font-size:13px"><strong><span t-field="company.name"/></strong></td>
+                                <td style="text-align:right;font-size:18px" rowspan="2"><strong>COMPROBANTE DE PAGO</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><span t-field="company.street"/>, <span t-field="company.street2"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><span t-field="company.city"/>, <span t-field="company.country_id.name"/>, <span t-field="company.phone"/></td>
+                                <td style="text-align:center;font-size:16px" rowspan="2">
+                                    <div style="padding:3px;border:1px solid #D1D5DC;border-radius:5px;background-color:#B9F8CF;">
+                                        <span t-esc="o.get('period')"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:13px"><strong>RTN: <span t-field="company.vat"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:1%;border: 1px solid #D1D5DC;border-radius:10px;background-color:#F4F4F5;">
+                        <table style="align:center;width:100%;">
+                            <tbody>
+                                <tr style="padding:3px;" >
+                                    <td style="width:20%;font-size:15px;padding:3px;">Código:</td>
+                                    <td style="width:40%;font-size:15px;padding:3px;"><span t-esc="o.get('code')"/></td>
+                                    <td style="width:20%;font-size:15px;padding:3px;">Fecha de Pago:</td>
+                                    <td style="width:20%;font-size:15px;padding:3px;"><span t-esc="o.get('payment_date')"/></td>
+                                </tr>
+                                <tr style="padding:3px;" >
+                                    <td style="font-size:15px;padding:3px;">Empleado:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="o.get('employee_name')"/></td>
+                                    <td style="font-size:15px;padding:3px;">Sueldo Mensual:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="symbol+'{0:,.2f}'.format(o.get('monthly_wage'))"/></td>
+                                </tr>
+                                <tr style="padding:3px;" >
+                                    <td style="font-size:15px;padding:3px;">Identidad:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="o.get('identification')"/></td>
+                                    <td style="font-size:15px;padding:3px;">Sueldo Quincenal:</td>
+                                    <td style="font-size:15px;padding:3px;"><span t-esc="symbol+'{0:,.2f}'.format(o.get('wage'))"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <t t-set="net_amount" t-value="0"/>
+                    <table style="width:100%; border-spacing:15px 0; border-collapse:separate;margin-top:2%;">
+                        <tr>
+                            <td style="width:50%; vertical-align:top;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="3"
+                                                style="
+                                                    background:#2f8f5b;
+                                                    color:white;
+                                                    padding:8px;
+                                                    text-align:left;
+                                                    border-top-left-radius:8px;
+                                                    border-top-right-radius:8px;
+                                                    font-size:16px;">
+                                                + INGRESOS
+                                            </th>
+                                        </tr>
+                                        <tr style="background:#e9ecef;">
+                                            <th style="padding:6px; text-align:left;">CONCEPTO</th>
+                                            <th style="padding:6px; text-align:center;">HORAS</th>
+                                            <th style="padding:6px; text-align:right;">MONTO</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-set="total_incomes" t-value="0"/>
+                                        <t t-foreach="o.get('incomes')" t-as="income">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="income.get('name')"/></td>
+                                                <td style="padding: 6px;"><br/></td>
+                                                <td style="padding: 6px;text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(income.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_incomes" t-value="total_incomes + income.get('amount')"/>
+                                        </t>
+
+                                        <t t-foreach="o.get('incomes_hours')" t-as="hours">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="hours.get('name')"/></td>
+                                                <td style="padding: 6px;text-align:center;"><span t-esc="'{0:,.2f}'.format(hours.get('number_of_hours'))"/></td>
+                                                <td style="padding: 6px;text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(hours.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_incomes" t-value="total_incomes + hours.get('amount')"/>
+                                        </t>
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr style="background:#eef2f5;">
+                                            <td colspan="2"
+                                                style="
+                                                    padding:8px;
+                                                    font-weight:bold;
+                                                    color:#2f8f5b;">
+                                                TOTAL INGRESOS
+                                            </td>
+                                            <td style="
+                                                    padding:8px;
+                                                    text-align:right;
+                                                    font-weight:bold;
+                                                    color:#2f8f5b;">
+                                                <span t-esc="symbol+'{0:,.2f}'.format(total_incomes)"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </td>
+
+                            <td style="width:50%; vertical-align:top;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2"
+                                                style="
+                                                    background:#d32f2f;
+                                                    color:white;
+                                                    padding:8px;
+                                                    text-align:left;
+                                                    border-top-left-radius:8px;
+                                                    border-top-right-radius:8px;
+                                                    font-size:16px;">
+                                                − DEDUCCIONES
+                                            </th>
+                                        </tr>
+                                        <tr style="background:#e9ecef;">
+                                            <th style="padding:6px; text-align:left;">CONCEPTO</th>
+                                            <th style="padding:6px; text-align:right;">MONTO</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-set="total_deductions" t-value="0"/>
+                                        <t t-foreach="o.get('deductions')" t-as="deduction">
+                                            <tr>
+                                                <td style="padding: 6px;"><span t-esc="deduction.get('name')"/></td>
+                                                <td style="padding: 6px; text-align:right;"><span t-esc="symbol+'{0:,.2f}'.format(deduction.get('amount'))"/></td>
+                                            </tr>
+                                            <t t-set="total_deductions" t-value="total_deductions + deduction.get('amount')"/>
+                                        </t>
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr style="background:#eef2f5;">
+                                            <td style="
+                                                    padding:8px;
+                                                    font-weight:bold;
+                                                    color:#d32f2f;">
+                                                TOTAL DEDUCCIONES
+                                            </td>
+                                            <td style="
+                                                    padding:8px;
+                                                    text-align:right;
+                                                    font-weight:bold;
+                                                    color:#d32f2f;">
+                                                <span t-esc="symbol+'{0:,.2f}'.format(total_deductions)"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <t t-set="net_amount" t-value="total_incomes - total_deductions"/>
+
+                    <div style="
+                        background:#0f4d25;
+                        border-radius:10px;
+                        color:white;
+                        padding:18px 25px;
+                        margin-top:2%;
+                    ">
+
+                        <table style="width:100%; border:none;">
+                            <tr>
+                                <td style="
+                                    font-size:20px;
+                                    font-weight:bold;
+                                    color:white;
+                                    border:none;
+                                ">
+                                 NETO A RECIBIR:
+                                </td>
+
+                                <td style="
+                                    text-align:right;
+                                    font-size:24px;
+                                    font-weight:bold;
+                                    color:white;
+                                    border:none;
+                                ">
+                                    <span t-esc="symbol+'{:,.2f}'.format(net_amount)"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <hr style="
+                            border:none;
+                            border-top:1px solid #D1D5DC;
+                            margin:10px 0;
+                        "/>
+                    </div>
+
+                    <table style="width:100%; margin-top:15%;">
+                        <tr>
+                            <td style="width:50%; text-align:center; vertical-align:top;">
+                                <div style="
+                                    width:80%;
+                                    margin:0 auto;
+                                    border-top:1px solid #7f8fa6;
+                                    padding-top:8px;
+                                ">
+                                    <div style="font-size:16px; font-weight:bold; color:#34495e;">
+                                        Entregado por: <span t-esc="company.name"/>
+                                    </div>
+
+                                    <div style="font-size:14px; color:#5d6d7e;">
+                                        Departamento de Talento Humano
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="width:50%; text-align:center; vertical-align:top;">
+                                <div style="
+                                    width:80%;
+                                    margin:0 auto;
+                                    border-top:1px solid #7f8fa6;
+                                    padding-top:8px;
+                                ">
+                                    <div style="font-size:13px; font-weight:bold; color:#34495e;">
+                                        Recibí Conforme:
+                                        <span t-esc="o.get('employee_name')"/>
+                                    </div>
+
+                                    <div style="font-size:14px; color:#5d6d7e;">
+                                        Firma del Empleado
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

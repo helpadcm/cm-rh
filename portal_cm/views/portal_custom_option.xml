@@ -1,0 +1,488 @@
+<odoo>
+    <template id="portal_hours_record_team" name="Ingreso de Horas">
+        <t t-call="portal.portal_layout">
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm p-2 bg-white rounded">
+                <li class="nav-item">
+                    <a class="nav-link active fw-bold" data-bs-toggle="tab" href="#tab1">Ingreso de Horas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#tab2">Quincena Actual</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#tab3">Ult. Quincena</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="container tab-pane fade show active p-4 shadow-sm" id="tab1" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    
+                    <input type="text" class="d-none" name="turn_na" id="id_turn_na" t-att-value="turn_na_id"/>
+
+                    <input type="text" class="d-none" name="initial_turn_a" id="id_initial_turn_a" t-att-value="turn_initial_a_id"/>
+                    <input type="text" class="d-none" name="final_turn_a" id="id_final_turn_a" t-att-value="turn_final_a_id"/>
+                    <input type="text" class="d-none" name="initial_turn_b" id="id_initial_turn_b" t-att-value="turn_initial_b_id"/>
+                    <input type="text" class="d-none" name="final_turn_b" id="id_final_turn_b" t-att-value="turn_final_b_id"/>
+
+
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fa fa-clock-o me-2"></i>
+                            Ingreso de Horas Reales
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Registre los horarios realmente laborados durante la semana.
+                        </p>
+                    </div>
+
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <form action="/hours_day_record/submit" method="POST" class="mt-3">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                        <div class="row g-3 p-4 bg-light shadow-sm" style="border-radius:15px;">
+                            <!-- Primera columna -->
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-calendar me-1"></i>
+                                        Fecha
+                                    </label>
+                                    <input class="form-control shadow-sm" type="date" name="date_record" id="date_record" required="required"/>
+                                </div>
+                            </div>
+
+                            <!-- Segunda columna -->
+                            <div class="col-md-4">
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-bars" aria-hidden="true"></i>
+                                        Tipo de Turno A
+                                    </label>
+                                    <select class="form-control shadow-sm" name="selection_turn_type_a" id="turn_tipo_a" required="required">
+                                        <t t-foreach="records" t-as="types">
+                                            <option t-att-value="types.id" t-att-data-opt-turna="types.opt_turn" t-att-data-opt-turnacode="types.code"><t t-esc="types.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        Entrada 1
+                                    </label>
+                                    <select class="form-control shadow-sm" name="rec_entry_1" id="entry_1" required="required">
+                                        <t t-foreach="schedules" t-as="schedule">
+                                            <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        Salida 1
+                                    </label>
+                                    <select class="form-control shadow-sm" name="rec_out_1" id="out_1" required="required">
+                                        <t t-foreach="schedules" t-as="schedule">
+                                            <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Tercera columna -->
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-bars" aria-hidden="true"></i>
+                                        Tipo de Turno B
+                                    </label>
+                                    <select class="form-control shadow-sm" name="selection_turn_type_b" id="turn_tipo_b" required="required">
+                                        <t t-foreach="records" t-as="types">
+                                            <option t-att-value="types.id" t-att-data-opt-turnb="types.opt_turn" t-att-data-opt-turnbcode="types.code"><t t-esc="types.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        Entrada 2
+                                    </label>
+                                    <select class="form-control shadow-sm" name="rec_entry_2" id="entry_2" required="required">
+                                        <t t-foreach="schedules" t-as="schedule">
+                                            <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-secondary">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        Salida 2
+                                    </label>
+                                    <select class="form-control shadow-sm" name="rec_out_2" id="out_2" required="required">
+                                        <t t-foreach="schedules" t-as="schedule">
+                                            <option t-att-value="schedule.id"><t t-esc="schedule.name"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-secondary">
+                                    <i class="fa fa-sticky-note" aria-hidden="true"></i>
+                                    Notas
+                                </label>
+                                <textarea
+                                    name="record_notes"
+                                    class="form-control shadow-sm"
+                                    id="notes"
+                                    rows="3"
+                                    placeholder="Ingrese observaciones o comentarios"></textarea>
+                            </div>
+
+                            <div class="col-12 text-center">
+                                <button type="submit"
+                                        class="btn btn-primary btn-lg px-3 shadow-sm mt-3">
+                                    <i class="fa fa-save me-2"></i>
+                                    Registrar Horas
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <h4 class="text-center mt-4">Horas Ingresadas</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle historical_table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
+                                    <th class="header_historical">Estado</th>
+                                    <th class="header_historical">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_wt" t-value="0"/>
+                                <t t-set="total_oh" t-value="0"/>
+                                <t t-set="total_eh" t-value="0"/>
+                                <t t-foreach="draft_hours" t-as="days">
+                                    <tr>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <!-- <td ><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
+                                        <td style="text-align:center" t-if="days.state == 'draft'">
+                                            <span class="badge bg-warning text-dark">
+                                                BORRADOR
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center" t-if="days.state == 'validated'">
+                                            <span class="badge bg-success">
+                                                VALIDADO
+                                            </span>
+                                        </td>
+                                        <td style="text-align:center" t-if="days.state == 'draft'">
+                                            <form t-att-action="'/delete_record/' + str(days.id)" method="POST">
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('¿Está seguro de eliminar este registro?')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td style="text-align:center" t-if="days.state == 'validated'">
+                                            <i class="fa fa-check"></i>
+                                        </td>
+                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
+                                    </tr>
+                                </t>
+                                <tr class="table-primary fw-bold">
+                                    <td colspan="8">
+                                        <i class="fa fa-calculator me-1"></i>
+                                        TOTAL
+                                    </td>
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="container tab-pane fade show p-4 shadow-sm" id="tab2" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle historical_table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_wt" t-value="0"/>
+                                <t t-set="total_oh" t-value="0"/>
+                                <t t-set="total_eh" t-value="0"/>
+                                <t t-foreach="actual_record_ids" t-as="days">
+                                    <tr>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
+                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
+                                    </tr>
+                                </t>
+                                <tr class="table-primary fw-bold">
+                                    <td colspan="8">
+                                        <i class="fa fa-calculator me-1"></i>
+                                        TOTAL
+                                    </td>
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="container tab-pane fade show p-4 shadow-sm" id="tab3" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle historical_table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="header_historical">Fecha</th>
+                                    <th class="header_historical">Dia</th>
+                                    <th class="header_historical">Turno A</th>
+                                    <th class="header_historical">Entrada 1</th>
+                                    <th class="header_historical">Salida 1</th>
+                                    <th class="header_historical">Turno B</th>
+                                    <th class="header_historical">Entrada 2</th>
+                                    <th class="header_historical">Salida 2</th>
+                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_wt" t-value="0"/>
+                                <t t-set="total_oh" t-value="0"/>
+                                <t t-set="total_eh" t-value="0"/>
+                                <t t-foreach="validate_records" t-as="days">
+                                    <tr>
+                                        <td style="text-align:center"><t t-esc="days.date.strftime('%d/%m/%Y')"/></td>
+                                        <td style="text-align:center"><t t-esc="days.name_day"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_a.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule1_out_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
+                                        <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
+                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
+                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
+                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
+                                    </tr>
+                                </t>
+                                <tr class="table-primary fw-bold">
+                                    <td colspan="8">
+                                        <i class="fa fa-calculator me-1"></i>
+                                        TOTAL
+                                    </td>
+                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
+                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    var turnTypeA = document.getElementById("turn_tipo_a");
+                    var entry1 = document.getElementById("entry_1");
+                    var out1 = document.getElementById("out_1");
+
+                    var turnTypeB = document.getElementById("turn_tipo_b");
+                    var entry2 = document.getElementById("entry_2");
+                    var out2 = document.getElementById("out_2");
+
+                    var na_id = document.getElementById("id_turn_na");
+                    var start_turn_a_id = document.getElementById("id_initial_turn_a");
+                    var end_turn_a_id = document.getElementById("id_final_turn_a");
+                    var start_turn_b_id = document.getElementById("id_initial_turn_b");
+                    var end_turn_b_id = document.getElementById("id_final_turn_b");
+
+
+                    function setDefaultValues() {
+                        var selectedOption = turnTypeA.options[turnTypeA.selectedIndex];
+                        var optTurnA = selectedOption.getAttribute("data-opt-turna");
+                        var optTurnACode = selectedOption.getAttribute("data-opt-turnacode");
+
+                        var selectedOption = turnTypeB.options[turnTypeB.selectedIndex];
+                        var optTurnB = selectedOption.getAttribute("data-opt-turnb");
+                        var optTurnBCode = selectedOption.getAttribute("data-opt-turnbcode");
+
+                        if (optTurnA === "0") {
+                            entry1.value = na_id.value;
+                            out1.value = na_id.value;
+                            entry1.setAttribute("disabled", true);
+                            out1.setAttribute("disabled", true);
+                        }else{
+                            if (optTurnACode === "VAC" || optTurnACode === "F") {
+                                entry1.value = start_turn_a_id.value;
+                                out1.value = end_turn_a_id.value;
+                                <!-- entry1.setAttribute("disabled", true);
+                                out1.setAttribute("disabled", true); -->
+                            }else{
+                                entry1.value = false;
+                                out1.value = false;
+                                entry1.removeAttribute("disabled");
+                                out1.removeAttribute("disabled");
+                            }
+                        }
+
+                        if (optTurnB === "0") {
+                            entry2.value = na_id.value;
+                            out2.value = na_id.value;
+                            entry2.setAttribute("disabled", true);
+                            out2.setAttribute("disabled", true);
+                        }else{
+                            if (optTurnBCode === "VAC" || optTurnBCode === "F") {
+                                entry2.value = start_turn_b_id.value;
+                                out2.value = end_turn_b_id.value;
+                                <!-- entry2.setAttribute("disabled", true);
+                                out2.setAttribute("disabled", true); -->
+                            }else{
+                                entry2.value = false;
+                                out2.value = false;
+                                entry2.removeAttribute("disabled");
+                                out2.removeAttribute("disabled");
+                            }
+                        }
+
+
+                    }
+
+                    // Asignar valores al cargar la página
+                    setDefaultValues();
+
+                    // Asignar valores cuando cambie el turno
+                    turnTypeA.addEventListener("change", setDefaultValues);
+                    turnTypeB.addEventListener("change", setDefaultValues);
+                });
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

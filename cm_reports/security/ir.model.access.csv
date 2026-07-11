@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+cm_reports.access_cm_reports_invoice_reports,access_cm_reports_invoice_reports,cm_reports.model_cm_reports_invoice_reports,base.group_user,1,1,1,1
+cm_reports.access_cm_reports_wizard_account_status,access_cm_reports_wizard_account_status,cm_reports.model_cm_reports_wizard_account_status,base.group_user,1,1,1,1
+cm_reports.access_report_check_wizard_check_list,access_report_check_wizard_check_list,cm_reports.model_report_check_wizard_check_list,base.group_user,1,1,1,1

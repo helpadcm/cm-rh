@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_hr_calculate_assists" model="ir.ui.view">
+        <field name="name">hr.get.assists.form</field>
+        <field name="model">hr.get.assists</field>
+        <field name="arch" type="xml">
+            <form string="Calcular datos">
+                <sheet>
+                    <group>
+                        <field name="date" required="1" string="Fecha"/>
+                    </group>
+                    <footer>
+                        <button string="Obtener Datos" type="object" name="get_records" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="calculate_assists_action" model="ir.actions.act_window">
+        <field name="name">Calcular Datos</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.get.assists</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

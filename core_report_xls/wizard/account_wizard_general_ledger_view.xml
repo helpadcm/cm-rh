@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+		<record id="account_report_general_ledger_view_form_inherit" model="ir.ui.view">
+			<field name="name">account.report.general.ledger.form.inherit</field>
+			<field name="model">account.report.general.ledger</field>
+			<field name="inherit_id" ref="accounting_pdf_reports.account_report_general_ledger_view"/>
+			<field name="arch" type="xml">
+				<xpath expr="//field[@name='initial_balance']" position="after">		    
+					<field name="group_ledger" />
+					<field name="consolidate" />
+				</xpath>
+				<xpath expr="//field[@name='analytic_account_ids']" position="attributes">		    
+					<attribute name="invisible">0</attribute>
+				</xpath>
+			
+				<xpath expr="//button[@name='check_report']" position="after">
+					<button name="check_report" context="{'export_excel':True}" string="Excel" type="object" default_focus="1" class="oe_highlight"/>
+				</xpath>
+			</field>
+		</record>
+    </data>
+</odoo>
+
+

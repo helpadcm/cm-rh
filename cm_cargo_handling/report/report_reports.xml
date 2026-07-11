@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_guide_format" model="ir.actions.report">
+        <field name="name">Guia de encomiendas</field>
+        <field name="model">sale.order.handling</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.main_template_guides</field>
+        <field name="report_file">cm_cargo_handling.main_template_guides</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+    </record>
+
+    <record id="action_invoice_guide_format" model="ir.actions.report">
+        <field name="name">Factura</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.main_template_invoice</field>
+        <field name="report_file">cm_cargo_handling.main_template_invoice</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+    </record>
+
+    <record id="action_invoice_guide_move_format" model="ir.actions.report">
+        <field name="name">Factura Encomiendas</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.invoice_format_handling</field>
+        <field name="report_file">cm_cargo_handling.invoice_format_handling</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+    </record>
+
+    <record id="cargo_manifest_report_id" model="ir.actions.report">
+        <field name="name">Manifiesto de Carga</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.report_cargo_manifest</field>
+        <field name="report_file">cm_cargo_handling.report_cargo_manifest</field>
+        <field name="binding_type">report</field>
+        <field name="binding_model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
+    </record>
+
+    <record id="cash_receipt_report_id" model="ir.actions.report">
+        <field name="name">Recibo de Caja</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.report_cash_receipt</field>
+        <field name="report_file">cm_cargo_handling.report_cash_receipt</field>
+        <field name="binding_type">report</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_manifest"/>
+    </record>
+
+    <record id="abandoned_guide_report_id" model="ir.actions.report">
+        <field name="name">Guias abandonadas</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.abandoned_guides_report</field>
+        <field name="report_file">cm_cargo_handling.abandoned_guides_report</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_abandoned_guide"/>
+    </record>
+
+    <record id="action_abandonment_report_id" model="ir.actions.report">
+        <field name="name">Acta de abandono</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.abandonment_report</field>
+        <field name="report_file">cm_cargo_handling.abandonment_report</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_abandoned_report"/>
+    </record>
+
+    <record id="action_daily_sales_report" model="ir.actions.report">
+        <field name="name">Ventas Diarias</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.daily_sales_report</field>
+        <field name="report_file">cm_cargo_handling.daily_sales_report</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_abandoned_report"/>
+    </record>
+
+    <record id="action_group_guide" model="ir.actions.report">
+        <field name="name">Guias de agrupadas</field>
+        <field name="model">cargo.invoice.group_guides</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.guide_group_invoice</field>
+        <field name="report_file">cm_cargo_handling.guide_group_invoice</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
+    </record>
+
+    <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
+        <field name="name">Manifiesto de Carga XLSX</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+        <field name="binding_model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
+    </record>
+
+    <record id="cargo_volume_handling_xlsx" model="ir.actions.report">
+        <field name="name">Volumen en encomiendas XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_volume_handling_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_volume_handling_xlsx</field>
+    </record>
+
+    <record id="cargo_guide_reviews_xlsx" model="ir.actions.report">
+        <field name="name">Revision de guias XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_guides_reviews_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_guides_reviews_xlsx</field>
+    </record>
+
+    <record id="action_discount_applied_xlsx" model="ir.actions.report">
+        <field name="name">Descuentos aplicados XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_discount_applied_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_discount_applied_xlsx</field>
+    </record>
+
+    <record id="action_daily_sales_report_xlsx" model="ir.actions.report">
+        <field name="name">Ventas Diarias XLSX</field>
+        <field name="model">cargo.bill</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.daily_sales_report_xlsx</field>
+        <field name="report_file">cm_cargo_handling.daily_sales_report_xlsx</field>
+    </record>
+
+    <record id="action_cargo_manifest_report_xlsx" model="ir.actions.report">
+        <field name="name">Cargo manifest Excel</field>
+        <field name="model">cargo.manifest</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+        <field name="report_file">cm_cargo_handling.report_cargo_manifest_xlsx</field>
+    </record>
+</odoo>

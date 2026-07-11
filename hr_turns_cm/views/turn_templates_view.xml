@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_turn_templates" model="ir.ui.view">
+        <field name="name">turn.templates.form</field>
+        <field name="model">hr.templates.turn</field>
+        <field name="arch" type="xml">
+            <form string="Equipos de trabajo">
+                <sheet>
+                    <h1>
+                        <field name="name" required="1" placeholder="Nombre de plantilla"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="leader_id" options="{'no_create': True}" readonly="1" widget="many2one_avatar_employee"/>
+                            <field name="team_id" required="1" options="{'no_create': True}" domain="['|',('leader_id','in',[leader_id,responsible_id]),('responsible_id','in',[leader_id,responsible_id])]"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id" options="{'no_create': True}" required="1" widget="many2one_avatar_employee"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lineas">
+                            <field name="template_line_ids">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="day_opt" readonly="1" force_save="1"/>
+                                    <field name="turn_type_a" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule1_in_id" force_save="1" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule1_out_id" force_save="1" readonly="editable_a == False" options="{'no_create': True}" required="1"/>
+                                    <field name="turn_type_b" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule2_in_id" force_save="1" readonly="editable_b == False" options="{'no_create': True}" required="1"/>
+                                    <field name="schedule2_out_id" force_save="1" readonly="editable_b == False" options="{'no_create': True}" required="1"/>
+                                    <field name="editable_a" column_invisible="1"/>
+                                    <field name="editable_b" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page> 
+                    </notebook>
+                </sheet>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_templates_turn_search" model="ir.ui.view">
+        <field name="name">hr.teams.work.search</field>
+        <field name="model">hr.templates.turn</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda Plantillas">
+                <field name="name"/>
+                <filter string="Inactivo" name="active_filter" domain="[('active','=',False)]"/>
+                <group>
+                    <filter string="Equipo" name="group_team" context="{'group_by':'team_id'}"/>
+                    <filter string="Lider" name="group_leader" context="{'group_by':'leader_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record id="view_turn_templates_tree" model="ir.ui.view">
+        <field name="name">hr.templates.turn.tree</field>
+        <field name="model">hr.templates.turn</field>
+        <field name="arch" type="xml">
+            <list string="Lista de plantillas">
+                <field name="name"/>
+                <field name="leader_id" widget="many2one_avatar_user"/>
+                <field name="responsible_id" widget="many2one_avatar_user"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_templates_turn" model="ir.actions.act_window">
+        <field name="name">Plantilla de turnos</field>
+        <field name="res_model">hr.templates.turn</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

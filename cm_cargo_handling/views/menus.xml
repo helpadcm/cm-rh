@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <menuitem
+            id="cargo_handling_menu_root"
+            name="Encomiendas"
+            web_icon="cm_cargo_handling,static/description/icon.png"
+            action="action_sale_order_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
+            sequence="6"/>
+
+<!-- ##################################  SALE ORDERS  ##################################################  -->
+
+        <menuitem
+            id="sale_order_handling_root"
+            name="Ordenes de venta"
+            parent="cargo_handling_menu_root"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
+            sequence="1"/>
+
+        <menuitem
+            id="sale_order_handling_menuitem"
+            name="Ordenes"
+            parent="sale_order_handling_root"
+            action="action_sale_order_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
+            sequence="1"/>
+
+        <menuitem
+            id="bill_handling_menuitem"
+            name="Guias de Carga"
+            parent="sale_order_handling_root"
+            action="action_cargo_bill_object"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
+            sequence="2"/>
+
+        <menuitem
+            id="sender_receiver_menuitem"
+            name="Historial Remitentes/Destinatarios"
+            parent="sale_order_handling_root"
+            action="action_receiver_sender_list"
+            groups="cm_cargo_handling.group_cargo_handling_manager,cm_cargo_handling.group_cargo_handling_user,cm_cargo_handling.group_cargo_handling_ventas,cm_cargo_handling.group_guia_cargar_admin"
+            sequence="3"/>
+
+        <menuitem
+            id="partner_handling_menuitem"
+            name="Clientes"
+            parent="sale_order_handling_root"
+            action="action_partner_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="4"/>
+
+        <menuitem
+            id="product_handling_menuitem"
+            name="Productos"
+            parent="sale_order_handling_root"
+            action="action_product_handling"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="5"/>
+
+<!-- ##################################  PAYMENTS  ##################################################  -->
+
+        <menuitem
+            id="payments_root"
+            name="Pagos"
+            parent="cargo_handling_menu_root"
+            sequence="2"/>
+
+        <menuitem
+            id="cargo_prepago_sale"
+            name="Pagos de Caja"
+            parent="payments_root"
+            sequence="1"
+            action="action_prepago_object"/> 
+
+        <menuitem
+            id="cargo_prepago_sale2"
+            name=" Todos los pagos de caja"
+            parent="payments_root"
+            sequence="2"
+            groups="cm_cargo_handling.group_todos_los_pagos"
+            action="action_prepago_object2"/> 
+
+<!-- ###############################  REPORTS  ###################################################### -->
+
+        <menuitem
+            id="cargo_handling_report_menu"
+            name="Reportes"
+            parent="cargo_handling_menu_root"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports"
+            sequence="3"/>
+
+        <menuitem
+            id="others_report_menuitem"
+            name="Reportes encomiendas"
+            parent="cargo_handling_report_menu"
+            action="action_wizard_handling_report"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports"
+            sequence="1"/>
+
+<!-- ###############################  CONFIGURATIONS  ###################################################### -->
+        <menuitem
+            id="cargo_handling_config"
+            name="Configuracion"
+            parent="cargo_handling_menu_root"
+            groups="cm_cargo_handling.group_cargo_handling_manager"
+            sequence="4"/>
+
+        <menuitem
+            id="airport_config_menu"
+            name="Configuracion Aeropuertos"
+            parent="cargo_handling_config"
+            sequence="1"/>
+
+        <menuitem
+            id="cargo_handling_airport"
+            name="CTIS"
+            parent="airport_config_menu"
+            sequence="1"
+            action="action_cargo_airport_object"/>
+
+        <menuitem
+            id="cargo_handling_airport_rel"
+            name="CTIPAIR"
+            parent="airport_config_menu"
+            sequence="2"
+            action="action_cargo_airport_rel_object"/>
+
+        <menuitem
+            id="cargo_handling_station"
+            name="Puntos de Envio"
+            parent="airport_config_menu"
+            sequence="3"
+            action="action_cargo_station_object"/>
+
+        <menuitem
+            id="pricelist_handling_menuitem"
+            name="Lista de Precios"
+            parent="airport_config_menu"
+            sequence="4"
+            action="action_pricelist_handling"/>
+
+
+        <menuitem
+            id="cargo_type_menuitem"
+            name="Tipos de Envio"
+            parent="cargo_handling_config"
+            sequence="2"
+            action="action_cargo_type_object"/>
+
+        <menuitem
+            id="cargo_handling_additional_services"
+            name="Servicios Adicionales"
+            parent="cargo_handling_config"
+            sequence="2"
+            action="action_cargo_additional_services_object"/>
+
+        <menuitem
+            id="cargo_handling_content_description"
+            name="Descripcion de Contenido"
+            parent="cargo_handling_config"
+            sequence="3"
+            action="action_cargo_content_description_object"/>
+
+        <menuitem
+            id="fare_classes_menuitem"
+            name="Clases tarifarias"
+            parent="cargo_handling_config"
+            sequence="4"
+            action="action_fare_classes"/>
+
+        <menuitem
+            id="lost_reason_guide_menuitem"
+            name="Motivos para desechar"
+            parent="cargo_handling_config"
+            sequence="5"
+            action="action_lost_reason_guide"/>
+
+        <menuitem
+            id="volumen_list_menuitem"
+            name="Volumenes"
+            parent="cargo_handling_config"
+            sequence="6"
+            action="action_volumen_list"/>
+
+        <menuitem
+            id="discount_list_menuitem"
+            name="Listado de Descuentos"
+            parent="cargo_handling_config"
+            sequence="7"
+            action="action_discount_list"/>
+    
+        <!-- ###############################  LANDING MANIFEST ########################################-->
+        
+        <menuitem
+            id="cargo_manifest_main"
+            name="Manifiestos de carga"
+            web_icon="cm_cargo_handling,static/description/manifest_icon.png"
+            groups="cm_cargo_handling.group_cargo_manifest_create,cm_cargo_handling.group_cargo_manifest_logs"
+            sequence="25"/>
+
+        <menuitem
+            id="cargo_manifest_board"
+            name="Tablero"
+            parent="cargo_manifest_main"
+            sequence="1"
+            action="cargo_manifest_dashboard_kanban"/>
+            
+        <menuitem
+            id="cargo_manifest_main_menu"
+            name="Manifiestos de carga"
+            parent="cargo_manifest_main"
+            sequence="2"/>
+
+        <menuitem
+            id="cargo_manifest"
+            name="Manifiestos de carga"
+            parent="cargo_manifest_main_menu"
+            sequence="2"
+            action="action_cargo_manifest"/>
+
+        <menuitem
+            id="cargo_manifest_logs_menu"
+            name="Bitacora"
+            parent="cargo_manifest_main"
+            sequence="3"/>
+
+        <menuitem
+            id="cargo_manifest_logs"
+            name="Bitacora Manifiesto de Carga"
+            parent="cargo_manifest_logs_menu"
+            sequence="1"
+            groups="cm_cargo_handling.group_cargo_manifest_logs"
+            action="action_cargo_manifest_logs"/>
+
+        <menuitem
+            id="cargo_bill_logs"
+            name="Bitacoras de guias de carga"
+            parent="cargo_manifest_logs_menu"
+            groups="cm_cargo_handling.group_cargo_manifest_logs"
+            sequence="2"
+            action="action_cargo_bill_logs"/>
+
+        <!-- <menuitem
+            id="cargo_manifest_2"
+            name="My station Cargo manifest"
+            parent="cargo_manifest_main_menu"
+            sequence="3"
+            action="cargo_manifest_action_python"/> -->
+
+
+    <!-- ###############################  OTHERS ########################################-->
+        <menuitem
+            id="invoice_group_guides_menuitem"
+            name="Facturacion de guias"
+            parent="account.menu_finance_receivables"
+            groups="cm_cargo_handling.group_guia_cargar_group_invoice"
+            sequence="200"
+            action="action_invoice_guide_groups"/>
+
+</odoo>

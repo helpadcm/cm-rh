@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+        id="turns_menu_root"
+        name="Turnos de trabajo"
+        web_icon="hr_turns_cm,static/description/icon.png"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="6"/>
+
+    <menuitem
+        id="turn_registration_menuitem"
+        name="Turnos de trabajo"
+        parent="turns_menu_root"
+        sequence="1"/>
+    
+    <menuitem
+        id="turns_menuitem"
+        name="Turnos de trabajo"
+        action="hr_turns_cm.action_turn_registration"
+        parent="turn_registration_menuitem"
+        sequence="1"/>
+
+    <menuitem
+        id="manual_turn_menuitem"
+        name="Turnos Manuales"
+        action="hr_turns_cm.action_create_turns"
+        parent="turn_registration_menuitem"
+        groups="hr_turns_cm.user_turn_cm,hr_turns_cm.manager_turn_cm"
+        sequence="2"/>
+
+    <!-- <menuitem
+        id="validate_turns_menuitem"
+        name="Validar Turnos"
+        action="hr_turns_cm.action_validate_turns"
+        parent="turn_registration_menuitem"
+        groups="hr_turns_cm.user_turn_cm"
+        sequence="3"/> -->
+
+<!-- ########################################################################## -->
+    
+    <menuitem
+        id="work_teams_root"
+        name="Equipos de trabajo"
+        parent="turns_menu_root"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="2"/>
+
+    <menuitem
+        id="work_teams_menuitem"
+        name="Equipos"
+        action="hr_turns_cm.action_hr_turn_work_teams"
+        parent="work_teams_root"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="1"/>
+
+<!-- ########################################################################## -->
+
+    <menuitem
+        id="reports_turns_menu"
+        name="Informes"
+        parent="turns_menu_root"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="3"/>
+
+    <menuitem
+        id="planification_format_menuitem"
+        name="Formato de planificacion"
+        action="hr_turns_cm.action_print_planification"
+        parent="reports_turns_menu"
+        sequence="1"/>
+
+    <menuitem
+        id="attendance_team_menuitem"
+        name="Asistencia de equipo"
+        action="action_attendance_team_wizard"
+        parent="reports_turns_menu"
+        sequence="2"/>
+
+<!-- ########################################################################## -->
+
+    <menuitem
+        id="setting_work_teams_menu"
+        name="Configuraciones"
+        parent="turns_menu_root"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="4"/>
+
+    <menuitem
+        id="schedules_options_menuitem"
+        name="Horarios de trabajo"
+        action="hr_turns_cm.action_schedules_options"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="1"/>
+
+    <menuitem
+        id="turn_types_menuitem"
+        name="Tipos de turno"
+        action="hr_turns_cm.action_turn_types"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="2"/>
+
+    <menuitem
+        id="turn_templates_menuitem"
+        name="Plantillas de turno"
+        action="hr_turns_cm.action_templates_turn"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm,hr_turns_cm.user_turn_cm"
+        sequence="3"/>
+
+    <menuitem
+        id="fortngiht_create_menuitem"
+        name="Creador de quincenas"
+        action="hr_turns_cm.action_fortnights"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="4"/>
+
+    <menuitem
+        id="notif_email_turns_menuitem"
+        name="Correos para Notificaciones"
+        action="hr_turns_cm.action_notification_email"
+        parent="setting_work_teams_menu"
+        groups="hr_turns_cm.manager_turn_cm"
+        sequence="5"/>
+
+</odoo>

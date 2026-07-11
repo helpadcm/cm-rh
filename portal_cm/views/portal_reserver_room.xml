@@ -1,0 +1,268 @@
+<odoo>
+    <template id="reserve_room_portal" name="Reservar Sala">
+        <t t-call="portal.portal_layout">
+            <div class="text-center py-4 mb-4 border-bottom" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fa fa-calendar-check-o me-2"></i>
+                    Reserva de Sala
+                </h1>
+                <p class="lead text-muted mb-0">
+                    Desde aqui podra realizar su reservacion en la sala de oficina principa.<br></br>
+                    Antes de intentar realizar su reserva consulte en que horarios se encuentra ya reservada. Para ello seleccione la fecha y de en consultar.
+                </p>
+            </div>
+
+            <ul class="nav nav-pills nav-fill mb-4 shadow-sm p-2 bg-white rounded">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#tab1">
+                        <i class="fa fa-search me-1"></i>
+                        Consultar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#tab2">
+                        <i class="fa fa-calendar-plus-o me-1"></i>
+                        Reservar
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                <div class="container tab-pane fade show active" id="tab1" >
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_reserve/submit" method="POST" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="card shadow border-0">
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-search me-2"></i>
+                                            Consultar Disponibilidad
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row align-items-end">
+                                            <div class="col-md-8 mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-calendar me-1"></i>
+                                                    Fecha a Consultar
+                                                </label>
+                                                <input
+                                                    class="form-control"
+                                                    type="date"
+                                                    name="consult_date"
+                                                    id="consult_date_id"
+                                                    required="required"/>
+                                            </div>
+                                            <div class="col-md-4 mb-3 text-end">
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary px-4">
+                                                    <i class="fa fa-search me-1"></i>
+                                                    Consultar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <t t-if="reserve_ids">
+                        <div class="table-responsive">
+                            <div class="card shadow-sm border-0 mt-4">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-list me-2"></i>
+                                        Reservas Existentes
+                                    </h5>
+                                </div>
+
+                                <div class="card-body;">
+                                    <table class="table table-hover table-striped align-middle historical_reserve">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th class="header_historical">Nombre</th>
+                                                <th class="header_historical">Fecha y Hora de Inicio</th>
+                                                <th class="header_historical">Fecha y Hora de Finalizacion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="reserve_ids" t-as="reserve">
+                                                <tr>
+                                                    <td><t t-esc="reserve.name"/></td>
+                                                    <td><t t-esc="(reserve.start_datetime - datetime.timedelta(hours=6)).strftime('%d/%m/%Y %H:%M')"/></td>
+                                                    <td><t t-esc="(reserve.stop_datetime - datetime.timedelta(hours=6)).strftime('%d/%m/%Y %H:%M')"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <tr>
+                            <td colspan="3" style="font-size:20px" class="text-center">
+                                <div class="alert alert-success shadow-sm mt-4">
+                                    <i class="fa fa-check-circle me-2"></i>
+                                    No existen reservas registradas para la fecha seleccionada.
+                                </div>
+                            </td>
+                        </tr>
+                    </t>
+                </div>
+                <div id="tab2" class="tab-pane fade">
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-8 col-lg-6">
+                            <form action="/request_create_reserve/submit" method="POST" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="card shadow border-0">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-calendar-plus-o me-2"></i>
+                                            Nueva Reserva
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-play-circle me-1"></i>
+                                                    Fecha Inicial
+                                                </label>
+                                                <input class="form-control" type="datetime-local" name="initial_date" id="initial_date_id" required="required"/>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3" id="final_date_div">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-stop-circle me-1"></i>
+                                                    Fecha Final
+                                                </label>
+                                                <input class="form-control" type="datetime-local" name="final_date" id="final_date_id" required="required"/>
+                                            </div>
+
+
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-tag me-1"></i>
+                                                    Nombre de Reserva
+                                                </label>
+                                                <input type="text" name="record_reserve_name" class="form-control" id="notes" required="required"/>
+                                            </div>
+
+                                            <div class="col-12 text-center">
+                                                <div class="text-end mt-4">
+                                                    <button type="submit"
+                                                            class="btn btn-success px-4">
+                                                        <i class="fa fa-calendar-check-o me-1"></i>
+                                                        Crear Reserva
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

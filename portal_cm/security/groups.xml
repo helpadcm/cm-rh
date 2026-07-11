@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="validate_turn_team_user_rule" model="ir.rule">
+            <field name="name">Regla usuario validador de horas</field>
+            <field name="model_id" ref="portal_cm.model_team_hour_record"/>
+            <field name="domain_force">['|',('leader_id.user_id', '=', user.id),('responsible_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.user_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="validate_turn_team_admin_rule" model="ir.rule">
+            <field name="name">Regla manager validador de horas</field>
+            <field name="model_id" ref="portal_cm.model_team_hour_record"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_turns_cm.manager_turn_cm'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
+</odoo>

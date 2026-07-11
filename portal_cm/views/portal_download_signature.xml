@@ -1,0 +1,133 @@
+<odoo>
+    <template id="portal_download_signature" name="Descargar Firma">
+        <t t-call="portal.portal_layout">
+            <div class="container tab-pane fade show active" style="background: rgba(255,255,255,0.7);border-radius:10px;" id="tab1">
+                <div class="text-center py-4 mb-4 border-bottom">
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="fa fa-pencil-square-o me-2"></i>
+                        Firma Digital
+                    </h1>
+
+                    <p class="lead text-muted mb-0">
+                        Descargue su firma digital con la información actualizada de su perfil.
+                    </p>
+
+                </div>
+
+                <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                    <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                        <t t-esc="request.session.pop('flash_message')"/>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-8 col-lg-6">
+                        <div class="alert alert-info border-0 shadow-sm">
+                            <i class="fa fa-info-circle me-2"></i>
+                            Verifique que la información mostrada sea correcta antes de generar su firma digital.
+                        </div>
+                        <form action="/download_signature/submit" method="POST" class="mt-2" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <div class="card shadow border-0">
+
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-download me-2"></i>
+                                        Información para Firma Digital
+                                    </h5>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-user me-1"></i>
+                                                    Nombre
+                                                </label>
+                                                <input type="text" class="form-control" name="employee_name" id="employee_name_id" t-att-value="employee_name"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-briefcase me-1"></i>
+                                                    Puesto de Trabajo
+                                                </label>
+                                                <input type="text" disabled="disabled" class="form-control bg-light fw-bold" name="record_job" id="job_id" t-att-value="job"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-map-marker me-1"></i>
+                                                    Dirección
+                                                </label>
+                                                <input type="text" disabled="disabled" class="form-control bg-light fw-bold" name="record_address" id="address_id" t-att-value="address"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Teléfono
+                                                </label>
+                                                <input type="text" disabled="disabled" class="form-control bg-light fw-bold" name="record_mobile" id="mobile_id" t-att-value="mobile"/>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-end mt-4">
+                                            <button type="submit"
+                                                    class="btn btn-primary px-4">
+                                                <i class="fa fa-download me-1"></i>
+                                                Descargar Firma
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .header_historical{
+                    font-size: 13px !important;
+                    background-color: #008000 !important;
+                    color: #FFFFFF !important;
+                }
+
+                .historical_table tbody tr:hover{
+                    background-color: #ABEBC6 !important;
+                    transition: background 0.3s;
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="ir.actions.report" id="report_check_reporte_cheques_providers">
+        <field name="name">Cheque</field>
+        <field name="model">mcheck.mcheck</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_banks.check_template</field>
+        <field name="report_file">cm_banks.check_template</field>
+        <!-- <field name="print_report_name">'Attendance Report - %s' % (object.name).replace('/', '')</field> -->
+        <field name="binding_model_id" ref="cm_banks.model_mcheck_mcheck"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_banks.paperformat_check"/>
+    </record>
+
+    <record model="ir.actions.report" id="report_cheques_providers">
+        <field name="name">Cheque Proveedor</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_banks.payment_check_provider</field>
+        <field name="report_file">cm_banks.payment_check_provider</field>
+        <!-- <field name="print_report_name">'Attendance Report - %s' % (object.name).replace('/', '')</field> -->
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_banks.paperformat_check"/>
+    </record>
+</odoo>

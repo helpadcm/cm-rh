@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+        <record id="view_wizard_handling_report" model='ir.ui.view'>
+            <field name="name">Reportes de encomiendas</field>
+            <field name="model">handling.reports</field>
+            <field name="arch" type="xml">
+                <form string='Cancelar Manifiesto'>
+                    <group>
+                        <group>
+                            <field name="report_opt" required="1"/>
+                        </group>
+                        <group>
+                            <field name="detail" invisible="report_opt not in ['4']"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="initial_date" required="1"/>
+                            <field name="origin_id" invisible="report_opt != '5'" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="final_date" invisible="report_opt == '2'" required="report_opt in ['1','3','4']"/>
+                            <field name="destination_id" invisible="report_opt != '5'" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group invisible="report_opt not in ['4']">
+                        <field name="partner_ids" domain="[('cargo_client','=',True)]" widget="many2many_tags" options="{'no_create': True}" invisible="report_opt not in ['4']" placeholder="Si no se elige cliente se traera informacion de todos los clientes con descuento aplicados"/>
+                    </group>
+                    <footer>
+                        <button name="print_report" class="oe_highlight" string="Imprimir" type="object"/>
+                        <button name="print_report" invisible="report_opt != '5'" context="{'print_excel': True}" class="oe_highlight" string="Excel" type="object"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_wizard_handling_report" model="ir.actions.act_window">
+            <field name="name">Reportes de encomiendas</field>
+            <field name="res_model">handling.reports</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wizard_handling_report"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

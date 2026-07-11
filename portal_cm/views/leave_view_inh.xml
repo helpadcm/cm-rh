@@ -1,0 +1,81 @@
+<odoo>
+    <record id="hr_leave_type_inh_form" model="ir.ui.view">
+        <field name="name">hr.leave.type.inh</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+        <field name="arch" type="xml">
+            <field name="time_type" position="after">
+                <field name="code"/>
+                <field name="code_zenith" />
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_leave_portal_form" model="ir.ui.view">
+        <field name="name">hr.leave.portal.inh</field>
+        <field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="code" invisible="1"/>
+            </field>
+            <xpath expr="//form/sheet/div/div[2]" position="after">
+                <notebook>
+                    <page name="pfly" string="Solicitud de Vuelo" invisible="code not in ['PFLY','SCP','SCSE']">
+                        <group string="Datos de solicitud">
+                            <group>
+                                <field name="tickets_request" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="exit_only" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="open_back" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                            </group>
+                            <group>
+                                <field name="exit_route_id" options="{'no_create': True}" required="code in ['PFLY','SCP','SCSE']" invisible="code not in ['PFLY','SCP','SCSE']" readonly="state not in ['draft','confirm']"/>
+                                <field name="return_route_id" options="{'no_create': True}" required="code in ['PFLY','SCP','SCSE'] and not exit_only and not open_back" invisible="code not in ['PFLY','SCP','SCSE'] or exit_only or open_back" readonly="state not in ['draft','confirm']"/>
+                            </group>
+                        </group>
+                        <group string="Beneficiarios" invisible="tickets_request == 0">
+                            <group>
+                                <field name="beneficiary1" options="{'no_create': True}" required="tickets_request &gt; 0" invisible="tickets_request &lt; 1" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary3" options="{'no_create': True}" required="tickets_request &gt; 2" invisible="tickets_request &lt; 3" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary5" options="{'no_create': True}" required="tickets_request &gt; 4" invisible="tickets_request &lt; 5" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary7" options="{'no_create': True}" required="tickets_request &gt; 5" invisible="tickets_request &lt; 7" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary9" options="{'no_create': True}" required="tickets_request &gt; 6" invisible="tickets_request &lt; 9" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                            </group>
+                            <group>
+                                <field name="beneficiary2" options="{'no_create': True}" required="tickets_request &gt; 1" invisible="tickets_request &lt; 2" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary4" options="{'no_create': True}" required="tickets_request &gt; 3" invisible="tickets_request &lt; 4" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary6" options="{'no_create': True}" required="tickets_request &gt; 5" invisible="tickets_request &lt; 6" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="beneficiary8" options="{'no_create': True}" required="tickets_request &gt; 7" invisible="tickets_request &lt; 8" readonly="state not in ['draft','confirm']" domain="[('employee_id','=',employee_id)]"/>
+                                <field name="char_date_from" invisible="1"/>
+                                <field name="char_date_to" invisible="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_portal_form" model="ir.ui.view">
+        <field name="name">hr.employee.portal.inh</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Permisos Portal">
+                    <group>
+                        <group>
+                            <field name="show_absences_menu"/>
+                            <field name="show_pfly_menu"/>
+                        </group>
+                        <group>
+                            <field name="show_reserve_room_menu"/>
+                            <field name="show_download_signature_menu"/>
+                        </group>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+</odoo>

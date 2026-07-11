@@ -4,11 +4,12 @@
     'version': '1.1',
     'category': 'Human Resources/Planning',
     'sequence': 242,
+    'author'	:'CMAirlines, Oniel Avilez',
     'summary': 'Planning modulo for CM Airlines',
     'description': """
         This module provides the necessary functionality for CM Airlines.
         """,
-    'depends': ['base', 'planning', 'hr_work_entry_contract'],
+    'depends': ['base', 'planning'],
     'data': [
         'security/planning_cm_security.xml',
         'security/ir.model.access.csv',
@@ -19,7 +20,7 @@
         'data/cm_work_entry_type.xml',
         'data/cm_planning_roles.xml',
 
-        'wizard/cm_work_entry_processing_wizard_view.xml',
+        # 'wizard/cm_work_entry_processing_wizard_view.xml',
         'wizard/load_weekly_planning_wizard_view.xml',
         ],
     'installable': True,

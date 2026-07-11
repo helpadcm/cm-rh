@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+cm_aff.access_aff_fleet,access_aff_fleet,cm_aff.model_aff_fleet,base.group_user,1,1,1,1
+cm_aff.access_aff_aircraf,access_aff_aircraf,cm_aff.model_aff_aircraf,base.group_user,1,1,1,1
+cm_aff.access_aff_costs,access_aff_costs,cm_aff.model_aff_costs,base.group_user,1,1,1,1
+cm_aff.access_aff_cost_sheets,access_aff_cost_sheets,cm_aff.model_aff_cost_sheets,base.group_user,1,1,1,1
+cm_aff.access_aff_cost_sheets_lines,access_aff_cost_sheets_lines,cm_aff.model_aff_cost_sheets_lines,base.group_user,1,1,1,1
+cm_aff.access_fixed_cost_lines,access_fixed_cost_lines,cm_aff.model_fixed_cost_lines,base.group_user,1,1,1,1
+cm_aff.access_variable_cost_lines,access_variable_cost_lines,cm_aff.model_variable_cost_lines,base.group_user,1,1,1,1

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_incomes_deductions_summary" model="ir.ui.view">
+        <field name="name">incomes.deductions.summary.form</field>
+        <field name="model">incomes.dedutions.summary</field>
+        <field name="arch" type="xml">
+            <form string="Resumen Ingresos Deducciones">
+                <sheet>
+                    <group cols="4">
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="show_details" widget="boolean_toggle"/>
+                        </group>
+                        <group >    
+                            <field name="end_date" required="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="employee_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="deductions_rules" domain="[('category_id.code','=','DED')]" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="incomes_rules" domain="[('category_id.code','in',['ALW','BASIC','GROSS','NET'])]" options="{'no_create': True}" widget="many2many_tags"/>
+                    </group>
+                    <footer>
+                        <button string="Imprimir" type="object" name="print_report" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="incomes_deductions_summary_action" model="ir.actions.act_window">
+        <field name="name">Resumen Ingresos y Deducciones</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">incomes.dedutions.summary</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

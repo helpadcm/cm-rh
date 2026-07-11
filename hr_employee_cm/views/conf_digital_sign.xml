@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_digital_sign_conf_form" model="ir.ui.view">
+        <field name="name">digital.sign.conf.form</field>
+        <field name="model">digital.sign.conf</field>
+        <field name="arch" type="xml">
+            <form string="Conf. Firma Digital">
+                <sheet>
+                    <h1><field name="name" readonly="1"/></h1>
+                    <group>
+                        <group string="Conf. Nombre">
+                            <field name="x_name_position" string="Pos. Horizontal"/>
+                            <field name="y_name_position" string="Pos. Vertical"/>
+                            <field name="name_font_size" string="Tamaño Letra"/>
+                        </group>
+                        <group string="Conf. Puesto">
+                            <field name="x_job_position" string="Pos. Horizontal"/>
+                            <field name="y_job_position" string="Pos. Vertical"/>
+                            <field name="job_font_size" string="Tamaño Letra"/>
+                        </group>
+                        <group string="Conf. Telefono">
+                            <field name="x_mobile_position" string="Pos. Horizontal"/>
+                            <field name="y_mobile_position" string="Pos. Vertical"/>
+                            <field name="mobile_font_size" string="Tamaño Letra"/>
+                        </group>
+                        <group string="Conf. Telefono Empresa">
+                            <field name="x_phone_comp_position" string="Pos. Horizontal"/>
+                            <field name="y_phone_comp_position" string="Pos. Vertical"/>
+                            <field name="phone_comp_font_size" string="Tamaño Letra"/>
+                        </group>
+                        <group string="Conf. Direccion">
+                            <field name="x_address_position" string="Pos. Horizontal"/>
+                            <field name="y_address_position" string="Pos. Vertical"/>
+                            <field name="address_font_size" string="Tamaño Letra"/>
+                        </group>
+                    </group>
+                    <label for="sign_template"/>
+                    <field name="sign_template" widget="image"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_conf_digital_sign_tree" model="ir.ui.view">
+        <field name="name">digital.sign.conf.tree</field>
+        <field name="model">digital.sign.conf</field>
+        <field name="arch" type="xml">
+            <list string="Conf. Firma Digital">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_digital_sign_conf" model="ir.actions.act_window">
+        <field name="name">Conf. Firma Digital</field>
+        <field name="res_model">digital.sign.conf</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="res_company_view_inherit" model="ir.ui.view">
+            <field name="name">res company</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Encomiendas">
+                        <group>
+                            <group>
+                                <field name="tgu_int_phone"/>
+                                <field name="sps_int_phone"/>
+                            </group>
+                            <group>
+                                <field name="whatsapp"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="phone_attention"/>
+                            <field name="entrust_website"/>
+                            <field name="conditions"/>
+                            <field name="acuerdo"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="settlement_payment_view_inherit" model="ir.ui.view">
+            <field name="name">Pagos Cierre de caja</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="settlement.cm_account_payment_view_inherit"/>
+            <field name="arch" type="xml">
+                <field name="user_id" position="replace">
+                    <field name='user_id' readonly='0'/>
+                </field>
+            </field>
+        </record>
+
+        <record id="cm_res_users_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo Res users</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/field[@name='partner_id']" position="after">
+                    <field name="station_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="cm_cargo_partner_view_inherit" model="ir.ui.view">
+            <field name="name">Cargo partner</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Encomiendas y Boletos">
+                        <group>
+                            <group>
+                                <field name="cargo_client"/>
+                                <field name="credit_ticket"/>
+                                <field name="client_account" invisible="not cargo_client" readonly="0"/>
+                                <field name="modality" invisible="not cargo_client" readonly="0"/>
+                            </group>
+                            <group>
+                                <field name="fare_classes_ids" widget="many2many_tags" options="{'no_create': True}" invisible="1"/>
+                                <field name="grouping_invoice" invisible="modality != 'credit' or not cargo_client"/>
+                                <field name="discount_id" domain="[('is_active','=',True),('available_for','=','clients')]" options="{'no_create': True}" invisible="not cargo_client"/>
+                                <field name="credit_limit" string="Limite de Credito($)"/>
+                                <field name="available_credit" string="Credito Disponible($)"/>
+                            </group>
+                        </group>
+                        <group string="Configuraciones" groups="base.group_no_one">
+                            <group>
+                                <field name="no_credit"/>
+                                <field name="default_product_id"/>
+                            </group>
+                            <group>
+                                <field name="no_volumen"/>
+                            </group>
+                            <notebook>
+                                <page name="pricelist" string="Lista de precios">
+                                    <field name="pricelist_ids">
+                                        <list editable="bottom">
+                                            <field name="product_id" options="{'no_create': True}" domain="[('for_cargo','=',True)]"/>
+                                            <field name="rute_id" force_save="1" required="product_type != 'is_sobre'" options="{'no_create': True}"/>
+                                            <field name="price" />
+                                            <field name="min_price" />
+                                            <field name="qty_min" />
+                                            <field name="product_type" column_invisible="1"/>
+                                            <field name="currency_id" column_invisible="1" options="{'no_create': True}"/>
+                                        </list>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </group>
+                    </page>
+                </notebook>
+
+                <xpath expr="//field[@name='child_ids']/form/sheet/group[@name='other_info']" position="inside">
+                    <group>
+                        <field name="vat"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="contact_list_form_view" model="ir.ui.view">
+            <field name="name">Lista de contactos encomiendas</field>
+            <field name="model">res.partner.contact</field>
+            <field name="arch" type="xml">
+                <form string="Crear Contacto">
+                    <group>
+                        <group>
+                            <field name="name"></field>
+                            <field name="identity"></field>
+                        </group>
+                        <group>
+                            <field name="phone"></field>
+                            <field name="code" force_save="1" readonly="1"></field>
+                            <field name="list_number" invisible="1"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+</odoo>

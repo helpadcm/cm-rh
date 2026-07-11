@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_import_ded_inc" model="ir.ui.view">
+        <field name="name">import_ded_inc.form</field>
+        <field name="model">import.dedutions.incomes</field>
+        <field name="arch" type="xml">
+            <form string="Importar Deducciones e Ingresos">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="options" required="1"/>
+                        </group>
+                        <group >
+                            <field name="format_doc" required="1" filename="doc_name" widget="binary_preview"/>
+                            <field name="doc_name" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="note" readonly="1"/>
+                    <footer>
+                        <button string="Importar" type="object"
+                                name="import_document" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="import_ded_inc_action" model="ir.actions.act_window">
+        <field name="name">Importar Deducciones e Ingresos</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">import.dedutions.incomes</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

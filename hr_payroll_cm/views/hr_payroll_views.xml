@@ -1,11 +1,52 @@
 <odoo>
-    <record id="hr_payroll_deduccion_view_form" model="ir.ui.view">
+    <record id="cm_payroll_deduccion_view_form" model="ir.ui.view">
         <field name="name">hr_payroll_cm.HrSalaryAttachmentDeduction.inherit</field>
         <field name="model">hr.salary.attachment</field>
         <field name="inherit_id" ref="hr_payroll.hr_salary_attachment_view_form"/>
         <field name="arch" type="xml">
+            <button name="action_close" position="before">
+                <button string="Crear Plan" name="create_plan" invisible="state != 'open' or not by_quotes" type="object" class="oe_highlight"/>
+            </button>
             <xpath expr="//field[@name='date_start']" position="after">
-                <field name="first_date_payment" readonly="1" invisible="not first_date_payment"/>
+                <field name="first_date_payment" readonly="1" invisible="1"/>
+                <field name="estimated_end" string="Fecha de Finalizacion"/>
+            </xpath>
+            <xpath expr="//field[@name='date_end']" position="replace">
+                <field name="date_end" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='date_estimated_end']" position="replace">
+                <field name="date_estimated_end" invisible="1"/>
+            </xpath>
+            <field name="description" position="replace">
+                <field name="remaining_amount"/>
+                <field name="description"/>
+                <field name="by_quotes"/>
+            </field>
+            <xpath expr="//sheet/group" position="after">
+                <group name="name" string="Configuracion plan" invisible="not by_quotes">
+                    <group>
+                        <field name="payment_type" required="1"/>
+                        <field name="monthly_type" invisible="payment_type != 'monthly'" required="payment_type == 'monthly'"/>
+                    </group>
+                    <group>
+                        <field name="quotes_number" readonly="state != 'open'"/>
+                        <field name="fixed_fee" readonly="state != 'open'"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page name="payment_plan" string="Plan de pago" invisible="not by_quotes">
+                        <field name="payment_plan_ids">
+                            <list editable="bottom" create="false">
+                                <field name="number" readonly="1"/>
+                                <field name="date" readonly="1"/>
+                                <field name="amount" sum="Total"/>
+                                <field name="state" readonly="1"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
             </xpath>
         </field>
     </record>

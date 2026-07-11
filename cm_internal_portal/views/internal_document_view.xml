@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <record id="view_internal_document_tree" model="ir.ui.view">
+    <field name="name">internal.portal.document.tree</field>
+    <field name="model">internal.portal.document</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="category_id"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_internal_document_form" model="ir.ui.view">
+    <field name="name">internal.portal.document.form</field>
+    <field name="model">internal.portal.document</field>
+    <field name="arch" type="xml">
+      <form>
+        <sheet>
+          <group>
+            <group>
+              <field name="name"/>
+            </group>
+            <group>
+              <field name="category_id"/>
+            </group>
+          </group>
+          <group>
+            <field name="link" widget="url"/>
+            <field name="description"/>
+          </group>
+          <group>
+            <field name="file" filename="file_name" widget="binary_preview"/>
+            <field name="file_name" invisible="1"/>
+            <field name="file_type" invisible="1"/>
+          </group>
+        </sheet>
+        <chatter reload_on_attachment="True"/>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_internal_document" model="ir.actions.act_window">
+    <field name="name">Documentos</field>
+    <field name="res_model">internal.portal.document</field>
+    <field name="view_mode">list,form</field>
+  </record>
+</odoo>

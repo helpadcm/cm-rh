@@ -9,11 +9,13 @@
                     <group cols="4">
                         <group>
                             <field name="date_from" string="Fecha desde"/>
-                            <field name="department_id" string="Departamento"/>
+                            <field name="department_id" string="Departamento" options="{'no_create': True}"/>
+                            <field name="payslip_date_from" string="Fecha Inicio Nomina" readonly="1" force_save="1"/>
                         </group>
                         <group >
                             <field name="date_to" string="Fecha hasta"/>
-                            <field name="employee_ids" string="Empleados" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="employee_ids" string="Empleados" domain="[('department_id','=',department_id)]" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="payslip_date_to" string="Fecha Fin Nomina" readonly="1" force_save="1"/>
                         </group>
                     </group>
                     <footer>

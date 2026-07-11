@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_ticket_format">
+            <t t-call="web.html_container" t-lang="es_CR">	 
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <div class="page" style="font-size:15px; font-family: 'DejaVu';height:50%">
+                    <t t-foreach="invoices" t-as="i">
+                        <t t-set="company2" t-value="i.get('company_id')"></t>
+                        <div style="page-break-inside:avoid">
+                            <tbody>
+                                <div style="width:100%;height:150px;margin-top:10px;">
+                                    <table style="width:25%;float:left">
+                                        <tr>
+                                            <td style="padding-left:10px;padding-right:10px;align:center;padding-top:10px"><img t-if="company2.logo" t-att-src="image_data_uri(company2.logo)" style="width:240.6px;height:120px" alt="Logo"/></td>
+                                        </tr>
+                                    </table>
+                                    <table style="float:left;width:34%">
+                                        <th style="text-align:left"><strong><span t-esc="i.get('name_company')"/></strong></th>
+                                        <tr>
+                                            <td style="padding-top:10px">
+                                                <span t-esc="i.get('street_company')"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding-top:3px">
+                                                <span t-esc="i.get('street2_company')"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding-top:3px">
+                                                <span t-esc="i.get('city_state')"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding-top:3px">
+                                                RTN: <span t-esc="i.get('rtn')"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table style="float:left;width:38%;height:30%;margin-top:30px;border-collapse: collapse">
+                                        <tr style="text-align:center;height:15px">
+                                            <td style="padding:2px;border:1px solid #000000;height:15px;width:35%"><strong>FECHA</strong></td>
+                                            <td style="padding:2px;border:1px solid #000000;height:15px"><strong><span t-esc="i.get('fecha_factura')"/></strong></td>
+                                        </tr>
+                                        <tr style="text-align:center">
+                                            <td style="padding:2px;border:1px solid #000000;width:35%"><strong>No. Factura</strong></td>
+                                            <td style="padding:2px;border:1px solid #000000"><strong><span t-esc="i.get('number_factura')"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:40%">
+                                                <table style="margin-top:5%;width:100%;border-collapse: collapse">
+                                                    <t t-if="i.get('modality')==''">
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Contado</td>
+                                                            <td><input type="checkbox"/></td>
+                                                        </tr>
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Crédito</td>
+                                                            <td><input type="checkbox"/></td>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-if="i.get('modality')=='Contado'">
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Contado</td>
+                                                            <td><input type="checkbox" checked="on" /></td>
+                                                        </tr>
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Crédito</td>
+                                                            <td><input type="checkbox"/></td>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-if="i.get('modality')!='Contado' and i.get('modality')!=''">
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Contado</td>
+                                                            <td><input type="checkbox"/></td>
+                                                        </tr>
+                                                        <tr style="text-align:center">
+                                                            <td style="border:1px solid #000000;font-size:80%;width:50%">Crédito</td>
+                                                            <td><input type="checkbox" checked="on"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </table>
+                                            </td>
+                                            <td>
+                                                <table style="width:100%;margin-top:4px;border-collapse: collapse">
+                                                    <tr style="text-align:center">
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%;width:50%"><strong>Referencia</strong></td>
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%"><strong>PNR <span t-esc="i.get('pnr')"/></strong></td>
+                                                    </tr>
+                                                    <tr style="text-align:center">
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%;width:50%"><strong>Plazo (dias)</strong></td>
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%"><strong><span t-esc="i.get('payment_term')"/></strong></td>
+                                                    </tr>
+                                                    <tr style="text-align:center">
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%;width:50%"><strong>Vencimiento</strong></td>
+                                                        <td style="padding:5px;border:1px solid #000000;font-size:80%"><strong><span t-esc="i.get('date_due')"/></strong></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="width:100%;">
+                                    <div style="width:55%;text-align:center;font-size:25px"><strong>FACTURA</strong></div>
+                                    <table style="float:left;border:1px solid #000000;width:55%;margin-bottom:10px;border-collapse: collapse">
+                                        <th style="background-color:rgb(218, 218, 218);border-right:1px solid #000000;border-bottom:1px solid #000000;text-align:center;padding:2px" colspan="3"><strong>CLIENTE</strong></th>
+                                        <tr>
+                                            <td style="width:27%;padding-left:2%;padding-top:2%">
+                                                <strong><span t-esc="i.get('identity')"/></strong>
+                                            </td>
+                                            <td t-if="rtn_cliente!=False">
+                                                <span t-esc="i.get('name')"/>
+                                            </td>
+                                            <td t-if="rtn_cliente==False" style="border-right:1px solid #000000">
+                                                <span t-esc="i.get('name')"/>
+                                            </td>
+                                            <td t-if="rtn_cliente!=False" style="border-right:1px solid #000000;padding-left:45px">
+                                                RTN: <span t-esc="i.get('rtn_cliente')"/>
+                                            </td>
+                                        </tr>
+                                        <tr >
+                                            <td></td>
+                                            <td style="border-right:1px solid #000000;" colspan="2"><span t-esc="i.get('street')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td colspan="2"><span t-esc="i.get('street2')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td colspan="2"><span t-esc="i.get('city')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td colspan="2"><span t-esc="i.get('state')"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td colspan="2" style="padding-bottom:12px"><span t-esc="i.get('country')"/></td>
+                                        </tr>
+                                    </table>
+                                    <table style="float:left;width:43%;margin-left:20px;border-collapse: collapse">
+                                        <tr>
+                                            <td>
+                                                <table style="width:100%;border:1px solid #000000;border-collapse: collapse">
+                                                    <th style="background-color:rgb(218, 218, 218);text-align:center;font-size:85%;border:1px solid #000000">Punto Venta</th>
+                                                    <tr>
+                                                        <td style="padding:15px;font-size:80%"><span t-esc="i.get('origen')"/></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table style="width:100%;border:1px solid #000000;border-collapse: collapse">
+                                                    <th style="background-color:rgb(218, 218, 218);text-align:center;font-size:85%;border:1px solid #000000"><strong>Agente</strong></th>
+                                                    <tr>
+                                                        <td style="padding:15px;padding-bottom:30px;font-size:80%"><span t-esc="i.get('agente')"/></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div style="clear: both; height: 4px;"></div> 
+
+                                <table style="width:100%;border-bottom:1px solid black;border-collapse: collapse">
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;width:5%;font-size:80%;text-align:center"><strong>Cant</strong></th>
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;width:45%;font-size:80%;text-align:center"><strong>DESCRIPCIÓN</strong></th>
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:80%;width:17%;bgcolor:#000000;text-align:center" ><strong>Tarifa Base</strong></th>
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:80%;text-align:center;width:11%"><strong>YQ</strong></th>
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:80%;width:11%;bgcolor:#000000;text-align:center" ><strong>Tasa</strong></th>
+                                    <th style="background-color:rgb(218, 218, 218);border:1px solid #000000;font-size:80%;text-align:right;width:11%;text-align:center"><strong>YRYZ</strong></th>
+                                    <t t-foreach="i.get('lines')" t-as="o">
+                                        <tr>
+                                            <td style="text-align:center;font-size:85%;white-space:nowrap">
+                                                <span t-esc="o.get('quantity')"/>
+                                            </td>
+                                            <td class="text-align:left;font-size:85%" style="white-space:nowrap">
+                                                <span t-esc="o.get('description')[0:85]"/>
+                                            </td>
+                                            <td style="font-size:85%;text-align:right">
+                                                <span t-esc="'{0:,.2f}'.format(float(o.get('gravado'))+float(o.get('exento'))+float(o.get('donate')))"/>
+                                            </td>
+                                            <td style="font-size:85%;text-align:right">
+                                                <span t-esc="'{0:,.2f}'.format(float(o.get('yq')))"/>
+                                            </td>
+                                            <td style="font-size:85%;text-align:right">
+                                                <span t-esc="'{0:,.2f}'.format(float(o.get('rate')))"/>
+                                            </td>
+                                            <td style="font-size:85%;text-align:right">
+                                                <span t-esc="'{0:,.2f}'.format(float(o.get('yryz')))"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </table>
+                                <div style="width:100%;margin-top:10px;">
+                                    <table style="width:100%;border-collapse: collapse">
+                                        <tr>
+                                            <td style="width:60%;vertical-align:top">
+                                                <div style="padding:10px;">
+                                                    <t t-if="i.get('cai_shot') or i.get('expire_cai') or (i.get('min_cai') and i.get('max_cai'))">
+                                                        <div style="margin-bottom:10px;">
+                                                            <t t-if="i.get('cai_shot')">
+                                                                <p style="font-size:85%;margin:0;padding:3px"><strong>CAI:</strong> <span t-esc="i.get('cai_shot')"/></p>
+                                                            </t>
+                                                            <t t-if="i.get('expire_cai')">
+                                                                <p style="font-size:85%;margin:0;padding:3px"><strong>Fecha Limite:</strong> <span t-esc="i.get('expire_cai')"/></p>
+                                                            </t>
+                                                            <t t-if="i.get('min_cai') and i.get('max_cai')">
+                                                                <p style="font-size:85%;margin:0;padding:3px"><strong>Rango Autorizado:</strong> <span t-esc="i.get('min_cai')"/> - <span t-esc="i.get('max_cai')"/></p>
+                                                            </t>
+                                                        </div>
+                                                    </t>
+
+                                                    <div>
+                                                        <p style="font-size:85%;margin:0; padding:3px"><strong>Teléfono:</strong> <span t-esc="i.get('phone_company')"/></p>
+                                                        <p style="font-size:85%;margin:0; padding:3px"><strong>email:</strong> <span t-esc="i.get('email_company')"/></p>
+                                                        <p style="font-size:85%;margin:0; padding:3px"><strong>No. orden de compra exenta:</strong> <span t-esc="i.get('exempt_purchase')"/></p>
+                                                        <p style="font-size:85%;margin:0; padding:3px"><strong>No. constancia exonerado:</strong> <span t-esc="i.get('exonerated_record')"/></p>
+                                                        <p style="font-size:85%;margin:0; padding:3px"><strong>No. registro S.A.G:</strong> <span t-esc="i.get('reg_sag')"/></p>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td style="padding-left:3%;width:40%">
+                                                <table style="border:1px solid #000000;width:100%;border-collapse: collapse">
+                                                    <th style="background-color:rgb(218, 218, 218);padding:5px;border-right:1px solid #000000;font-size:85%;width:30%;text-align:center"><strong>TOTAL</strong></th>
+                                                    <t t-if="i.get('name_currency') == 'USD'">
+                                                        <th style="background-color:rgb(218, 218, 218);border-right:1px solid #000000;font-size:85%;width:30%;text-align:center"><strong>USD Dólar</strong></th>
+                                                    </t>
+                                                    <t t-if="i.get('name_currency') == 'HNL'">
+                                                        <th style="background-color:rgb(218, 218, 218);border-right:1px solid #000000;font-size:85%;width:30%;text-align:center"><strong>Lempiras</strong></th>
+                                                    </t>
+                                                    <t t-if="i.get('name_currency') == 'EUR'">
+                                                        <th style="background-color:rgb(218, 218, 218);border-right:1px solid #000000;font-size:85%;width:30%;text-align:center"><strong>Euros</strong></th>
+                                                    </t>
+                                                </table>
+                                                <table style="border:1px solid #000000;border-bottom:0px;width:100%;margin-top:5px;border-collapse: collapse">
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:center;width:30%"><strong>Exonerado</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="'{0:,.2f}'.format(float(i.get('exonerado',0)))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:center;width:30%"><strong>Exento</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="'{0:,.2f}'.format(float(i.get('exento',0)))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;border-bottom:1px solid #000000;border-right:1px solid #000000;font-size:80%;width:30%;text-align:center"><strong>Gravado</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="i.get('name_currency')"/> <span t-esc="'{0:,.2f}'.format(float(i.get('gravado_total')))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;width:30%;text-align:center"><strong>Descuento</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="i.get('name_currency')"/> <span t-esc="'{0:,.2f}'.format(float(i.get('discount')))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;width:30%;text-align:center"><strong>Sub-total</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="i.get('name_currency')"/> <span t-esc="'{0:,.2f}'.format(float(i.get('subtotal')))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;width:30%;text-align:center"><strong>ISV 15%</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="'{0:,.2f}'.format(float(i.get('amount_tax')))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;width:30%;text-align:center"><strong>Otros</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><span t-esc="'{0:,.2f}'.format(float(i.get('suma_otros')))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding:3px;font-size:80%;border-bottom:1px solid #000000;border-right:1px solid #000000;width:30%;text-align:center"><strong>Total</strong></td>
+                                                        <td style="font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:right;width:30%"><strong><span t-esc="i.get('name_currency')"/> <span t-esc="'{0:,.2f}'.format(float(i.get('amount_total')))"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding-top:3px;font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:center"><strong>Total Lempiras</strong></td>
+                                                        <td style="font-size:85%;text-align:right;border-bottom:1px solid #000000;border-right:1px solid #000000"><strong><span t-esc="'{0:,.2f}'.format(i.get('lps_amount'))"/></strong></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="background-color:rgb(218, 218, 218);padding-top:3px;font-size:85%;border-bottom:1px solid #000000;border-right:1px solid #000000;text-align:center">Tasa Cambio</td>
+                                                        <td style="font-size:85%;text-align:right;border-bottom:1px solid #000000;border-right:1px solid #000000"><span t-esc="'{0:,.4f}'.format(i.get('rate'))"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding-top:3px;font-size:80%;border-left:1px solid #000000;border-bottom:1px solid #000000;border-right:1px solid #000000;" colspan="3">
+                                                            <div style="width:100%">
+                                                                <t t-esc="i.get('text_amount').upper()"/>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </tbody>
+                        </div>
+                    </t>
+                </div>
+                <div class="footer" >
+                    <p style="font-size:85%;margin:0; padding:3px">ORIGINAL : CLIENTE</p>
+                    <p style="font-size:85%;margin:0; padding:3px">COPIA : ARCHIVO</p>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_ticket">
+            <t t-call="web.html_container">
+                <t t-foreach="invoices" t-as="i">
+                    <t t-call="cm_reports.report_ticket_format"/>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

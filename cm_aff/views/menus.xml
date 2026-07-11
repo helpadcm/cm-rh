@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem
+        id="aff_menu_root"
+        name="AFF"
+        web_icon="cm_aff,static/description/aff.png"
+        action="action_aff_fleet"
+        sequence="6"/>
+
+<!-- ##################################  Configurations  ##################################################  -->
+
+    <menuitem
+        id="aff_cost_sheets_menu"
+        name="Hojas de costo"
+        parent="aff_menu_root"
+        action="action_aff_cost_sheets"
+        sequence="2"/>
+
+<!-- ##################################  Configurations  ##################################################  -->
+
+    <menuitem
+        id="aff_configuration_menu"
+        name="Configuraciones"
+        parent="aff_menu_root"
+        sequence="10"/>
+
+    <menuitem
+        id="aff_fleet_menuitem"
+        name="Flotas"
+        parent="aff_configuration_menu"
+        action="action_aff_fleet"
+        sequence="1"/>
+
+    <menuitem
+        id="aff_aircraft_menuitem"
+        name="Aeronaves"
+        parent="aff_configuration_menu"
+        action="action_aff_aircraft"
+        sequence="2"/>
+
+    <menuitem
+        id="aff_costs_menuitem"
+        name="Listado de Rubros"
+        parent="aff_configuration_menu"
+        action="action_aff_costs"
+        sequence="2"/>
+</odoo>

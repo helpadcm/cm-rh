@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem 
+        id="menu_intranet_root"
+        name="Intranet RRHH"
+        web_icon="cm_intranet,static/description/icon.jpg"
+        groups="cm_rrhh_management.group_legal_area_rrhh,cm_rrhh_management.group_recruitment_area_rrhh,cm_rrhh_management.group_payroll_area_rrhh,cm_rrhh_management.group_manager_area_rrhh"
+        sequence="10"/>
+
+    <menuitem 
+        id="menu_intranet_document"
+        name="Documents"
+        parent="menu_intranet_root"
+        action="action_intranet_document"/>
+
+    <menuitem 
+        id="menu_intranet_category"
+        name="Categories"
+        parent="menu_intranet_root"
+        action="action_intranet_category"/>
+</odoo>

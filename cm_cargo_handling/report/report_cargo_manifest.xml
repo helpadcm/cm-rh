@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <template id="report_cargo_manifest">
+        <t t-foreach="docs" t-as="do">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>
+                <div class="page" style="font-size:15px;">
+                    <style>
+                        td{
+                            font-size: 13px;
+                        }
+
+                        th{
+                            font-size: 13px;
+                        }
+                    </style>
+                    <table style="align:center;width:100%">
+                        <tbody>
+                            <tr style="height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="4">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height: 60px;" alt="Logo"/>
+                                </td>
+                                <td style="text-align:center;font-size:28px"><strong>Manifiesto de Encomiendas</strong></td>
+                                <td style="text-align:right;font-size:28px"><strong>No. <span style="color:b22222" t-field="do.name"/></strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table width="100%;margin-top:5%;border-collapse: collapse">
+                        <tr>
+                            <td><strong>Fecha: </strong><span t-esc="do.shipping_date"/></td>
+                            <td><strong>Origen: </strong><span t-esc="do.shipping_airport.ref"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vuelo: </strong><span t-esc="do.flight"/></td>
+                            <td><strong>Destino: </strong><span t-esc="do.reception_airport.ref"/></td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <br/>
+                    <table width="100%" style="font-size:10px;border-collapse: collapse" class="table table-condensed">
+                        <t t-set="contador" t-value="1"/>
+                        <t t-set="tot_weight" t-value="0"/>
+                        <tr>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:5%;text-align:center">No.</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:10%;text-align:left">Guia</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:15%;;text-align:left">Remitente</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:5%;text-align:left">Tipo</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:5%;text-align:left">Dimensiones</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:20%;text-align:left">Destinatario</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:10%;text-align:left">Destino</th>
+                            <th style="padding:3px;border-top:1px solid #CDCDCD;width:30%;text-align:left">Descripción</th>
+                        </tr>
+                        <t t-foreach="do.cargo_bill_landing_ids" t-as="bl">
+                            <tr>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:center"><span t-esc="contador"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.name"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.sender_name"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.product_id.type_cargo.name"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.weight"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.receiver_name"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.destination_id.ref"/></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD"><span t-esc="bl.bill_landing_id.content_description"/></td>
+                            </tr>
+                            <t t-set="contador" t-value="contador + 1"/>
+                            <t t-set="tot_weight" t-value="tot_weight + bl.bill_landing_id.weight"/>
+                        </t>
+                        <tr style="background-color: #cdc9c9;">
+                            <td></td>
+                            <td></td>
+                            <td style="text-align:center">Totales</td>
+                            <td></td>
+                            <td><span t-esc="tot_weight"/></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                    </table>
+                    <br/>
+                    <br/>
+                    <table width="100%;border-collapse: collapse">
+                        <tr>
+                            <t t-if="do.shipping_observations">
+                                <td style="width:50%;text-align:left">Observaciones de envio :<span t-esc="do.shipping_observations"/></td>
+                            </t>
+                            <t t-if="do.reception_observations">
+                                <td style="width:50%;text-align:left">Observaciones de recepción: <span t-esc="do.reception_observations"/></td>
+                            </t>
+                        </tr>
+                    </table>
+                    <br/>
+                    <table width="100%;border-collapse: collapse">
+                        <tr>
+                            <td style="width:50%;text-align:left">Creado por: <span t-esc="do.create_uid.name"/> --------------------------------</td>
+                            <td style="width:50%;text-align:right">Impreso: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y %H:%M:%S')"/></td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div> 
+                </div>
+
+            </t>
+        </t>
+    </template>
+</data>
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+	    <record id="expenses_request_sequence" model="ir.sequence">
+            <field name="name">Sequence Expense Request</field>
+            <field name="code">expenses.request</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">ER-</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="expenses_sheet_request_sequence" model="ir.sequence">
+            <field name="name">Sequence Sheet Expense Request</field>
+            <field name="code">expenses.sheet.request</field>        
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="prefix">ESR-</field>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>

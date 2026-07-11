@@ -4,12 +4,11 @@
         <field name="name">hr.attendance.employee.rec.form</field>
         <field name="model">hr.employee.attendance.record</field>
         <field name="arch" type="xml">
-            <form string="Registro de Asistencia">
+            <form string="Registro de Asistencia" create="false">
                 <header>
-                    <button string="Revisado" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'revised'}" type="object" class="oe_highlight"/>
-                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
-                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm" name="change_state" invisible="state != 'revised'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
-                    <field name="state" widget="statusbar" readonly="1"/>
+                    <button string="Regresar a Borrador" groups="hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'finalized'" context="{'next_stage': 'draft'}" type="object" class="oe_highlight"/>
+                    <button string="Finalizar" groups="hr_payroll_cm.responsible_accounting_rrhh_cm,hr_payroll_cm.manager_rrhh_cm" name="change_state" invisible="state != 'draft'" context="{'next_stage': 'finalized'}" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,finalized" readonly="1"/>
                 </header>
                 <sheet>
                     <h1>
@@ -19,23 +18,33 @@
                         <group>
                             <field name="employee_id" readonly="1"/>
                             <field name="start_date" readonly="1"/>
+                            <field name="payslip_date_from" readonly="1"/>
+                            <field name="department_id" readonly="1"/>
                         </group>
                         <group>
                             <field name="code" readonly="1"/>
                             <field name="end_date" readonly="1"/>
+                            <field name="payslip_date_to" readonly="1"/>
+                            <field name="pay_extra_hours" invisible="1"/>
                         </group>
                     </group>
-                    <group string="Calculo de horas">
+                    <group col="3" string="Calculo de horas">
                         <group>
                             <field name="esperated_hours" readonly="1"/>
                             <field name="total_hours"/>
-                            <field name="eh_pay"/>
-                            <field name="eh_holiday"/>
+                            <field name="real_eh_pay" readonly="state != 'draft'"/>
+                            <field name="real_aditional_he" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="eh_limit" readonly="1"/>
                             <field name="diff_hours"/>
+                            <field name="eh_holiday"/>
+                            <field name="sum_compensatory" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="eh_pay"/>
                             <field name="aditional_he"/>
+                            <field name="eh_holiday_extra"/>
                         </group>
                     </group>
                     <group string="Calculo de BT">
@@ -45,12 +54,13 @@
                         </group>
                         <group>
                             <field name="tb_limit" readonly="1"/>
+                            <field name="tb_pay"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Lineas de Asistencia">
                             <field name="record_line_ids" readonly="state != 'draft'">
-                                <tree create="false" delete="false">
+                                <list create="false" delete="false">
                                     <field name="date"/>
                                     <field name="day"/>
                                     <field name="check_in_1"/>
@@ -64,28 +74,62 @@
                                     <field name="extra_hours" sum="Total Horas Extras"/>
                                     <field name="observations"/>
                                     <field name="bonus" sum="Total Bono"/>
-                                </tree>
+                                </list>
                                 <form>
-                                    <group>
+                                    <group col="3" string="DIA">
                                         <group>
                                             <field name="date" readonly="1"/>
-                                            <field name="check_in_1" readonly="1"/>
-                                            <field name="check_in_2" readonly="1"/>
-                                            <field name="check_in_3" readonly="1"/>
-                                            <field name="total_hours" sum="Horas totales" readonly="1"/>
-                                            <field name="bonus" sum="Total Bono" readonly="1"/>
-                                            <field name="observations" readonly="1" force_save="1"/>
-                                            <field name="special_hours" invisible="personal_action in [False, 'free']"/>
-                                            <field name="notes" invisible="personal_action in [False, 'free']" required="personal_action not in ['free', False]"/>
                                         </group>
                                         <group>
                                             <field name="day" readonly="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="check_type" required="1"/>
+                                        </group>
+                                    </group>
+                                    <group string="PLANIFICACION">
+                                        <group>
+                                            <field name="turn_type_a" readonly="1"/>
+                                            <field name="schedule1_in_date" readonly="1"/>
+                                            <field name="schedule1_out_date" readonly="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="turn_type_b" readonly="1"/>
+                                            <field name="schedule2_in_date" readonly="1"/>
+                                            <field name="schedule2_out_date" readonly="1"/>
+                                        </group>
+                                        <group class="group_turn_note">
+                                            <field name="turn_note" readonly="1" class="high-priority"/>
+                                        </group>
+                                    </group>
+                                    <group col="3" string="MARCAJES DE RELOJ">
+                                        <group>
+                                            <field name="check_in_1" readonly="1"/>
                                             <field name="check_out_1" readonly="1"/>
-                                            <field name="check_out_2" readonly="1"/>
-                                            <field name="check_out_3" readonly="1"/>
-                                            <field name="ordinary_hours" force_save="1" sum="Total Horas ordinarias" readonly="1"/>
-                                            <field name="extra_hours" sum="Total Horas Extras" readonly="1"/>
+                                            <field name="total_hours" force_save="1" sum="Horas totales" readonly="1"/>
+                                            <field name="bonus" force_save="1" sum="Total Bono" readonly="1"/>
                                             <field name="personal_action"/>
+                                        </group>
+                                        <group>
+                                            <field name="check_in_2" readonly="1"/>
+                                            <field name="check_out_2" readonly="1"/>
+                                            <field name="ordinary_hours" force_save="1" sum="Total Horas ordinarias" readonly="0"/>
+                                            <field name="extra_hours" sum="Total Horas Extras" readonly="0"/>
+                                            <field name="special_hours" invisible="personal_action in [False, 'free']"/>
+                                        </group>
+                                        <group>
+                                            <field name="check_in_3" readonly="1"/>
+                                            <field name="check_out_3" readonly="1"/>
+                                            <field name="holiday_hours" invisible="personal_action != 'wh'" sum="Total Horas Extras" readonly="0"/>
+                                            <field name="holiday_extra_hours" invisible="personal_action != 'wh'" sum="Total Horas Extras" readonly="0"/>
+                                        </group>
+                                    </group>
+                                    <group>
+                                        <group>
+                                            <field name="observations" readonly="1" force_save="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="notes" invisible="personal_action in [False, 'free', 'holiday', 'wh', 'comp', 'homeoffice']" required="personal_action not in ['free', False,'vac','inc','holiday','wh','comp','homeoffice']"/>
                                         </group>
                                     </group>
                                 </form>
@@ -93,6 +137,8 @@
                         </page>
                     </notebook>
                 </sheet>
+                <!-- Chatter -->
+                <chatter reload_on_attachment="True"/>
             </form>
         </field>
     </record>
@@ -105,9 +151,15 @@
                 <field name="name"/>
                 <field name="code"/>
                 <field name="employee_id"/>
+                <field name="department_id"/>
                 <field name="period"/>
-                <group expand="1" string="Group By">
+                <filter string="Borrador" name="draft_filter" domain="[('state','=','draft')]"/>
+                <filter string="Revisado" name="revised_filter" domain="[('state','=','revised')]"/>
+                <filter string="Finalizado" name="finalized_filter" domain="[('state','=','finalized')]"/>
+                <group>
                     <filter string="Periodo" name="period_group" context="{'group_by':'period'}"/>
+                    <filter string="Departamento" name="department_group" context="{'group_by':'department_id'}"/>
+                    <filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
                 </group>
             </search>
         </field>
@@ -117,23 +169,24 @@
         <field name="name">hr.employee.attendance.record.tree</field>
         <field name="model">hr.employee.attendance.record</field>
         <field name="arch" type="xml">
-            <tree string="Registro de Asistencias">
+            <list string="Registro de Asistencias" create="false">
                 <field name="employee_id"/>
                 <field name="code"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <field name="esperated_hours"/>
-                <field name="eh_pay"/>
+                <field name="pay_extra_hours" sum="Total HE" string="Pagar HE"/>
                 <field name="eh_holiday"/>
+                <field name="tb_pay" sum="BT a pagar"/>
                 <field name="state"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_hr_attendance_emp_rec" model="ir.actions.act_window">
         <field name="name">Registros de asistencias</field>
         <field name="res_model">hr.employee.attendance.record</field>
-        <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_period_group":1}</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"search_default_period_group":1,"search_default_draft_filter":1}</field>
     </record>
 </odoo>

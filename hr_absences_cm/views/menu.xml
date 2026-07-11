@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem
+        id="flight_routes_menuitem"
+        name="Rutas de vuelo"
+        parent="hr_holidays.menu_hr_holidays_configuration"
+        action="hr_absences_cm.action_flight_routes"
+        sequence="20"/>
+
+    <menuitem
+        id="paid_leaves_menuitem"
+        name="Permisos Con Goce de Sueldo"
+        parent="hr_holidays.menu_hr_holidays_configuration"
+        action="hr_absences_cm.action_paid_leaves"
+        sequence="21"/>
+</odoo>

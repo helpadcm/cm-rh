@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="account_move_inh_form">
+            <field name="name">account.move.form.inh</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+
+                <button name="action_register_payment" position="replace">
+                    <button name="action_register_payment" id="account_invoice_payment_btn"
+                        type="object" class="oe_highlight"
+                        invisible="(
+                            state != 'posted'
+                            or payment_state not in ('not_paid', 'partial', 'in_payment')
+                            or move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+                            or invoice_has_outstanding
+                        )"
+                        context="{'dont_redirect_to_payments': True, 'display_account_trust': True}"
+                        string="Pagar" data-hotkey="g"
+                        groups="account.group_account_manager"/>
+                </button>
+
+                <field name="amount_residual" position="after">
+                    <field name="currency_rate" readonly="1" force_save="1" invisible="same_currency == True"/>
+                    <field name="amount_total_signed" string="Monto LPS" invisible="same_currency == True"/>
+                    <field name="same_currency" invisible="1"/>
+                </field>
+
+                <field name="ref" position="after">
+                    <field name="cai_id" domain="[('supplier_id','=',partner_id),('is_active','=',True)]" invisible="move_type not in ['in_invoice','in_refund','in_receipt']" readonly="state != 'draft'" options='{"no_quick_create": True}' 
+				        context="{'default_document_type':'purchase', 'default_is_active':True, 'default_supplier_id': partner_id}">
+                        <form string="Cai">
+                            <group>
+                                <group >
+                                    <field name="id" invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="company_id"/>
+                                    <field name="expiration_date" />
+                                </group>
+                                <group>
+                                    <field name="document_type"/>
+                                    <field name="supplier_id" invisible="document_type,'!=','purchase'" required="document_type,'=','purchase'" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                    <field name="modality" invisible="move_type != 'out_invoice'" readonly="state != 'draft'"/>
+                </field>
+
+                <xpath expr="//div[hasclass('oe_title')]" position="replace">
+                    <div class="oe_title">
+                            <span class="o_form_label">
+                                <field
+                                    name="move_type"
+                                    invisible="move_type == 'entry'"
+                                    widget="receipt_selector"
+                                    options="{'horizontal': true}"
+                                    nolabel="1"
+                                    readonly="state != 'draft'"
+                                />
+                            </span>
+
+                            <div class="text-warning" invisible="not show_name_warning">The current highest number is <field class="oe_inline" name="highest_name"/>. You might want to put a higher number here.</div>
+
+                            <h1>
+                                <field name="name" invisible="1" readonly="state != 'draft'" options="{'placeholder_field': 'name_placeholder'}"/>
+                                <field name="internal_number" readonly="1" force_save="1"/>
+
+                                <!-- <span invisible="name or name_placeholder or quick_edit_mode">Draft</span> -->
+                            </h1>
+                        </div>
+                </xpath>
+
+                <field name="invoice_line_ids" position="after">
+                    <label for="amount_in_words"/>
+                    <field name="amount_in_words"/>
+                </field>
+
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                    <field name="partner_id" widget="res_partner_many2one" nolabel="1"
+                        context="{
+                        'res_partner_search_mode': (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt') and 'is_customer') or False,
+                        'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+                        domain="[('is_customer','=',True),('company_id', 'in', (False, company_id))]"
+                        options='{"no_create": True}'
+                        default_focus="1"
+                        invisible="move_type not in ('out_invoice', 'out_refund', 'out_receipt')"
+                        placeholder="Buscar nombre o RTN..."
+                        readonly="state != 'draft'"/>
+
+                    <field name="partner_id" widget="res_partner_many2one" nolabel="1"
+                        context="{
+                        'res_partner_search_mode': (context.get('default_move_type', 'entry') in ('in_invoice', 'in_refund', 'in_receipt') and 'is_supplier') or False,
+                        'show_address': 1, 'default_is_company': True, 'show_vat': True}"
+                        domain="[('is_supplier','=',True),('company_id', 'in', (False, company_id))]"
+                        options='{"no_create": True}'
+                        default_focus="1"
+                        invisible="move_type not in ('in_invoice', 'in_refund', 'in_receipt')"
+                        placeholder="Buscar nombre o RTN..."
+                        readonly="state != 'draft'"/>
+                </xpath>
+
+                <notebook position="inside">
+                    <page name="sar_fields" string="SAR" invisible="move_type != 'out_invoice'">
+                        <group name="sar_fields_invoice">
+                            <group>
+                                <field name="purchase_order_exempt" readonly="state != 'draft'"/>
+                                <field name="sag_record" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="record_exonerated" readonly="state != 'draft'"/>
+                            </group>
+                            <group invisible="1">
+                                <field name="cai_number" invisible="0"/>
+                                <field name="expiration_cai_date" invisible="0"/>
+                                <field name="min_number_cai" invisible="0"/>
+                                <field name="max_number_cai" invisible="0"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="cm_account_move_inh_tree">
+            <field name="name">account.move.tree.inh</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree"/>
+            <field name="arch" type="xml">
+                <field name="amount_residual_signed" position="after">
+                    <field name="balance_usd" sum="Total USD" optional="hide"/>
+                </field>
+                <field name="amount_untaxed_in_currency_signed" position="after">
+                    <field name="amount_untaxed" sum="Sub Total USD" optional="hide"/>
+                    <field name="amount_total_signed" sum="Total Firmado" optional="hide"/>
+                </field>
+                <field name="name" position="before">
+                    <field name="internal_number" string="Número"/>
+                </field>
+                <field name="name" position="replace">
+                    <field name="name" column_invisible="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="account_journal_inh_form">
+            <field name="name">account.journal.form.inh</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <field name="code" position="after">
+                    <field name="sequence_id" options="{'no_create': True, 'no_open': True}"/>
+                </field>
+                <field name="type" position="after">
+                    <field name="type_document" invisible="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="cm_account_payment_inh_search">
+            <field name="name">account.payment.search.inh</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <field name="journal_id" position="after">
+                    <field name="date" />
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="partner_inh_form">
+            <field name="name">partner.form.inh</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="vat" position="after">
+                    <field name="identity"/>
+                </field>
+                <group name="sale" position="inside">
+                    <field name="is_customer"/>
+                    <field name="default_client"/>
+                </group>
+                <group name="purchase" position="inside">
+                    <field name="is_supplier"/>
+                </group>
+                <notebook position="inside">
+                    <page string="CAI Asociados" invisible="is_supplier == False">
+                        <field name="cai_ids" context="{'default_document_type':'purchase','default_is_active':True,'default_supplier_id':id}"/>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>
