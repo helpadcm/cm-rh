@@ -161,8 +161,8 @@ class lotFormatXlsx(models.AbstractModel):
             if 'Salario Quincenal' not in incomes_name:
                 incomes_name.append('Salario Quincenal')
 
+            fortnight_amount = payslip.employee_id.wage
             if payslip.worked_days_line_ids:
-                fortnight_amount = payslip.employee_id.wage
                 line_id = payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100')
                 if line_id:
                     fortnight_amount = line_id.amount
