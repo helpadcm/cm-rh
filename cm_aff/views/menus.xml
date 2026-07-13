@@ -7,7 +7,8 @@
         action="action_aff_fleet"
         sequence="6"/>
 
-<!-- ##################################  Configurations  ##################################################  -->
+
+<!-- ##################################  COST SHEETS  ##################################################  -->
 
     <menuitem
         id="aff_cost_sheets_menu"
@@ -15,6 +16,21 @@
         parent="aff_menu_root"
         action="action_aff_cost_sheets"
         sequence="2"/>
+
+<!-- ##################################  TEMPLATES  ##################################################  -->
+
+    <menuitem
+        id="aff_templates_menu"
+        name="Plantillas"
+        parent="aff_menu_root"
+        sequence="2"/>
+
+    <menuitem
+        id="aff_aircraft_template_menuitem"
+        name="Plantillas de Aeronaves"
+        parent="aff_templates_menu"
+        action="action_financial_cost_template"
+        sequence="1"/>
 
 <!-- ##################################  Configurations  ##################################################  -->
 

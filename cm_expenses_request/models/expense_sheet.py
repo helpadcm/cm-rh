@@ -31,6 +31,16 @@ class expensesSheetRequest(models.Model):
     number = fields.Char("Numero")
     company_id = fields.Many2one('res.company',string="Empresa",required=True,readonly=True,default=lambda self: self.env.company)
     move_id = fields.Many2one('account.move',string="Asiento Contable")
+    exception_solution = fields.Selection([('according','Conforme'),('exception','Reembolsado'),('rejected','Rechazado')],string="Solucion de Reembolso")
+
+    advance_amount = fields.Float(string="Anticipo al Empleado", related="request_id.advance_amount")
+    total_expense_amount = fields.Float(string="Total de gastos", related="request_id.total_expense_amount")
+    infavor_employee_amount = fields.Float(string="A reembolsar", related="request_id.infavor_employee_amount")
+    refund_amount = fields.Float(string="Devuelto", related="request_id.refund_amount")
+
+    exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',related='request_id.exeption_id')
+    description = fields.Text(string="Motivo", related='request_id.description')
+
     company_currency_id = fields.Many2one(
         comodel_name='res.currency',
         related='company_id.currency_id',
@@ -38,21 +48,23 @@ class expensesSheetRequest(models.Model):
     )
     # === Amount fields === #
     total_amount = fields.Monetary(string="Total", currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-        tracking=True,
-    )
+        compute='_compute_amount', store=True, tracking=True)
+
     untaxed_amount = fields.Monetary(
         string="Subtotal",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-    )
+        compute='_compute_amount', store=True)
+
     total_tax_amount = fields.Monetary(
-        string="Impuestos",
+        string="Impuesto",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-    )
+        compute='_compute_amount', store=True)
+
     exempt_amount = fields.Monetary(string="Monto Excento", currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True)
+        compute='_compute_amount', store=True)
+
+    taxable_amount = fields.Monetary(string="Monto Gravable", currency_field='company_currency_id',
+        compute='_compute_amount', store=True)
 
     def change_state(self):
         next_state = self.env.context.get('state')
@@ -102,6 +114,29 @@ class expensesSheetRequest(models.Model):
                         'debit': dep.total
                     }
                     lines.append((0,0,move_line_vals))
+
+        if self.infavor_employee_amount > 0:
+            desc = ''
+            if self.exception_solution == 'exception':
+                account_id = self.env['account.account'].search([('code','=','105.01')])
+                desc = f"""Reembolso aprobado para el empleado {self.employee_id.name}"""
+            elif self.exception_solution in ['rejected','according']:
+                account_id = self.env['account.account'].search([('code','=','512.06')])
+                desc = f"""Reembolso no realizado para el empleado {self.employee_id.name}"""
+
+            total -= self.infavor_employee_amount
+            vals = {
+                'name': desc,
+                'account_id': account_id.id,
+                'credit': self.infavor_employee_amount,
+                'partner_id': self.employee_id.sudo().work_contact_id.id,
+                'amount_currency': -(self.infavor_employee_amount)
+            }
+            if self.employee_id.analytic_account_id:
+                analytic = self.employee_id.analytic_account_id.id
+                vals['analytic_distribution'] = {str(analytic): 100.0}
+            lines.append((0, 0, vals))
+
         
         account_id = self.env['account.account'].search([('code','=','105.01')])
         vals = {
@@ -138,13 +173,26 @@ class expensesSheetRequest(models.Model):
         )
         return res | expense_attachments
 
-    @api.depends('expenses_ids.total_amount', 'expenses_ids.tax_amount')
+    @api.depends('expenses_ids.total_amount', 'expenses_ids.tax_amount','expenses_ids.untaxed_amount_currency','expenses_ids.exempt_amount','expenses_ids.total_amount_currency','expenses_ids.tax_ids')
     def _compute_amount(self):
         for sheet in self:
-            sheet.total_amount = sum(sheet.expenses_ids.mapped('total_amount'))
-            sheet.total_tax_amount = sum(sheet.expenses_ids.mapped('tax_amount'))
-            sheet.exempt_amount = sum(sheet.expenses_ids.mapped('exempt_amount'))
-            sheet.untaxed_amount = sheet.total_amount - sheet.total_tax_amount - sheet.exempt_amount
+            subtotal = 0
+            taxes = 0
+            exempt = 0
+            total = 0
+            for expense in sheet.expenses_ids:
+                taxes += expense.tax_amount
+                subtotal += expense.untaxed_amount_currency
+                total += expense.total_amount_currency
+                exempt += expense.exempt_amount
+                if not expense.tax_ids:
+                    exempt += expense.total_amount
+
+            sheet.total_amount = total
+            sheet.total_tax_amount = taxes
+            sheet.exempt_amount = exempt
+            sheet.taxable_amount = subtotal - exempt
+            sheet.untaxed_amount = subtotal
 
     def show_move(self):
         if self.move_id:

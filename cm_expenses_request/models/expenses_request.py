@@ -9,7 +9,9 @@ states = [
     ('required', 'Solicitado'),
     ('approved', 'Aprobado'),
     ('assigned', 'Otorgado'),
-    ('pending','Por Liquidar'),
+    ('pending','Liquidacion Conforme'),
+    ('exception','Liquidacion Excepcional'),
+    ('legal','Legal'),
     ('finalized', 'Finalizado'),
     ('canceled', 'Cancelado')
 ]
@@ -37,6 +39,9 @@ class expensesRequest(models.Model):
             if employee_id.sudo().bank_account_ids:
                 account_number = employee_id.sudo().bank_account_ids[0].acc_number
 
+            if not employee_id.expense_approver_id:
+                raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (employee_id.name))
+
             rec.update({
                 'department_id': employee_id.department_id.id,
                 'job_id': employee_id.job_id.id,
@@ -44,7 +49,7 @@ class expensesRequest(models.Model):
                 'assign_to_id': employee_id.id,
                 'process_ids': permitted_processes_ids,
                 'process_id': default_process_id,
-                'boss_id': employee_id.parent_id.id,
+                'boss_id': employee_id.expense_approver_id.id,
                 'account_number': account_number,
                 'date': datetime.now().date()
             })
@@ -60,7 +65,7 @@ class expensesRequest(models.Model):
     observations = fields.Text(string="Observaciones",tracking=True,copy=False)
     state = fields.Selection(states,string="Estado",default="draft",tracking=True,copy=False)
     boss_id = fields.Many2one('hr.employee',string="Jefe Inmediato",copy=True)
-    assign_to_id = fields.Many2one('hr.employee',string="Asignado a",copy=True)
+    assign_to_id = fields.Many2one('hr.employee',string="Asignado a",copy=True,tracking=True)
 
     advance_amount = fields.Float(string="Anticipo al Empleado", compute="calculate_totals")
     total_expense_amount = fields.Float(string="Total de gastos", compute="calculate_totals")
@@ -71,12 +76,15 @@ class expensesRequest(models.Model):
     request_details_ids = fields.One2many('cm.expenses.request.details','request_id',string="Detalles de solicitud",copy=True)
     expenses_ids = fields.One2many('hr.expense','request_id',string="Lista de gastos") 
 
-    need_tickets = fields.Boolean(string="Necesita boletos")
-    need_transport = fields.Boolean(string="Necesita transporte")
-    need_hotel = fields.Boolean(string="Necesita hotel")
+    need_tickets = fields.Boolean(string="Necesita boletos",tracking=True)
+    need_transport = fields.Boolean(string="Necesita transporte",tracking=True)
+    need_hotel = fields.Boolean(string="Necesita hotel",tracking=True)
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
+
+    exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',copy=False,tracking=True)
+    description = fields.Text(string="Motivo",copy=False,tracking=True)
 
     @api.depends('request_details_ids','expenses_ids','refund_amount')
     def calculate_totals(self):
@@ -107,10 +115,13 @@ class expensesRequest(models.Model):
     @api.onchange('assign_to_id')
     def get_assign_to_data(self):
         if self.assign_to_id:
+            if not self.assign_to_id.expense_approver_id:
+                raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (self.assign_to_id.name))
+
             self.write({
                 'department_id': self.assign_to_id.department_id.id,
                 'job_id': self.assign_to_id.job_id.id,
-                'boss_id': self.assign_to_id.coach_id.id,
+                'boss_id': self.assign_to_id.expense_approver_id.id,
                 'account_number': self.assign_to_id.bank_account_ids.acc_number
             })
 
@@ -127,14 +138,7 @@ class expensesRequest(models.Model):
                         'process_ids': permitted_processes_ids,
                         'process_id': default_process_id,
                     })
-
-            self.write({
-                'department_id': self.employee_id.department_id.id,
-                'job_id': self.employee_id.job_id.id,
-                'boss_id': self.employee_id.coach_id.id,
-                'account_number': self.employee_id.bank_account_ids.acc_number
-            })
-
+                    
     def change_state(self):
         next_state = self.env.context.get('state')
         if next_state == 'required':
@@ -145,15 +149,24 @@ class expensesRequest(models.Model):
                 sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
                 if sequence_id:
                     self.name = sequence_id.next_by_id()
-            self.send_email(next_state)
+            
+            if self.boss_id.id == self.employee_id.id:
+                next_state = 'approved'
+            else:
+                self.send_email(next_state)
 
-        if next_state == 'assigned':
-            self.send_email(next_state)
+        if next_state in ['assigned','exception','approved']:
+            if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                if self.boss_id.user_id.id != self.env.user.id and next_state == 'approved':
+                    raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
 
-        if next_state == 'approved':
             self.send_email(next_state)
 
         if next_state == 'pending':
+            if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                if self.assign_to_id.user_id.id != self.env.user.id:
+                    raise ValidationError("Solo el empleado asignado a la solicitud puede enviar a liquidar")
+
             if len(self.expenses_ids) == 0:
                 raise ValidationError("Debe agregar al menos un gasto")
 
@@ -173,12 +186,27 @@ class expensesRequest(models.Model):
 
     def send_email(self, state):
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        show_button = True
         if state == 'required':
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.boss_id.name
             email_to = self.boss_id.user_id.login
             message_txt = f"""El colaborador {self.assign_to_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos'
+
+        if state == 'exception':
+            base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+            for_user = self.boss_id.name
+            email_to = self.boss_id.user_id.login
+            message_txt = f"""El colaborador {self.assign_to_id.name} ha solicituado una exepcion en su liquidacion de viaticos que necesita de su aprobación"""
+            subject = 'Solicitud de viaticos motivo exepcional'
+
+            mail = self.env['mail.mail'].sudo().create({
+                'subject': "Liquidacion excepcional",
+                'body_html': f"""<p>Su liquidacion de viaticos se encuentra en el estado de liquidacion excepcional, comuniquese con su jefe inmediato para poder resolver su liquidacion con monto gastado superior al asignado</p>""",
+                'email_to': self.assign_to_id.user_id.login,
+            })
+            mail.send()
 
         if state == 'approved':
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
@@ -193,6 +221,7 @@ class expensesRequest(models.Model):
             email_to = self.assign_to_id.user_id.login
             message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo"""
             subject = 'Asignación de viaticos'
+            show_button = False
 
         if state == 'pending':
             for_user = self.assign_to_id.expense_manager_id.name
@@ -202,6 +231,15 @@ class expensesRequest(models.Model):
 
             expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
             base_url += '/web#id=%d&view_type=form&model=%s' % (expense_sheet_id.id, expense_sheet_id._name)
+
+        button_html = ""
+        if show_button:
+            button_html = f"""
+            <div style="margin: 16px 0px 16px 0px;">
+                <a href="{base_url}"
+                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver registro</a>
+            </div>
+            """
         
         body = """
             <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
@@ -236,10 +274,7 @@ class expensesRequest(models.Model):
                                                             <p>Estimado(a) {for_user},</p>
 
                                                             {message}
-                                                            <div style="margin: 16px 0px 16px 0px;">
-                                                                <a href="{url}"
-                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver registro</a>
-                                                            </div>
+                                                            {show_button_html}
                                                             <br/>Saludos<br/>
                                                         </div>
                                                     </td>
@@ -257,7 +292,7 @@ class expensesRequest(models.Model):
                         </td>
                     </tr>
                 </table>
-        """.format(for_user=for_user,message=message_txt,url=base_url)
+        """.format(for_user=for_user,message=message_txt,url=base_url,show_button_html=button_html)
 
         mail_values = {
             'body_html': body,
@@ -267,7 +302,7 @@ class expensesRequest(models.Model):
         mail = self.env['mail.mail'].create(mail_values)
         mail.send()
 
-    def create_report_expenses(self):
+    def create_report_expenses(self, with_exception=False):
         # expense_sheet_id = self.env['hr.expense.sheet'].search([('request_id','=',self.id)])
         # if expense_sheet_id:
         #     expense_sheet_id.unlink()
@@ -287,6 +322,16 @@ class expensesRequest(models.Model):
             'state': 'sent',
             'number': sequence_id.next_by_id()
         }
+
+        if with_exception:
+            if self.exeption_id.skip_exception:
+                vals['exception_solution'] = 'according'
+            else:
+                vals['exception_solution'] = with_exception
+                
+            vals['exeption_id'] = self.exeption_id.id
+            vals['description'] = self.description or self.exeption_id.name
+
         sheet_id = sheet_obj.create(vals)
         self.expenses_ids.write({'expense_sheet_req_id': sheet_id.id, 'state': 'submitted'})
         
@@ -342,7 +387,22 @@ class expensesRequest(models.Model):
     def unlink(self):
         if self.state != 'draft':
             raise ValidationError("Solo puede borrar solicitudes en estado borrador")
-        return super(expensesRequest, self).unlink()	
+        return super(expensesRequest, self).unlink()
+
+    def approve_exception(self):
+        if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+            if self.boss_id.user_id.id != self.env.user.id:
+                raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
+        self.write({'state':'finalized'})
+        self.create_report_expenses(with_exception='exception')
+
+    def reject_exception(self):
+        if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+            if self.boss_id.user_id.id != self.env.user.id:
+                raise ValidationError("Solo el aprobador de viaticos para este empleado puede rechazar esta solicitud")
+        self.write({'state':'finalized'})
+        self.create_report_expenses(with_exception='rejected')
+
 
 class expensesRequestDetails(models.Model):
     _name = 'cm.expenses.request.details'

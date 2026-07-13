@@ -92,8 +92,8 @@ class expensesInh(models.Model):
     def _compute_analytic_distribution(self):
         for expense in self:
             if expense.request_id:
-                if expense.assign_to_id and expense.assign_to_id.analytic_account_id:
-                    analytic = expense.assign_to_id.analytic_account_id.id
+                if expense.request_id.assign_to_id and expense.request_id.assign_to_id.analytic_account_id:
+                    analytic = expense.request_id.assign_to_id.analytic_account_id.id
                     expense.analytic_distribution = {str(analytic): 100.0}
                 else:
                     expense.analytic_distribution = False

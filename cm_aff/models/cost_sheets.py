@@ -38,7 +38,6 @@ class costSheets(models.Model):
                 raise ValidationError("La fecha inicial o final no estan dentro de los valores esperados")
 
     def create_lines(self):
-        print ("////////////////////////////////////////")
         aircraft_ids = self.env['aff.aircraf'].search([])
         fixed_cost_ids = self.env['aff.costs'].search([('cost_type','=','fixed')])
         variable_cost_ids = self.env['aff.costs'].search([('cost_type','=','variable')])
@@ -55,7 +54,8 @@ class costSheets(models.Model):
                 line = {
                     'cost_id': fixed.id,
                     'trimester': self.trimester,
-                    'year': self.year
+                    'year': self.year,
+                    'template_id': fixed.template_id.id
                 }
                 fixed_cost.append((0,0,line))
 
@@ -63,7 +63,8 @@ class costSheets(models.Model):
                 line = {
                     'cost_id': variable.id,
                     'trimester': self.trimester,
-                    'year': self.year
+                    'year': self.year,
+                    'template_id': variable.template_id.id
                 }
                 variable_cost.append((0,0,line))
 
@@ -109,6 +110,57 @@ class fixedCostLines(models.Model):
     october = fields.Float(string="Octubre")
     november = fields.Float(string="Noviembre")
     december = fields.Float(string="Diciembre")
+    template_id = fields.Many2one(related='cost_id.template_id', string="Plantilla")
+    value_ids = fields.One2many(
+        'aff.fixed.cost.value', 'fixed_line_id', 
+        string="Variables de Costeo", compute="_compute_value_ids", store=True, readonly=False
+    )
+
+    @api.depends('cost_id', 'template_id')
+    def _compute_value_ids(self):
+        for record in self:
+            if not record.template_id:
+                record.value_ids = [(5, 0, 0)]
+                continue
+            existing_vars = record.value_ids.mapped('variable_id.id')
+            new_lines = []
+            for var in record.template_id.variable_ids:
+                if var.id not in existing_vars:
+                    new_lines.append((0, 0, {
+                        'variable_id': var.id,
+                        'value_float': 0.0,
+                        'value_integer': 0,
+                        'field_type': var.field_type,
+                    }))
+            if new_lines:
+                record.value_ids = new_lines
+
+    def action_execute_formula(self):
+        """Evalúa la fórmula de la plantilla y asigna el resultado a los meses"""
+        for record in self:
+            if not record.template_id or not record.template_id.formula:
+                continue
+            
+            # 1. Construimos el diccionario de variables con sus valores reales ingresados
+            localdict = {}
+            for val in record.value_ids:
+                localdict[val.variable_id.code] = val.value_integer if val.field_type == 'integer' else val.value_float
+            
+            try:
+                # 2. Ejecutamos la fórmula matemáticamente de forma segura
+                result = float(safe_eval(record.template_id.formula, localdict))
+                
+                # 3. Asignamos el resultado a los meses correspondientes de este registro
+                # Puedes decidir si la fórmula aplica a todos los meses o si creas variables por mes.
+                # En este ejemplo, el cálculo se mapea directo a los campos mensuales:
+                record.update({
+                    'january': result, 'february': result, 'march': result,
+                    'april': result, 'may': result, 'june': result,
+                    'july': result, 'august': result, 'september': result,
+                    'october': result, 'november': result, 'december': result,
+                })
+            except Exception as e:
+                raise ValidationError(_("Error al evaluar la fórmula en el rubro %s: %s") % (record.cost_id.name, str(e)))
 
 class variableCostLines(models.Model):
     _name = 'variable.cost.lines'
@@ -131,3 +183,50 @@ class variableCostLines(models.Model):
     october = fields.Float(string="Octubre")
     november = fields.Float(string="Noviembre")
     december = fields.Float(string="Diciembre")
+    template_id = fields.Many2one(related='cost_id.template_id', string="Plantilla")
+    value_ids = fields.One2many(
+        'aff.variable.cost.value', 'variable_line_id', 
+        string="Variables de Costeo", compute="_compute_value_ids", store=True, readonly=False
+    )
+
+    @api.depends('cost_id', 'template_id')
+    def _compute_value_ids(self):
+        for record in self:
+            if not record.template_id:
+                record.value_ids = [(5, 0, 0)]
+                continue
+            existing_vars = record.value_ids.mapped('variable_id.id')
+            new_lines = []
+            print ("///////////////////////////////")
+            for var in record.template_id.variable_ids:
+                if var.id not in existing_vars:
+                    new_lines.append((0, 0, {
+                        'variable_id': var.id,
+                        'value_float': 0.0,
+                        'value_integer': 0,
+                        'field_type': var.field_type,
+                    }))
+            print (new_lines)
+            if new_lines:
+                record.value_ids = new_lines
+
+    def action_execute_formula(self):
+        """Evalúa la fórmula de la plantilla y asigna el resultado a los meses"""
+        for record in self:
+            if not record.template_id or not record.template_id.formula:
+                continue
+            
+            localdict = {}
+            for val in record.value_ids:
+                localdict[val.variable_id.code] = val.value_integer if val.field_type == 'integer' else val.value_float
+            
+            try:
+                result = float(safe_eval(record.template_id.formula, localdict))
+                record.update({
+                    'january': result, 'february': result, 'march': result,
+                    'april': result, 'may': result, 'june': result,
+                    'july': result, 'august': result, 'september': result,
+                    'october': result, 'november': result, 'december': result,
+                })
+            except Exception as e:
+                raise ValidationError(_("Error al evaluar la fórmula en el rubro %s: %s") % (record.cost_id.name, str(e)))

@@ -7,3 +7,10 @@ cm_aff.access_aff_cost_sheets,access_aff_cost_sheets,cm_aff.model_aff_cost_sheet
 cm_aff.access_aff_cost_sheets_lines,access_aff_cost_sheets_lines,cm_aff.model_aff_cost_sheets_lines,base.group_user,1,1,1,1
 cm_aff.access_fixed_cost_lines,access_fixed_cost_lines,cm_aff.model_fixed_cost_lines,base.group_user,1,1,1,1
 cm_aff.access_variable_cost_lines,access_variable_cost_lines,cm_aff.model_variable_cost_lines,base.group_user,1,1,1,1
+
+
+
+cm_aff.access_aff_cost_template,access_aff_cost_template,cm_aff.model_aff_cost_template,base.group_user,1,1,1,1
+cm_aff.access_aff_cost_template_variable,access_aff_cost_template_variable,cm_aff.model_aff_cost_template_variable,base.group_user,1,1,1,1
+cm_aff.access_aff_fixed_cost_value,access_aff_fixed_cost_value,cm_aff.model_aff_fixed_cost_value,base.group_user,1,1,1,1
+cm_aff.access_aff_variable_cost_value,access_aff_variable_cost_value,cm_aff.model_aff_variable_cost_value,base.group_user,1,1,1,1

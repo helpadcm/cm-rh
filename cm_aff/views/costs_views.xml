@@ -16,6 +16,7 @@
                             </group>
                             <group>
                                 <field name="cost_type" required="1"/>
+                                <field name="template_id" required="1"/>
                             </group>
                         </group>
                     </sheet>

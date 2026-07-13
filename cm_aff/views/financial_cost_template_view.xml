@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_financial_cost_template_form" model="ir.ui.view">
+        <field name="name">aff.cost.template.form</field>
+        <field name="model">aff.cost.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="Ej. Costeo Combustible"/>
+                        <field name="formule" placeholder="Ej: (precio_galon * galones_hora) * horas_vuelo"/>
+                    </group>
+                    <notebook>
+                        <page string="Campos personalizados que requerirá esta plantilla">
+                            <field name="variable_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" placeholder="Ej. Precio por Galón"/>
+                                    <field name="code" placeholder="Ej. precio_galon"/>
+                                    <field name="field_type"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_financial_cost_template" model="ir.actions.act_window">            
+        <field name="name">Plantillas</field>
+        <field name="res_model">aff.cost.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+
+</odoo>

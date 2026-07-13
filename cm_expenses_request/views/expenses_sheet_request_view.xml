@@ -35,6 +35,27 @@
                                 <field name="move_id" invisible="1"/>
                             </group>
                         </group>
+
+                        <group string="Datos de solicitud">
+                            <group>
+                                <field name="advance_amount"/>
+                                <field name="total_expense_amount"/>
+                            </group>
+                            <group>
+                                <field name="infavor_employee_amount" invisible="infavor_employee_amount == 0"/>
+                                <field name="refund_amount" invisible="refund_amount == 0"/>
+                            </group>
+                        </group>
+                        <group string="Resolucion a Reembolso" invisible="infavor_employee_amount == 0">
+                            <group>
+                                <field name="exception_solution" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="exeption_id"/>
+                                <field name="description"/>
+                            </group>
+                        </group>
+
                         <notebook>
                             <page name="expenses" string="Gastos">
                                 <field name="expenses_ids" readonly="state != 'draft'" 
@@ -72,20 +93,25 @@
                                         <field name="price_unit" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
                                         <field name="currency_id" optional="hide" readonly="True" groups="base.group_multi_currency"/>
                                         <field name="quantity" optional="hide" readonly="not product_has_cost"/>
-                                        <field name="exempt_amount" optional="hide"/>
+                                        <field name="exempt_amount" optional="hide" options="{'currency_field': 'currency_id'}"/>
                                         <field name="tax_ids" string="Impuestos" optional="show" widget="many2many_tags"
                                             context="{'default_company_id': company_id}"/>
+                                        <field name="untaxed_amount_currency" string="Monto Sin Impuestos" options="{'currency_field': 'currency_id'}" />
                                         <field name="tax_amount_currency" optional="hide"  options="{'currency_field': 'currency_id'}"
                                             context="{'default_company_id': company_id}" readonly="True" groups="base.group_multi_currency"/>
                                         <field name="tax_amount" optional="hide" readonly="True"/>
                                         <field name="total_amount_currency" options="{'currency_field': 'currency_id'}"
-                                            string="Subtotal In Currency " optional="show"
+                                            string="Subtotal In Currency " optional="hide"
                                             readonly="not is_multiple_currency" groups="base.group_multi_currency"/>
                                         <field name="total_amount" string="Subtotal" readonly="product_has_cost"/>
                                     </list>
                                 </field>
                                 <group class="oe_subtotal_footer" colspan="2" name="expense_total">
                                     <field name="untaxed_amount"/>
+                                    <div class="oe_inline o_td_label">
+                                        <label for="taxable_amount"/>
+                                    </div>
+                                    <field name="taxable_amount" nolabel="1"/>
                                     <div class="oe_inline o_td_label">
                                         <label for="exempt_amount"/>
                                     </div>

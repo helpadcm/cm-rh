@@ -11,3 +11,5 @@ class costs(models.Model):
     code = fields.Char(string="Codigo")
     cost_type = fields.Selection([('fixed','Fijo'),('variable','Variable'),('leasing','Leasing')],string="Tipo de Rubro")
     description = fields.Char(string="Descripción")
+
+    template_id = fields.Many2one('aff.cost.template', string='Plantilla de Parámetros')

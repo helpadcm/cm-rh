@@ -214,7 +214,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6 mb-3">
+                                        <div t-if="infavor_employee_amount == 0" class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">
                                                 <i class="fa fa-money me-1"></i>
                                                 Saldo en control del empleado
@@ -230,6 +230,25 @@
                                                     placeholder="0.00"
                                                     disabled="disabled"
                                                     t-att-value="balance_employee_amount"/>
+                                            </div>
+                                        </div>
+
+                                        <div t-if="infavor_employee_amount > 0" class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">
+                                                <i class="fa fa-money me-1"></i>
+                                                Saldo a favor del empleado
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">L</span>
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    name="infavor_amount"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="0.00"
+                                                    disabled="disabled"
+                                                    t-att-value="infavor_employee_amount"/>
                                             </div>
                                         </div>
 
@@ -276,7 +295,7 @@
                                                 </button>
                                             </t>
 
-                                            <t t-if="balance_employee_amount == 0">
+                                            <t t-if="balance_employee_amount == 0 and infavor_employee_amount == 0">
                                                 <button
                                                     type="button"
                                                     class="btn btn-success"
@@ -284,6 +303,17 @@
                                                     data-bs-target="#confirmFinishModal">
                                                     <i class="fa fa-check-circle me-1"></i>
                                                     Finalizar Liquidación
+                                                </button>
+                                            </t>
+
+                                            <t t-if="infavor_employee_amount > 0">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-success"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#expenseRefund">
+                                                    <i class="fa fa-check-circle me-1"></i>
+                                                    Solicitar Reembolso
                                                 </button>
                                             </t>
                                         </div>
@@ -411,6 +441,87 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="modal fade" id="expenseRefund" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Solicitar reembolso a favor del empleado
+                                    </h5>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal">
+                                    </button>
+                                </div>
+                                <form action="/refund_expense_amount" method="POST">
+                                    <input type="text" class="d-none" name="request_id" id="id_request_id" t-att-value="request_id"/>
+                                    <input type="hidden"
+                                        name="csrf_token"
+                                        t-att-value="request.csrf_token()"/>
+
+                                    <div class="modal-body">
+
+                                        <div class="row">
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-tags me-1"></i>
+                                                    Motivo
+                                                </label>
+                                                <select
+                                                    class="form-select"
+                                                    name="selection_refund_expense"
+                                                    id="refund_expense"
+                                                    required="required">
+                                                    <option value="">Seleccione una opción</option>
+                                                    <t t-foreach="exceptional_reason_ids" t-as="types">
+                                                        <option t-att-value="types.id">
+                                                            <t t-esc="types.name"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fa fa-align-left"></i>
+                                                    Explicacion
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control"
+                                                    name="description_refund"/>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+                                            Cancelar
+                                        </button>
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary">
+                                            Enviar
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">

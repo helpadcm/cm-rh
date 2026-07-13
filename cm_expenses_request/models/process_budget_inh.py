@@ -30,8 +30,10 @@ class employeeInh(models.Model):
         help='Employee bank accounts to pay salaries')
 
     show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")
+    expense_approver_id = fields.Many2one('hr.employee', string="Aprobador de Viaticos")
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
 
     show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")
+    expense_approver_id = fields.Many2one('hr.employee', string="Aprobador de Viaticos")

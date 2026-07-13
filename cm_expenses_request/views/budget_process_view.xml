@@ -56,5 +56,16 @@
                 </field>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="expense_employee_inh">
+            <field name="name">expense.employee.inh</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_expense.hr_employee_view_form_inherit_expense"/>
+            <field name="arch" type="xml">
+                <field name="expense_manager_id" position="after">
+                    <field name="expense_approver_id" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

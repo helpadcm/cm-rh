@@ -3,6 +3,7 @@ from odoo import http
 from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import ValidationError
 
 class settlementExpensesCont(http.Controller):
 
@@ -12,6 +13,7 @@ class settlementExpensesCont(http.Controller):
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         expenses_categories = request.env['product.product'].sudo().search([('company_id','=',employee_id.company_id.id),('can_be_expensed','=',True)])
         expense_request_id = request.env['cm.expenses.request'].sudo().search([('assign_to_id','=',employee_id.id),('state','in',['assigned'])])
+        exceptional_reason_ids = request.env['expense.exceptional.reason'].sudo().search([])
         pending_expense = 'not_allow'
         message_form = ''
         amount_assign = 0
@@ -65,6 +67,8 @@ class settlementExpensesCont(http.Controller):
             'purpose': expense_request_id.purpose,
             'amount_assign': amount_assign,
             'balance_employee_amount': round(expense_request_id.balance_employee_amount, 2),
+            'infavor_employee_amount': round(expense_request_id.infavor_employee_amount, 2),
+            'exceptional_reason_ids': exceptional_reason_ids,
             'expenses_data': expenses_data,
             'message_form': message_form
         }
@@ -98,7 +102,7 @@ class settlementExpensesCont(http.Controller):
                 if budget_account_id:
                     budget_account_id = budget_account_id.id
                 else:
-                    raise ValidationError(f"""La categoria de gasto {self.product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
+                    raise ValidationError(f"""La categoria de gasto {product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
 
             values = {
                 'name': description,
@@ -172,6 +176,25 @@ class settlementExpensesCont(http.Controller):
         })
         deposit_id.sudo().action_validate()
         rec_request_id.sudo().write({'refund_amount': amount})
+
+        return request.redirect('/expenses/settlement_expenses')
+
+    @http.route('/refund_expense_amount',type='http',auth='user',methods=['POST'],website=True)
+    def create_expense_line(self, **post):
+
+        option_id = post.get("selection_refund_expense")
+        amount = post.get("infavor_amount")
+        request_id = post.get("request_id")
+        description_refund = post.get("description_refund")
+        rec_request_id = request.env['cm.expenses.request'].sudo().browse(int(request_id))
+        exception_id = request.env['expense.exceptional.reason'].sudo().browse(int(option_id))
+
+        rec_request_id.sudo().write({'exeption_id': int(option_id), 'description': description_refund or ''})
+        next_state = 'exception'
+        if exception_id.skip_exception:
+            next_state = 'pending'
+            
+        rec_request_id.sudo().with_context({'state':next_state}).change_state()
 
         return request.redirect('/expenses/settlement_expenses')
 

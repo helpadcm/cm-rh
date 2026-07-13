@@ -8,19 +8,27 @@
                 <form string="Solicitud de viaticos">
                     <header>
                         <button name="change_state" context="{'state': 'required'}" class="oe_highlight" type="object" string="Validar" invisible="state != 'draft'"/>
-                        <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" type="object" string="Aprobar" groups="cm_expenses_request.group_expenses_request_boss,cm_expenses_request.group_expenses_request_manager" invisible="state != 'required'"/>
+                        <button name="change_state" context="{'state': 'approved'}" class="oe_highlight" 
+                                type="object" string="Aprobar" 
+                                groups="cm_expenses_request.group_expenses_request_boss,cm_expenses_request.group_expenses_request_manager" invisible="state != 'required'"/>
                         <button name="%(cm_expenses_request.assign_expenses_action)d"  
                                 class="oe_highlight" type="action" string="Asignar" 
                                 groups="cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_manager" 
                                 invisible="state != 'approved'" context="{'default_amount': advance_amount}"/>
                         <button name="%(cm_expenses_request.deposit_expenses_action)d"  
-                                class="oe_highlight" type="action" string="Depositar" 
-                                groups="cm_expenses_request.group_expenses_request_user,cm_expenses_request.group_expenses_request_manager"
+                                class="oe_highlight" type="action" string="Depositar"
                                 invisible="state != 'assigned' or balance_employee_amount == 0" context="{'default_amount': balance_employee_amount}"/>
-                        <button name="change_state" context="{'state': 'pending'}" class="oe_highlight" type="object" string="Enviar a Liquidar" invisible="state != 'assigned'" 
-                                groups="cm_expenses_request.group_expenses_request_user,cm_expenses_request.group_expenses_request_manager"/>
+                        <button name="change_state" context="{'state': 'pending'}" class="oe_highlight" 
+                                type="object" string="Enviar a Liquidar" invisible="state != 'assigned' or infavor_employee_amount > 0" />
+                        <button name="%(cm_expenses_request.exeptional_reason_action)d" context="{'state': 'exception'}" class="oe_highlight" type="action" 
+                                string="Solicitar Reembolso" invisible="state != 'assigned' or infavor_employee_amount == 0 or infavor_employee_amount &lt; 0" />
                         <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'required'"/>
-                        <field name="state" widget="statusbar"/>
+
+                        <button name="approve_exception" class="oe_highlight" type="object" string="Aprobar Excepcion" invisible="state != 'exception'"/>
+                        <button name="reject_exception" class="oe_highlight btn-danger" type="object" string="Rechazar Excepcion" invisible="state != 'exception'"/>
+
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,required,approved,assigned,pending,finalized"/>
                   	</header>
                     <sheet>
                         <div class="oe_button_box" name="button_box"> 
@@ -41,9 +49,9 @@
                             </group>
                             <group>
                                 <field name="assign_to_id" options="{'no_create': True,'no_open': True}" readonly="state != 'draft'"/>
-                                <field name="account_number" readonly="1" for_save="1"/>
+                                <field name="account_number" readonly="1" force_save="1"/>
                                 <field name="purpose" required="1" readonly="state != 'draft'"/>
-                                <field name="boss_id" invisible="1"/>
+                                <field name="boss_id" invisible="0"/>
                                 <field name="reason_expense" invisible="1" readonly="state != 'draft'"/>
                                 <field name="process_ids" widget="many2many_tags" options="{'no_create': True,'no_open': True}" invisible="1" force_save="1" />
                             </group>
@@ -100,6 +108,16 @@
                                     </list>
                                 </field>
                             </page>
+                            <page name="exceptions" string="Excepcion" invisible="exeption_id in [False,None]">
+                                <group>
+                                    <group>
+                                        <field name="exeption_id" />
+                                    </group>
+                                    <group>
+                                        <field name="description" />
+                                    </group>
+                                </group>
+                            </page>
                         </notebook>
                         <field name="observations" placeholder="Observaciones y Justificaciones" readonly="state != 'draft'"/>
                     </sheet>
@@ -115,6 +133,7 @@
                 <list string="Solicitud de viaticos">
                     <field name="name"/>
                     <field name="employee_id" />
+                    <field name="assign_to_id" />
                     <field name="date"/>
                     <field name="purpose"/>
                     <field name="state"/>
