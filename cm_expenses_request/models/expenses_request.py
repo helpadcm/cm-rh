@@ -163,12 +163,16 @@ class expensesRequest(models.Model):
             self.send_email(next_state)
 
         if next_state == 'pending':
+            with_exception = False
             if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
                 if self.assign_to_id.user_id.id != self.env.user.id:
                     raise ValidationError("Solo el empleado asignado a la solicitud puede enviar a liquidar")
 
             if len(self.expenses_ids) == 0:
                 raise ValidationError("Debe agregar al menos un gasto")
+
+            if self.exeption_id and self.exeption_id.skip_exception:
+                with_exception = 'according'
 
             amount_total = 0
             for line in self.expenses_ids:
@@ -179,7 +183,7 @@ class expensesRequest(models.Model):
             if amount_total == 0:
                 raise ValidationError("El total de gastos no puede ser 0, por favor revise los gastos agregados.")
                 
-            self.create_report_expenses()
+            self.create_report_expenses(with_exception)
             self.send_email(next_state)
 
         self.state = next_state
