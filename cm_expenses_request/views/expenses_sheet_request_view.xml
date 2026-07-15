@@ -103,7 +103,7 @@
                                         <field name="total_amount_currency" options="{'currency_field': 'currency_id'}"
                                             string="Subtotal In Currency " optional="hide"
                                             readonly="not is_multiple_currency" groups="base.group_multi_currency"/>
-                                        <field name="total_amount" string="Subtotal" readonly="product_has_cost"/>
+                                        <field name="total_amount" string="Subtotal" optional="hide" readonly="product_has_cost"/>
                                     </list>
                                 </field>
                                 <group class="oe_subtotal_footer" colspan="2" name="expense_total">

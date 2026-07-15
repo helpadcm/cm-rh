@@ -36,8 +36,12 @@ class expensesRequest(models.Model):
                     default_process_id = permitted_processes_ids.id
 
             account_number = ''
+            edit = False
             if employee_id.sudo().bank_account_ids:
                 account_number = employee_id.sudo().bank_account_ids[0].acc_number
+
+            if self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                edit = True
 
             if not employee_id.expense_approver_id:
                 raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (employee_id.name))
@@ -51,7 +55,8 @@ class expensesRequest(models.Model):
                 'process_id': default_process_id,
                 'boss_id': employee_id.expense_approver_id.id,
                 'account_number': account_number,
-                'date': datetime.now().date()
+                'date': datetime.now().date(),
+                'edit_employee': edit
             })
         return rec
 
@@ -66,6 +71,7 @@ class expensesRequest(models.Model):
     state = fields.Selection(states,string="Estado",default="draft",tracking=True,copy=False)
     boss_id = fields.Many2one('hr.employee',string="Jefe Inmediato",copy=True)
     assign_to_id = fields.Many2one('hr.employee',string="Asignado a",copy=True,tracking=True)
+    allow_employee_ids = fields.Many2many('hr.employee',string="Empleados a cargo",copy=True,tracking=True)
 
     advance_amount = fields.Float(string="Anticipo al Empleado", compute="calculate_totals")
     total_expense_amount = fields.Float(string="Total de gastos", compute="calculate_totals")
@@ -74,7 +80,7 @@ class expensesRequest(models.Model):
     refund_amount = fields.Float(string="Reembolso", copy=False)
 
     request_details_ids = fields.One2many('cm.expenses.request.details','request_id',string="Detalles de solicitud",copy=True)
-    expenses_ids = fields.One2many('hr.expense','request_id',string="Lista de gastos") 
+    expenses_ids = fields.One2many('hr.expense','request_id',string="Lista de gastos")
 
     need_tickets = fields.Boolean(string="Necesita boletos",tracking=True)
     need_transport = fields.Boolean(string="Necesita transporte",tracking=True)
@@ -83,6 +89,8 @@ class expensesRequest(models.Model):
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
     limit_date = fields.Date(string="Fecha limite de liquidacion",compute="_calculate_limit_date")
+    omit_settlement = fields.Boolean(string="Omitir liquidacion")
+    edit_employee = fields.Boolean(string="Editar Empleado")
 
     exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',copy=False,tracking=True)
     description = fields.Text(string="Motivo",copy=False,tracking=True)
@@ -134,6 +142,10 @@ class expensesRequest(models.Model):
     @api.onchange('assign_to_id')
     def get_assign_to_data(self):
         if self.assign_to_id:
+            pending_expenses_id = self.search([('state','!=','finalized'),('assign_to_id','=',self.assign_to_id.id)])
+            if pending_expenses_id and not pending_expenses_id.omit_settlement:
+                raise ValidationError(f"""No se puede realizar una solicitud para el empleado {self.assign_to_id.name} aun tiene una liquidacion pendiente.""")
+
             if not self.assign_to_id.expense_approver_id:
                 raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (self.assign_to_id.name))
 
@@ -151,11 +163,16 @@ class expensesRequest(models.Model):
         if self.employee_id:
             if self.employee_id.user_id:
                 permitted_processes_ids = self.env['crossovered.activity'].search([('user_ids','in',self.employee_id.user_id.ids)])
+                allow_employee_ids = self.env['hr.employee'].search([('expense_approver_id','=',self.employee_id.id)])
+                if self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                    allow_employee_ids = self.env['hr.employee'].search([])
+
                 if len(permitted_processes_ids) == 1:
                     default_process_id = permitted_processes_ids.id
                     self.write({
                         'process_ids': permitted_processes_ids,
                         'process_id': default_process_id,
+                        'allow_employee_ids': allow_employee_ids
                     })
                     
     def change_state(self):
@@ -245,7 +262,7 @@ class expensesRequest(models.Model):
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.assign_to_id.name
             email_to = self.assign_to_id.user_id.login
-            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo"""
+            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de manera fisica como se ha hecho siempre."""
             subject = 'Asignación de viaticos'
             show_button = False
 
@@ -325,7 +342,7 @@ class expensesRequest(models.Model):
             'email_to': email_to,
             'subject': subject,
         }
-        mail = self.env['mail.mail'].create(mail_values)
+        mail = self.env['mail.mail'].sudo().create(mail_values)
         mail.send()
 
     def create_report_expenses(self, with_exception=False):
@@ -429,6 +446,75 @@ class expensesRequest(models.Model):
         self.write({'state':'finalized'})
         self.create_report_expenses(with_exception='rejected')
 
+    def cron_review_deadline(self):
+        pending_expenses_ids = self.search([('state','=','assigned')])
+        actual_date = (datetime.now() - timedelta(hours=6)).date()
+        for exp in pending_expenses_ids:
+            expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',exp.id)])
+            if actual_date > exp.limit_date and not expense_sheet_id:
+                for_user = exp.assign_to_id.name
+                email_to = 'legalrh@cmairlines.com'
+                message_txt = f"""El empleado {for_user} no ha realizado su liquidacion de viaticos con fecha limite {exp.limit_date.strftime('%d/%m/%Y')}."""
+                subject = f'Liquidacion de viaticos no realizada'
+                
+                body = """
+                    <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                            <tr>
+                                <td align="center">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; border-collapse:separate;">
+                                        <tbody>
+                                            <!-- HEADER -->
+                                            <tr>
+                                                <td align="center" style="min-width: 590px;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                        <tr>
+                                                            <td valign="middle" style="font-size: 10px;color:black">
+                                                                <span style="font-size: 10px;color:black"><h2>Liquidacion de viaticos no realizada</h2></span><br/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2" style="text-align:center;">
+                                                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <!-- CONTENT -->
+                                            <tr>
+                                                <td align="center" style="min-width: 590px;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                        <tr>
+                                                            <td valign="top" style="font-size: 13px;">
+                                                                <div>
+                                                                    {message}
+                                                                    <br/>Saludos<br/>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="text-align:center;">
+                                                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                """.format(message=message_txt)
+
+                mail_values = {
+                    'body_html': body,
+                    'email_to': email_to,
+                    'subject': subject,
+                }
+                mail = self.env['mail.mail'].sudo().create(mail_values)
+                mail.send()
+            
 
 class expensesRequestDetails(models.Model):
     _name = 'cm.expenses.request.details'

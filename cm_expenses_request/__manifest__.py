@@ -10,7 +10,7 @@
 	'data':[
 		'security/groups.xml',
 		'security/ir.model.access.csv',
-		# 'data/cron.xml',
+		'data/cron.xml',
 		'data/sequences.xml',
 		'wizard/assign_expenses_view.xml',
 		'wizard/deposit_expenses_view.xml',

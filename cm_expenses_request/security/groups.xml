@@ -48,7 +48,7 @@
             <field name="name">Usuario Solicitudes de viaticos</field>
 
             <field name="model_id" ref="cm_expenses_request.model_cm_expenses_request"/>
-            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">['|',('employee_id.user_id', '=', user.id),('assign_to_id.user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('cm_expenses_request.group_expenses_request_user'))]"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -59,7 +59,7 @@
         <record id="boss_expenses_request_rule" model="ir.rule">
             <field name="name">Jefe de  Solicitudes de viaticos</field>
             <field name="model_id" ref="cm_expenses_request.model_cm_expenses_request"/>
-            <field name="domain_force">['|',('employee_id.user_id', '=', user.id),('boss_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">['|','|',('employee_id.user_id', '=', user.id),('boss_id.user_id', '=', user.id),('assign_to_id.user_id', '=', user.id)]</field>
             <field name="groups" eval="[(4, ref('cm_expenses_request.group_expenses_request_boss'))]"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
