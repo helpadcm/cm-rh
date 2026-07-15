@@ -8,7 +8,7 @@ from odoo.exceptions import ValidationError
 class settlementExpensesCont(http.Controller):
 
     @http.route('/expenses/settlement_expenses', type='http', auth="user", website=True)
-    def custom_option(self, **kwargs):
+    def settlement_expenses(self, **kwargs):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         expenses_categories = request.env['product.product'].sudo().search([('company_id','=',employee_id.company_id.id),('can_be_expensed','=',True)])
@@ -75,7 +75,7 @@ class settlementExpensesCont(http.Controller):
         return request.render("cm_expenses_request.portal_settlement_expense", values)
 
     @http.route('/create_expense/submit', type='http', auth="user", methods=["POST"], website=True)
-    def hours_form_submit(self, **post):
+    def create_expense_submit(self, **post):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
 
@@ -142,7 +142,7 @@ class settlementExpensesCont(http.Controller):
         return request.redirect('/expenses/settlement_expenses')
 
     @http.route('/create_expense_deposit',type='http',auth='user',methods=['POST'],website=True)
-    def create_expense_line(self, **post):
+    def create_expense_deposit(self, **post):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search(
             [('user_id', '=', user.id)],
@@ -154,7 +154,7 @@ class settlementExpensesCont(http.Controller):
         request_id = post.get("request_id")
 
         account_id = request.env['account.account'].sudo().search([('code','=','105.01')])
-        journal_id = request.env['account.journal'].sudo().search([('code','=','BACL')])
+        journal_id = request.env['account.journal'].sudo().search([('code','=','BPLPS')])
         rec_request_id = request.env['cm.expenses.request'].sudo().browse(int(request_id))
         
         deposit_id = self.env['banks.deposit'].sudo().create({

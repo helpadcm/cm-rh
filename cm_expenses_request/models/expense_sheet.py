@@ -206,3 +206,15 @@ class expensesSheetRequest(models.Model):
                 'res_id': self.move_id.id
             }
 
+    def get_attachment(self):
+        for expense in self.expenses_ids:
+            attachments = self.env['ir.attachment'].search([
+                ('res_model', '=', 'hr.expense'),
+                ('res_id', '=', expense.id),
+            ])
+
+            for attachment in attachments:
+                attachment.copy({
+                    'res_model': self._name,
+                    'res_id': self.id,
+                })

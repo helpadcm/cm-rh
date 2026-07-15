@@ -16,6 +16,10 @@ class expenseExeptionReason(models.TransientModel):
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])
 
+        for line in req_id.expenses_ids:
+            if line.nb_attachment == 0:
+                raise ValidationError(f"""Debe agregar comprobantes de sus gastos, el gasto {line.name} no tiene adjuntos. Para agregarlo ingrese a la linea del gasto descrito y suba el comprobante desde el boton 'Adjuntar recibo'""")
+
         req_id.write({'exeption_id':self.exeption_id.id,'description':self.description})
         
         next_state = 'exception'

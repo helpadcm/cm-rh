@@ -82,9 +82,28 @@ class expensesRequest(models.Model):
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
+    limit_date = fields.Date(string="Fecha limite de liquidacion",compute="_calculate_limit_date")
 
     exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',copy=False,tracking=True)
     description = fields.Text(string="Motivo",copy=False,tracking=True)
+
+    @api.depends('request_details_ids')
+    def _calculate_limit_date(self):
+        for rec in self:
+            rec.limit_date = False
+            if rec.request_details_ids:
+                last_line_id = rec.request_details_ids[-1]
+                if last_line_id:
+                    current_date = last_line_id.date
+                    days_added = 0
+
+                    while days_added < 5:
+                        current_date += timedelta(days=1)
+
+                        # Lunes=0 ... Viernes=4
+                        if current_date.weekday() < 5:
+                            days_added += 1
+                    rec.limit_date = current_date
 
     @api.depends('request_details_ids','expenses_ids','refund_amount')
     def calculate_totals(self):
@@ -182,6 +201,9 @@ class expensesRequest(models.Model):
 
             if amount_total == 0:
                 raise ValidationError("El total de gastos no puede ser 0, por favor revise los gastos agregados.")
+
+            if self.balance_employee_amount > 0:
+                raise ValidationError("No puede enviar a liquidar, aun tiene saldo en control del empleado que debe ser tratado")
                 
             self.create_report_expenses(with_exception)
             self.send_email(next_state)

@@ -583,7 +583,7 @@ class saleOrderHandling(models.Model):
         if self.parent_id:
             invoice_partner_id = self.parent_id
 
-        if not self.partner_id.grouping_invoice:
+        if not self.partner_id.grouping_invoice or self.modality in ['upon_delivery']:
             move_vals = {
                 'partner_id': invoice_partner_id.id,
                 'partner_name': self.client_name or invoice_partner_id.name,
