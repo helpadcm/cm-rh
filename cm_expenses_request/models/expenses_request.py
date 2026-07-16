@@ -262,7 +262,7 @@ class expensesRequest(models.Model):
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.assign_to_id.name
             email_to = self.assign_to_id.user_id.login
-            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de manera fisica como se ha hecho siempre."""
+            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de gastos o depositos realizados por dinero sobrante de manera fisica al area de finanzas."""
             subject = 'Asignación de viaticos'
             show_button = False
 
