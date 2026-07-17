@@ -75,7 +75,7 @@ class groupGuides(models.Model):
             self.guide_ids = bill_landings_list
 
     def create_invoice(self):
-        journal_id = self.env['account.journal'].search([('company_id','=',partner_id.company_id.id),('code','=','INV')])
+        journal_id = self.env['account.journal'].search([('company_id','=',self.partner_id.company_id.id),('code','=','INV')])
         usd_currency_id = self.env.ref('base.USD')
 
         move_vals = {

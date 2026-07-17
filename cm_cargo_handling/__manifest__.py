@@ -18,6 +18,7 @@
 		'wizards/wizard_cancel.xml',
 		'wizards/discard_guide.xml',
 		'wizards/handling_report_view.xml',
+		# 'wizards/daily_sales_agent_view.xml',
 		'views/cargo_bill_view.xml',
 		'views/cargo_type_view.xml',
 		'views/airport_view.xml',

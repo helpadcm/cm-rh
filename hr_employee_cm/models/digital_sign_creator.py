@@ -1,4 +1,5 @@
 import base64
+import tempfile
 from odoo import fields, models, api
 from odoo.exceptions import UserError, ValidationError
 from io import BytesIO
@@ -55,23 +56,38 @@ class digitalSignConf(models.Model):
     x_name_position = fields.Integer(string="Posicion X (Nombre)", default=865)
     y_name_position = fields.Integer(string="Posicion Y (Nombre)", default=155)
     name_font_size = fields.Integer(string="Tamaño de letra (Nombre) ", default=75)
+    name_color = fields.Char(default="#1B371F",string="Color Nombre")
+    name_font = fields.Binary(string="Letra (Nombre)",attachment=True)
+    name_font_filename = fields.Char()
 
     ###################  job configuration  ##############################
     x_job_position = fields.Integer(string="Posicion X (Puesto)", default=865)
     y_job_position = fields.Integer(string="Posicion Y (Puesto)", default=250)
     job_font_size = fields.Integer(string="Tamaño de letra (Puesto) ", default=30)
+    job_color = fields.Char(default="#1B371F", string="Color Puesto")
+    job_font = fields.Binary(string="Letra (Puesto)",attachment=True)
+    job_font_filename = fields.Char()
 
     ###################  mobile configuration  ##############################
     x_mobile_position = fields.Integer(string="Posicion X (Telefono)", default=120)
     y_mobile_position = fields.Integer(string="Posicion Y (Telefono)", default=577)
     mobile_font_size = fields.Integer(string="Tamaño de letra (Telefono) ", default=30)
+    mobile_color = fields.Char(default="#FFFFFF",string="Color Telefono")
+    mobile_font = fields.Binary(string="Letra (Telefono)",attachment=True)
+    mobile_font_filename = fields.Char()
 
     ###################  company phone configuration  ##############################
     x_phone_comp_position = fields.Integer(string="Posicion X (Empresa)", default=480)
     y_phone_comp_position = fields.Integer(string="Posicion Y (Empresa)", default=577)
     phone_comp_font_size = fields.Integer(string="Tamaño de letra (Empresa) ", default=30)
+    company_color = fields.Char(default="#FFFFFF",string="Color Empresa")
+    company_font = fields.Binary(string="Letra (Empresa)",attachment=True)
+    company_font_filename = fields.Char()
 
     ###################  address configuration  ##############################
     x_address_position = fields.Integer(string="Posicion X (Direccion)", default=1160)
     y_address_position = fields.Integer(string="Posicion Y (Direccion)", default=577)
     address_font_size = fields.Integer(string="Tamaño de letra (Direccion) ", default=30)
+    address_color = fields.Char(default="#FFFFFF",string="Color Direccion")
+    address_font = fields.Binary(string="Letra (Direccion)",attachment=True)
+    address_font_filename = fields.Char()

@@ -44,3 +44,4 @@ cm_cargo_handling.access_pricelist_product_partner,access_pricelist_product_part
 
 
 cm_cargo_handling.access_mail_followers,access_mail_followers,mail.model_mail_followers,base.group_user,0,0,0,1
+cm_cargo_handling.access_handling_daily_sales_agent,access_handling_daily_sales_agent,cm_cargo_handling.model_handling_daily_sales_agent,base.group_user,1,1,1,1
