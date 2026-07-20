@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_expenses_return_to_draft" model="ir.ui.view">
+        <field name="name">Regresar liquidacion a borrador</field>
+        <field name="model">expense.return.draft</field>
+        <field name="arch" type="xml">
+            <form string="Regresar liquidacion a borrador">
+                <sheet>
+                    <group>
+                        <field name="description" options="{'no_create': True}"/>
+                    </group>
+                    <footer>
+                        <button string="Enviar" type="object" name="sent_to_draft" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="expense_return_to_draft_action" model="ir.actions.act_window">
+        <field name="name">Regresar liquidacion a borrador</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">expense.return.draft</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

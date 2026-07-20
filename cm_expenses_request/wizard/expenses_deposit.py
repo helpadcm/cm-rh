@@ -1,7 +1,7 @@
+import base64
 from odoo import models, fields, _, api
 from datetime import datetime, timedelta, time
 from odoo.exceptions import ValidationError
-
 
 class depositExpenses(models.TransientModel):
     _name = "hr.deposit.expenses"
@@ -34,6 +34,8 @@ class depositExpenses(models.TransientModel):
     date = fields.Date(string="Fecha")
     account_id = fields.Many2one('account.account',string="Cuenta")
     voucher_number = fields.Char(string="Voucher")
+    voucher = fields.Binary(string="Comprobante de deposito",attachment=True)
+    voucher_filename = fields.Char(string="Deposito")
 
     def create_deposit(self):
         context = dict(self._context or {})
@@ -49,6 +51,15 @@ class depositExpenses(models.TransientModel):
             'name': f"""Deposito monto sobrante {req_id.employee_id.name} voucher {self.voucher_number}""",
             'request_id': req_id.id
         })
+
+        if self.voucher:
+            self.env['ir.attachment'].sudo().create({
+                'name': self.voucher_filename or 'Comprobante Deposito',
+                'datas': self.voucher,
+                'res_model': 'banks.deposit',
+                'res_id': deposit_id.id,
+                'type': 'binary',
+            })
 
         self.env['banks.deposit.name'].sudo().create({
             'account_id': self.account_id.id,

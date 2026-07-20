@@ -255,7 +255,7 @@
                                         <div class="col-12 mb-3" id="adjuntos_div">
                                             <div class="mb-3">
                                                 <label class="form-label">Adjuntar Archivos (Obligatorio)</label>
-                                                <input type="file" name="rec_expenses_attachments" id="expense_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                                                <input type="file" required="required" name="rec_expenses_attachments" id="expense_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
                                                 <small class="form-text text-muted">Formatos permitidos: imágenes, PDF, Word, Excel.</small>
                                             </div>
                                         </div>
@@ -537,7 +537,7 @@
                                         data-bs-dismiss="modal">
                                     </button>
                                 </div>
-                                <form action="/create_expense_deposit" method="POST">
+                                <form action="/create_expense_deposit" method="POST" enctype="multipart/form-data">
                                     <input type="text" class="d-none" name="request_id" id="id_request_id" t-att-value="request_id"/>
                                     <input type="hidden"
                                         name="csrf_token"
@@ -571,6 +571,14 @@
                                                     name="amount_balance"
                                                     t-att-value="balance_employee_amount"
                                                     readonly="readonly"/>
+                                            </div>
+
+                                            <div class="col-6 mb-3" id="adjuntos_dep_div">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Adjuntar Comprobante (Obligatorio)</label>
+                                                    <input type="file" name="rec_deposit_attachments" required="required" id="deposit_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                                                    <small class="form-text text-muted">Formatos permitidos: imágenes, PDF, Word, Excel.</small>
+                                                </div>
                                             </div>
 
                                         </div>

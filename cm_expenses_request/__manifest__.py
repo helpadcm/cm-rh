@@ -15,6 +15,7 @@
 		'wizard/assign_expenses_view.xml',
 		'wizard/deposit_expenses_view.xml',
 		'wizard/exeptional_reason_view.xml',
+		'wizard/return_draft_view.xml',
 		'views/conf_view.xml',
 		'views/expenses_request_view.xml',
 		'views/expense_inh_view.xml',

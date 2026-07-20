@@ -10,7 +10,7 @@
                     <header>
                         <button name="change_state" context="{'state': 'approved'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'sent'"/>
                         <button name="change_state" context="{'state': 'done'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight" type="object" string="Finalizar" invisible="state != 'approved'"/>
-                        <button name="change_state" context="{'state': 'draft'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'sent'"/>
+                        <button name="%(cm_expenses_request.expense_return_to_draft_action)d" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight btn-info" type="action" string="Regresar a Borrador" invisible="state != 'sent'"/>
                         <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>

@@ -15,6 +15,8 @@
                             <field name="journal_id" domain="[('type','in',['bank'])]" options="{'no_create': True}" required="1"/>
                             <field name="account_id" invisible="1"/>
                             <field name="voucher_number" required="1"/>
+                            <field name="voucher" filename="voucher_filename" required="1"/>
+                            <field name="voucher_filename" invisible="1"/>
                         </group>
                     </group>
                     <footer>

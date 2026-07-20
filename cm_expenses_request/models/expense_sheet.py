@@ -171,7 +171,17 @@ class expensesSheetRequest(models.Model):
             [('res_id', 'in', self.expenses_ids.ids), ('res_model', '=', 'hr.expense')],
             order='id desc',
         )
-        return res | expense_attachments
+        deposit_ids = self.env['banks.deposit'].search([('request_id','=',self.request_id.id),('state','=','validated')])
+        deposit_attachments = self.env['ir.attachment']
+        if deposit_ids:
+            deposit_attachments = self.env['ir.attachment'].search(
+                [('res_id', 'in', deposit_ids.ids), ('res_model', '=', 'banks.deposit')],
+                order='id desc',
+            )
+        if len(deposit_attachments) > 0:
+            return res | expense_attachments | deposit_attachments
+        else:
+            return res | expense_attachments
 
     @api.depends('expenses_ids.total_amount', 'expenses_ids.tax_amount','expenses_ids.untaxed_amount_currency','expenses_ids.exempt_amount','expenses_ids.total_amount_currency','expenses_ids.tax_ids')
     def _compute_amount(self):

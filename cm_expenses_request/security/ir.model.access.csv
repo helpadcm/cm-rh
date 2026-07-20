@@ -45,3 +45,4 @@ expensescm.partner.bank.user,expensescm.partner.bank.user,base.model_res_partner
 employeescm.partner.bank.user,employeescm.partner.bank.user,hr.model_hr_employee,cm_expenses_request.group_expenses_request_user,1,0,0,0
 
 account_budget_portal_user,account_budget_portal_user,year_budget.model_account_budget_account,base.group_portal,1,0,0,0
+cm_expenses_request.access_expense_return_draft,access_expense_return_draft,cm_expenses_request.model_expense_return_draft,base.group_user,1,1,1,1

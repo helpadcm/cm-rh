@@ -152,6 +152,7 @@ class settlementExpensesCont(http.Controller):
         voucher_number = post.get("voucher_number_record")
         amount = post.get("amount_balance")
         request_id = post.get("request_id")
+        uploaded_files = request.httprequest.files.getlist('rec_deposit_attachments')
 
         account_id = request.env['account.account'].sudo().search([('code','=','105.01')])
         journal_id = request.env['account.journal'].sudo().search([('code','=','BPLPS')])
@@ -165,6 +166,19 @@ class settlementExpensesCont(http.Controller):
             'name': f"""Deposito monto sobrante {employee_id.name} voucher {voucher_number}""",
             'request_id': rec_request_id.id
         })
+
+        for uploaded_file in uploaded_files:
+            if uploaded_file and uploaded_file.filename:
+                attachment_data = base64.b64encode(uploaded_file.read())
+                # Crea el adjunto
+                attachment = request.env['ir.attachment'].sudo().create({
+                    'name': uploaded_file.filename,
+                    'datas': attachment_data,
+                    'res_model': 'banks.deposit',    # Modelo al que se adjunta
+                    'res_id': deposit_id.id,      # ID del registro de la solicitud de ausencia
+                    'type': 'binary',
+                    'mimetype': uploaded_file.content_type,
+                })
 
         request.env['banks.deposit.name'].sudo().create({
             'account_id': account_id.id,
