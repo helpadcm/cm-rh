@@ -54,7 +54,7 @@ class settlementExpensesCont(http.Controller):
                     'invoice_number': dep.number,
                     'date': dep.date.strftime('%d/%m/%Y'),
                     'amount': dep.total,
-                    'att_created': False,
+                    'att_created': True,
                     'category': 'Deposito'
                 })
 
@@ -89,6 +89,7 @@ class settlementExpensesCont(http.Controller):
             exempt_amount = post.get("exempt_amount")
             notes = post.get("record_notes") or False
             request_id = post.get("request_id")
+            no_taxes = post.get("no_taxes")
             
             # Obtener los archivos adjuntos
             uploaded_files = request.httprequest.files.getlist('rec_expenses_attachments')
@@ -117,6 +118,9 @@ class settlementExpensesCont(http.Controller):
                 'budget_account_id': budget_account_id,
                 'request_id': int(request_id)
             }
+
+            if no_taxes:
+                values.update({'tax_ids': False})
 
             if rec_request_id.assign_to_id.analytic_account_id:
                 analytic = rec_request_id.assign_to_id.analytic_account_id.id

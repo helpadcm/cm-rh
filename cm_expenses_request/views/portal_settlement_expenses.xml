@@ -253,6 +253,19 @@
                                         </div>
 
                                         <div class="col-12 mb-3" id="adjuntos_div">
+                                            <div style="background-color:#FFFFFF" class="d-inline-flex align-items-center border rounded px-3 py-2">
+                                                <label class="fw-bold mb-0 me-4 fw-semibold text-secondary">
+                                                    <i class="fa fa-times me-2"></i>
+                                                    Sin Impuestos
+                                                </label>
+                                                <div class="form-check form-switch mb-0">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        name="no_taxes"
+                                                        id="no_taxes_id"/>
+                                                </div>
+                                            </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Adjuntar Archivos (Obligatorio)</label>
                                                 <input type="file" required="required" name="rec_expenses_attachments" id="expense_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
@@ -361,7 +374,7 @@
                                                             <i class="fa fa-times-circle text-danger"/>
                                                         </t>
                                                     </td>
-                                                    <td>
+                                                    <td t-if="expense.get('category') != 'Deposito'">
                                                         <button
                                                             type="button"
                                                             class="btn btn-danger btn-sm"
