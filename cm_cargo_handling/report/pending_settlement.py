@@ -38,7 +38,7 @@ class pendingSettlementReport(models.AbstractModel):
         
         result_ids = employee_ids.mapped('user_id')
 
-        payment_ids = self.env['account.payment'].search([('date','>=',initial_date),('date','<=',final_date),('user_id','in',result_ids),('cash_register_id','=',False),('partner_type','=','customer'),('state','in',['paid','in_process'])])
+        payment_ids = self.env['account.payment'].search([('date','>=',initial_date),('date','<=',final_date),('user_id','in',result_ids),('partner_type','=','customer'),('state','in',['paid','in_process'])])
         data = []
         user_ids = []
         for payment in payment_ids:
