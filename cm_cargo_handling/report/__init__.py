@@ -11,4 +11,5 @@ from . import discount_applied_xls
 from . import daily_sales
 from . import daily_sales_xls
 from . import group_guide
-# from . import daily_sales_agent
+from . import daily_sales_agent
+from . import pending_settlement

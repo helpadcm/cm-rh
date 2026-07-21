@@ -93,6 +93,26 @@
         <field name="paperformat_id" ref="cm_cargo_handling.paperformat_order"/>
     </record>
 
+    <record id="action_daily_sales_agent_report" model="ir.actions.report">
+        <field name="name">Ventas diarias de agentes</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.daily_sales_agent</field>
+        <field name="report_file">cm_cargo_handling.daily_sales_agent</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_daily_sales_agent_report"/>
+    </record>
+
+    <record id="action_pending_settlement_report_pdf" model="ir.actions.report">
+        <field name="name">Pendientes de liquidar</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cm_cargo_handling.pending_settlement_report</field>
+        <field name="report_file">cm_cargo_handling.pending_settlement_report</field>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="cm_cargo_handling.paperformat_daily_sales_agent_report"/>
+    </record>
+
     <record id="cargo_manifest_report_xlsx" model="ir.actions.report">
         <field name="name">Manifiesto de Carga XLSX</field>
         <field name="model">cargo.manifest</field>

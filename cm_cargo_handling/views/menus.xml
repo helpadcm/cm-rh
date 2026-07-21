@@ -86,7 +86,7 @@
             id="cargo_handling_report_menu"
             name="Reportes"
             parent="cargo_handling_menu_root"
-            groups="cm_cargo_handling.group_guia_cargar_group_reports"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports,cm_cargo_handling.group_print_daily_sales_agent"
             sequence="3"/>
 
         <menuitem
@@ -97,13 +97,13 @@
             groups="cm_cargo_handling.group_guia_cargar_group_reports"
             sequence="1"/>
 
-        <!-- <menuitem
+        <menuitem
             id="daily_sales_agent_menuitem"
             name="Ventas Diarias Agentes"
             parent="cargo_handling_report_menu"
             action="action_daily_sales_agent"
-            groups="cm_cargo_handling.group_guia_cargar_group_reports"
-            sequence="2"/> -->
+            groups="cm_cargo_handling.group_guia_cargar_group_reports,cm_cargo_handling.group_print_daily_sales_agent"
+            sequence="2"/>
 
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem

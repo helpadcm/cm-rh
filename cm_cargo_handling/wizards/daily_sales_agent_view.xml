@@ -6,8 +6,16 @@
             <field name="arch" type="xml">
                 <form string='Ventas diarias de agentes'>
                     <group>
-                        <field name="date" required="1"/>
-                        <field name="employee_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                        <group>
+                            <field name="start_date" required="1"/>
+                        </group>
+                        <group>
+                            <field name="final_date" required="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="employee_ids" domain="[('id','in',allow_employee_ids)]" placeholder="Si se deja vacio se obtendran los datos de todos los empleados a su cargo" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="allow_employee_ids" options="{'no_create': True}" widget="many2many_tags" invisible="1"/>
                     </group>
                     <footer>
                         <button name="print_report" class="oe_highlight" string="Imprimir" type="object"/>

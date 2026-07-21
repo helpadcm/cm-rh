@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="pending_settlement_report">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"></t>
+                <div class="page" style="font-size:15px;">
+                    <style>
+                        td{
+                            font-size: 13px;
+                        }
+
+                        th{
+                            font-size: 14px;
+                        }
+                    </style>
+                    <table style="align:center;width:100%">
+                        <tbody>
+                            <tr style="height: 20px;padding:0px;border:0px ;" >
+                                <td style="width:20%;" rowspan="4">
+                                    <img t-if="user.company_id.logo" t-att-src="image_data_uri(user.company_id.logo)" style="height: 120px;" alt="Logo"/>
+                                </td>
+                                <td style="text-align:center;font-size:28px"><strong>PAGOS PENDIENTES DE LIQUIDAR</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;font-size:20px">Fechas del reporte: <span t-esc="initial_date"/> al <span t-esc="final_date"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <t t-foreach="data" t-as="employee">
+                        <p style="padding:3px;border-top:1px solid #CDCDCD;background-color:#CDCDCD;text-align:left;font-size:16px"><strong><t t-esc="employee.get('user')"/></strong></p>
+                        <table width="100%" style="font-size:10px;border-collapse: collapse" class="table table-condensed">
+                            <tr>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:center">#</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;">Numero de pago</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;">Fecha de pago</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;">Diario</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;">Estado de caja</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Monto USD</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Monto LPS</th>
+                            </tr>
+                            <t t-set="cont" t-value="1"/>
+                            <t t-set="t_lps" t-value="0"/>
+                            <t t-set="t_usd" t-value="0"/>
+                            <t t-foreach="employee.get('info')" t-as="payment">
+                                <tr>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:center"><span t-esc="cont"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;"><span t-esc="payment.get('number')"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;"><span t-esc="payment.get('date')"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;"><span t-esc="payment.get('journal')"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;"><span t-esc="payment.get('cash_state')"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(payment.get('usd_amount'))"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(payment.get('lps_amount'))"/></td>
+                                </tr>
+                                <t t-set="cont" t-value="cont + 1"/>
+                                <t t-set="t_usd" t-value="t_usd + (payment.get('usd_amount'))"/>
+                                <t t-set="t_lps" t-value="t_lps + (payment.get('lps_amount'))"/>
+                            </t>
+                            <tr>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:center" colspan="5"><strong>TOTAL</strong></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_usd)"/></strong></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_lps)"/></strong></td>
+                            </tr>
+                        </table>
+                    </t>
+                </div>
+
+                <div class="footer">
+                    <div class="text-center" style="border-top: 1px solid black">
+                        Pág. <span class="page"/> de <span class="topage"/>
+                    </div> 
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
