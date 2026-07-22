@@ -48,23 +48,23 @@ class expensesSheetRequest(models.Model):
     )
     # === Amount fields === #
     total_amount = fields.Monetary(string="Total", currency_field='company_currency_id',
-        compute='_compute_amount', store=True, tracking=True)
+        compute='_compute_amount', tracking=True)
 
     untaxed_amount = fields.Monetary(
         string="Subtotal",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True)
+        compute='_compute_amount')
 
     total_tax_amount = fields.Monetary(
         string="Impuesto",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True)
+        compute='_compute_amount')
 
     exempt_amount = fields.Monetary(string="Monto Excento", currency_field='company_currency_id',
-        compute='_compute_amount', store=True)
+        compute='_compute_amount')
 
     taxable_amount = fields.Monetary(string="Monto Gravable", currency_field='company_currency_id',
-        compute='_compute_amount', store=True)
+        compute='_compute_amount')
 
     def change_state(self):
         next_state = self.env.context.get('state')
@@ -183,12 +183,20 @@ class expensesSheetRequest(models.Model):
         else:
             return res | expense_attachments
 
-    @api.depends('expenses_ids.total_amount', 'expenses_ids.tax_amount','expenses_ids.untaxed_amount_currency','expenses_ids.exempt_amount','expenses_ids.total_amount_currency','expenses_ids.tax_ids')
+    @api.depends(
+        'expenses_ids',
+        'expenses_ids.total_amount', 
+        'expenses_ids.tax_amount',
+        'expenses_ids.untaxed_amount_currency',
+        'expenses_ids.exempt_amount',
+        'expenses_ids.total_amount_currency',
+        'expenses_ids.tax_ids')
     def _compute_amount(self):
         for sheet in self:
             subtotal = 0
             taxes = 0
             exempt = 0
+            extra_exempt_amount = 0
             total = 0
             for expense in sheet.expenses_ids:
                 taxes += expense.tax_amount
@@ -198,11 +206,15 @@ class expensesSheetRequest(models.Model):
                 if not expense.tax_ids:
                     exempt += expense.total_amount
 
-            sheet.total_amount = total
-            sheet.total_tax_amount = taxes
-            sheet.exempt_amount = exempt
-            sheet.taxable_amount = subtotal - exempt
+                if expense.tax_ids and expense.exempt_amount > 0:
+                    extra_exempt_amount += expense.exempt_amount
+
             sheet.untaxed_amount = subtotal
+            sheet.taxable_amount = subtotal + extra_exempt_amount - exempt
+            sheet.exempt_amount = exempt
+            sheet.total_tax_amount = taxes
+            sheet.total_amount = total + extra_exempt_amount
+
 
     def show_move(self):
         if self.move_id:

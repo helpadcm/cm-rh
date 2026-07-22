@@ -38,6 +38,11 @@ class assignExpenses(models.TransientModel):
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])
 
+        pending_expenses_ids = self.env['cm.expenses.request'].search([('assign_to_id','=',req_id.assign_to_id.id)])
+        for pen in pending_expenses_ids:
+            if pen.state == 'assigned' and not pen.omit_settlement:
+                raise ValidationError(f"""No se puede realizar la asignacion de viaticos al empleado {req_id.assign_to_id.name} aun tiene la solicitud {req_id.name} pendiente de liquidar.""")
+
         debit_id = self.env['debit.credit'].create({
             'journal_id': self.journal_id.id,
             'date': self.date,

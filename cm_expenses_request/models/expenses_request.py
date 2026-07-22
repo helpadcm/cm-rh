@@ -142,10 +142,6 @@ class expensesRequest(models.Model):
     @api.onchange('assign_to_id')
     def get_assign_to_data(self):
         if self.assign_to_id:
-            pending_expenses_id = self.search([('state','!=','finalized'),('assign_to_id','=',self.assign_to_id.id)])
-            if pending_expenses_id and not pending_expenses_id.omit_settlement:
-                raise ValidationError(f"""No se puede realizar una solicitud para el empleado {self.assign_to_id.name} aun tiene una liquidacion pendiente.""")
-
             if not self.assign_to_id.expense_approver_id:
                 raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (self.assign_to_id.name))
 

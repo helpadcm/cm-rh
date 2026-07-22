@@ -26,7 +26,7 @@
     <menuitem 
         id="reports_sheet_request_menu" 
         name ="Reportes de Gastos"
-        groups="group_expenses_request_manager,group_expenses_request_purchase"
+        groups="group_expenses_request_manager,group_expenses_request_purchase,group_expenses_request_responsible"
         parent="expenses_request_root" 
         action="action_expenses_request_sheet"
         sequence="2" 
