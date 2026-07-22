@@ -229,6 +229,7 @@ class lotFormatXlsx(models.AbstractModel):
                     deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
             employee_vals = {
+                'contract_init_date': payslip.employee_id.contract_date_start,
                 'entry_date': payslip.employee_id.contract_date_start.strftime('%d/%m/%Y'),
                 'identity': payslip.employee_id.identification_id,
                 'bank_account': payslip.employee_id.bank_account_ids.acc_number,
@@ -243,5 +244,10 @@ class lotFormatXlsx(models.AbstractModel):
             if department_name not in departments_dict:
                 departments_dict[department_name] = {'employees': []}
             departments_dict[department_name]['employees'].append(employee_vals)
+
+            for department in departments_dict.values():
+                department['employees'].sort(
+                    key=lambda e: e['contract_init_date'] or fields.Date.today()
+                )
 
         return {'department_data': departments_dict, 'deductions_name': deductions_name, 'incomes_name': incomes_name, 'payslip_name': payslip_name}
