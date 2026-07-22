@@ -1,6 +1,7 @@
 from odoo import models
 import base64
 import io
+from collections import OrderedDict
 
 class lotFormatXlsx(models.AbstractModel):
     _name = 'report.hr_payroll_cm.lot_format_cm_xlsx'
@@ -242,12 +243,19 @@ class lotFormatXlsx(models.AbstractModel):
             }
 
             if department_name not in departments_dict:
-                departments_dict[department_name] = {'employees': []}
+                departments_dict[department_name] = {'employees': [], 'level': payslip.employee_id.department_id.priority_level,}
             departments_dict[department_name]['employees'].append(employee_vals)
 
             for department in departments_dict.values():
                 department['employees'].sort(
                     key=lambda e: e['contract_init_date'] or fields.Date.today()
                 )
+
+        departments_dict = OrderedDict(
+            sorted(
+                departments_dict.items(),
+                key=lambda item: item[1]['level'] or 0
+            )
+        )
 
         return {'department_data': departments_dict, 'deductions_name': deductions_name, 'incomes_name': incomes_name, 'payslip_name': payslip_name}
