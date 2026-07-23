@@ -113,7 +113,7 @@ class ticket_request(models.Model):
 
         template_ctx = {
             'action_url': base_url,
-            # 'email_to': team.responsible_id.work_email,
+            'email_to': 'conectividad@cmairlines.com',
             'type': type_r,
             'user': self.user_id.name,
             'name': self.name,
