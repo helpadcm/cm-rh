@@ -70,12 +70,35 @@
             <field name="version_id" position="before">
                 <button string="Agregar Historial de salario" groups="hr_payroll_cm.manager_rrhh_cm" name="add_salarial_historical" type="object" class="oe_highlight"/>
             </field>
-            <field name="parent_id" position="after">
+            <group name="user" position="inside">
                 <field name="analytic_account_id" options="{'no_create': True}"/>
-            </field>
+            </group>
             <field name="wage_type" position="after">
                 <field name="monthly_wage"/>
+                <field name="is_user_active" groups="hr.group_hr_user"/>
             </field>
+
+            <xpath expr="//group[@name='identification_group']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//page[@name='work_information']//group[field[@name='parent_id']]" position="inside">
+                <field name="pin" string="Codigo en Reloj" groups="hr.group_hr_user"/>
+                <label for="barcode" groups="hr.group_hr_user" string="Codigo de empleado"/>
+                <div class="o_row" groups="hr.group_hr_user" >
+                    <field name="barcode" string="Codigo de empleado"/>
+                    <button string="Generar" class="btn btn-link" type="object" name="generate_random_barcode" invisible="barcode"/>
+                    <button name="%(hr.hr_employee_print_badge)d" string="Imprimir Insignia" class="btn btn-link" type="action" invisible="not barcode"/>
+                </div>
+            </xpath>
+
+            <group name="note" position="before">   
+                <group string="APROBADORES">
+                    <field name="leave_manager_id" widget="many2one_avatar_user" string="Vacaciones" options="{'no_create': True}"/>
+                    <field name="attendance_manager_id" widget="many2one_avatar_user" string="Asistencia" options="{'no_create': True}"/>
+                </group>
+            </group>
+
             <notebook position="inside">
                 <page name="historica_salaries" string="Historial Salarios">
                     <field name="historical_salaries_ids">

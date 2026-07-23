@@ -35,6 +35,17 @@
         </field>
     </record>
 
+    <record id="hr_employee_gamification_inh" model="ir.ui.view">
+        <field name="name">hr.employee.gami.inh</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_gamification.hr_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <page name="received_badges" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+        </field>
+    </record>
+
     <record id="cm_employee_birthday_view_form" model="ir.ui.view">
         <field name="name">hr_payroll_cm.hremployeeinfo.form</field>
         <field name="model">hr.employee</field>
@@ -47,6 +58,10 @@
                     <field name="employee_no" placeholder="Custom Field" class="w-100 w-sm-75"/>
                 </h5>
             </xpath>
+
+            <page name="resume" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
 
             <field name="parent_id" position="replace">
                 <field name="parent_id" widget="many2one_avatar_employee" string="Superior inmediato" options="{'no_create': True}"/>
