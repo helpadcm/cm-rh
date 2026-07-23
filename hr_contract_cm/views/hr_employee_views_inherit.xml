@@ -5,7 +5,8 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//form/sheet/notebook/page[@name='hr_settings']/group/group[@name='user']" position="inside">
+
+            <xpath expr="//page[@name='work_information']//group[field[@name='parent_id']]" position="inside">
                 <field name="seniority"/>
             </xpath>
 

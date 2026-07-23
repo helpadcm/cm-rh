@@ -30,6 +30,8 @@ class HrEmployee(models.Model):
         compute="_format_identification_with_dashes"
         )
 
+    employee_age = fields.Integer(string="Edad",compute='_compute_next_birthday')
+
     @api.constrains('barcode')
     def _verify_barcode(self):
         for employee in self:
@@ -64,8 +66,18 @@ class HrEmployee(models.Model):
                 if today > next_birthday:
                     next_birthday += relativedelta(years=1)
                 record.next_birthday = next_birthday
+
+                record.employee_age = (
+                    today.year
+                    - record.birthday.year
+                    - (
+                        (today.month, today.day)
+                        < (record.birthday.month, record.birthday.day)
+                    )
+                )
             else:
                 record.next_birthday = False
+                record.employee_age = 0
 
     @api.onchange('identification_id')
     def _format_identification_id(self):

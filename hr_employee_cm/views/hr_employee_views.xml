@@ -84,6 +84,7 @@
                             <field name="birthday_public_display" class="ms-3"/>
                         </span>
                     </div>
+                    <field name="employee_age"/>
                     <field name="next_birthday"/>
                     <label for="place_of_birth"/>
                     <div class="o_row" name="birth_location">
