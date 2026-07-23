@@ -2,6 +2,7 @@
 from odoo import api, exceptions, models,fields, _
 from odoo.exceptions import UserError,ValidationError
 from datetime import datetime
+from odoo.tools.safe_eval import safe_eval
 
 class costSheets(models.Model):
     _name = 'aff.cost.sheets'
@@ -89,6 +90,10 @@ class costSheetsLines(models.Model):
     fixed_cost_ids = fields.One2many('fixed.cost.lines','line_id',string="Costos Fijos")
     variable_cost_ids = fields.One2many('variable.cost.lines','line_id',string="Costos Variables")
 
+    start_date = fields.Date(string="Fecha de Inicio",related="aircraft_id.start_date")
+    final_date = fields.Date(string="Fecha Final",related="aircraft_id.final_date")
+    months_duration = fields.Float(string="Duracion(Meses)",related="aircraft_id.months_duration")
+
 class fixedCostLines(models.Model):
     _name = 'fixed.cost.lines'
     _description = "Lineas de costo fijo"
@@ -138,7 +143,7 @@ class fixedCostLines(models.Model):
     def action_execute_formula(self):
         """Evalúa la fórmula de la plantilla y asigna el resultado a los meses"""
         for record in self:
-            if not record.template_id or not record.template_id.formula:
+            if not record.template_id or not record.template_id.formule:
                 continue
             
             # 1. Construimos el diccionario de variables con sus valores reales ingresados
@@ -148,7 +153,7 @@ class fixedCostLines(models.Model):
             
             try:
                 # 2. Ejecutamos la fórmula matemáticamente de forma segura
-                result = float(safe_eval(record.template_id.formula, localdict))
+                result = float(safe_eval(record.template_id.formule, localdict))
                 
                 # 3. Asignamos el resultado a los meses correspondientes de este registro
                 # Puedes decidir si la fórmula aplica a todos los meses o si creas variables por mes.
@@ -161,6 +166,35 @@ class fixedCostLines(models.Model):
                 })
             except Exception as e:
                 raise ValidationError(_("Error al evaluar la fórmula en el rubro %s: %s") % (record.cost_id.name, str(e)))
+
+    @api.onchange('value_ids')
+    def _onchange_calculate_values_from_formula(self):
+        """
+        Detecta cambios en caliente dentro de la tabla de variables,
+        ejecuta la fórmula y actualiza los meses en tiempo real en la pantalla.
+        """
+        for record in self:
+            if not record.template_id or not record.template_id.formule:
+                continue
+            
+            # 1. Armamos el diccionario clave-valor con los códigos de las variables
+            localdict = {}
+            for val in record.value_ids:
+                localdict[val.variable_id.code] = val.value_integer if val.field_type == 'integer' else val.value_float
+            try:
+                # 2. Evaluamos la fórmula de manera segura
+                result = float(safe_eval(record.template_id.formule, localdict))
+                
+                # 3. Inyectamos el resultado en los meses de la pantalla
+                record.update({
+                    'january': result, 'february': result, 'march': result,
+                    'april': result, 'may': result, 'june': result,
+                    'july': result, 'august': result, 'september': result,
+                    'october': result, 'november': result, 'december': result,
+                })
+            except Exception as e:
+                # Evitamos levantar un error intrusivo mientras el usuario digita a medias
+                pass
 
 class variableCostLines(models.Model):
     _name = 'variable.cost.lines'
@@ -197,7 +231,6 @@ class variableCostLines(models.Model):
                 continue
             existing_vars = record.value_ids.mapped('variable_id.id')
             new_lines = []
-            print ("///////////////////////////////")
             for var in record.template_id.variable_ids:
                 if var.id not in existing_vars:
                     new_lines.append((0, 0, {
@@ -206,14 +239,13 @@ class variableCostLines(models.Model):
                         'value_integer': 0,
                         'field_type': var.field_type,
                     }))
-            print (new_lines)
             if new_lines:
                 record.value_ids = new_lines
 
     def action_execute_formula(self):
         """Evalúa la fórmula de la plantilla y asigna el resultado a los meses"""
         for record in self:
-            if not record.template_id or not record.template_id.formula:
+            if not record.template_id or not record.template_id.formule:
                 continue
             
             localdict = {}
@@ -221,7 +253,7 @@ class variableCostLines(models.Model):
                 localdict[val.variable_id.code] = val.value_integer if val.field_type == 'integer' else val.value_float
             
             try:
-                result = float(safe_eval(record.template_id.formula, localdict))
+                result = float(safe_eval(record.template_id.formule, localdict))
                 record.update({
                     'january': result, 'february': result, 'march': result,
                     'april': result, 'may': result, 'june': result,
@@ -230,3 +262,32 @@ class variableCostLines(models.Model):
                 })
             except Exception as e:
                 raise ValidationError(_("Error al evaluar la fórmula en el rubro %s: %s") % (record.cost_id.name, str(e)))
+
+    @api.onchange('value_ids')
+    def _onchange_calculate_values_from_formula(self):
+        """
+        Detecta cambios en caliente dentro de la tabla de variables,
+        ejecuta la fórmula y actualiza los meses en tiempo real en la pantalla.
+        """
+        for record in self:
+            if not record.template_id or not record.template_id.formule:
+                continue
+            
+            # 1. Armamos el diccionario clave-valor con los códigos de las variables
+            localdict = {}
+            for val in record.value_ids:
+                localdict[val.variable_id.code] = val.value_integer if val.field_type == 'integer' else val.value_float
+            try:
+                # 2. Evaluamos la fórmula de manera segura
+                result = float(safe_eval(record.template_id.formule, localdict))
+                
+                # 3. Inyectamos el resultado en los meses de la pantalla
+                record.update({
+                    'january': result, 'february': result, 'march': result,
+                    'april': result, 'may': result, 'june': result,
+                    'july': result, 'august': result, 'september': result,
+                    'october': result, 'november': result, 'december': result,
+                })
+            except Exception as e:
+                # Evitamos levantar un error intrusivo mientras el usuario digita a medias
+                pass

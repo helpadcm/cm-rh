@@ -71,12 +71,13 @@ class ticket_request(models.Model):
         self.state = next_state
 
     def validate_finalize(self):
-        if self.only_pnr and not self.pnr_file:
-            raise ValidationError("Debe adjuntar el documento")
-        else:
+        if not self.only_pnr:
             for line in self.list_request_ids:
                 if not line.pnr_file:
                     raise ValidationError(f"""Debe adjuntar el documento del pasajero {line.name}""")
+        else:
+            if not self.pnr_file:
+                raise ValidationError("Debe adjuntar el documento")
 
     def validate_send(self):
         if len(self.list_routes_ids) == 0:

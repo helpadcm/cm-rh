@@ -59,9 +59,9 @@
     <record id="hr_employee_portal_form" model="ir.ui.view">
         <field name="name">hr.employee.portal.inh</field>
         <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="inherit_id" ref="hr_absences_cm.hr_absences_man_form_cm"/>
         <field name="arch" type="xml">
-            <notebook position="inside">
+            <page name="personal_time" position="after">
                 <page string="Permisos Portal">
                     <group>
                         <group>
@@ -74,7 +74,7 @@
                         </group>
                     </group>
                 </page>
-            </notebook>
+            </page>
         </field>
     </record>
 

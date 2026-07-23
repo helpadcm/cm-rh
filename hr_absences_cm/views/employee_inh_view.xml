@@ -9,7 +9,7 @@
                     <field name="aeronatical_license" />
                 </field>
 
-                <notebook position="inside">
+                <page name="hr_settings" position="before">
                     <page name="personal_time" string="Tiempo Personal">
                         <group col="3">
                             <group>
@@ -51,7 +51,7 @@
                             </page>
                         </notebook>
                     </page>
-                </notebook>
+                </page>
             </field>
         </record>
 

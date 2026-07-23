@@ -75,11 +75,15 @@
             </group>
             <field name="wage_type" position="after">
                 <field name="monthly_wage"/>
-                <field name="is_user_active" groups="hr.group_hr_user"/>
+                <field name="is_user_active" groups="hr.group_hr_user" invisible="1"/>
             </field>
 
             <xpath expr="//group[@name='identification_group']" position="attributes">
                 <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//page[@name='payroll_information']" position="attributes">
+                <attribute name="groups">hr_payroll_cm.manager_rrhh_cm</attribute>
             </xpath>
 
             <xpath expr="//page[@name='work_information']//group[field[@name='parent_id']]" position="inside">
@@ -99,7 +103,22 @@
                 </group>
             </group>
 
-            <notebook position="inside">
+
+            <field name="registration_number" position="after">
+                <field name="check_type" />
+            </field>
+            <field name="resource_calendar_id" position="after">
+                <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="payroll_employee_form_inherit" model="ir.ui.view">
+        <field name="name">payroll_employee.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <page name="salary_attachment" position="after">
                 <page name="historica_salaries" string="Historial Salarios">
                     <field name="historical_salaries_ids">
                         <list editable="bottom" create="0">
@@ -110,15 +129,10 @@
                         </list>
                     </field>
                 </page>
-            </notebook>
-            <field name="registration_number" position="after">
-                <field name="check_type" />
-            </field>
-            <field name="resource_calendar_id" position="after">
-                <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
-            </field>
+            </page>
         </field>
     </record>
+
 
     <record id="teams_view_form_inherit" model="ir.ui.view">
         <field name="name">teams.form.inherit</field>
