@@ -6,14 +6,6 @@ class leaveInh(models.Model):
 
     boss_id = fields.Many2one('res.users',string="Gerente de Area")
     paid_leave_id = fields.Many2one('paid.leave', string="Tipo de permiso")
-    total_days = fields.Char(string="Total Dias", compute="_get_total_days")
-
-    @api.depends('date_from','date_to')
-    def _get_total_days(self):
-        for rec in self:
-            print ("####################################")
-            print (rec.number_of_hours)
-            rec.total_days = 'test'
 
     @api.model_create_multi
     def create(self, vals):

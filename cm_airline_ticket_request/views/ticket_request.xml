@@ -23,8 +23,10 @@
                             <group>
                                 <field name="user_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
                                 <field name="program_id" required="1" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
+                                <field name="airline_id" required="1" options="{'no_create': True, 'no_open': True}" readonly="state != 'draft'"/>
                                 <field name="request_type" required="1" readonly="state != 'draft'"/>
                                 <field name="notifications_select" required="1" readonly="state != 'draft'"/>
+                                <field name="ticket_type_request" readonly="state != 'draft'"/>
                             </group>
                             <group>
                                 <field name="date" readonly="1"/>

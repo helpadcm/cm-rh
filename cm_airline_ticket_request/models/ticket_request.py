@@ -18,10 +18,19 @@ class ticket_request(models.Model):
         return self.env.user.id
 
     @api.model
-    def default_program(self):
+    def default_get(self, fields):
+        rec = super(ticket_request, self).default_get(fields)
         program_default_id = self.env['cm.ticket.request.program'].search([('default_program','=',True)])
+        airline_default_id = self.env['cm.ticket.request.airline'].search([('default_airline','=',True)])
         if program_default_id:
-            return program_default_id[0].id
+            rec.update({
+                'program_id': program_default_id[0].id
+            })
+        if airline_default_id:
+            rec.update({
+                'airline_id': airline_default_id[0].id
+            })
+        return rec
 
     name = fields.Char(string="Numero", default="Borrador", tracking=True, copy=False)
     user_id = fields.Many2one('res.users',string="Solicitante",default=user_default)
@@ -30,14 +39,16 @@ class ticket_request(models.Model):
     request_date = fields.Date(string="Fecha de Solicitud", tracking=True)
     request_type = fields.Selection([('round_trip','Ida y Vuelta'),('exit_only','Solo Ida'),('multiple','Multiple')],string="Tipo de Solicitud", default="round_trip", tracking=True,copy=True)
     state = fields.Selection([('draft','Borrador'),('send','Enviado'),('received','Recibido'),('finalized','Finalizado'),('canceled','Cancelado')], string="Estado", default='draft', tracking=True,copy=False)
-    program_id = fields.Many2one('cm.ticket.request.program',string="Programa",copy=True,default=default_program)
+    program_id = fields.Many2one('cm.ticket.request.program',string="Programa",copy=True,tracking=True)
     list_request_ids = fields.One2many('cm.ticket.request.line','request_id',string="Listado",copy=True)
     list_routes_ids = fields.One2many('cm.routes.line','request_id',string="Listado Rutas",copy=True)
     only_pnr = fields.Boolean(string="Unico PNR",copy=False)
     pnr = fields.Char(string="PNR",copy=False)
-    notifications_select = fields.Selection([('applicant','Solicitante'),('passengers','Pasajeros')],default="applicant",string="Notificar a")
+    notifications_select = fields.Selection([('applicant','Solicitante'),('passengers','Pasajeros')],default="applicant",string="Notificar a",tracking=True)
     pnr_file = fields.Binary(string="Doc PNR",copy=False)
-    pnr_file_name = fields.Char(string="Nombre PNR",copy=False)
+    pnr_file_name = fields.Char(string="Nombre PNR",copy=False,tracking=True)
+    airline_id = fields.Many2one('cm.ticket.request.airline',string="Aerolinea",copy=True,tracking=True)
+    ticket_type_request = fields.Boolean(string="Tipo de solicitud de boleto")
 
     @api.onchange('pnr')
     def change_pnr(self):
@@ -363,3 +374,13 @@ class program_resquest(models.Model):
     name = fields.Char(string="Nombre")
     default_program = fields.Boolean(string="Programa por defecto")
     code = fields.Char(string="Codigo")
+
+class airline_resquest(models.Model):    
+    _name = 'cm.ticket.request.airline'
+    _description = "Aerolinea"
+
+    name = fields.Char(string="Nombre")
+    default_airline = fields.Boolean(string="Aerolinea por defecto")
+    code = fields.Char(string="Codigo")
+    contact_email = fields.Char(string="Correos de contacto")
+    country_id = fields.Many2one('res.country',string='Pais')

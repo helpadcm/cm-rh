@@ -51,12 +51,20 @@
             sequence="3"/>
 
         <menuitem
-            id="conf_ticket_request_menuitem"
+            id="conf_program_request_menuitem"
             name="Programas"
             parent="conf_ticket_request_menu"
             groups="group_ticket_request_admin"
             action="program_request_cm_action"
             sequence="1"/>
+
+        <menuitem
+            id="conf_airline_request_menuitem"
+            name="Aerolineas"
+            parent="conf_ticket_request_menu"
+            groups="group_ticket_request_admin"
+            action="airline_request_cm_action"
+            sequence="2"/>
     </data>
 
 </odoo>
