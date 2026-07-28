@@ -23,7 +23,7 @@ class employeeAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.record'
     _description = 'Registro de asistencia de empleados'
     _inherit = ['mail.thread','mail.activity.mixin']
-    _order = "payslip_date_from desc"
+    _order = "payslip_date_from desc, employee_id asc"
 
     name = fields.Char('Name')
     period = fields.Char(string="Periodo")
