@@ -107,7 +107,7 @@
                                             <field name="check_in_1" readonly="1"/>
                                             <field name="check_out_1" readonly="1"/>
                                             <field name="total_hours" force_save="1" sum="Horas totales" readonly="1"/>
-                                            <field name="bonus" force_save="1" sum="Total Bono" readonly="1"/>
+                                            <field name="bonus" force_save="1" sum="Total Bono" readonly="0"/>
                                             <field name="personal_action"/>
                                         </group>
                                         <group>

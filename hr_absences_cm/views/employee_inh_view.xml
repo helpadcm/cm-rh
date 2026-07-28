@@ -13,16 +13,16 @@
                     <page name="personal_time" string="Tiempo Personal">
                         <group col="3">
                             <group>
-                                <field name="compensatory_hours" readonly="1"/>
+                                <field name="compensatory_hours" readonly="0"/>
                                 <field name="compensatory_day_string" />
                                 <field name="compensatory_day" invisible="1"/>
                             </group>
                             <group>
-                                <field name="vacations_day" readonly="1"/>
-                                <field name="early_vacations" readonly="1"/>
+                                <field name="vacations_day" readonly="0"/>
+                                <field name="early_vacations" readonly="0"/>
                             </group>
                             <group>
-                                <field name="program_to_fly" readonly="1"/>
+                                <field name="program_to_fly" readonly="0"/>
                                 <field name="first_year" invisible="1"/>
                                 <field name="second_year" invisible="1"/>
                                 <field name="years_old" invisible="1"/>
