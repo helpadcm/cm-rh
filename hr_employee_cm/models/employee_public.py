@@ -19,6 +19,7 @@ class HrEmployeePublic(models.Model):
         )
 
     birthday_month = fields.Integer(string="Mes de nacimiento")
+    relationship = fields.Char(string="Parentesco")
 
     # @api.depends('pin','barcode')
     # def _get_employee_no(self):

@@ -20,7 +20,10 @@ class HrEmployeeInh(models.Model):
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
-    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
+    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica",tracking=True)
+    expiration_date_license = fields.Date(string="Fecha de vencimiento")
+    license_number = fields.Char(string="Número de Licencia")
+    license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia",tracking=True)
     years_old = fields.Integer(string="Años de antiguedad")
 
     @api.depends('vacation_details_ids','early_vacations')
@@ -155,6 +158,8 @@ class employeePublicHRInh(models.Model):
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
     aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
+    expiration_date_license = fields.Date(string="Fecha de vencimiento")
+    license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia")
     years_old = fields.Integer(string="Años de antiguedad")
 
     @api.depends('compensatory_hours')

@@ -7,6 +7,13 @@ from odoo import models, fields, api, exceptions
 
 _logger = logging.getLogger(__name__)
 
+relationship_select = [
+    ('mother', 'Madre'),
+    ('father', 'Padre'),
+    ('siblings', 'Hermano(a)'),
+    ('mother', 'Madre'),
+    ('mother', 'Madre'),
+]
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -31,6 +38,8 @@ class HrEmployee(models.Model):
         )
 
     employee_age = fields.Integer(string="Edad",compute='_compute_next_birthday')
+    relationship = fields.Char(string="Parentesco")
+    
 
     @api.constrains('barcode')
     def _verify_barcode(self):
@@ -43,10 +52,16 @@ class HrEmployee(models.Model):
     @api.model
     def _get_certificate_selection(self):
         res = super(HrEmployee, self)._get_certificate_selection()
-        res.append(('university intern', 'Pasante Universitario'))
-        res.append(('engineering', 'Ingeniería'))
-        res.append(('basic', 'Educación Básica'))
-        return res
+        return [
+            ('primary', self.env._('Primaria')),
+            ('secondary', self.env._('Secundaria Completa')),
+            ('technical', self.env._('Técnico')),
+            ('university_intern', self.env._('Pasante Universitario')),
+            ('degree', self.env._('Licenciatura')),
+            ('master', self.env._('Maestria')),
+            ('doctor', self.env._('Doctorado')),
+
+        ]
 
     @api.onchange('birthday')
     def calculate_month(self):

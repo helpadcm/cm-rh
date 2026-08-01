@@ -1,0 +1,600 @@
+<odoo>
+    <template id="portal_employee_update" name="Programa a volar">
+        <t t-call="portal.portal_layout">
+            <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                <div class="container tab-pane fade show active" id="tab1">
+
+                    <div class="text-center py-4 mb-4 border-bottom">
+                        <h1 class="display-6 fw-bold text-primary">
+                            <i class="fa fa-user-circle-o me-2"></i>
+                            Actualizacion de datos personales
+                        </h1>
+
+                        <p class="lead text-muted mb-0">
+                            Actualice los datos personales que se encuentran en el sistema en caso que sea necesario.
+                        </p>
+                    </div>
+
+                    <div t-if="request.session.get('flash_message')" id="popupNotification" class="popup">
+                        <div t-attf-class="alert #{request.session.get('flash_message_type', 'alert-info')}">
+                            <t t-esc="request.session.pop('flash_message')"/>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-12 col-lg-12">
+                            <form action="/request_update/submit" method="POST" class="mt-2" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Contacto Privado
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Correo electrónico personal
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_private_email"
+                                                    id="private_email"
+                                                    t-att-value="private_email"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Celular personal
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_private_phone"
+                                                    id="private_phone_id"
+                                                    t-att-value="private_phone"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Información Privada
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Nombre Completo
+                                                </label>
+                                                <input type="text"
+                                                    disabled="disabled"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_complete_name"
+                                                    id="complete_name"
+                                                    t-att-value="complete_name"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Fecha de Nacimiento
+                                                </label>
+
+                                                <input type="date"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_birthday"
+                                                    id="birthday"
+                                                    t-att-value="birthday"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Lugar de Nacimiento
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_place_of_birth"
+                                                    id="place_of_birth"
+                                                    t-att-value="place_of_birth"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Genero
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_sex"
+                                                    disabled="disabled"
+                                                    id="sex_id"
+                                                    t-att-value="sex"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Edad
+                                                </label>
+
+                                                <input type="text"
+                                                    disabled="disabled"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_age"
+                                                    id="age_id"
+                                                    t-att-value="age"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Contacto de Emergencia
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Nombre Completo
+                                                </label>
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_emergency_contact"
+                                                    id="emergency_contact"
+                                                    t-att-value="emergency_contact"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Parentesco
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_relationship"
+                                                    id="relationship"
+                                                    t-att-value="relationship"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Teléfono
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_emergency_phone"
+                                                    id="emergency_phone"
+                                                    t-att-value="emergency_phone"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Ciudadania
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Nacionalidad
+                                                </label>
+                                                <select class="form-control"
+                                                    name="selection_countries"
+                                                    id="country_id"
+                                                    required="required">
+
+                                                    <t t-foreach="country_ids" t-as="country">
+                                                        <option
+                                                            t-att-value="country.id"
+                                                            t-att-selected="country.id == country_id and 'selected' or None">
+                                                            <t t-esc="country.name"/>
+                                                        </option>
+                                                    </t>
+
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Número de Identidad
+                                                </label>
+
+                                                <input type="text"
+                                                    disabled="disabled"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_identification"
+                                                    id="identification"
+                                                    t-att-value="identification"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Número de Seguridad Social
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_ssnid"
+                                                    id="ssnid"
+                                                    t-att-value="ssnid"/>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Número de Pasaporte
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_passport_id"
+                                                    id="passport_id"
+                                                    t-att-value="passport_id"/>
+                                            </div>
+
+                                            <div class="col-md-4 d-inline-flex align-items-center border rounded px-3 py-2">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    ¿Es Residente?
+                                                </label>
+
+                                                <div class="form-check form-switch mb-0">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        t-att-checked="'checked' if is_non_resident else None"
+                                                        name="is_resident"
+                                                        id="is_resident_id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Dirección Personal
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Departamento
+                                                </label>
+                                                <select class="form-control"
+                                                    name="selection_states"
+                                                    id="state_id"
+                                                    required="required">
+
+                                                    <t t-foreach="state_ids" t-as="state">
+                                                        <option
+                                                            t-att-value="state.id"
+                                                            t-att-selected="state.id == state_id and 'selected' or None">
+                                                            <t t-esc="state.name"/>
+                                                        </option>
+                                                    </t>
+
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Ciudad
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_city"
+                                                    id="city_id"
+                                                    t-att-value="city"/>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Dirección Exacta
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_address"
+                                                    id="address"
+                                                    t-att-value="address"/>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Punto de Referencia
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_reference_point"
+                                                    id="reference_point_id"
+                                                    t-att-value="reference_point"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Información Familiar
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Estado Civil
+                                                </label>
+                                                <select class="form-control" name="selection_status" id="status_id" required="required">
+                                                    <option t-att-value="single" t-att-selected="'single' == status and 'selected' or None">Soltero(a)</option>
+                                                    <option t-att-value="married" t-att-selected="'married' == status and 'selected' or None">Casado(a)</option>
+                                                    <option t-att-value="cohabitant" t-att-selected="'cohabitant' == status and 'selected' or None">Unión Libre</option>
+                                                    <option t-att-value="divorced" t-att-selected="'divorced' == status and 'selected' or None">Divorciado(a)</option>
+                                                    <option t-att-value="widower" t-att-selected="'widower' == status and 'selected' or None">Viudo(a)</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Hijos Dependientes
+                                                </label>
+
+                                                <input type="number"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_children"
+                                                    id="children_id"
+                                                    t-att-value="children"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-user me-2"></i>
+                                            Educación
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Nivel de Estudios
+                                                </label>
+                                                <select class="form-control" name="selection_certificate" id="certificate_id" required="required">
+                                                    <option t-att-value="primary" t-att-selected="'primary' == certificate and 'selected' or None">Primaria</option>
+                                                    <option t-att-value="secondary" t-att-selected="'secondary' == certificate and 'selected' or None">Secundaria Completa</option>
+                                                    <option t-att-value="technical" t-att-selected="'technical' == certificate and 'selected' or None">Técnico</option>
+                                                    <option t-att-value="university_intern" t-att-selected="'university_intern' == certificate and 'selected' or None">Pasante Universitario</option>
+                                                    <option t-att-value="degree" t-att-selected="'degree' == certificate and 'selected' or None">Licenciatura</option>
+                                                    <option t-att-value="master" t-att-selected="'master' == certificate and 'selected' or None">Maestría</option>
+                                                    <option t-att-value="doctor" t-att-selected="'doctor' == certificate and 'selected' or None">Doctorado</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Campo de Estudio
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_study_field"
+                                                    placeholder="Ejemplo: Licenciatura en Administración de Empresas"
+                                                    id="study_field_id"
+                                                    t-att-value="study_field"/>
+                                            </div>
+
+                                            <div class="col-md-4 d-inline-flex align-items-center border rounded px-3 py-2">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    ¿Posee licencia aeronautica?
+                                                </label>
+                                                <div class="form-check form-switch mb-0">
+                                                    <input
+                                                        class="form-check-input"
+                                                        t-att-checked="'checked' if aeronatical_license else None"
+                                                        type="checkbox"
+                                                        name="aeronautical_license"
+                                                        id="aeronautical_license_id"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4" id="div_license_number">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Número de Licencia
+                                                </label>
+
+                                                <input type="text"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_license_number"
+                                                    id="license_number_id"
+                                                    t-att-value="license_number"/>
+                                            </div>
+
+                                            <div class="col-md-4" id="div_license_type">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    Tipo de Licencia
+                                                </label>
+                                                <select class="form-control" name="selection_license_type" id="license_type">
+                                                    <option t-att-value="pilot" t-att-selected="'pilot' == license_type and 'selected' or None">Piloto</option>
+                                                    <option t-att-value="cabin_crew" t-att-selected="'cabin_crew' == license_type and 'selected' or None">Tripulante de Cabina</option>
+                                                    <option t-att-value="flight_dispatcher" t-att-selected="'license_type' == license_type and 'selected' or None">Despachador de Vuelos</option>
+                                                    <option t-att-value="maintenance" t-att-selected="'maintenance' == license_type and 'selected' or None">Técnico de Mantenimiento</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4" id="div_license_date_expiration">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-phone me-1"></i>
+                                                    Fecha de Vencimiento
+                                                </label>
+
+                                                <input type="date"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_expiration_date_license"
+                                                    id="expiration_date_license_id"
+                                                    t-att-value="expiration_date_license"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-center">
+                                        <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript para el popup -->
+            <script>
+                // Esperar a que el documento esté completamente cargado
+                document.addEventListener("DOMContentLoaded", function() {
+                    var popup = document.getElementById("popupNotification");
+                    if (popup) {
+                        // Mostrar el popup
+                        popup.style.display = "block";
+                        // Ocultar el popup después de 5 segundos (por ejemplo)
+                        setTimeout(function() {
+                            popup.style.display = "none";
+                        }, 5000); // 5000ms = 5 segundos
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    var aeronautical_license_id = document.getElementById("aeronautical_license_id");
+                    var div_license_number = document.getElementById("div_license_number");
+                    var div_license_type = document.getElementById("div_license_type");
+                    var div_license_date_expiration = document.getElementById("div_license_date_expiration");
+
+                    function setDefaultValues() {
+                        if(aeronautical_license_id.checked){
+                            div_license_number.style.display = "block";
+                            div_license_type.style.display = "block";
+                            div_license_date_expiration.style.display = "block";
+                        }else{
+                            div_license_number.style.display = "none";
+                            div_license_type.style.display = "none";
+                            div_license_date_expiration.style.display = "none";
+                        }
+                    }
+
+                    setDefaultValues();
+                    aeronautical_license_id.addEventListener("change", setDefaultValues);
+                });
+
+            </script>
+
+            <!-- Estilo del popup -->
+            <style>
+                .popup {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    z-index: 9999;
+                    display: none;  /* Inicialmente oculto */
+                }
+
+                .popup .alert {
+                    margin: 0;
+                }
+
+                .historical_table {
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+
+                .historical_table thead th {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .historical_table tbody td {
+                    vertical-align: middle;
+                }
+
+                .nav-pills .nav-link {
+                    border-radius: 10px;
+                }
+
+                .nav-pills .nav-link.active {
+                    background: #6CB14F;
+                    box-shadow: 0 3px 10px rgba(13,110,253,.25);
+                }
+
+                .form-control,
+                .form-select {
+                    border-radius: 10px;
+                }
+
+                .btn-primary {
+                    border-radius: 10px;
+                }
+
+                .shadow-sm {
+                    transition: all .2s ease;
+                }
+
+                .shadow-sm:hover {
+                    transform: translateY(-1px);
+                }
+            </style>
+        </t>
+    </template>
+</odoo>

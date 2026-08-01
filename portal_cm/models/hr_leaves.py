@@ -336,6 +336,7 @@ class hrEmployeeInh(models.Model):
     show_pfly_menu = fields.Boolean(string="Programa a Volar")
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
+    show_update_data_emp = fields.Boolean(string="Actualizar datos")
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -344,3 +345,4 @@ class employeePublicInh(models.Model):
     show_pfly_menu = fields.Boolean(string="Programa a Volar")
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
+    show_update_data_emp = fields.Boolean(string="Actualizar datos")

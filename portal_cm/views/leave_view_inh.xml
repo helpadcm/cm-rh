@@ -67,6 +67,7 @@
                         <group>
                             <field name="show_absences_menu"/>
                             <field name="show_pfly_menu"/>
+                            <field name="show_update_data_emp"/>
                         </group>
                         <group>
                             <field name="show_reserve_room_menu"/>

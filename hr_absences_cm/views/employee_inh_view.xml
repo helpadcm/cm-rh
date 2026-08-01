@@ -7,6 +7,9 @@
             <field name="arch" type="xml">
                 <field name="study_field" position="after">
                     <field name="aeronatical_license" />
+                    <field name="license_number" invisible="not aeronatical_license" required="aeronatical_license"/>
+                    <field name="license_type" invisible="not aeronatical_license" required="aeronatical_license"/>
+                    <field name="expiration_date_license" invisible="not aeronatical_license" required="aeronatical_license"/>
                 </field>
 
                 <page name="hr_settings" position="before">

@@ -67,6 +67,10 @@
                 <field name="parent_id" widget="many2one_avatar_employee" string="Superior inmediato" options="{'no_create': True}"/>
             </field>
 
+            <field name="emergency_contact" position="after">
+                <field name="relationship"/>
+            </field>
+
             <!-- NOTEBOOK INFORMACION PRIVADA -->
 
             <xpath expr="//field[@name='identification_id']" position="after">

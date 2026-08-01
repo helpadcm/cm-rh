@@ -39,15 +39,15 @@
                     <t t-set="config_card" t-value="True"/>
                 </t>
             </t>
-            <!-- <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).program_to_fly &gt; 0 and request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_pfly_menu">
+            <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_update_data_emp">
                 <t t-call="portal.portal_docs_entry">
-                    <t t-set="icon" t-value="'/portal_cm/static/src/img/airplane.png'"/>
-                    <t t-set="title">Solicitud de Vuelos</t>
-                    <t t-set="text">Programa a volar, Service Charge Positivo, Service Charge Sujeto a Espacio</t>
-                    <t t-set="url" t-value="'/absences/record_program_fly'"/>
+                    <t t-set="icon" t-value="'/portal_cm/static/src/img/private_data.png'"/>
+                    <t t-set="title">Actualizar Datos Personales</t>
+                    <t t-set="text">El empleado podra actualizar sus datos personales en caso de ser necesario.</t>
+                    <t t-set="url" t-value="'/employee/update_data'"/>
                     <t t-set="config_card" t-value="True"/>
                 </t>
-            </t> -->
+            </t>
 
         </xpath>
     </template>
