@@ -133,6 +133,20 @@
         </field>
     </record>
 
+    <record id="payroll_emp_form_inherit" model="ir.ui.view">
+        <field name="name">payroll_emp.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <field name="is_non_resident" position="after">
+                <field name="resident_number" invisible="not is_non_resident" required="is_non_resident"/>
+            </field>
+
+            <field name="is_non_resident" position="attributes">
+                <attribute name="string">¿Posee carné de residente?</attribute>
+            </field>
+        </field>
+    </record>
 
     <record id="teams_view_form_inherit" model="ir.ui.view">
         <field name="name">teams.form.inherit</field>

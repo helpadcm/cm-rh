@@ -82,19 +82,19 @@ class HrLeavesInh(models.Model):
             else:
                 hours_taken = self.number_of_days * 8
             self.employee_id.compensatory_hours -= hours_taken
-        elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
-            self.validate_beneficiaries()
-            if self.holiday_status_id.code == 'PFLY':
+        # elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
+        #     self.validate_beneficiaries()
+        #     if self.holiday_status_id.code == 'PFLY':
                     
-                if self.company_id.id == 1:
-                    if self.tickets_request > self.employee_id.program_to_fly:
-                        raise ValidationError(f"""Los boletos disponibles para el empleado {self.employee_id.name} es de {self.employee_id.program_to_fly}""")
+        #         if self.company_id.id == 1:
+        #             if self.tickets_request > self.employee_id.program_to_fly:
+        #                 raise ValidationError(f"""Los boletos disponibles para el empleado {self.employee_id.name} es de {self.employee_id.program_to_fly}""")
 
-                    if self.exit_only:
-                        self.employee_id.program_to_fly -= (self.tickets_request/2)
-                    else:
-                        self.employee_id.program_to_fly -= self.tickets_request
-            self.send_email()
+        #             if self.exit_only:
+        #                 self.employee_id.program_to_fly -= (self.tickets_request/2)
+        #             else:
+        #                 self.employee_id.program_to_fly -= self.tickets_request
+        #     self.send_email()
         return res
 
     def validate_beneficiaries(self):

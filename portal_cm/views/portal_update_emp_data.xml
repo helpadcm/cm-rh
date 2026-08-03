@@ -7,7 +7,7 @@
                     <div class="text-center py-4 mb-4 border-bottom">
                         <h1 class="display-6 fw-bold text-primary">
                             <i class="fa fa-user-circle-o me-2"></i>
-                            Actualizacion de datos personales
+                            Actualización de datos personales
                         </h1>
 
                         <p class="lead text-muted mb-0">
@@ -266,7 +266,7 @@
                                             <div class="col-md-4 d-inline-flex align-items-center border rounded px-3 py-2">
                                                 <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-question-circle me-1"></i>
-                                                    ¿Es Residente?
+                                                    ¿Cuenta con carné de residente?
                                                 </label>
 
                                                 <div class="form-check form-switch mb-0">
@@ -277,6 +277,20 @@
                                                         name="is_resident"
                                                         id="is_resident_id"/>
                                                 </div>
+                                            </div>
+
+                                            <div class="col-md-4" id="div_resident_number">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-map-marker me-1"></i>
+                                                    Número de carné de residente
+                                                </label>
+
+                                                <input type="text"
+                                                    required="required"
+                                                    class="form-control text-center fw-semibold"
+                                                    name="record_resident_number"
+                                                    id="resident_number_id"
+                                                    t-att-value="resident_number"/>
                                             </div>
                                         </div>
                                     </div>
@@ -500,7 +514,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-file-pdf-o me-1"></i>
-                                                    Copia de Identidad
+                                                    Copia de Identidad (No obligatorio)
                                                 </label>
                                                 <input type="file" 
                                                     class="form-control" 
@@ -508,13 +522,13 @@
                                                     id="identity_id" 
                                                     accept=".pdf,.jpg,.png,.doc,.docx" 
                                                     multiple="multiple"/>
-                                                <small class="form-text text-muted">Adjuntar un solo documento con reves y derecho de la identidad</small>
+                                                <small class="form-text text-muted">Adjunte una imagen legible del frente y reverso de su Documento Nacional de Indentificación (DNI) en un solo archivo.</small>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
                                                     <i class="fa fa-picture-o me-1"></i>
-                                                    Fotografia Actual (No obligatorio)
+                                                    Fotografía actual (No obligatorio)
                                                 </label>
                                                 <input type="file" 
                                                     class="form-control" 
@@ -522,7 +536,7 @@
                                                     id="actual_picture_id" 
                                                     accept=".pdf,.jpg,.png,.doc,.docx" 
                                                     multiple="multiple"/>
-                                                <small class="form-text text-muted">Fotografia de caracter formal, tipo carnet con fondo blanco</small>
+                                                <small class="form-text text-muted">Adjunte una fotografía reciente, tipo carné, con fondo neutro y vestimenta apropiada.</small>
                                             </div>
                                         </div>
                                     </div>
@@ -561,6 +575,10 @@
                     var identity_id = document.getElementById("identity_id");
                     var create_id = document.getElementById("create_id");
 
+                    is_resident_id = document.getElementById("is_resident_id");
+                    div_resident_number = document.getElementById("div_resident_number");
+                    resident_number_id = document.getElementById("resident_number_id");
+
                     function setDefaultValues() {
                         if(aeronautical_license_id.checked){
                             div_license_number.style.display = "block";
@@ -572,11 +590,20 @@
                             div_license_date_expiration.style.display = "none";
                         }
 
-                        identity_id.required = create_id.value !== 'yes';
+                        if(is_resident_id.checked){
+                            div_resident_number.style.display = "block";
+                            resident_number_id.required = true;
+                        }else{
+                            div_resident_number.style.display = "none";
+                            resident_number_id.required = false;
+                        }
+
+                        <!-- identity_id.required = create_id.value !== 'yes'; -->
                     }
 
                     setDefaultValues();
                     aeronautical_license_id.addEventListener("change", setDefaultValues);
+                    is_resident_id.addEventListener("change", setDefaultValues);
                 });
 
             </script>

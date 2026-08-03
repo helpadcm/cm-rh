@@ -42,8 +42,8 @@
             <t t-if="request.env['hr.employee'].sudo().search([('user_id', '=', request.env.user.id)], limit=1).show_update_data_emp">
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/portal_cm/static/src/img/private_data.png'"/>
-                    <t t-set="title">Actualizar Datos Personales</t>
-                    <t t-set="text">El empleado podra actualizar sus datos personales en caso de ser necesario.</t>
+                    <t t-set="title">Actualización de Datos Personales</t>
+                    <t t-set="text">Actualice la información registrada en su expediente de Talento Humano.</t>
                     <t t-set="url" t-value="'/employee/update_data'"/>
                     <t t-set="config_card" t-value="True"/>
                 </t>

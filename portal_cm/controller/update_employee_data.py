@@ -49,6 +49,7 @@ class updateEmployeeData(http.Controller):
             'ssnid': employee_id.ssnid,
             'passport_id': employee_id.passport_id,
             'is_non_resident': employee_id.is_non_resident,
+            'resident_number': employee_id.resident_number,
 
             'state_ids': state_ids,
             'private_state_ids': private_state_ids,
@@ -90,6 +91,7 @@ class updateEmployeeData(http.Controller):
         ssnid = post.get("record_ssnid")
         passport_id = post.get("record_passport_id")
         is_non_resident = post.get("is_resident")
+        resident_number = post.get("record_resident_number")
 
         private_state_id = int(post.get("selection_states"))
         private_city = post.get("record_city")
@@ -156,6 +158,7 @@ class updateEmployeeData(http.Controller):
             'ssnid': ssnid,
             'passport_id': passport_id,
             'is_non_resident': is_non_resident,
+            'resident_number': resident_number,
             'private_state_id': private_state_id,
             'private_city': private_city,
             'private_street': private_street,
