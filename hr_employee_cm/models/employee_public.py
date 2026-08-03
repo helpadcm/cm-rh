@@ -20,6 +20,7 @@ class HrEmployeePublic(models.Model):
 
     birthday_month = fields.Integer(string="Mes de nacimiento")
     relationship = fields.Char(string="Parentesco")
+    actual_picture = fields.Binary(string="Fotografia Actual", groups="hr.group_hr_user")
 
     # @api.depends('pin','barcode')
     # def _get_employee_no(self):

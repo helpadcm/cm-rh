@@ -1,5 +1,5 @@
 <odoo>
-    <template id="portal_employee_update" name="Programa a volar">
+    <template id="portal_employee_update" name="Actualización de datos personales">
         <t t-call="portal.portal_layout">
             <div class="tab-content" style="background: rgba(255,255,255,0.8);border-radius:10px;">
                 <div class="container tab-pane fade show active" id="tab1">
@@ -25,11 +25,12 @@
                         <div class="col-12 col-md-12 col-lg-12">
                             <form action="/request_update/submit" method="POST" class="mt-2" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="text" class="d-none" name="create_identity" id="create_id" t-att-value="id_create"/>
 
                                 <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.3)">
                                     <div class="card-header bg-primary text-white">
                                         <h5 class="mb-0">
-                                            <i class="fa fa-user me-2"></i>
+                                            <i class="fa fa-address-book"></i>
                                             Contacto Privado
                                         </h5>
                                     </div>
@@ -73,7 +74,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Nombre Completo
                                                 </label>
                                                 <input type="text"
@@ -86,7 +87,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-calendar me-1"></i>
                                                     Fecha de Nacimiento
                                                 </label>
 
@@ -99,8 +100,8 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
-                                                    Lugar de Nacimiento
+                                                    <i class="fa fa-map-marker me-1"></i>
+                                                    Ciudad de Nacimiento
                                                 </label>
 
                                                 <input type="text"
@@ -112,7 +113,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Genero
                                                 </label>
 
@@ -126,7 +127,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Edad
                                                 </label>
 
@@ -142,7 +143,7 @@
 
                                     <div class="card-header bg-primary text-white">
                                         <h5 class="mb-0">
-                                            <i class="fa fa-user me-2"></i>
+                                            <i class="fa fa-user-circle me-2"></i>
                                             Contacto de Emergencia
                                         </h5>
                                     </div>
@@ -151,7 +152,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Nombre Completo
                                                 </label>
                                                 <input type="text"
@@ -164,7 +165,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Parentesco
                                                 </label>
 
@@ -203,7 +204,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-list-alt me-1"></i>
                                                     Nacionalidad
                                                 </label>
                                                 <select class="form-control"
@@ -224,7 +225,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-address-card-o me-1"></i>
                                                     Número de Identidad
                                                 </label>
 
@@ -238,7 +239,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-address-card-o me-1"></i>
                                                     Número de Seguridad Social
                                                 </label>
 
@@ -251,7 +252,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-address-card-o me-1"></i>
                                                     Número de Pasaporte
                                                 </label>
 
@@ -264,7 +265,7 @@
 
                                             <div class="col-md-4 d-inline-flex align-items-center border rounded px-3 py-2">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-question-circle me-1"></i>
                                                     ¿Es Residente?
                                                 </label>
 
@@ -282,7 +283,7 @@
 
                                     <div class="card-header bg-primary text-white">
                                         <h5 class="mb-0">
-                                            <i class="fa fa-user me-2"></i>
+                                            <i class="fa fa-map-marker me-2"></i>
                                             Dirección Personal
                                         </h5>
                                     </div>
@@ -291,7 +292,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-list-alt me-1"></i>
                                                     Departamento
                                                 </label>
                                                 <select class="form-control"
@@ -299,7 +300,7 @@
                                                     id="state_id"
                                                     required="required">
 
-                                                    <t t-foreach="state_ids" t-as="state">
+                                                    <t t-foreach="private_state_ids" t-as="state">
                                                         <option
                                                             t-att-value="state.id"
                                                             t-att-selected="state.id == state_id and 'selected' or None">
@@ -312,7 +313,7 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-map-marker me-1"></i>
                                                     Ciudad
                                                 </label>
 
@@ -326,7 +327,7 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-map-marker me-1"></i>
                                                     Dirección Exacta
                                                 </label>
 
@@ -340,7 +341,7 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-map-marker me-1"></i>
                                                     Punto de Referencia
                                                 </label>
 
@@ -364,7 +365,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-list-alt me-1"></i>
                                                     Estado Civil
                                                 </label>
                                                 <select class="form-control" name="selection_status" id="status_id" required="required">
@@ -378,7 +379,7 @@
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Hijos Dependientes
                                                 </label>
 
@@ -402,7 +403,7 @@
                                         <div class="row g-3">
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-list-alt me-1"></i>
                                                     Nivel de Estudios
                                                 </label>
                                                 <select class="form-control" name="selection_certificate" id="certificate_id" required="required">
@@ -418,7 +419,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-sticky-note me-1"></i>
                                                     Campo de Estudio
                                                 </label>
 
@@ -433,7 +434,7 @@
 
                                             <div class="col-md-4 d-inline-flex align-items-center border rounded px-3 py-2">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-question-circle me-1"></i>
                                                     ¿Posee licencia aeronautica?
                                                 </label>
                                                 <div class="form-check form-switch mb-0">
@@ -448,7 +449,7 @@
 
                                             <div class="col-md-4" id="div_license_number">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-address-card-o me-1"></i>
                                                     Número de Licencia
                                                 </label>
 
@@ -461,7 +462,7 @@
 
                                             <div class="col-md-4" id="div_license_type">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-envelope-open-o me-1"></i>
+                                                    <i class="fa fa-list-alt me-1"></i>
                                                     Tipo de Licencia
                                                 </label>
                                                 <select class="form-control" name="selection_license_type" id="license_type">
@@ -474,7 +475,7 @@
 
                                             <div class="col-md-4" id="div_license_date_expiration">
                                                 <label class="form-label fw-semibold text-secondary">
-                                                    <i class="fa fa-phone me-1"></i>
+                                                    <i class="fa fa-calendar me-1"></i>
                                                     Fecha de Vencimiento
                                                 </label>
 
@@ -487,8 +488,47 @@
                                         </div>
                                     </div>
 
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-book me-2"></i>
+                                            Documentos
+                                        </h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-file-pdf-o me-1"></i>
+                                                    Copia de Identidad
+                                                </label>
+                                                <input type="file" 
+                                                    class="form-control" 
+                                                    name="identity_attachment"
+                                                    id="identity_id" 
+                                                    accept=".pdf,.jpg,.png,.doc,.docx" 
+                                                    multiple="multiple"/>
+                                                <small class="form-text text-muted">Adjuntar un solo documento con reves y derecho de la identidad</small>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold text-secondary">
+                                                    <i class="fa fa-picture-o me-1"></i>
+                                                    Fotografia Actual (No obligatorio)
+                                                </label>
+                                                <input type="file" 
+                                                    class="form-control" 
+                                                    name="actual_picture" 
+                                                    id="actual_picture_id" 
+                                                    accept=".pdf,.jpg,.png,.doc,.docx" 
+                                                    multiple="multiple"/>
+                                                <small class="form-text text-muted">Fotografia de caracter formal, tipo carnet con fondo blanco</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12 text-center">
-                                        <button type="submit" class="btn btn-primary mt-3">Solicitar</button>
+                                        <button type="submit" class="btn btn-primary mt-3">Actualizar</button>
                                     </div>
                                 </div>
                             </form>
@@ -518,6 +558,9 @@
                     var div_license_type = document.getElementById("div_license_type");
                     var div_license_date_expiration = document.getElementById("div_license_date_expiration");
 
+                    var identity_id = document.getElementById("identity_id");
+                    var create_id = document.getElementById("create_id");
+
                     function setDefaultValues() {
                         if(aeronautical_license_id.checked){
                             div_license_number.style.display = "block";
@@ -528,6 +571,8 @@
                             div_license_type.style.display = "none";
                             div_license_date_expiration.style.display = "none";
                         }
+
+                        identity_id.required = create_id.value !== 'yes';
                     }
 
                     setDefaultValues();
