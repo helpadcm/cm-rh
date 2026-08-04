@@ -85,15 +85,38 @@ class expensesRequest(models.Model):
     need_tickets = fields.Boolean(string="Necesita boletos",tracking=True)
     need_transport = fields.Boolean(string="Necesita transporte",tracking=True)
     need_hotel = fields.Boolean(string="Necesita hotel",tracking=True)
-    reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto")
-    process_id = fields.Many2one('crossovered.activity', string="Proceso")
+    reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto",tracking=True)
+    process_id = fields.Many2one('crossovered.activity', string="Proceso",tracking=True)
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
     limit_date = fields.Date(string="Fecha limite de liquidacion",compute="_calculate_limit_date")
     omit_settlement = fields.Boolean(string="Omitir liquidacion")
     edit_employee = fields.Boolean(string="Editar Empleado")
+    refund_state = fields.Selection([('na','No Aplica'),('without_refund','Sin Reembolsar'),('refunded','Reembolsado')],string="Estado de Reembolso",default="na",tracking=True)
+    refund_done = fields.Boolean(string="Reembolso realizado",copy=False)
 
     exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',copy=False,tracking=True)
     description = fields.Text(string="Motivo",copy=False,tracking=True)
+
+    tickets_request_ids = fields.One2many('cm.expenses.request.ticket','expense_request_id',string="Solicitud de boletos")
+    quote_amount_tickets = fields.Float(string="Cotizacion Boletos",compute="calculate_totals")
+
+    def refunded_balance(self):
+        if self.refund_state == 'without_refund':
+            self.refund_state = 'refunded'
+            self.refund_done = True
+
+    @api.onchange('infavor_employee_amount','refund_done','exeption_id')
+    def _onchange_infavor_employee_amount(self):
+        if not self.refund_done:
+            if self.infavor_employee_amount > 0:
+                if self.exeption_id.skip_exception:
+                    self.refund_state = 'na'
+                else:
+                    self.refund_state = 'without_refund'
+            else:
+                self.refund_state = 'na'
+        else:
+            self.refund_state = 'refunded'
 
     @api.depends('request_details_ids')
     def _calculate_limit_date(self):
@@ -113,19 +136,25 @@ class expensesRequest(models.Model):
                             days_added += 1
                     rec.limit_date = current_date
 
-    @api.depends('request_details_ids','expenses_ids','refund_amount')
+    @api.depends('request_details_ids','expenses_ids','refund_amount','tickets_request_ids')
     def calculate_totals(self):
         for rec in self:
             total_advance = 0
             total_expenses = 0
+            total_tickets_amount = 0
             if rec.request_details_ids:
                 total_advance = sum(rec.request_details_ids.mapped('total_amount'))
+
+            if rec.tickets_request_ids:
+                total_tickets_amount = sum(rec.tickets_request_ids.mapped('quote_amount'))
+                total_advance += total_tickets_amount
             
             if rec.expenses_ids:
                 total_expenses = sum(rec.expenses_ids.mapped('total_amount'))
 
             rec.advance_amount = total_advance
             rec.total_expense_amount = total_expenses
+            rec.quote_amount_tickets = total_tickets_amount
 
             control_employee_amount = total_advance - total_expenses
             if control_employee_amount <= 0:
@@ -177,6 +206,9 @@ class expensesRequest(models.Model):
             if len(self.request_details_ids) == 0:
                 raise ValidationError("Debe agregar al menos una linea en los detalles de gastos")
 
+            # if self.need_tickets and len(self.tickets_request_ids) == 0:
+            #     raise ValidationError("Si necesita boletos, debe ingresar los datos para solicitud de boletos")
+
             if self.name == 'Borrador':
                 sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
                 if sequence_id:
@@ -192,6 +224,10 @@ class expensesRequest(models.Model):
                 if self.boss_id.user_id.id != self.env.user.id and next_state == 'approved':
                     raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
 
+            # if next_state == 'approved':
+            #     if self.need_tickets:
+            #         self.create_ticket_request()
+
             self.send_email(next_state)
 
         if next_state == 'pending':
@@ -200,7 +236,7 @@ class expensesRequest(models.Model):
                 if self.assign_to_id.user_id.id != self.env.user.id:
                     raise ValidationError("Solo el empleado asignado a la solicitud puede enviar a liquidar")
 
-            if len(self.expenses_ids) == 0:
+            if len(self.expenses_ids) == 0 and self.balance_employee_amount > 0:
                 raise ValidationError("Debe agregar al menos un gasto")
 
             if self.exeption_id and self.exeption_id.skip_exception:
@@ -212,7 +248,7 @@ class expensesRequest(models.Model):
                 if line.nb_attachment == 0:
                     raise ValidationError(f"""Debe agregar comprobantes de sus gastos, el gasto {line.name} no tiene adjuntos.""")
 
-            if amount_total == 0:
+            if amount_total == 0 and self.balance_employee_amount > 0:
                 raise ValidationError("El total de gastos no puede ser 0, por favor revise los gastos agregados.")
 
             if self.balance_employee_amount > 0:
@@ -223,9 +259,50 @@ class expensesRequest(models.Model):
 
         self.state = next_state
 
+    def create_ticket_request(self):
+        program_id = self.env['cm.ticket.request.program'].search([('code','=','VIAT')])
+        for line in self.tickets_request_ids:
+            if line.ticket_type_request == 'internal':
+                vals = {
+                    'airline_id': line.airline_id.id,
+                    'program_id': program_id.id,
+                    'user_id': self.assign_to_id.user_id.id,
+                    'request_type': line.request_type
+                }
+
+                req_ticket_id = self.env['cm.ticket.request'].create(vals)
+                line.list_routes_ids.write({'request_id': req_ticket_id.id})
+
+                attachment_id = False
+                attachment_name = False
+                if line.passport_file:
+                    attachment_id = line.passport_file
+                    attachment_name = line.passport_file_name
+                else:
+                    attachment_id = self.assign_to_id.id_card
+                    attachment_name = f'Id/Pasaporte {self.assign_to_id.name}'
+
+                if not attachment_id:
+                    raise ValidationError("Debe agregar fotocopia de su identidad o pasaporte en su solicitud de boletos aereos.")
+
+                passenge_id = self.env['cm.ticket.request.line'].create({
+                    'employee_id': self.assign_to_id.id,
+                    'request_id': req_ticket_id.id,
+                    'more_luggage': line.more_luggage,
+                    'id_file': attachment_id,
+                    'id_file_name': attachment_name,
+                    'class_name': 'noRev',
+                    'description': self.purpose
+                })
+                
+                line.request_ticket_id = req_ticket_id.id
+                passenge_id.get_data()
+                req_ticket_id.with_context({'state':'send'}).change_state()
+
     def send_email(self, state):
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
         show_button = True
+        title = f"<h2>Solicitud de aprobación de viaticos</h2>"
         if state == 'required':
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.boss_id.name
@@ -239,6 +316,7 @@ class expensesRequest(models.Model):
             email_to = self.boss_id.user_id.login
             message_txt = f"""El colaborador {self.assign_to_id.name} ha solicituado una exepcion en su liquidacion de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos motivo exepcional'
+            title = f"<h2>Solicitud de reembolso de viaticos</h2>"
 
             mail = self.env['mail.mail'].sudo().create({
                 'subject': "Liquidacion excepcional",
@@ -254,12 +332,21 @@ class expensesRequest(models.Model):
             message_txt = f"""El colaborador {self.assign_to_id.name} ha creado una solicitud de viaticos que necesita de su aprobación"""
             subject = 'Solicitud de viaticos'
 
+        if state == 'refund':
+            base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+            for_user = 'EDUARDO SEVILLA COELLO'
+            email_to = 'esevilla@cmairlines.com'
+            message_txt = f"""{self.boss_id.name} ha aprobado un reembolso para el empleado {self.assign_to_id.name} de la solicitud de viaticos {self.name}."""
+            subject = 'Reembolso de viaticos'
+            title = f"<h2>Reembolso Aprobado</h2>"
+
         if state == 'assigned':
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.assign_to_id.name
             email_to = self.assign_to_id.user_id.login
             message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de gastos o depositos realizados por dinero sobrante de manera fisica al area de finanzas."""
             subject = 'Asignación de viaticos'
+            title = f"<h2>Asignación de viaticos</h2>"
             show_button = False
 
         if state == 'pending':
@@ -267,6 +354,7 @@ class expensesRequest(models.Model):
             email_to = self.assign_to_id.expense_manager_id.login
             message_txt = f"""Se ha creado un reporte de gastos del empleado {self.assign_to_id.name} para su revisión."""
             subject = 'Reporte de gastos creado'
+            title = "<h2>Reporte de gastos creado</h2>"
 
             expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
             base_url += '/web#id=%d&view_type=form&model=%s' % (expense_sheet_id.id, expense_sheet_id._name)
@@ -292,7 +380,7 @@ class expensesRequest(models.Model):
                                             <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
                                                 <tr>
                                                     <td valign="middle" style="font-size: 10px;color:black">
-                                                        <span style="font-size: 10px;color:black"><h2>Solicitud de aprobación de viaticos</h2></span><br/>
+                                                        <span style="font-size: 10px;color:black">{title}</span><br/>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -331,7 +419,7 @@ class expensesRequest(models.Model):
                         </td>
                     </tr>
                 </table>
-        """.format(for_user=for_user,message=message_txt,url=base_url,show_button_html=button_html)
+        """.format(title=title,for_user=for_user,message=message_txt,url=base_url,show_button_html=button_html)
 
         mail_values = {
             'body_html': body,
@@ -432,14 +520,15 @@ class expensesRequest(models.Model):
         if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
             if self.boss_id.user_id.id != self.env.user.id:
                 raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
-        self.write({'state':'finalized'})
+        self.write({'state':'finalized', 'refund_state': 'without_refund'})
+        self.send_email('refund')
         self.create_report_expenses(with_exception='exception')
 
     def reject_exception(self):
         if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
             if self.boss_id.user_id.id != self.env.user.id:
                 raise ValidationError("Solo el aprobador de viaticos para este empleado puede rechazar esta solicitud")
-        self.write({'state':'finalized'})
+        self.write({'state':'finalized', 'refund_state': 'na'})
         self.create_report_expenses(with_exception='rejected')
 
     def cron_review_deadline(self):

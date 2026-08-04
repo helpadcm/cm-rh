@@ -26,6 +26,7 @@
 
                         <button name="approve_exception" class="oe_highlight" type="object" string="Aprobar Excepcion" invisible="state != 'exception'"/>
                         <button name="reject_exception" class="oe_highlight btn-danger" type="object" string="Rechazar Excepcion" invisible="state != 'exception'"/>
+                        <button name="refunded_balance" class="oe_highlight btn-success" type="object" string="Reembolsar" confirm="¿Esta seguro de querer marcar como reembolsado?" invisible="state != 'finalized' or refund_done or refund_state != 'without_refund'" groups="cm_expenses_request.group_expenses_request_manager"/>
 
 
                         <field name="state" widget="statusbar" statusbar_visible="draft,required,approved,assigned,pending,finalized"/>
@@ -54,6 +55,8 @@
                                 <field name="limit_date" groups="base.group_no_one"/>
                                 <field name="omit_settlement" groups="base.group_no_one"/>
                                 <field name="boss_id" invisible="1"/>
+                                <field name="refund_done" invisible="1"/>
+                                <field name="refund_state" invisible="1"/>
                                 <field name="edit_employee" groups="base.group_no_one"/>
                                 <field name="reason_expense" invisible="1" readonly="state != 'draft'"/>
                                 <field name="process_ids" widget="many2many_tags" options="{'no_create': True,'no_open': True}" invisible="1" force_save="1" />
@@ -76,6 +79,7 @@
                                 <field name="advance_amount" readonly="1" force_save="1"/>
                                 <field name="balance_employee_amount" invisible="state in ['draft','required','approved']" readonly="1" force_save="1"/>
                                 <field name="refund_amount" invisible="refund_amount == 0" readonly="1" force_save="1"/>
+                                <field name="quote_amount_tickets" invisible="quote_amount_tickets == 0" readonly="1" force_save="1"/>
                             </group>
                             <group>
                                 <field name="total_expense_amount" readonly="1" force_save="1" invisible="state in ['draft','required','approved','canceled']"/>
@@ -103,6 +107,55 @@
                                     </list>
                                 </field>
                             </page>
+                            <!-- <page name="tickets" string="Boletos Solicitados" invisible="not need_tickets"> -->
+                            <page name="tickets" string="Boletos Solicitados" invisible="1">
+                                <field name="tickets_request_ids" readonly="state != 'draft'">
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="request_type" required="1"/>
+                                                <field name="more_luggage"/>
+                                                <field name="ticket_type_request" invisible="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="airline_id" options="{'no_create': True,'no_open': True}" required="1"/>
+                                                <field name="passport_file" filename="passport_file_name" widget="binary"/>
+                                                <field name="passport_file_name" invisible="1"/>
+                                            </group>
+                                        </group>
+
+                                        <group string="Datos Solicitud Externa" invisible="ticket_type_request != 'external'">
+                                            <group>
+                                                <field name="quote_file" filename="quote_file_name" widget="binary" required="ticket_type_request == 'external'"/>
+                                                <field name="quote_file_name" invisible="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="quote_amount" required="1"/>
+                                            </group>
+                                        </group>
+
+                                        <notebook invisible="ticket_type_request == 'external'">
+                                            <page name="routes" string="Rutas">
+                                                <field name="list_routes_ids">
+                                                    <list editable="bottom">
+                                                        <field name="sequence" column_invisible="1" readonly="1"/>
+                                                        <field name="ticket_type" column_invisible="1" readonly="1" force_save="1"/>
+                                                        <field name="route_id" options="{'no_create': True}" required="1"/>
+                                                        <field name="date" required="1"/>
+                                                        <field name="flight_select" required="1"/>
+                                                        <field name="observations" />
+                                                    </list>
+                                                </field>
+                                            </page>
+                                        </notebook>
+                                    </form>
+                                    <list>
+                                        <field name="name" />
+                                        <field name="request_type"/>
+                                        <field name="airline_id"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page name="expenses" string="Gastos" invisible="state in ['draft','required','approved','canceled']">
                                 <field name="expenses_ids" context="{'default_employee_id': assign_to_id,'default_reason_expense': reason_expense, 'default_process_id': process_id, 'default_request_id': id}" readonly="state in ['pending','finalized','canceled']">
                                     <list>
@@ -115,10 +168,10 @@
                             <page name="exceptions" string="Excepcion" invisible="exeption_id in [False,None]">
                                 <group>
                                     <group>
-                                        <field name="exeption_id" />
+                                        <field name="exeption_id" readonly="1"/>
                                     </group>
                                     <group>
-                                        <field name="description" />
+                                        <field name="description" readonly="1"/>
                                     </group>
                                 </group>
                             </page>
@@ -140,6 +193,7 @@
                     <field name="assign_to_id" />
                     <field name="date"/>
                     <field name="purpose"/>
+                    <field name="refund_state" widget="badge" decoration-info="refund_state == 'na'" decoration-danger="refund_state == 'without_refund'" decoration-success="refund_state == 'refunded'" />
                     <field name="state"/>
                 </list>
             </field>

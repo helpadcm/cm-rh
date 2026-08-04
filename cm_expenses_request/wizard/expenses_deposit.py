@@ -38,7 +38,7 @@ class depositExpenses(models.TransientModel):
     voucher_filename = fields.Char(string="Deposito")
 
     def create_deposit(self):
-        context = dict(self._context or {})
+        context = self.env.context
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])

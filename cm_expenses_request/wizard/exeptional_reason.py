@@ -25,5 +25,6 @@ class expenseExeptionReason(models.TransientModel):
         next_state = 'exception'
         if self.exeption_id.skip_exception:
             next_state = 'pending'
+            req_id.refund_state = 'na'
             
         req_id.with_context({'state':next_state}).change_state()

@@ -33,7 +33,7 @@ class assignExpenses(models.TransientModel):
     account_id = fields.Many2one('account.account',string="Cuenta")
 
     def create_debit(self):
-        context = dict(self._context or {})
+        context = self.env.context
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])
