@@ -170,7 +170,8 @@ class updateEmployeeData(http.Controller):
             'aeronatical_license': aeronatical_license,
             'license_number': license_number,
             'license_type': license_type,
-            'expiration_date_license': expiration_date_license
+            'expiration_date_license': expiration_date_license,
+            'update_data': True
         }
 
          # Copia de identidad

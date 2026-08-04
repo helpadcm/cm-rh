@@ -337,6 +337,7 @@ class hrEmployeeInh(models.Model):
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
     show_update_data_emp = fields.Boolean(string="Actualizar datos")
+    updated_data = fields.Boolean(string="Datos actualizados desde Portal", default=False)
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -346,3 +347,4 @@ class employeePublicInh(models.Model):
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
     show_update_data_emp = fields.Boolean(string="Actualizar datos")
+    updated_data = fields.Boolean(string="Datos actualizados desde Portal", default=False)
