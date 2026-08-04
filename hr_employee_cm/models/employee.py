@@ -38,7 +38,7 @@ class HrEmployee(models.Model):
         )
 
     employee_age = fields.Integer(string="Edad",compute='_compute_next_birthday')
-    relationship = fields.Char(string="Parentesco")
+    relationship = fields.Char(string="Parentesco",tracking=True)
     actual_picture = fields.Binary(string="Fotografia Actual", groups="hr.group_hr_user")
 
     @api.constrains('barcode')
