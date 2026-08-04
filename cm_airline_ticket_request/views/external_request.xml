@@ -64,6 +64,7 @@
                     <field name="code" required="1"/>
                     <field name="country_id" options="{'no_create': 1}" required="1"/>
                     <field name="contact_email" required="1"/>
+                    <field name="ticket_type_request" required="1"/>
                     <field name="default_airline" />
                 </list>
             </field>

@@ -8,6 +8,7 @@ class ticket_request(models.Model):
     _name = 'cm.ticket.request'
     _description = "Solicitud de boletos"
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = "name desc"
 
     @api.model
     def _get_default_date(self):
@@ -48,7 +49,7 @@ class ticket_request(models.Model):
     pnr_file = fields.Binary(string="Doc PNR",copy=False)
     pnr_file_name = fields.Char(string="Nombre PNR",copy=False,tracking=True)
     airline_id = fields.Many2one('cm.ticket.request.airline',string="Aerolinea",copy=True,tracking=True)
-    ticket_type_request = fields.Boolean(string="Tipo de solicitud de boleto")
+    ticket_type_request = fields.Selection(string="Tipo de solicitud de boleto",related="airline_id.ticket_type_request")
 
     @api.onchange('pnr')
     def change_pnr(self):
@@ -100,6 +101,15 @@ class ticket_request(models.Model):
         if self.request_type == 'round_trip':
             if len(self.list_routes_ids) != 2:
                 raise ValidationError("Si el tipo de solicitud es de Ida y Vuelta debe agregar dos rutas")
+            
+            line1_id = self.list_routes_ids[0].route_id
+            line2_id = self.list_routes_ids[1].route_id
+            if line1_id.destination != line2_id.origin:
+                raise ValidationError(f"Si su solicitud es de Ida y Vuelta el destino de su primera ruta ({line1_id.destination}) debe coincidir con el origen de la segunda ({line2_id.origin})")
+
+            if line2_id.destination != line1_id.origin:
+                raise ValidationError(f"Si su solicitud es de Ida y Vuelta el destino de su segunda ruta ({line2_id.destination}) debe coincidir con el origen de la primera ({line1_id.origin})")
+
         elif self.request_type == 'exit_only':
             if len(self.list_routes_ids) != 1:
                 raise ValidationError("Si el tipo de solicitud es Solo de Ida debe agregar una ruta")
@@ -124,12 +134,18 @@ class ticket_request(models.Model):
 
         template_ctx = {
             'action_url': base_url,
-            'email_to': 'conectividad@cmairlines.com',
+            'program_code': self.program_id.code,
             'type': type_r,
             'user': self.user_id.name,
             'name': self.name,
         }
-        template_id.with_context(**template_ctx).send_mail(self.id, force_send=True)
+        template_id.with_context(**template_ctx).send_mail(
+            self.id, 
+            force_send=True,
+            email_values={
+                'email_to': 'conectividad@cmairlines.com',
+            }
+        )
 
     def send_finalize_mail(self):
         email_to = ''
@@ -384,3 +400,4 @@ class airline_resquest(models.Model):
     code = fields.Char(string="Codigo")
     contact_email = fields.Char(string="Correos de contacto")
     country_id = fields.Many2one('res.country',string='Pais')
+    ticket_type_request = fields.Selection([('internal','Interno'),('external','Externo')],string="Tipo de solicitud")
