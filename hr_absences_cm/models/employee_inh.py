@@ -21,8 +21,8 @@ class HrEmployeeInh(models.Model):
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
     aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica",tracking=True)
-    expiration_date_license = fields.Date(string="Fecha de vencimiento")
-    license_number = fields.Char(string="Número de Licencia")
+    expiration_date_license = fields.Date(string="Fecha de vencimiento",tracking=True)
+    license_number = fields.Char(string="Número de Licencia",tracking=True)
     license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia",tracking=True)
     years_old = fields.Integer(string="Años de antiguedad")
 
@@ -72,25 +72,31 @@ class HrEmployeeInh(models.Model):
                 
 
     def create_vacations(self, employee_id, years):
-        days_qty = 0
+        assigned_days = 0
+        pending_days = 0
         if years == 1:
-            days_qty = 10
+            assigned_days = 10
         elif years == 2:
-            days_qty = 12
+            assigned_days = 12
         elif years == 3:
-            days_qty = 15
+            assigned_days = 15
         elif years >= 4:
-            days_qty = 20
+            assigned_days = 20
         
-        if days_qty > 0:
-            if self.aeronatical_license:
-                days_qty = 30
+        if assigned_days > 0:
+            if employee_id.aeronatical_license:
+                assigned_days = 30
+
+            pending_days = assigned_days
+            if employee_id.early_vacations > 0:
+                pending_days = assigned_days - employee_id.early_vacations
+                employee_id.early_vacations = 0
 
             vals = {
                 'name': 'Vacaciones %s año(s)'%(years),
                 'employee_id': employee_id.id,
-                'assigned_days': days_qty,
-                'pending_days': days_qty,
+                'assigned_days': assigned_days,
+                'pending_days': pending_days,
                 'year': years
             }
             if len(employee_id.vacation_details_ids) > 0:
@@ -109,26 +115,32 @@ class HrEmployeeInh(models.Model):
         if self.date_start_contract:
             contract_date = self.date_start_contract
             years = int((actual_date - contract_date).days / 365)
-            days_qty = 0
+            assigned_days = 0
+            pending_days = 0
             
             for year in range(1,years+1):
                 if year == 1:
-                    days_qty = 10
+                    assigned_days = 10
                 elif year == 2:
-                    days_qty = 12
+                    assigned_days = 12
                 elif year == 3:
-                    days_qty = 15
+                    assigned_days = 15
                 elif year >= 4:
-                    days_qty = 20
+                    assigned_days = 20
 
                 if self.aeronatical_license:
-                    days_qty = 30
+                    assigned_days = 30
+
+                pending_days = assigned_days
+                if self.early_vacations > 0:
+                    pending_days = assigned_days - self.early_vacations
+                    self.early_vacations = 0
                     
                 vals = {
                     'name': 'Vacaciones %s año(s)'%(year),
                     'employee_id': self.id,
-                    'assigned_days': days_qty,
-                    'pending_days': days_qty,
+                    'assigned_days': assigned_days,
+                    'pending_days': pending_days,
                     'year': year
                 }
                 if len(self.vacation_details_ids) > 0:

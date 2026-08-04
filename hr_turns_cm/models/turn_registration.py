@@ -41,6 +41,14 @@ class turnRegistration(models.Model):
 
     def validate_day(self):
         for rec in self:
+            if rec.turn_type_a.code == 'LID':
+                if rec.schedule1_in_id.name != 'NA' or rec.schedule1_out_id.name != 'NA':
+                    raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
+            if rec.turn_type_b.code == 'LID':
+                if rec.schedule2_in_id.name != 'NA' or rec.schedule2_out_id.name != 'NA':
+                    raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
             rec.state = 'validated'
             rec.validated_by_id = self.env.user.id
 
@@ -171,6 +179,20 @@ class turnRegistration(models.Model):
                                 except:
                                     oh = 0
 
+                                editable_a = True
+                                editable_b = True
+                                if line_temp_id.turn_type_a.opt_turn == '0':
+                                    editable_a = False
+                                else:
+                                    if line_temp_id.turn_type_a.code in ['VAC','F']:
+                                        editable_a = False
+
+                                if line_temp_id.turn_type_b.opt_turn == '0':
+                                    editable_b = False
+                                else:
+                                    if line_temp_id.turn_type_b.code in ['VAC','F']:
+                                        editable_b =  False
+
                                 vals = {
                                     'employee_id': member.employee_id.id,
                                     'date': turn_date,
@@ -186,6 +208,8 @@ class turnRegistration(models.Model):
                                     'turn_type_b': line_temp_id.turn_type_b.id,
                                     'ordinary_hours': oh,
                                     'aditional_hours': aditional_time,
+                                    'editable_a': editable_a,
+                                    'editable_b': editable_b,
                                     'oh': oh_value,
                                     'fortnight_line_id': fortnight_id.id
                                 }

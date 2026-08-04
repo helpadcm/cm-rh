@@ -14,7 +14,7 @@
     'data': [
         'security/ir.model.access.csv',
         'security/groups.xml',
-        # 'data/cron.xml',
+        'data/cron.xml',
         'views/employee_inh_view.xml',
         'views/flight_routes_view.xml',
         'views/menu.xml',
