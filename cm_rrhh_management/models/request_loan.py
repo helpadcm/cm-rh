@@ -211,11 +211,11 @@ class requestLoan(models.Model):
         return super(requestLoan, self).unlink()
 
     def create_deduction(self):
-        deduction_type_id = self.env['hr.salary.attachment.type'].search([('code','=','INTLOAN')])
+        deduction_type_id = self.env['hr.payslip.input.type'].search([('code','=','INTLOAN')])
         vals = {
             'employee_ids': [(4, self.employee_id.id)],
             'description': 'Prestamo Interno',
-            'deduction_type_id': deduction_type_id.id,
+            'other_input_type_id': deduction_type_id.id,
             'date_start': self.initial_deduction_date,
             'total_amount': self.amount,
             'monthly_amount': self.monthly_amount,
