@@ -46,6 +46,10 @@ class expensesRequest(models.Model):
             if not employee_id.expense_approver_id:
                 raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (employee_id.name))
 
+            allow_employee_ids = self.env['hr.employee'].search([('expense_approver_id','=',employee_id.id)])
+            if self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                allow_employee_ids = self.env['hr.employee'].search([])
+
             rec.update({
                 'department_id': employee_id.department_id.id,
                 'job_id': employee_id.job_id.id,
@@ -56,7 +60,8 @@ class expensesRequest(models.Model):
                 'boss_id': employee_id.expense_approver_id.id,
                 'account_number': account_number,
                 'date': datetime.now().date(),
-                'edit_employee': edit
+                'edit_employee': edit,
+                'allow_employee_ids': allow_employee_ids
             })
         return rec
 
