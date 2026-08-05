@@ -103,17 +103,17 @@ class expensesSheetRequest(models.Model):
                 move_line_vals.update({'analytic_distribution': {str(analytic): 100.0}})
             lines.append((0,0,move_line_vals))
 
-        if self.request_id and self.request_id.refund_amount > 0:
-            deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',self.request_id.id),('state','=','validated')])
-            if deposit_ids:
-                for dep in deposit_ids:
-                    total += dep.total
-                    move_line_vals = {
-                        'name': dep.name,
-                        'account_id': dep.journal_id.default_account_id.id,
-                        'debit': dep.total
-                    }
-                    lines.append((0,0,move_line_vals))
+        # if self.request_id and self.request_id.refund_amount > 0:
+        #     deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',self.request_id.id),('state','=','validated')])
+        #     if deposit_ids:
+        #         for dep in deposit_ids:
+        #             total += dep.total
+        #             move_line_vals = {
+        #                 'name': dep.name,
+        #                 'account_id': dep.journal_id.default_account_id.id,
+        #                 'debit': dep.total
+        #             }
+        #             lines.append((0,0,move_line_vals))
 
         if self.infavor_employee_amount > 0:
             desc = ''

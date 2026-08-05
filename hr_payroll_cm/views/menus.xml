@@ -49,6 +49,13 @@
         sequence="82"
         action="action_inc_ded_rules"/>
 
+    <menuitem
+        id="distribution_expense_accounts_menuitem"
+        name="Distribución de cuentas de gastos"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+        sequence="83"
+        action="action_distribution_expense_accounts"/>
+
 <!-- ############################################################################################ -->
 
     <menuitem

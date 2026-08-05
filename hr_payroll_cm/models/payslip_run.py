@@ -377,6 +377,7 @@ class HrPayslipRun(models.Model):
             employee_ids = []
             account_names = []
             department_values = []
+            department_id = self.env['hr.department'].browse(int(dep.get('id')))
             for l in dep.get('lines'):
                 if l.get('account_name') in account_names:
                     department_values[account_names.index(l.get('account_name'))]['amount'] += l.get('amount')
@@ -405,6 +406,20 @@ class HrPayslipRun(models.Model):
 
                 if total_credit < 0:
                     total_credit =  total_credit * -1
+
+                account_id = self.env['account.account'].browse(int(val.get('account_id')))
+                if account_id.account_type == 'expense':
+                    distribution_id = self.env['hr.distribution.expense.accounts'].search([('account_id','=',account_id.id)], limit=1)
+                    if distribution_id:
+                        distribution_line_id = self.env['line.distribution.expense.accounts'].search([('distribution_id','=',distribution_id.id),('department_id','=',department_id.id)], limit=1)
+                        if distribution_line_id:
+                            values.update({
+                                'analytic_account_id': distribution_line_id.account_budget_id.id,
+                                'activity_id': distribution_line_id.process_id.id})
+                        else:
+                            raise ValidationError(f"No se ha configurado una distribucion de cuentas de gastos pttara la cuenta {account_id.name} en el departamento {department_id.name}")
+                    else:
+                        raise ValidationError(f"No se ha configurado una distribucion de cuentas de gastos para la cuenta {account_id.name} en el departamento {department_id.name}")
 
                 values.update({'credit': (total_credit), 'debit': total_debit, 'amount_currency': total_debit - abs(total_credit)})
                 move_lines.append((0, 0, values))
