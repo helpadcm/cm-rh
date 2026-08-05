@@ -374,10 +374,10 @@ class workedDaysInh(models.Model):
                     before_diff = 0
                     after_diff = 0
                     if employee_id.contract_date_start > worked_days.payslip_id.date_from:
-                        before_diff = (worked_days.payslip_id.date_to - employee_id.contract_date_start).days + 1
+                        before_diff = (worked_days.payslip_id.date_to - employee_id.contract_date_start).days
 
                     if employee_id.contract_date_end and employee_id.contract_date_end < worked_days.payslip_id.date_to:
-                        after_diff = (employee_id.contract_date_end - worked_days.payslip_id.date_from).days + 1
+                        after_diff = (employee_id.contract_date_end - worked_days.payslip_id.date_from).days
 
                     diff_total = before_diff + after_diff
                     amount = employee_id.wage
