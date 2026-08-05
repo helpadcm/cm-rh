@@ -42,14 +42,35 @@ class versionInh(models.Model):
         return amount
 
     def calculate_basic(self,payslip):
+        # if payslip.worked_days_line_ids:
+        #     work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
+        #     extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+        #     if work100_amount == 0:
+        #         work100_amount = self.wage
+        #     amount = work100_amount + extras_amount
+        # else:
+        #     amount = self.wage
+        # return amount
         if payslip.worked_days_line_ids:
             work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
             extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+
             if work100_amount == 0:
                 work100_amount = self.wage
+
             amount = work100_amount + extras_amount
         else:
             amount = self.wage
+
+        contract_date = payslip.employee_id.contract_date_start
+
+        # Si el contrato inició durante esta quincena, calcular proporcional
+        if contract_date and payslip.date_from <= contract_date <= payslip.date_to:
+            total_days = (payslip.date_to - payslip.date_from).days
+            worked_days = (payslip.date_to - contract_date).days
+
+            amount = (amount / total_days) * worked_days
+
         return amount
 
 
