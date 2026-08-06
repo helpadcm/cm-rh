@@ -62,15 +62,18 @@ class versionInh(models.Model):
         else:
             amount = self.wage
 
-        contract_date = payslip.employee_id.contract_date_start
+        # contract_end_date = payslip.version_id.contract_date_end
 
         # Si el contrato inició durante esta quincena, calcular proporcional
-        if contract_date and payslip.date_from <= contract_date <= payslip.date_to:
-            total_days = (payslip.date_to - payslip.date_from).days
-            worked_days = (payslip.date_to - contract_date).days
-
-            amount = (amount / total_days) * worked_days
-
+        # extra_day = 0
+        # if contract_end_date and out_line_id:
+        #     if contract_end_date and payslip.date_from <= contract_end_date <= payslip.date_to:
+        #         # total_days = (payslip.date_to - payslip.date_from).days
+        #         # worked_days = (payslip.date_to - contract_end_date).days
+        #         total_days = 15
+        #         extra_day = payslip.version_id.wage/total_days
+        #         amount += extra_day
+                # amount = (amount / total_days) * worked_days
         return amount
 
 
