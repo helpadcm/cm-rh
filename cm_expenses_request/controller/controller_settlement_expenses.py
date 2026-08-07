@@ -108,6 +108,7 @@ class settlementExpensesCont(http.Controller):
             values = {
                 'name': description,
                 'invoice_number': invoice_number,
+                'date': date,
                 'product_id': int(expense_type_id),
                 'description': notes or description,
                 'employee_id': rec_request_id.assign_to_id.id,
