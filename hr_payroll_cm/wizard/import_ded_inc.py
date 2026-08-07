@@ -84,19 +84,23 @@ class importIncomesDeductions(models.TransientModel):
                         amount_total = fees_qty * fixed_fee
 
             if self.options == 'deductions':
+                if not final_date:
+                    raise ValidationError("Debe agregar la fecha de finalizacion")
+
                 values = {
-                    'employee_ids': [(4, employee_id.id)],
-                    'other_input_type_id': type_id.id,
-                    'description': description,
-                    'date_start': initial_date,
-                    'monthly_amount': monthly_amount,
-                    'total_amount': amount_total,
+                    'employee_id': employee_id.id,
+                    'input_type_id': type_id.id,
+                    'name': description,
+                    'start_date': initial_date,
+                    'end_date': final_date,
+                    'amount': amount_total,
+                    'state': 'in_progress',
                     'by_quotes': fees_values,
                     'quotes_number': fees_qty,
                     'fixed_fee': fixed_fee_value
                 }
 
-                deduction_id = self.env['hr.salary.attachment'].create(values)
+                deduction_id = self.env['hr.other.deductions'].create(values)
 
                 if fees_values:
                     deduction_id.create_plan()

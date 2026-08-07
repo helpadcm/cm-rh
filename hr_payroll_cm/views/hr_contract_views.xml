@@ -160,7 +160,7 @@
         </field>
     </record>
 
-    <record id="account_view_form_inherit" model="ir.ui.view">
+    <record id="hr_account_view_form_inherit" model="ir.ui.view">
         <field name="name">account.form.inherit</field>
         <field name="model">account.account</field>
         <field name="inherit_id" ref="account.view_account_form"/>

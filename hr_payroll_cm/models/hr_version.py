@@ -14,14 +14,18 @@ class versionInh(models.Model):
             if code in ['RAP','SSH']:
                 amount, name = self.calculate_rap(code)
             else:
-                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('other_input_type_id.code','=',code)])
+                deduction_ids = self.env['hr.other.deductions'].search([('employee_id','=',self.employee_id.id),('state','=','in_progress'),('input_type_id.code','=',code)])
                 if deduction_ids:
-                    name = ','.join([dedu.description for dedu in deduction_ids])
+                    name = ','.join([dedu.name for dedu in deduction_ids])
                     for ded in deduction_ids:
-                        if ded.other_input_type_id.code == code:
-                            payslip.salary_attachment_ids = [(4, ded.id)]
+                        if ded.input_type_id.code == code:
+                            # payslip.salary_attachment_ids = [(4, ded.id)]
                             if not ded.by_quotes:
-                                amount += ded.monthly_amount
+                                amount += ded.amount
+                                if not payslip:
+                                    raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
+                                    
+                                ded.payslip_id = payslip.id
                             else:
                                 if not payslip:
                                     raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")

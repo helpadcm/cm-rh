@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="view_other_incomes_form" model="ir.ui.view">
-        <field name="name">other_incomes.form</field>
-        <field name="model">hr.other.incomes</field>
+    <record id="view_other_deductions_form" model="ir.ui.view">
+        <field name="name">other_deductions.form</field>
+        <field name="model">hr.other.deductions</field>
         <field name="arch" type="xml">
             <form string="Otros ingresos">
                 <header>
@@ -11,7 +11,11 @@
                     <field name="state" widget="statusbar" readonly="1"/>
                 </header>
                 <sheet>
-                    <h1><field name="name" readonly="state != 'draft'" required="1" placeholder="Nombre del ingreso"/></h1>
+                    <div class="oe_button_box" name="button_box"> 
+                        <button name="show_payroll" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['in_progress']">Recibos de Nomina</button>
+                        <button name="show_deductions" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['in_progress']">Deducciones</button>
+                    </div>
+                    <h1><field name="name" readonly="state != 'draft'" required="1" placeholder="Nombre de la deduccion"/></h1>
                     <group>
                         <group>
                             <field name="employee_id" readonly="state != 'draft'" required="1" options="{'no_create': True}" widget="many2one_avatar_employee"/>
@@ -19,7 +23,7 @@
                             <field name="end_date" readonly="state != 'draft'" required="not by_quotes"/>
                         </group>
                         <group>
-                            <field name="input_type_id" readonly="state != 'draft'" domain="[('entry_type','=','income')]" required="1" options="{'no_create': True}"/>
+                            <field name="input_type_id" readonly="state != 'draft'" domain="[('entry_type','=','deduction')]" required="1" options="{'no_create': True}"/>
                             <field name="amount" readonly="state != 'draft'"/>
                             <field name="by_quotes" readonly="state != 'draft'"/>
                         </group>
@@ -31,6 +35,7 @@
                         </group>
                         <group>
                             <field name="quotes_number" readonly="state != 'draft'"/>
+                            <field name="fixed_fee" readonly="state != 'draft'"/>
                         </group>
                     </group>
                     <notebook>
@@ -40,6 +45,9 @@
                                     <field name="number" readonly="1"/>
                                     <field name="date" readonly="1"/>
                                     <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="payslip_id" column_invisible="1"/>
+                                    <field name="deduction_created" column_invisible="1"/>
+                                    <field name="rec_deduction_id" column_invisible="1"/>
                                     <field name="state" readonly="1"/>
                                 </list>
                             </field>
@@ -51,11 +59,12 @@
         </field>
     </record>
     
-    <record id="view_other_incomes_tree" model="ir.ui.view">
-        <field name="name">other.incomes.tree</field>
-        <field name="model">hr.other.incomes</field>
+    <record id="view_other_deductions_tree" model="ir.ui.view">
+        <field name="name">other.deductions.tree</field>
+        <field name="model">hr.other.deductions</field>
         <field name="arch" type="xml">
-            <list string="Otros ingresos">
+            <list string="Deducciones">
+                <field name="name" />
                 <field name="employee_id"/>
                 <field name="input_type_id"/>
                 <field name="start_date"/>
@@ -66,9 +75,9 @@
         </field>
     </record>
 
-    <record id="view_other_incomes_search" model="ir.ui.view">
-        <field name="name">other.incomes.search</field>
-        <field name="model">hr.other.incomes</field>
+    <record id="view_other_deductions_search" model="ir.ui.view">
+        <field name="name">other.deductions.search</field>
+        <field name="model">hr.other.deductions</field>
         <field name="arch" type="xml">
             <search string="Busqueda otros ingresos">
                 <field name="name"/>
@@ -79,16 +88,16 @@
                 <filter string="Completado" name="completed_filter" domain="[('state','=','completed')]"/>
                 <group>
                     <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
-                    <filter string="Tipo de Ingreso" name="input_type_group" context="{'group_by':'input_type_id'}"/>
+                    <filter string="Tipo de Deduccion" name="input_type_group" context="{'group_by':'input_type_id'}"/>
                     <filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <record id="action_other_incomes" model="ir.actions.act_window">
-        <field name="name">Ingresos Salariales</field>
-        <field name="res_model">hr.other.incomes</field>
+    <record id="action_other_deductions" model="ir.actions.act_window">
+        <field name="name">Deducciones</field>
+        <field name="res_model">hr.other.deductions</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

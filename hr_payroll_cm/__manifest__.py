@@ -24,6 +24,7 @@
         'views/historical_deductions_view.xml',
         'views/hr_contract_views.xml',
         'views/other_incomes_view.xml',
+        'views/deductions_view.xml',
         'views/inc_ded_rules_view.xml',
         'views/distribution_accounts.xml',
         # 'reports/hr_payroll_employee_report_view.xml',

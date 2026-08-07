@@ -59,9 +59,18 @@
 <!-- ############################################################################################ -->
 
     <menuitem
+        id="other_deductions_menuitem"
+        name="Deducciones Salariales"
+        parent="hr_payroll.menu_hr_payroll_employees"
+        groups="hr_payroll_cm.manager_rrhh_cm"
+        sequence="40"
+        action="action_other_deductions"/>
+    
+    <menuitem
         id="other_incomes_menuitem"
         name="Ingresos Salariales"
         parent="hr_payroll.menu_hr_payroll_employees"
+        groups="hr_payroll_cm.manager_rrhh_cm"
         sequence="40"
         action="action_other_incomes"/>
 
