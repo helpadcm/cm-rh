@@ -8,6 +8,7 @@
 
             <xpath expr="//page[@name='work_information']//group[field[@name='parent_id']]" position="inside">
                 <field name="seniority"/>
+                <field name="contract_date_start" string="Inicio de contrato"/>
             </xpath>
 
             <group name="payroll_group" position="inside">
