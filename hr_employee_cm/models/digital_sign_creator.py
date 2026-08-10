@@ -30,6 +30,14 @@ class digitalSignCreator(models.TransientModel):
     address = fields.Char(string="Direccion")
     mobile = fields.Char(string="Telefono")
 
+    @api.constrains('name')
+    def _check_name_capitalization(self):
+        for record in self:
+            if record.name and record.name != record.name.title():
+                raise ValidationError(
+                    "El nombre debe tener la primera letra de cada palabra en mayúscula."
+                )
+
     @api.onchange("employee_id")
     def get_employee_data(self):
         if self.employee_id:
