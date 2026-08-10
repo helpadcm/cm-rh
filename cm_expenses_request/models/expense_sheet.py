@@ -160,7 +160,7 @@ class expensesSheetRequest(models.Model):
             'line_ids': lines
         }
 
-        move_id = self.env['account.move'].create(move_vals)
+        move_id = self.env['account.move'].sudo().create(move_vals)
         move_id.action_post()
         self.move_id = move_id.id
 
