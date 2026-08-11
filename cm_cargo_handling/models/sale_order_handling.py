@@ -601,7 +601,7 @@ class saleOrderHandling(models.Model):
                 'internal_number': 'Borrador',
             }
 
-            self.move_id = self.env['account.move'].create(move_vals)
+            self.move_id = self.env['account.move'].sudo().create(move_vals)
 
             line_vals = {
                 'product_id': self.product_id.id,
@@ -636,7 +636,7 @@ class saleOrderHandling(models.Model):
                     'source_id': source_id.id
                 })
 
-            self.env['account.move.line'].create(line_vals)
+            self.env['account.move.line'].sudo().create(line_vals)
 
         if self.modality in ['counted','credit']:
             if self.modality == 'credit' and not self.created_invoice:
