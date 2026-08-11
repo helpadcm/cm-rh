@@ -7,11 +7,14 @@ selection_type = [
     ('department','Por departamento'),
 ]
 
+levels = [('1', 'Nivel 1'),('2', 'Nivel 2'),('3', 'Nivel 3'),('4', 'Nivel 4'),('5', 'Nivel 5')]
+
 class Employee(models.Model):
     _inherit = 'hr.employee'
 
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
     resident_number = fields.Char(string="Número de Residencia")
+    level_number = fields.Selection(levels, string="Nivel del empleado", default="5")
 
     def get_employee_no(self):
         for employee in self:
@@ -22,6 +25,7 @@ class employeePublic(models.Model):
 
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
     resident_number = fields.Char(string="Número de Residencia")
+    level_number = fields.Selection(levels, string="Nivel del empleado", default="5")
 
 class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'

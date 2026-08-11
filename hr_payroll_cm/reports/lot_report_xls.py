@@ -237,6 +237,7 @@ class lotFormatXlsx(models.AbstractModel):
                 'employee': payslip.employee_id.name,
                 'job': payslip.employee_id.job_id.name,
                 'monthly_salary': payslip.employee_id.wage * 2,
+                'level': int(payslip.employee_id.level_number),
                 'salary': payslip.employee_id.wage,
                 'deductions': deductions,
                 'incomes': incomes
@@ -248,7 +249,10 @@ class lotFormatXlsx(models.AbstractModel):
 
             for department in departments_dict.values():
                 department['employees'].sort(
-                    key=lambda e: e['contract_init_date'] or fields.Date.today()
+                    key=lambda e: (
+                        e['level'] or 0,
+                        e['contract_init_date'] or fields.Date.today()
+                    )
                 )
 
         departments_dict = OrderedDict(

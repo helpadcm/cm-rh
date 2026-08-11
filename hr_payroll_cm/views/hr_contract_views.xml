@@ -109,6 +109,7 @@
             </field>
             <field name="resource_calendar_id" position="after">
                 <field name="skip_rules_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                <field name="level_number"/>
             </field>
         </field>
     </record>
