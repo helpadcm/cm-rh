@@ -90,6 +90,7 @@ class expensesRequest(models.Model):
     need_tickets = fields.Boolean(string="Necesita boletos",tracking=True)
     need_transport = fields.Boolean(string="Necesita transporte",tracking=True)
     need_hotel = fields.Boolean(string="Necesita hotel",tracking=True)
+    hotel_specifications = fields.Text(string="Especificaciones de hotel")
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto",tracking=True)
     process_id = fields.Many2one('crossovered.activity', string="Proceso",tracking=True)
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
@@ -229,9 +230,11 @@ class expensesRequest(models.Model):
                 if self.boss_id.user_id.id != self.env.user.id and next_state == 'approved':
                     raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
 
-            # if next_state == 'approved':
-            #     if self.need_tickets:
-            #         self.create_ticket_request()
+            if next_state == 'approved':
+                if self.need_hotel:
+                    self.send_email_hotel()
+                # if self.need_tickets:
+                #     self.create_ticket_request()
 
             self.send_email(next_state)
 
@@ -263,6 +266,17 @@ class expensesRequest(models.Model):
             self.send_email(next_state)
 
         self.state = next_state
+
+    def send_email_hotel(self):
+        mail = self.env['mail.mail'].sudo().create({
+            'subject': f"Solicitud de hotel creada por {self.assign_to_id.name} mediante solicitud de viaticos {self.name}",
+            'body_html': f"""<p>El empleado {self.assign_to_id.name} solicita la reservacion de hotel por motivos de {self.purpose} con las siguientes especificaciones: </p></br>
+                        {self.hotel_specifications}""",
+            'email_from': self.assign_to_id.user_id.login,
+            'email_to': 'esevilla@cmairlines.com',
+            'email_cc': 'rosa@cmairlines.com',
+        })
+        mail.send()
 
     def create_ticket_request(self):
         program_id = self.env['cm.ticket.request.program'].search([('code','=','VIAT')])

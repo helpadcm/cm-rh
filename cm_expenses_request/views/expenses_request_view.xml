@@ -74,6 +74,9 @@
                                 <field name="need_hotel" readonly="state != 'draft'"/>
                             </group>
                         </group>
+                        <group>
+                            <field name="hotel_specifications" placeholder="Agregue las especificaciones para la reservacion de hotel como fechas y ciudades de estadia" invisible="not need_hotel" required="need_hotel" readonly="state != 'draft'"/>
+                        </group>
                         <group string="Totales">
                             <group>
                                 <field name="advance_amount" readonly="1" force_save="1"/>
