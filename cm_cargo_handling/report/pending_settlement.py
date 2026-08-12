@@ -45,7 +45,10 @@ class pendingSettlementReport(models.AbstractModel):
             if not payment.cash_register_id or payment.cash_register_id.state == 'draft':
                 state = ''
                 if payment.cash_register_id:
-                    state = payment.cash_register_id._fields['state'].convert_to_export(payment.cash_register_id.state, payment.cash_register_id)
+                    if payment.cash_register_id.state == 'draft':
+                        state = 'En proceso de cierre'
+                    else:
+                        state = payment.cash_register_id._fields['state'].convert_to_export(payment.cash_register_id.state, payment.cash_register_id)
                 vals = {
                     'number': payment.name,
                     'date': payment.date.strftime('%d/%m/%Y'),

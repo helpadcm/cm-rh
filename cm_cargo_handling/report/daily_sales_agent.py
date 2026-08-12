@@ -56,6 +56,8 @@ class dailySalesAgent(models.AbstractModel):
                     'total_cash_usd': 0,
                     'total_credit_lps': 0,
                     'total_credit_usd': 0,
+                    'total_transfer_lps': 0,
+                    'total_transfer_usd': 0,
                     'total_lps': 0,
                     'total_usd': 0,
                 }
@@ -66,18 +68,24 @@ class dailySalesAgent(models.AbstractModel):
                 employee['total_cash_lps'] += payment.amount_company_currency_signed
                 employee['total_cash_usd'] += payment.total_usd
 
+            elif payment.journal_id.code == 'TRBKS':
+                employee['total_transfer_lps'] += payment.amount_company_currency_signed
+                employee['total_transfer_usd'] += payment.total_usd
+
             elif payment.journal_id.code != 'PGCM':
                 employee['total_credit_lps'] += payment.amount_company_currency_signed
                 employee['total_credit_usd'] += payment.total_usd
 
             employee['total_lps'] = (
                 employee['total_cash_lps'] +
-                employee['total_credit_lps']
+                employee['total_credit_lps'] +
+                employee['total_transfer_lps']
             )
 
             employee['total_usd'] = (
                 employee['total_cash_usd'] +
-                employee['total_credit_usd']
+                employee['total_credit_usd'] +
+                employee['total_transfer_usd']
             )
 
         result = []

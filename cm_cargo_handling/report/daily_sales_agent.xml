@@ -38,16 +38,20 @@
                                 <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:left">Empleado</th>
                                 <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Efectivo (LPS)</th>
                                 <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Efectivo (USD)</th>
-                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Credito (LPS)</th>
-                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Credito (USD)</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Trans. (LPS)</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Trans. (USD)</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Tarjeta (LPS)</th>
+                                <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Tarjeta (USD)</th>
                                 <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Total (LPS)</th>
                                 <th style="padding:3px;border-top:1px solid #CDCDCD;text-align:right">Total (USD)</th>
                             </tr>
                             <t t-set="cont" t-value="1"/>
                             <t t-set="t_cash_lps" t-value="0"/>
                             <t t-set="t_credit_lps" t-value="0"/>
+                            <t t-set="t_transfer_lps" t-value="0"/>
                             <t t-set="t_cash_usd" t-value="0"/>
                             <t t-set="t_credit_usd" t-value="0"/>
+                            <t t-set="t_transfer_usd" t-value="0"/>
                             <t t-set="t_lps" t-value="0"/>
                             <t t-set="t_usd" t-value="0"/>
                             <t t-foreach="day.get('employees')" t-as="employee">
@@ -56,6 +60,8 @@
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;"><span t-esc="employee.get('employee')"/></td>
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_cash_lps'))"/></td>
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_cash_usd'))"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_transfer_lps'))"/></td>
+                                    <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_transfer_usd'))"/></td>
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_credit_lps'))"/></td>
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_credit_usd'))"/></td>
                                     <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><span t-esc="'{0:,.2f}'.format(employee.get('total_lps'))"/></td>
@@ -66,6 +72,8 @@
                                 <t t-set="t_cash_usd" t-value="t_cash_usd + (employee.get('total_cash_usd'))"/>
                                 <t t-set="t_credit_lps" t-value="t_credit_lps + (employee.get('total_credit_lps'))"/>
                                 <t t-set="t_credit_usd" t-value="t_credit_usd + (employee.get('total_credit_usd'))"/>
+                                <t t-set="t_transfer_lps" t-value="t_transfer_lps + (employee.get('total_transfer_lps'))"/>
+                                <t t-set="t_transfer_usd" t-value="t_transfer_usd + (employee.get('total_transfer_usd'))"/>
                                 <t t-set="t_lps" t-value="t_lps + (employee.get('total_lps'))"/>
                                 <t t-set="t_usd" t-value="t_usd + (employee.get('total_usd'))"/>
                             </t>
@@ -73,6 +81,8 @@
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:center" colspan="2"><strong>TOTAL</strong></td>
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_cash_lps)"/></strong></td>
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_cash_usd)"/></strong></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_transfer_lps)"/></strong></td>
+                                <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_transfer_usd)"/></strong></td>
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_credit_lps)"/></strong></td>
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_credit_usd)"/></strong></td>
                                 <td style="padding:3px;border-top:1px solid #CDCDCD;text-align:right"><strong><span t-esc="'{0:,.2f}'.format(t_lps)"/></strong></td>
