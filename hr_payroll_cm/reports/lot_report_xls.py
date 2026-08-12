@@ -148,6 +148,9 @@ class lotFormatXlsx(models.AbstractModel):
         deductions_name = []
         incomes_name = []
 
+        deductions_sequence = {}
+        incomes_sequence = {}
+
         payslips = self.env['hr.payslip'].search([('payslip_run_id', 'in', docids)])
         payslip_name = ''
         for payslip in payslips:
@@ -158,9 +161,11 @@ class lotFormatXlsx(models.AbstractModel):
 
             if 'Salario Mensual' not in incomes_name:
                 incomes_name.append('Salario Mensual')
+                incomes_sequence['Salario Mensual'] = 1
 
             if 'Salario Quincenal' not in incomes_name:
                 incomes_name.append('Salario Quincenal')
+                incomes_sequence['Salario Quincenal'] = 2
 
             fortnight_amount = payslip.employee_id.wage
             if payslip.worked_days_line_ids:
@@ -201,32 +206,49 @@ class lotFormatXlsx(models.AbstractModel):
                 #     wage_amount = lines[-1].amount
                 #     fortnight_amount = wage_amount / 2
 
-            incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ'})
-            incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM'})
+            incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ', 'sequence': 1})
+            incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM', 'sequence': 2})
             
             if payslip.worked_days_line_ids and payslip.use_worked_day_lines:
                 for entry in payslip.worked_days_line_ids:
-                    if entry.work_entry_type_id.code != 'WORK100':
+                    if entry.work_entry_type_id.code != 'WORK100' and entry.work_entry_type_id.code != 'OUT':
                         if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' not in incomes_name:
                             incomes_name.append('Horas Extra')
                             incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
+                            incomes_sequence['Horas Extra'] = 4
                         elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' in incomes_name:
                             incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
+                            incomes_sequence['Horas Extra'] = 4
 
                         if entry.work_entry_type_id.name not in incomes_name:
                             incomes_name.append(entry.work_entry_type_id.name)
+                            incomes_sequence['Horas Extra'] = 4
                         
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 3
 
             for line in payslip.line_ids:
                 if line.category_id.code == 'ALW':
-                    if line.salary_rule_id.name not in incomes_name:
-                        incomes_name.append(line.salary_rule_id.name)
+                    rule_name = line.salary_rule_id.name
+                    sequence = line.salary_rule_id.sequence
+
+                    if rule_name not in incomes_name:
+                        incomes_name.append(rule_name)
+                        incomes_sequence[rule_name] = sequence
+
+                    # if line.salary_rule_id.name not in incomes_name:
+                    #     incomes_name.append(line.salary_rule_id.name)
                     incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
                 if line.category_id.code == 'DED':
-                    if line.salary_rule_id.name not in deductions_name:
-                        deductions_name.append(line.salary_rule_id.name)
+                    # if line.salary_rule_id.name not in deductions_name:
+                    #     deductions_name.append(line.salary_rule_id.name)
+                    rule_name = line.salary_rule_id.name
+                    sequence = line.salary_rule_id.sequence
+
+                    if rule_name not in deductions_name:
+                        deductions_name.append(rule_name)
+                        deductions_sequence[rule_name] = sequence
                     deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
             employee_vals = {
@@ -260,6 +282,14 @@ class lotFormatXlsx(models.AbstractModel):
                 departments_dict.items(),
                 key=lambda item: item[1]['level'] or 0
             )
+        )
+
+        incomes_name.sort(
+            key=lambda name: incomes_sequence.get(name, 9999)
+        )
+
+        deductions_name.sort(
+            key=lambda name: deductions_sequence.get(name, 9999)
         )
 
         return {'department_data': departments_dict, 'deductions_name': deductions_name, 'incomes_name': incomes_name, 'payslip_name': payslip_name}
