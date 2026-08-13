@@ -14,3 +14,10 @@ class pendingSettlementReportInh(models.TransientModel):
             return self.env.ref('settlement.action_pending_settlement_xlsx').report_action(self,data=data)
         else:
             return self.env.ref('cm_cargo_handling.action_pending_settlement_report_pdf').report_action(self,data=data)
+
+    def print_guides(self):
+        data = {
+            'initial_date': self.initial_date,
+            'final_date': self.final_date
+        }
+        return self.env.ref('cm_cargo_handling.action_pending_upon_delivery_xlsx').report_action(self,data=data)

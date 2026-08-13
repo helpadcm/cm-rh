@@ -19,6 +19,7 @@
 		'wizards/discard_guide.xml',
 		'wizards/handling_report_view.xml',
 		'wizards/daily_sales_agent_view.xml',
+		'wizards/pending_settlement_view_inh.xml',
 		'views/cargo_bill_view.xml',
 		'views/cargo_type_view.xml',
 		'views/airport_view.xml',

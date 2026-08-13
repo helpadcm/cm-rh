@@ -13,3 +13,4 @@ from . import daily_sales_xls
 from . import group_guide
 from . import daily_sales_agent
 from . import pending_settlement
+from . import pending_upon_delivery
