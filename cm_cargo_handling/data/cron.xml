@@ -49,5 +49,15 @@
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
         </record>
+
+        <record model="ir.cron" id="finalize_manifest_cron">
+            <field name="name">Manifiestos: Marcar como recibido manifiestos de PEU</field>
+            <field name="model_id" ref="cm_cargo_handling.model_cargo_manifest"/>
+            <field name="code">model.finalized_manifest()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">7</field>
+            <field name="interval_type">days</field>
+        </record>
     </data>
 </odoo>
