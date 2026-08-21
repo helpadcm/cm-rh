@@ -62,6 +62,15 @@ class salaryRulesInh(models.Model):
                 })
         return rules
 
+class workEntryInh(models.Model):
+    _inherit = 'hr.work.entry'
+
+    @api.model
+    def delete_conflict(self):
+        entry_ids = self.search([('state','=','conflict')])
+        if entry_ids:
+            entry_ids.sudo().unlink()
+
 class accountAccountInh(models.Model):
     _inherit = 'account.account'
 

@@ -16,7 +16,7 @@ class otherDeductions(models.Model):
     end_date = fields.Date(string="Fecha Final", tracking=True)
     amount = fields.Float(string="Monto", tracking=True)
     total_amount = fields.Float(string="Monto Total", tracking=True)
-    state = fields.Selection([('draft','Borrador'),('in_progress','En proceso'),('completed','Completado')],string="Estado",default="draft", tracking=True)
+    state = fields.Selection([('draft','Borrador'),('in_progress','En proceso'),('completed','Completado'),('cancel','Cancelado')],string="Estado",default="draft", tracking=True)
     payslip_id = fields.Many2one('hr.payslip', string='Nomina')
     rec_deduction_id = fields.Many2one('hr.salary.attachment',string="Rec. Deduccion")
     payment_plan_ids = fields.One2many('other.deductions.payment.plan','other_deduction_id',string="Plan de pago")
@@ -25,6 +25,39 @@ class otherDeductions(models.Model):
     quotes_number = fields.Integer(string="Cuotas")
     by_quotes = fields.Boolean(string="Por Cuotas")
     fixed_fee = fields.Float(string="Cuota fija")
+    payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
+    pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
+
+    @api.depends(
+        'payslip_id',
+        'payslip_id.state',
+        'payment_plan_ids',
+        'payment_plan_ids.state',
+        'payment_plan_ids.amount',
+        'by_quotes',
+        'amount')
+    def get_amounts(self):
+        for rec in self:
+            total_payment_amount = 0
+            total_pending_amount = 0
+            if rec.by_quotes:
+                for line in rec.payment_plan_ids:
+                    if line.state == 'paid':
+                        total_payment_amount += line.amount
+
+                    if line.state in ['draft','validated',False,None]:
+                        total_pending_amount += line.amount
+            else:
+                if rec.payslip_id:
+                    if rec.payslip_id.state == 'paid':
+                        total_payment_amount = rec.amount
+                    if rec.payslip_id.state in ['draft','validated',False,None]:
+                        total_pending_amount = rec.amount
+                else:
+                    total_pending_amount = rec.amount
+            
+            rec.payment_amount = total_payment_amount
+            rec.pending_amount = total_pending_amount
 
     @api.onchange('input_type_id')
     def _onchange_input_type_id(self):
@@ -37,6 +70,9 @@ class otherDeductions(models.Model):
 
     def send_draft(self):
         self.state = 'draft'
+
+    def send_cancel(self):
+        self.state = 'cancel'
 
     @api.constrains('start_date','end_date')
     def _validate_dates(self):

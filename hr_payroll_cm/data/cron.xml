@@ -22,6 +22,17 @@
             <field name="interval_type">days</field>
         </record>
 
+        <record id="ir_cron_delete_conflits" model="ir.cron">
+            <field name="name">Entradas de trabajo: Eliminar registros en conflicto</field>
+            <field name="model_id" ref="hr_work_entry.model_hr_work_entry"/>
+            <field name="state">code</field>
+            <field name="code">model.delete_conflict()</field>
+            <field name="active" eval="False"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+        </record>
+
         <record id="action_server_finalize_incomes" model="ir.actions.server">
             <field name="name">Finalizar Ingreso</field>
             <field name="model_id" ref="hr_payroll_cm.model_hr_other_incomes"/>

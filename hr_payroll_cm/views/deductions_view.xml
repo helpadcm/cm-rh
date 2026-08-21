@@ -8,6 +8,7 @@
                 <header>
                     <button string="En progreso" name="change_state" invisible="state != 'draft'" type="object" class="oe_highlight"/>
                     <button string="Regresar a Borrador" name="send_draft" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <button string="Cancelar" name="send_cancel" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
                     <field name="state" widget="statusbar" readonly="1"/>
                 </header>
                 <sheet>
@@ -21,16 +22,18 @@
                             <field name="employee_id" readonly="state != 'draft'" required="1" options="{'no_create': True}" widget="many2one_avatar_employee"/>
                             <field name="start_date" readonly="state != 'draft'" required="1"/>
                             <field name="end_date" readonly="state != 'draft'" required="not by_quotes"/>
+                            <field name="payment_amount"/>
                         </group>
                         <group>
                             <field name="input_type_id" readonly="state != 'draft'" domain="[('entry_type','=','deduction')]" required="1" options="{'no_create': True}"/>
                             <field name="amount" readonly="state != 'draft'"/>
                             <field name="by_quotes" readonly="state != 'draft'"/>
+                            <field name="pending_amount"/>
                         </group>
                     </group>
                     <group name="name" string="Configuracion plan" invisible="not by_quotes">
                         <group>
-                            <field name="payment_type" required="1"/>
+                            <field name="payment_type" readonly="state != 'draft'" required="1"/>
                             <field name="monthly_type" invisible="payment_type != 'monthly'" required="payment_type == 'monthly'"/>
                         </group>
                         <group>
@@ -39,12 +42,12 @@
                         </group>
                     </group>
                     <notebook>
-                        <page name="payment_plan" string="Plan de pago" invisible="not by_quotes">
+                        <page name="payment_plan" string="Plan de pago" invisible="not by_quotes" readonly="state in ['completed','cancel']">
                             <field name="payment_plan_ids">
-                                <list editable="bottom" create="false">
+                                <list editable="bottom" create="false" delete="false">
                                     <field name="number" readonly="1"/>
                                     <field name="date" readonly="1"/>
-                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="amount" readonly="state not in ['draft',False]" sum="Total"/>
                                     <field name="payslip_id" column_invisible="1"/>
                                     <field name="deduction_created" column_invisible="1"/>
                                     <field name="rec_deduction_id" column_invisible="1"/>
@@ -71,6 +74,8 @@
                 <field name="end_date"/>
                 <field name="fixed_fee" sum="Cuotas fijas"/>
                 <field name="amount" sum="Total"/>
+                <field name="payment_amount" sum="Total pagado"/>
+                <field name="pending_amount" sum="Total pendiente"/>
                 <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'completed'" decoration-success="state == 'in_progress'"/>
             </list>
         </field>
