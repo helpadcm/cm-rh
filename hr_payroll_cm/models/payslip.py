@@ -371,23 +371,45 @@ class workedDaysInh(models.Model):
                     amount_days = hours_amount * worked_days.number_of_hours
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':
-                    before_diff = 0
-                    after_diff = 0
-                    if employee_id.contract_date_start > worked_days.payslip_id.date_from:
-                        before_diff = (worked_days.payslip_id.date_to - employee_id.contract_date_start).days
+                    date_from = worked_days.payslip_id.date_from
+                    date_to = worked_days.payslip_id.date_to
 
-                    if employee_id.contract_date_end and employee_id.contract_date_end < worked_days.payslip_id.date_to:
-                        after_diff = (employee_id.contract_date_end - worked_days.payslip_id.date_from).days + 1
+                    contract_start = employee_id.contract_date_start
+                    contract_end = employee_id.contract_date_end
 
-                    diff_total = before_diff + after_diff
-                    amount = employee_id.wage
-                    day_amount = employee_id.wage/15
-                    diff_days_amount = 0
-                    if diff_total > 0:
-                        diff_days_amount = day_amount * diff_total
-                        amount_days = diff_days_amount
-                    else:
-                        amount_days = employee_id.contract_wage
+                    # Por defecto, salario completo
+                    amount_days = employee_id.contract_wage
+
+                    # Verificar si el inicio o final del contrato
+                    # están dentro del período de la nómina
+                    contract_affects_period = (
+                        (contract_start and date_from <= contract_start <= date_to)
+                        or
+                        (contract_end and date_from <= contract_end <= date_to)
+                    )
+
+                    if contract_affects_period:
+
+                        # Fecha desde la que se debe pagar
+                        payment_start = max(
+                            date_from,
+                            contract_start
+                        ) if contract_start else date_from
+
+                        # Fecha hasta la que se debe pagar
+                        payment_end = min(
+                            date_to,
+                            contract_end
+                        ) if contract_end else date_to
+
+                        # Días trabajados, incluyendo ambos días
+                        days_worked = (payment_end - payment_start).days + 1
+
+                        # Salario diario usando 30 días
+                        daily_amount = employee_id.contract_wage / 30
+
+                        # Salario proporcional
+                        amount_days = daily_amount * days_worked
                 else:
                     attendance_hours = sum(
                         wd.number_of_hours for wd in worked_days.payslip_id.worked_days_line_ids
