@@ -406,7 +406,7 @@ class workedDaysInh(models.Model):
                         days_worked = (payment_end - payment_start).days + 1
 
                         # Salario diario usando 30 días
-                        daily_amount = employee_id.contract_wage / 30
+                        daily_amount = (employee_id.contract_wage * 2) / 30
 
                         # Salario proporcional
                         amount_days = daily_amount * days_worked
