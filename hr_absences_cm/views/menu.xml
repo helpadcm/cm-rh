@@ -21,4 +21,12 @@
         action="action_vacations_details"
         groups="base.group_no_one"
         sequence="120"/>
+
+    <menuitem
+        id="beneficiaries_details_menuitem"
+        name="Detalles de Beneficiarios"
+        parent="hr.menu_human_resources_configuration"
+        action="action_beneficiaries_details"
+        groups="base.group_no_one"
+        sequence="121"/>
 </odoo>

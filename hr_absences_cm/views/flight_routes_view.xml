@@ -37,6 +37,22 @@
         </field>
     </record>
 
+    <record id="beneficiaries_details_list" model="ir.ui.view">
+        <field name="name">beneficiaries.detail.tree</field>
+        <field name="model">beneficiaries.detail.list</field>
+        <field name="arch" type="xml">
+            <list string="Beneficiarios" editable="bottom">
+                <field name="employee_id"/>
+                <field name="name" required="1"/>
+                <field name="identity" />
+                <field name="birthday"/>
+                <field name="relationship"/>
+                <field name="observation"/>
+                <field name="is_employee"/>
+            </list>
+        </field>
+    </record>
+
     <record id="action_flight_routes" model="ir.actions.act_window">
         <field name="name">Rutas de Vuelo</field>
         <field name="res_model">flight.routes</field>
@@ -52,6 +68,12 @@
     <record id="action_vacations_details" model="ir.actions.act_window">
         <field name="name">Detalles de vacaciones</field>
         <field name="res_model">vacations.detail.list</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_beneficiaries_details" model="ir.actions.act_window">
+        <field name="name">Detalles de beneficiarios</field>
+        <field name="res_model">beneficiaries.detail.list</field>
         <field name="view_mode">list</field>
     </record>
 </odoo>
