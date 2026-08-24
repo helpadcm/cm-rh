@@ -2,7 +2,7 @@
 <odoo>
     <menuitem 
         id="expenses_request_root" 
-        name="Solicitud de Viaticos/Gastos" 
+        name="COBUS" 
         action="action_expenses_request"
         web_icon="cm_expenses_request,static/description/icon.jpg"
         groups="group_expenses_request_user,group_expenses_request_boss,group_expenses_request_manager,group_expenses_request_purchase,group_expenses_request_responsible"
@@ -18,7 +18,7 @@
 
     <menuitem 
         id="expenses_request_menuitem" 
-        name="Solicitud de Viaticos" 
+        name="COBUS" 
         action="action_expenses_request" 
         parent="cm_request_menu"
     />

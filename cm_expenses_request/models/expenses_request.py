@@ -90,7 +90,7 @@ class expensesRequest(models.Model):
     need_tickets = fields.Boolean(string="Necesita boletos",tracking=True)
     need_transport = fields.Boolean(string="Necesita transporte",tracking=True)
     need_hotel = fields.Boolean(string="Necesita hotel",tracking=True)
-    hotel_specifications = fields.Text(string="Especificaciones de hotel")
+    hotel_specifications = fields.Text(string="Especificaciones de hotel",tracking=True)
     reason_expense = fields.Selection([('tour','Gira'),('training','Capacitación')],string="Motivo de gasto",tracking=True)
     process_id = fields.Many2one('crossovered.activity', string="Proceso",tracking=True)
     process_ids = fields.Many2many('crossovered.activity',string="Procesos permitidos")
@@ -105,6 +105,7 @@ class expensesRequest(models.Model):
 
     tickets_request_ids = fields.One2many('cm.expenses.request.ticket','expense_request_id',string="Solicitud de boletos")
     quote_amount_tickets = fields.Float(string="Cotizacion Boletos",compute="calculate_totals")
+    ctis_hotels_ids = fields.Many2many('cargo.airport',string="Reservar hotel en:")
 
     def refunded_balance(self):
         if self.refund_state == 'without_refund':
@@ -212,8 +213,14 @@ class expensesRequest(models.Model):
             if len(self.request_details_ids) == 0:
                 raise ValidationError("Debe agregar al menos una linea en los detalles de gastos")
 
-            # if self.need_tickets and len(self.tickets_request_ids) == 0:
-            #     raise ValidationError("Si necesita boletos, debe ingresar los datos para solicitud de boletos")
+            if self.need_tickets: 
+                if len(self.tickets_request_ids) == 0:
+                    raise ValidationError("Si necesita boletos, debe ingresar los datos para solicitud de boletos")
+
+                for line in self.tickets_request_ids:
+                    if not line.passport_file:
+                        raise ValidationError("Debe agregar fotocopia de su identidad o pasaporte en su solicitud de boletos aereos.")
+                
 
             if self.name == 'Borrador':
                 sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
@@ -233,8 +240,8 @@ class expensesRequest(models.Model):
             if next_state == 'approved':
                 if self.need_hotel:
                     self.send_email_hotel()
-                # if self.need_tickets:
-                #     self.create_ticket_request()
+                if self.need_tickets:
+                    self.create_ticket_request()
 
             self.send_email(next_state)
 
@@ -268,8 +275,12 @@ class expensesRequest(models.Model):
         self.state = next_state
 
     def send_email_hotel(self):
+        ctis_name = ''
+        if self.ctis_hotels_ids:
+            ctis_name = ', '.join([cti.ref for cti in self.ctis_hotels_ids])
+
         mail = self.env['mail.mail'].sudo().create({
-            'subject': f"Solicitud de hotel creada por {self.assign_to_id.name} mediante solicitud de viaticos {self.name}",
+            'subject': f"Solicitud de hotel creada por {self.assign_to_id.name} en las estaciones {ctis_name} mediante solicitud de viaticos {self.name}",
             'body_html': f"""<p>El empleado {self.assign_to_id.name} solicita la reservacion de hotel por motivos de {self.purpose} con las siguientes especificaciones: </p></br>
                         {self.hotel_specifications}""",
             'email_from': self.assign_to_id.user_id.login,
@@ -285,7 +296,9 @@ class expensesRequest(models.Model):
                 vals = {
                     'airline_id': line.airline_id.id,
                     'program_id': program_id.id,
+                    'program_code': program_id.zenith_code,
                     'user_id': self.assign_to_id.user_id.id,
+                    'boss_id': self.boss_id.id,
                     'request_type': line.request_type
                 }
 
@@ -306,6 +319,7 @@ class expensesRequest(models.Model):
 
                 passenge_id = self.env['cm.ticket.request.line'].create({
                     'employee_id': self.assign_to_id.id,
+                    'passenger_type': 'internal',
                     'request_id': req_ticket_id.id,
                     'more_luggage': line.more_luggage,
                     'id_file': attachment_id,
@@ -449,11 +463,6 @@ class expensesRequest(models.Model):
         mail.send()
 
     def create_report_expenses(self, with_exception=False):
-        # expense_sheet_id = self.env['hr.expense.sheet'].search([('request_id','=',self.id)])
-        # if expense_sheet_id:
-        #     expense_sheet_id.unlink()
-        
-        # self.expenses_ids.action_submit_expenses()
         expense_sheet_id = self.env['expenses.sheet.request'].search([('request_id','=',self.id)])
         if expense_sheet_id:
             expense_sheet_id.unlink()

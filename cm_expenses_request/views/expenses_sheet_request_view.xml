@@ -5,7 +5,7 @@
             <field name="name">Reporte de viaticos</field>
             <field name="model">expenses.sheet.request</field>
             <field name="arch" type="xml">
-                <form string="Solicitud de viaticos" create="false">
+                <form string="COBUS" create="false">
                     <field name="company_currency_id" invisible="1"/>
                     <header>
                         <button name="change_state" context="{'state': 'approved'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'sent'"/>
@@ -137,10 +137,10 @@
         </record>
 
         <record id="expenses_request_sheet_tree_view" model="ir.ui.view">
-            <field name="name">Solicitud de viaticos</field>
+            <field name="name">COBUS</field>
             <field name="model">expenses.sheet.request</field>
             <field name="arch" type="xml">
-                <list string="Solicitud de viaticos" decoration-info="state == 'draft'">
+                <list string="COBUS" decoration-info="state == 'draft'">
                     <field name="company_currency_id" column_invisible="1"/>
                     <field name="number" readonly="1"/>
                     <field name="name"/>
@@ -180,7 +180,7 @@
         </record> -->
 
         <record id="action_expenses_request_sheet" model="ir.actions.act_window">            
-            <field name="name">Solicitud de viaticos</field>
+            <field name="name">COBUS</field>
             <field name="res_model">expenses.sheet.request</field>
             <field name="view_mode">list,form</field>
             <field name="context">{}</field>         

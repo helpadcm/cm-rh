@@ -15,6 +15,7 @@ class assignExpenses(models.TransientModel):
         rec = super(assignExpenses, self).default_get(fields)
         req_id = self.env[active_model].search([('id','in',active_ids)])
         account_id = self.env['account.account'].search([('code','=','105.01')])
+        journal_id = self.env['account.journal'].search([('code','=','BPLPS')])
         if req_id:
             rec.update({
                 'description': f"""Viaticos para {req_id.assign_to_id.name}""",
@@ -24,6 +25,8 @@ class assignExpenses(models.TransientModel):
                 rec.update({
                     'account_id': account_id.id
                 })
+        if journal_id:
+            rec.update({'journal_id': journal_id.id})
         return rec
 
     journal_id = fields.Many2one('account.journal',string='Diario')

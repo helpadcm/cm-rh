@@ -8,11 +8,21 @@ class expensesTicketRequest(models.Model):
 
     @api.model
     def default_get(self, fields):
+        user = self.env.user
+        employee_id = self.env['hr.employee'].sudo().search([('user_id','=',user.id)])
         rec = super(expensesTicketRequest, self).default_get(fields)
         airline_default_id = self.env['cm.ticket.request.airline'].search([('default_airline','=',True)])
         if airline_default_id:
             rec.update({
                 'airline_id': airline_default_id[0].id
+            })
+        
+        if employee_id and employee_id.id_card:
+            attachment_id = employee_id.id_card
+            attachment_name = f'ID {employee_id.name}'
+            rec.update({
+                'passport_file': attachment_id,
+                'passport_file_name': attachment_name
             })
         return rec
 

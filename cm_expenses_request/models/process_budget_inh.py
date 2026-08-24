@@ -8,6 +8,11 @@ class processBudgetInh(models.Model):
 
     user_ids = fields.Many2many('res.users', string="Usuarios Permitidos")
 
+class airportInh(models.Model):
+    _inherit = 'cargo.airport'
+
+    hotel_contact = fields.Boolean(string="Posee contactos de Hotel")
+
 class accountBudgetInh(models.Model):
     _inherit = 'account.budget.account'
 
