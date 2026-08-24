@@ -417,7 +417,7 @@ class HrPayslipRun(models.Model):
                                 'analytic_account_id': distribution_line_id.account_budget_id.id,
                                 'activity_id': distribution_line_id.process_id.id})
                         else:
-                            raise ValidationError(f"No se ha configurado una distribucion de cuentas de gastos pttara la cuenta {account_id.name} en el departamento {department_id.name}")
+                            raise ValidationError(f"No se ha configurado una distribucion de cuentas de gastos para la cuenta {account_id.name} en el departamento {department_id.name}")
                     else:
                         raise ValidationError(f"No se ha configurado una distribucion de cuentas de gastos para la cuenta {account_id.name} en el departamento {department_id.name}")
 
