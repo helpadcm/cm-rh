@@ -21,35 +21,70 @@ class ticket_request(models.Model):
     @api.model
     def default_get(self, fields):
         rec = super(ticket_request, self).default_get(fields)
+        user = self.env.user
+        employee_id = self.env['hr.employee'].sudo().search([('user_id','=',user.id)])
         program_default_id = self.env['cm.ticket.request.program'].search([('default_program','=',True)])
         airline_default_id = self.env['cm.ticket.request.airline'].search([('default_airline','=',True)])
+        approver_group = self.env.ref('cm_airline_ticket_request.group_ticket_request_last_approver')
+        base_USD = self.env.ref('base.USD')
+        if approver_group.user_ids:
+            rec.update({'final_approve_id': approver_group.user_ids[0].id})
+
         if program_default_id:
             rec.update({
-                'program_id': program_default_id[0].id
+                'program_id': program_default_id[0].id,
+                'program_code': program_default_id[0].code
             })
+            
         if airline_default_id:
             rec.update({
                 'airline_id': airline_default_id[0].id
             })
+
+        rec.update({
+            'boss_id': employee_id.parent_id.id,
+            'currency_id': base_USD.id
+        })
         return rec
 
     name = fields.Char(string="Numero", default="Borrador", tracking=True, copy=False)
     user_id = fields.Many2one('res.users',string="Solicitante",default=user_default)
     assigned_user_id = fields.Many2one('res.users',string="Asignado a", copy= False,tracking=True)
+    boss_id = fields.Many2one('hr.employee',string="Jefe Inmediato",copy=True)
+    final_approve_id = fields.Many2one('res.users',string="Aprobador FInal",copy=True)
     date = fields.Date(string="Fecha de Creacion", default=_get_default_date)
     request_date = fields.Date(string="Fecha de Solicitud", tracking=True)
     request_type = fields.Selection([('round_trip','Ida y Vuelta'),('exit_only','Solo Ida'),('multiple','Multiple')],string="Tipo de Solicitud", default="round_trip", tracking=True,copy=True)
-    state = fields.Selection([('draft','Borrador'),('send','Enviado'),('received','Recibido'),('finalized','Finalizado'),('canceled','Cancelado')], string="Estado", default='draft', tracking=True,copy=False)
+    state = fields.Selection([('draft','Borrador'),('to_approve','Por aprobar'),('last_approve','Aprobacion Final'),('send','Enviado'),('received','Recibido'),('finalized','Finalizado'),('canceled','Cancelado')], string="Estado", default='draft', tracking=True,copy=False)
     program_id = fields.Many2one('cm.ticket.request.program',string="Programa",copy=True,tracking=True)
+    program_code = fields.Char(string="Codigo de programa")
     list_request_ids = fields.One2many('cm.ticket.request.line','request_id',string="Listado",copy=True)
     list_routes_ids = fields.One2many('cm.routes.line','request_id',string="Listado Rutas",copy=True)
-    only_pnr = fields.Boolean(string="Unico PNR",copy=False)
-    pnr = fields.Char(string="PNR",copy=False)
+    only_pnr = fields.Boolean(string="Unico PNR",copy=False, tracking=True)
+    pnr = fields.Char(string="PNR",copy=False, tracking=True)
     notifications_select = fields.Selection([('applicant','Solicitante'),('passengers','Pasajeros')],default="applicant",string="Notificar a",tracking=True)
     pnr_file = fields.Binary(string="Doc PNR",copy=False)
     pnr_file_name = fields.Char(string="Nombre PNR",copy=False,tracking=True)
     airline_id = fields.Many2one('cm.ticket.request.airline',string="Aerolinea",copy=True,tracking=True)
     ticket_type_request = fields.Selection(string="Tipo de solicitud de boleto",related="airline_id.ticket_type_request")
+    applicant_company = fields.Char(string="Empresa solicitate", tracking=True)
+    reason_request = fields.Char(string="Motivo de solicitud", tracking=True)
+    currency_id = fields.Many2one('res.currency',string="Moneda")
+    include_yq = fields.Boolean(string="Incluir YQ")
+
+    default_emission_amount = fields.Float(string="Monto de emision",tracking=True)
+    aditional_emission_amount = fields.Float(string="Monto adicional",tracking=True)
+    total_emission = fields.Float(string="Total")
+
+    @api.onchange('program_id')
+    def get_program_code(self):
+        if self.program_id:
+            self.program_code = self.program_id.code
+            self.default_emission_amount = self.program_id.emission_amount
+
+    @api.onchange('default_emission_amount','aditional_emission_amount')
+    def get_total(self):
+        self.total_emission = self.default_emission_amount + self.aditional_emission_amount
 
     @api.onchange('pnr')
     def change_pnr(self):
@@ -67,12 +102,32 @@ class ticket_request(models.Model):
 
     def change_state(self):
         next_state = self.env.context.get('state')
-        if next_state == 'send':
+        if next_state == 'to_approve':
             self.validate_send()
             if self.name == 'Borrador':
                 sequence_id = self.env.ref('cm_airline_ticket_request.sequence_ticket_request_cm')
                 self.name = sequence_id.next_by_id()
+            self.send_approve_request_mail()
+            
+        if next_state == 'send':
+            if not self.env.user.has_group("cm_airline_ticket_request.group_ticket_request_last_approver") and not self.env.user.has_group("cm_airline_ticket_request.group_ticket_request_admin"):
+                if self.boss_id.user_id.id != self.env.user.id:
+                    raise ValidationError("Solo el aprobador de boletos para este empleado puede aprobar esta solicitud")
+
+            if self.program_code != 'VIAT':
+                if self.boss_id.user_id.id != self.final_approve_id.id:
+                    next_state = 'last_approve'
+                    self.send_final_approve_request_mail()
+                else:
+                    self.send_request_mail()    
+            else:
+                if self.name == 'Borrador':
+                    sequence_id = self.env.ref('cm_airline_ticket_request.sequence_ticket_request_cm')
+                    self.name = sequence_id.next_by_id()
                 self.send_request_mail()
+
+        if next_state == 'send':
+            self.notify_applicants()
 
         if next_state == 'received':
             self.assigned_user_id = self.env.user.id
@@ -81,6 +136,23 @@ class ticket_request(models.Model):
             self.validate_finalize()
             self.send_finalize_mail()
         self.state = next_state
+
+    def notify_applicants(self):
+        mail = self.env['mail.mail'].sudo().create({
+            'subject': f"Solicitud de boleto aprobada",
+            'body_html': f"""<p>Su solicitud de boletos ha sido aprobada, se le enviara un correo con los datos correspondientes.</p>""",
+            # 'email_from': self.assign_to_id.user_id.login,
+            'email_to': self.user_id.login,
+            # 'email_cc': 'rosa@cmairlines.com',
+        })
+        mail.send()
+
+    def approve_request(self):
+        self.state = 'send'
+        self.send_request_mail()
+
+    def refuse_request(self):
+        self.state = 'canceled'
 
     def validate_finalize(self):
         if not self.only_pnr:
@@ -116,14 +188,7 @@ class ticket_request(models.Model):
 
     def send_request_mail(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        domain = [('id', '=', self.id)]
-        domain_json = json.dumps(domain)
-        action_id = self.env.ref('cm_airline_ticket_request.action_ticket_request_cm')
-        base_url += '/web#action=%s&model=%s&view_type=list&domain=%s' % (
-            action_id.id,
-            self._name,
-            domain_json
-        )
+        base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
         template_id = self.env.ref('cm_airline_ticket_request.ticket_request_created_template')
         if self.request_type == 'round_trip':
             type_r = 'Ida y Vuelta'
@@ -134,9 +199,13 @@ class ticket_request(models.Model):
 
         template_ctx = {
             'action_url': base_url,
-            'program_code': self.program_id.code,
+            'program_code': self.program_id.zenith_code,
             'type': type_r,
+            'boss': self.boss_id.name,
+            'include_yq': self.include_yq,
             'user': self.user_id.name,
+            'reason': self.reason_request,
+            'applicant_company': self.applicant_company,
             'name': self.name,
         }
         template_id.with_context(**template_ctx).send_mail(
@@ -144,6 +213,46 @@ class ticket_request(models.Model):
             force_send=True,
             email_values={
                 'email_to': 'conectividad@cmairlines.com',
+            }
+        )
+        
+    def send_approve_request_mail(self):
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+        template_id = self.env.ref('cm_airline_ticket_request.ticket_request_to_approve_template')
+        template_ctx = {
+            'action_url': base_url,
+            'boss': self.boss_id.name,
+            'user': self.user_id.name,
+            'reason': self.reason_request,
+            'applicant_company': self.applicant_company,
+            'name': self.name,
+        }
+        template_id.with_context(**template_ctx).send_mail(
+            self.id, 
+            force_send=True,
+            email_values={
+                'email_to': self.boss_id.user_id.login,
+            }
+        )
+
+    def send_final_approve_request_mail(self):
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
+        template_id = self.env.ref('cm_airline_ticket_request.ticket_request_final_approve_template')
+        template_ctx = {
+            'action_url': base_url,
+            'boss': self.boss_id.name,
+            'user': self.user_id.name,
+            'reason': self.reason_request,
+            'applicant_company': self.applicant_company,
+            'name': self.name,
+        }
+        template_id.with_context(**template_ctx).send_mail(
+            self.id, 
+            force_send=True,
+            email_values={
+                'email_to': self.final_approve_id.login,
             }
         )
 
@@ -320,7 +429,7 @@ class ticket_request_line(models.Model):
     user_id = fields.Many2one('res.users',string="Solicitante")
     name = fields.Char(string="Nombre")
     id_number = fields.Char(string="Id/Pasaporte")
-    class_name = fields.Char(string="Clase")
+    class_name = fields.Char(string="Cuanto equipaje extra?")
     email = fields.Char(string="Correo Electronico")
     phone = fields.Char(string="Telefono")
     nationality = fields.Char(string="Nacionalidad")
@@ -338,10 +447,11 @@ class ticket_request_line(models.Model):
     id_file = fields.Binary(string="Doc ID",copy=False)
     id_file_name = fields.Char(string="Nombre ID",copy=False)
     only_pnr = fields.Boolean(string="Unico PNR",related="request_id.only_pnr")
+    passenger_type = fields.Selection([('internal','Empleado Interno'),('external','Pasajero Externo'),('manual','Manualmente')], string="Ingresar datos", default="manual")
 
-    @api.onchange('user_external','employee_id','external_user_id')
+    @api.onchange('passenger_type','employee_id','external_user_id')
     def get_data(self):
-        if self.user_external:
+        if self.passenger_type == 'external':
             user_name = self.external_user_id.name
             identity = self.external_user_id.id_number
             email = self.external_user_id.email
@@ -351,13 +461,21 @@ class ticket_request_line(models.Model):
             if self.external_user_id.id_file:
                 self.id_file = self.external_user_id.id_file
                 self.id_file_name = self.external_user_id.id_file_name
-        else:
+        
+        elif self.passenger_type == 'internal':
             user_name = self.employee_id.name
             identity = self.employee_id.identification_id
             email = self.employee_id.work_email or self.employee_id.private_email
             phone = self.employee_id.mobile_phone or self.employee_id.private_phone
             birthdate = self.employee_id.birthday
             nationality = self.employee_id.country_of_birth.name
+        else:
+            user_name = False
+            identity = False
+            email = False
+            phone = False
+            birthdate = False
+            nationality = False
 
         self.name = user_name
         self.id_number = identity
@@ -390,6 +508,11 @@ class program_resquest(models.Model):
     name = fields.Char(string="Nombre")
     default_program = fields.Boolean(string="Programa por defecto")
     code = fields.Char(string="Codigo")
+    zenith_code = fields.Char(string="Codigo Zenith")
+    emission_amount = fields.Float(string="Monto de emision")
+
+    _id_code_unique = models.Constraint('unique(code)', message='El codigo debe ser unico, ya existe un programa con el mismo codigo!')
+    _id_zenith_code_unique = models.Constraint('unique(zenith_code)', message='El codigo zenith debe ser unico, ya existe un programa con el mismo codigo zenith!')
 
 class airline_resquest(models.Model):    
     _name = 'cm.ticket.request.airline'

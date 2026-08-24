@@ -6,7 +6,7 @@
             name="Solicitud de Boletos"
             web_icon="cm_airline_ticket_request,static/description/icon.jpg"
             action="action_ticket_request_cm"
-            groups="group_ticket_request_manager,group_ticket_request_user,group_ticket_request_admin"
+            groups="group_ticket_request_manager,group_ticket_request_user,group_ticket_request_admin,group_ticket_request_last_approver,group_ticket_request_approver"
             sequence="6"/>
 
 <!-- ##################################  REQUESTS  ##################################################  -->
@@ -29,7 +29,7 @@
             name="Boletos Solicitados"
             parent="ticket_request_menu"
             action="pax_request_cm"
-            groups="group_ticket_request_manager,group_ticket_request_admin"
+            groups="group_ticket_request_manager,group_ticket_request_admin,group_ticket_request_last_approver"
             sequence="2"/>
 
 <!-- ##################################  EXTERNAL  ##################################################  -->

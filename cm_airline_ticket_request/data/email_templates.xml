@@ -2,9 +2,9 @@
 <odoo>
    <data>
         <record id="ticket_request_created_template" model="mail.template">
-            <field name="name">Solicitud de Boleto Creada</field>
+            <field name="name">Solicitud de Boletos Aprobada</field>
             <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
-            <field name="subject">Solicitud Creada</field>
+            <field name="subject">Solicitud de Boletos Aprobada</field>
             <!-- <field name="email_from">{{object.collaborator_id.login}}</field> -->
             <field name="email_to">{{ ctx.get('email_to') }}</field>
             <field name="body_html" type="html">
@@ -38,7 +38,31 @@
                                                 <tr>
                                                     <td valign="top" style="font-size: 13px;">
                                                         <div>
-                                                            Se ha creado una nueva solicitud de boleto por <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('user')"/> de tipo <span t-out="ctx.get('type')"/> código de programa <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('program_code')"/>.
+                                                            Esta solicitud de boleto ha sido aprobada por <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('boss')"/> 
+                                                            de tipo <span t-out="ctx.get('type')"/> código de programa <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('program_code')"/>.
+                                                            
+                                                            <table style="border-collapse: collapse;width:100%">
+                                                                <tr>
+                                                                    <td style="text-align:center;padding:3px"><strong><h3>Rutas de Vuelo</h3></strong></td>
+                                                                </tr>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td style="padding:3px;">Ruta</td>
+                                                                        <td style="padding:3px;">Fecha</td>
+                                                                        <td style="padding:3px;">Horario</td>
+                                                                        <td style="padding:3px;">Observaciones</td>
+                                                                    </tr>
+                                                                    <tr t-foreach="object.list_routes_ids" t-as="route">
+                                                                        <td style="padding:3px;"><t t-out="route.route_id.name or ''"/></td>
+                                                                        <td style="padding:3px;"><t t-out="route.date.strftime('%d/%m/%Y') or ''"/></td>
+                                                                        <td style="padding:3px;"><t t-out="route.flight_select.upper() or ''"/></td>
+                                                                        <td style="padding:3px;"><t t-out="route.observations or ''"/></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td><br></br></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
                                                             
                                                             <table style="border-collapse: collapse;width:100%">
                                                                 <tr>
@@ -47,7 +71,7 @@
                                                                 <tbody>
                                                                     <tr t-foreach="object.list_request_ids" t-as="ben">
                                                                         <td style="padding:3px;">
-                                                                            <strong>Nombre:</strong> <t t-out="ben.employee_id.name.upper() or ben.external_user_id.name.upper()"/>
+                                                                            <strong>Nombre:</strong> <t t-out="ben.employee_id.name.upper() or ben.external_user_id.name.upper() or ben.name.upper()"/>
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
@@ -62,6 +86,11 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <td style="padding:3px;">
+                                                                            <strong>Telefono:</strong> <t t-out="ben.phone or ''"/>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="padding:3px;">
                                                                             <strong>Nacionalidad:</strong> <t t-out="ben.nationality or ''"/>
                                                                         </td>
                                                                     </tr>
@@ -72,7 +101,7 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <td style="padding:3px;">
-                                                                            <strong>Breve descripción acerca de la razón del pase o descuento:</strong> <t t-out="ben.description or ''"/>
+                                                                            <strong>Descripción del pase o descuento:</strong> <t t-out="ben.description or ''"/>
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
@@ -80,11 +109,160 @@
                                                                             <strong>Necesita mas equipaje?:</strong> <t t-out="'SI' if ben.more_luggage else 'NO'"/>
                                                                         </td>
                                                                     </tr>
+                                                                    <tr t-if="ben.more_luggage">
+                                                                        <td style="padding:3px;">
+                                                                            <strong>Equipaje extra:</strong> <t t-out="ben.class_name"/>
+                                                                        </td>
+                                                                    </tr>
                                                                     <tr>
                                                                         <td><br></br></td>
                                                                     </tr>
                                                                 </tbody>
                                                             </table>
+                                                            <p t-if="ctx.get('include_yq')">
+                                                                <strong>Incluir YQ: SI</strong>
+                                                            </p>
+                                                            
+                                                            <br/>Gracias<br/>
+
+                                                            <div style="margin: 16px 0px 16px 0px;text-align:center">
+                                                                <a t-att-href="ctx.get('action_url')"
+                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver Solicitud</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </field>
+        </record>
+
+
+        <record id="ticket_request_to_approve_template" model="mail.template">
+            <field name="name">Solicitud de aprobacion de Boletos</field>
+            <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
+            <field name="subject">Solicitud de aprobacion de Boletos</field>
+            <!-- <field name="email_from">{{object.collaborator_id.login}}</field> -->
+            <field name="email_to">{{ ctx.get('email_to') }}</field>
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="middle">
+                                                        <span style="font-size: 10px;">Solicitud de aprobacion de boletos</span><br/>
+                                                        <span style="font-size: 20px; font-weight: bold;" t-out="ctx.get('name')"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            El empleado <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('user')"/> ha creado una solicitud de boletos con motivo:<br/>
+                                                            <br/>
+                                                            <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('reason')"/><br/>
+                                                            <br/>
+                                                            Para la empresa o persona: <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('applicant_company')"/><br/>
+                                                            <br/>
+                                                            Se necesita de su aprobación para poder seguir con la solicitud.
+                                                            
+                                                            <br/>Gracias<br/>
+
+                                                            <div style="margin: 16px 0px 16px 0px;text-align:center">
+                                                                <a t-att-href="ctx.get('action_url')"
+                                                                    style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size: 13px;">Ver Solicitud</a>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </field>
+        </record>
+
+        <record id="ticket_request_final_approve_template" model="mail.template">
+            <field name="name">Solicitud de aprobacion final de Boletos</field>
+            <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
+            <field name="subject">Solicitud de aprobacion final de Boletos</field>
+            <!-- <field name="email_from">{{object.collaborator_id.login}}</field> -->
+            <field name="email_to">{{ ctx.get('email_to') }}</field>
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tr>
+                        <td align="center">
+                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+                                <tbody>
+                                    <!-- HEADER -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="middle">
+                                                        <span style="font-size: 10px;">Solicitud de aprobacion de boletos</span><br/>
+                                                        <span style="font-size: 20px; font-weight: bold;" t-out="ctx.get('name')"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" style="text-align:center;">
+                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <!-- CONTENT -->
+                                    <tr>
+                                        <td align="center" style="min-width: 590px;">
+                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                                <tr>
+                                                    <td valign="top" style="font-size: 13px;">
+                                                        <div>
+                                                            El empleado <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('boss')"/> ha aprobado la solicitud de boletos creada por <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('user')"/> con motivo:<br/>
+                                                            <br/>
+                                                            <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('reason')"/><br/>
+                                                            <br/>
+                                                            Para la empresa o persona: <span style="font-size: 13px; font-weight: bold;" t-out="ctx.get('applicant_company')"/><br/>
+                                                            <br/>
+                                                            Se necesita de su aprobación para poder seguir con la solicitud.
                                                             
                                                             <br/>Gracias<br/>
 

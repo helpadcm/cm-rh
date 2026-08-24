@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<data noupdate="1">
-		 <!-- <record model="ir.module.category" id="request_ticket_category">
+	<data noupdate="0">
+		 <record model="ir.module.category" id="request_ticket_category">
 		    <field name="name">Solicitud de Boletos</field>
 		    <field name="description">Permisos para Solicitud de boletos</field>
 		    <field name="sequence">20</field>
-		</record> -->
+		</record>
+
+<!-- ######################################  PROVILEGES ############################################## -->
+        <record id="privilege_ticket_request_cm" model="res.groups.privilege">
+            <field name="name">Solicitud de boletos</field>
+            <field name="category_id" ref="request_ticket_category"/>
+            <field name="sequence">10</field>
+        </record>
 		
+<!-- ######################################  GROUPS ############################################## -->
+
 		<record id="group_ticket_request_manager" model="res.groups">
 			<field name="name">Encargado Gestion de boletos</field>
+			<field name="privilege_id" ref="privilege_ticket_request_cm"/>
 		</record>
 		
 		<record id="group_ticket_request_user" model="res.groups">
 			<field name="name">Usuario Solicitud de Boletos</field>
+			<field name="privilege_id" ref="privilege_ticket_request_cm"/>
+		</record>
+
+		<record id="group_ticket_request_approver" model="res.groups">
+			<field name="name">Aprobador Solicitud de Boletos</field>
+			<field name="privilege_id" ref="privilege_ticket_request_cm"/>
+		</record>
+
+        <record id="group_ticket_request_last_approver" model="res.groups">
+			<field name="name">Aprobador Final Solicitud de Boletos</field>
+			<field name="privilege_id" ref="privilege_ticket_request_cm"/>
 		</record>
 
 		<record id="group_ticket_request_admin" model="res.groups">
 			<field name="name">Administrador Solicitud de Boletos</field>
+			<field name="privilege_id" ref="privilege_ticket_request_cm"/>
 		</record>
 
 
-<!-- ####################################  DEBIT / CREDIT RULES  #################################### -->
+<!-- ####################################  TICKETS REQUEST RULES  #################################### -->
 		<record id="ticket_request_user_rule" model="ir.rule">
             <field name="name">Regla usuario Boletos</field>
             <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
@@ -31,11 +53,24 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+		<record id="ticket_request_approver_rule" model="ir.rule">
+            <field name="name">Regla Aprobador Boletos</field>
+            <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
+            <field name="domain_force">['|',('user_id', '=', user.id),('boss_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('cm_airline_ticket_request.group_ticket_request_approver'))]"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
 		<record id="ticket_request_manager_rule" model="ir.rule">
             <field name="name">Regla Administrador Boletos</field>
             <field name="model_id" ref="cm_airline_ticket_request.model_cm_ticket_request"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('cm_airline_ticket_request.group_ticket_request_manager')),(4, ref('cm_airline_ticket_request.group_ticket_request_admin'))]"/>
+            <field name="groups" eval="[
+                (4, ref('cm_airline_ticket_request.group_ticket_request_manager')),
+                (4, ref('cm_airline_ticket_request.group_ticket_request_admin')),
+                (4, ref('cm_airline_ticket_request.group_ticket_request_last_approver'))]"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>

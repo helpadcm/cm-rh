@@ -9,6 +9,7 @@
 	'depends':['base','mail','portal_cm'],
 	'data':[
 		'data/email_templates.xml',
+		'data/data.xml',
 		'security/groups.xml',
 		'security/ir.model.access.csv',
 		'data/sequence.xml',

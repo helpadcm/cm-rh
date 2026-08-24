@@ -50,7 +50,9 @@
                 <list string="Programas" editable="bottom">
                     <field name="name" required="1"/>
                     <field name="code" required="1"/>
+                    <field name="zenith_code" required="1"/>
                     <field name="default_program" />
+                    <field name="emission_amount" />
                 </list>
             </field>
         </record>
