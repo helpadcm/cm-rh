@@ -9,7 +9,7 @@ class assignExpenses(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
-        context = dict(self._context or {})
+        context = self.env.context
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         rec = super(assignExpenses, self).default_get(fields)
@@ -43,8 +43,9 @@ class assignExpenses(models.TransientModel):
 
         pending_expenses_ids = self.env['cm.expenses.request'].search([('assign_to_id','=',req_id.assign_to_id.id)])
         for pen in pending_expenses_ids:
-            if pen.state == 'assigned' and not pen.omit_settlement:
-                raise ValidationError(f"""No se puede realizar la asignacion de viaticos al empleado {req_id.assign_to_id.name} aun tiene la solicitud {req_id.name} pendiente de liquidar.""")
+            if pen.id != req_id.id:
+                if pen.state == 'assigned' and not pen.omit_settlement:
+                    raise ValidationError(f"""No se puede realizar la asignacion de viaticos al empleado {req_id.assign_to_id.name} aun tiene la solicitud {pen.name} pendiente de liquidar.""")
 
         debit_id = self.env['debit.credit'].create({
             'journal_id': self.journal_id.id,

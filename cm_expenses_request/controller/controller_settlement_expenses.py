@@ -12,7 +12,7 @@ class settlementExpensesCont(http.Controller):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         expenses_categories = request.env['product.product'].sudo().search([('company_id','=',employee_id.company_id.id),('can_be_expensed','=',True)])
-        expense_request_id = request.env['cm.expenses.request'].sudo().search([('assign_to_id','=',employee_id.id),('state','in',['assigned'])])
+        expense_request_id = request.env['cm.expenses.request'].sudo().search([('assign_to_id','=',employee_id.id),('state','in',['assigned'])], order='name asc', limit=1)
         exceptional_reason_ids = request.env['expense.exceptional.reason'].sudo().search([])
         pending_expense = 'not_allow'
         message_form = ''

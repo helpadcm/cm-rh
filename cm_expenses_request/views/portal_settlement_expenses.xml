@@ -197,7 +197,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-6 mb-3">
+                                        <!-- <div class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">
                                                 <i class="fa fa-money me-1"></i>
                                                 Monto Exento
@@ -212,7 +212,7 @@
                                                     step="0.01"
                                                     placeholder="0.00"/>
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                         <div t-if="infavor_employee_amount == 0" class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">
@@ -253,7 +253,7 @@
                                         </div>
 
                                         <div class="col-12 mb-3" id="adjuntos_div">
-                                            <div style="background-color:#FFFFFF" class="d-inline-flex align-items-center border rounded px-3 py-2">
+                                            <!-- <div style="background-color:#FFFFFF" class="d-inline-flex align-items-center border rounded px-3 py-2">
                                                 <label class="fw-bold mb-0 me-4 fw-semibold text-secondary">
                                                     <i class="fa fa-times me-2"></i>
                                                     Sin Impuestos
@@ -265,7 +265,7 @@
                                                         name="no_taxes"
                                                         id="no_taxes_id"/>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="mb-3">
                                                 <label class="form-label">Adjuntar Archivos (Obligatorio)</label>
                                                 <input type="file" required="required" name="rec_expenses_attachments" id="expense_attachments" multiple="true" class="form-control" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
