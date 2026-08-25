@@ -628,6 +628,23 @@ class expensesRequest(models.Model):
                 mail = self.env['mail.mail'].sudo().create(mail_values)
                 mail.send()
             
+    def update_amounts(self):
+        base_USD = self.env.ref('base.USD')
+        base_HNL = self.env.ref('base.HNL')
+        for exp in self:
+            for line in exp.request_details_ids:
+                line.get_breakfast_amount()
+                line.get_lunch_amount()
+                line.get_dinner_amount()
+                if line.transport_amount > 0:
+                    line.transport_amount = base_USD._convert(
+                        line.transport_amount,
+                        base_HNL,
+                        self.env.company,
+                        self.date
+                    )
+                line.get_total_day()
+            exp.calculate_totals()
 
 class expensesRequestDetails(models.Model):
     _name = 'cm.expenses.request.details'
@@ -657,35 +674,41 @@ class expensesRequestDetails(models.Model):
     @api.onchange('breakfast_cti_id')
     def get_breakfast_amount(self):
         if self.breakfast_cti_id:
-            conf_ids = self.env['conf.expenses.request'].search([])
-            for conf in conf_ids:
-                conf_job_id = conf.job_ids.filtered(lambda job: job.id == self.job_id.id)
-                if conf_job_id:
-                    for line in conf.details_expenses_ids:
-                        if self.breakfast_cti_id.id in line.ctis_ids.ids:
-                            self.breakfast_amount = line.breakfast_amount
-                            break
+            self.breakfast_amount = self.get_amount(self.breakfast_cti_id, 'breakfast')
 
     @api.onchange('lunch_cti_id')
     def get_lunch_amount(self):
         if self.lunch_cti_id:
-            conf_ids = self.env['conf.expenses.request'].search([])
-            for conf in conf_ids:
-                conf_job_id = conf.job_ids.filtered(lambda job: job.id == self.job_id.id)
-                if conf_job_id:
-                    for line in conf.details_expenses_ids:
-                        if self.lunch_cti_id.id in line.ctis_ids.ids:
-                            self.lunch_amount = line.lunch_amount
-                            break
+            self.lunch_amount = self.get_amount(self.lunch_cti_id, 'lunch')
 
     @api.onchange('dinner_cti_id')
     def get_dinner_amount(self):
         if self.dinner_cti_id:
-            conf_ids = self.env['conf.expenses.request'].search([])
-            for conf in conf_ids:
-                conf_job_id = conf.job_ids.filtered(lambda job: job.id == self.job_id.id)
-                if conf_job_id:
-                    for line in conf.details_expenses_ids:
-                        if self.dinner_cti_id.id in line.ctis_ids.ids:
-                            self.dinner_amount = line.dinner_amount
-                            break
+            self.dinner_amount = self.get_amount(self.dinner_cti_id, 'dinner')
+
+    def get_amount(self, cti, food_time):
+        conf_ids = self.env['conf.expenses.request'].search([])
+        base_USD = self.env.ref('base.USD')
+        base_HNL = self.env.ref('base.HNL')
+        amount = 0
+        for conf in conf_ids:
+            conf_job_id = conf.job_ids.filtered(lambda job: job.id == self.job_id.id)
+            if conf_job_id:
+                for line in conf.details_expenses_ids:
+                        
+                    if cti.id in line.ctis_ids.ids:
+                        if food_time == 'breakfast':
+                            amount = line.breakfast_amount
+                        elif food_time == 'lunch':
+                            amount = line.lunch_amount
+                        elif food_time == 'dinner':
+                            amount = line.dinner_amount
+
+                        if line.currency_id.id == base_USD.id:
+                            amount = base_USD._convert(
+                                amount,
+                                base_HNL,
+                                self.env.company,
+                                self.date
+                            )
+                        return amount
