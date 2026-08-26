@@ -221,7 +221,7 @@ class otherDeductions(models.Model):
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'list',
-                'views': [('False', 'list'), (False, 'form')],
+                'views': [(False, 'list'), (False, 'form')],
                 'res_model': 'hr.salary.attachment',
                 'target': 'current',
                 'domain': [('id', 'in', deduction_ids.ids)]
