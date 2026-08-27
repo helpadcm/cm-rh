@@ -117,11 +117,10 @@ class expensesSheetRequest(models.Model):
 
         if self.infavor_employee_amount > 0:
             desc = ''
+            account_id = self.env['account.account'].search([('code','=','512.06')])
             if self.exception_solution == 'exception':
-                account_id = self.env['account.account'].search([('code','=','105.01')])
                 desc = f"""Reembolso aprobado para el empleado {self.employee_id.name}"""
             elif self.exception_solution in ['rejected','according']:
-                account_id = self.env['account.account'].search([('code','=','512.06')])
                 desc = f"""Reembolso no realizado para el empleado {self.employee_id.name}"""
 
             total -= self.infavor_employee_amount

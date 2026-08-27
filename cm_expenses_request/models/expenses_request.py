@@ -109,8 +109,31 @@ class expensesRequest(models.Model):
 
     def refunded_balance(self):
         if self.refund_state == 'without_refund':
+            self.create_debit()
             self.refund_state = 'refunded'
             self.refund_done = True
+
+    def create_debit(self):
+        journal_id = self.env['account.journal'].search([('code','=','BPLPS')])
+        account_id = self.env['account.account'].search([('code','=','105.01')])
+        debit_id = self.env['debit.credit'].create({
+            'journal_id': journal_id.id,
+            'date':(datetime.now() - timedelta(hours=6)).date(),
+            'doc_type': 'debit',
+            'total': self.infavor_employee_amount,
+            'name': f"Reembolso a empleado {self.assign_to_id.name} mediante solicitud {self.name}",
+            'request_id': self.id
+        })
+
+        self.env['debit.credit.name'].create({
+            'account_id': account_id.id,
+            'name': f"Reembolso a empleado {self.assign_to_id.name} mediante solicitud {self.name}",
+            'amount': self.infavor_employee_amount,
+            'chqmanalitics': self.assign_to_id.analytic_account_id.id or False,
+            'debit_credit_id': debit_id.id,
+            'type': 'dr'
+        })
+        debit_id.action_validate()
 
     @api.onchange('infavor_employee_amount','refund_done','exeption_id')
     def _onchange_infavor_employee_amount(self):
@@ -505,9 +528,9 @@ class expensesRequest(models.Model):
             }
 
     def show_expenses_debit(self):
-        debit_id = self.env['debit.credit'].search([('request_id','=',self.id)])
-        if debit_id:
-            self.ensure_one()
+        debit_ids = self.env['debit.credit'].search([('request_id','=',self.id)])
+        self.ensure_one()
+        if len(debit_ids) == 1:
             return {
                 'type': 'ir.actions.act_window',
                 'view_mode': 'form',
@@ -515,6 +538,15 @@ class expensesRequest(models.Model):
                 'res_model': 'debit.credit',
                 'target': 'current',
                 'res_id': debit_id.id
+            }
+        if len(debit_ids) > 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'view_mode': 'list',
+                'views': [(False, 'list'), (False, 'form')],
+                'res_model': 'debit.credit',
+                'target': 'current',
+                'domain': [('id', 'in', debit_ids.ids)]
             }
 
     def show_expenses_deposit(self):
