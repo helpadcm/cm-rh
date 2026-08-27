@@ -3,6 +3,7 @@ from odoo.http import request
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError,ValidationError
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 class othersRequests(models.Model):    
     _name = 'rrhh.others.requests'
@@ -211,6 +212,30 @@ class beneficiryRequests(models.Model):
     employee_id = fields.Many2one('hr.employee',string="Empleado")
     beneficiary_id = fields.Many2one('beneficiaries.detail.list',string="Nombre")
     identity = fields.Char(string="Identidad", related="beneficiary_id.identity")
-    birthday = fields.Date(string="Fecha de nacimiento", related="beneficiary_id.birthday")
+    birthday = fields.Date(string="Fecha de nacimiento")
+    passenger_type = fields.Selection([('adult','Adulto'),('child','Niño'),('infant','Infante')],string="Tipo de pasajero")
     relationship = fields.Selection(string="Parentesto", related="beneficiary_id.relationship")
     observation = fields.Char(string="Observaciones", related="beneficiary_id.observation")
+
+    @api.onchange('beneficiary_id')
+    def data_beneficiary(self):
+        if self.beneficiary_id:
+            self.birthday = self.beneficiary_id.birthday
+
+    @api.onchange('birthday')
+    def _onchange_birth_date(self):
+        if not self.birthday:
+            self.passenger_type = False
+            return
+
+        today = fields.Date.today()
+        age = relativedelta(today, self.birthday)
+
+        total_months = age.years * 12 + age.months
+
+        if total_months < 24:
+            self.passenger_type = 'infant'
+        elif total_months < 108:
+            self.passenger_type = 'child'
+        else:
+            self.passenger_type = 'adult'

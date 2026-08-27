@@ -151,7 +151,7 @@ class CustomPortalAbsences(http.Controller):
                     return_route_id = ret_route_id.id
 
         type_id = request.env['hr.leave.type'].sudo().browse(int(type_value_id))
-        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code)])
+        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code),('company_id','=',company_id.id)])
         
         vals = {
             'employee_id': employee_id.id,
@@ -252,11 +252,13 @@ class CustomPortalAbsences(http.Controller):
             vals.update({'char_date_from': self.convert_date(date_from), 'char_date_to': self.convert_date(date_to)})
             leave_id = request.env['rrhh.others.requests'].sudo().create(vals)
             for i in tickets:
-                request.env['request.beneficiary'].sudo().create({
+                beneficiary_id = request.env['request.beneficiary'].sudo().create({
                     'request_id': leave_id.id,
                     'beneficiary_id': i,
                     'employee_id': employee_id.id
                 })
+                beneficiary_id.sudo().data_beneficiary()
+                beneficiary_id.sudo()._onchange_birth_date()
 
             attachment_ids_to_link = []
             for attachment in attachments:
