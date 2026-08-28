@@ -228,28 +228,29 @@ class lotFormatXlsx(models.AbstractModel):
                         incomes_sequence[entry.work_entry_type_id.name] = 3
 
             for line in payslip.line_ids:
-                if line.category_id.code == 'ALW':
-                    rule_name = line.salary_rule_id.name
-                    sequence = line.salary_rule_id.sequence
+                if line.total != 0:
+                    if line.category_id.code == 'ALW':
+                        rule_name = line.salary_rule_id.name
+                        sequence = line.salary_rule_id.sequence
 
-                    if rule_name not in incomes_name:
-                        incomes_name.append(rule_name)
-                        incomes_sequence[rule_name] = sequence
+                        if rule_name not in incomes_name:
+                            incomes_name.append(rule_name)
+                            incomes_sequence[rule_name] = sequence
 
-                    # if line.salary_rule_id.name not in incomes_name:
-                    #     incomes_name.append(line.salary_rule_id.name)
-                    incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
+                        # if line.salary_rule_id.name not in incomes_name:
+                        #     incomes_name.append(line.salary_rule_id.name)
+                        incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
-                if line.category_id.code == 'DED':
-                    # if line.salary_rule_id.name not in deductions_name:
-                    #     deductions_name.append(line.salary_rule_id.name)
-                    rule_name = line.salary_rule_id.name
-                    sequence = line.salary_rule_id.sequence
+                    if line.category_id.code == 'DED':
+                        # if line.salary_rule_id.name not in deductions_name:
+                        #     deductions_name.append(line.salary_rule_id.name)
+                        rule_name = line.salary_rule_id.name
+                        sequence = line.salary_rule_id.sequence
 
-                    if rule_name not in deductions_name:
-                        deductions_name.append(rule_name)
-                        deductions_sequence[rule_name] = sequence
-                    deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
+                        if rule_name not in deductions_name:
+                            deductions_name.append(rule_name)
+                            deductions_sequence[rule_name] = sequence
+                        deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
 
             employee_vals = {
                 'contract_init_date': payslip.employee_id.contract_date_start,
