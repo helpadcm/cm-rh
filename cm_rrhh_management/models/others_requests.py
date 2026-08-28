@@ -59,22 +59,31 @@ class othersRequests(models.Model):
     
     @api.onchange('employee_id','tickets_request','business_id')
     def get_qty_available(self):
-        history_ids = self.search([('employee_id','=',self.employee_id.id),('business_type','=','ferry'),('state','=','approved')])
+        ferry_tickets = '0'
+        if self.business_id:
+            if self.business_id.business_type == 'ferry':
+                history_ids = self.search([('employee_id','=',self.employee_id.id),('business_type','=','ferry'),('state','=','approved')])
+            
+            if self.business_id.code == 'SCP':
+                history_ids = self.search([('employee_id','=',self.employee_id.id),('business_id.code','=','SCP'),('state','=','approved')])
 
-        actual_month = datetime.now().month
-        month_requests = history_ids.filtered(lambda history: history.date.month == actual_month)
+            if self.business_id.code == 'SCSE':
+                history_ids = self.search([('employee_id','=',self.employee_id.id),('business_id.code','=','SCSE'),('state','=','approved')])
 
-        if not month_requests:
-            ferry_tickets = '4'
-        else:
-            qty_month_requests = sum(month_requests.mapped('people_qty'))
-            if qty_month_requests >= 4:
-                ferry_tickets = 'No Disponible'
+            actual_month = datetime.now().month
+            month_requests = history_ids.filtered(lambda history: history.date.month == actual_month)
+
+            if not month_requests:
+                ferry_tickets = '4'
             else:
-                ferry_tickets = 4 - qty_month_requests
+                qty_month_requests = sum(month_requests.mapped('people_qty'))
+                if qty_month_requests >= 4:
+                    ferry_tickets = 'No Disponible'
+                else:
+                    ferry_tickets = 4 - qty_month_requests
 
-        if self.tickets_request and self.business_id.code == 'PFLY':
-            ferry_tickets = self.employee_id.program_to_fly
+            if self.tickets_request and self.business_id.code == 'PFLY':
+                ferry_tickets = self.employee_id.program_to_fly
 
         self.qty_available = ferry_tickets
 
@@ -184,6 +193,7 @@ class othersRequests(models.Model):
             force_send=True,
             email_values={
                 'email_cc': email_cc,
+                'email_to': 'conectividad@cmairlines.com'
             }
         )
 
