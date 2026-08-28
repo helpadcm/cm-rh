@@ -121,27 +121,27 @@ class HrEmployee(models.Model):
             else:
                 record.format_identification_id = False
 
-    @api.model
-    def cron_create_portal_user_to_employee(self):
-        employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
-        for employee in employees:
-            login = employee.work_email
-            if self.env['res.users'].search([('login', '=', login)]):
-                if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
-                    employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
-                    _logger.info("User found for employee %s: %s", employee.name, login)
-                continue
-            user = self.env['res.users'].create(
-                {
-                    'name': employee.name,
-                    'login': login,
-                    'share': True,
-                    'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
-                    }
-                )
-            employee.user_id = user.id
-            _logger.info("User created for employee %s: %s", employee.name, login)
-        _logger.info("Cron job to create portal users executed")
+    # @api.model
+    # def cron_create_portal_user_to_employee(self):
+    #     employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
+    #     for employee in employees:
+    #         login = employee.work_email
+    #         if self.env['res.users'].search([('login', '=', login)]):
+    #             if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
+    #                 employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
+    #                 _logger.info("User found for employee %s: %s", employee.name, login)
+    #             continue
+    #         user = self.env['res.users'].create(
+    #             {
+    #                 'name': employee.name,
+    #                 'login': login,
+    #                 'share': True,
+    #                 'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
+    #                 }
+    #             )
+    #         employee.user_id = user.id
+    #         _logger.info("User created for employee %s: %s", employee.name, login)
+    #     _logger.info("Cron job to create portal users executed")
 
     @api.model
     def cron_award_one_year_badge(self):
