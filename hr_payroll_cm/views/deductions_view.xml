@@ -72,7 +72,7 @@
                 <field name="input_type_id"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
-                <field name="fixed_fee" sum="Cuotas fijas"/>
+                <field name="amount_to_deducted" sum="Cuotas"/>
                 <field name="amount" sum="Total"/>
                 <field name="payment_amount" sum="Total pagado"/>
                 <field name="pending_amount" sum="Total pendiente"/>

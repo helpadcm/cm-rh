@@ -27,6 +27,16 @@ class otherDeductions(models.Model):
     fixed_fee = fields.Float(string="Cuota fija")
     payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
     pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
+    amount_to_deducted = fields.Float(string="Monto a Deducir")
+
+    def get_amount_to_deduct(self):
+        if self.by_quotes:
+            for line in self.payment_plan_ids:
+                if line.state in [False, None, 'draft','validated']:
+                    self.amount_to_deducted = line.amount
+                    break
+        else:
+            self.amount_to_deducted = self.amount
 
     @api.depends(
         'payslip_id',
