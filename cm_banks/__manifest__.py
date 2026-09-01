@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
 	'name'		:'Banks CM',
-	'version'	:'1.1.2',
+	'version'	:'1.1.3',
 	'author'	:'CMAirlines',
 	'description': """Banks, 
 				This module allows you to manage miscellaneous checks, debits, credits, deposits, 
