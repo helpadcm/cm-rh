@@ -114,7 +114,7 @@ class mcheck(models.Model):
 					if lines.type == 'dr':
 						totald += round(lines.amount,2)
 					if lines.type == 'cr':
-						totalc += round(lines.amount,2)
+						totalc += lines.amount
 			mcheck.amount = '{0:,.2f}'.format(totald-totalc)
 		return result
 
@@ -161,9 +161,9 @@ class mcheck(models.Model):
 				for lines in mcheck.mcheck_ids:
 					total += lines.amount
 					if lines.type == 'dr':
-						totald += lines.amount
+						totald += round(lines.amount,2)
 					if lines.type == 'cr':
-						totalc += lines.amount
+						totalc += round(lines.amount,2)
 			if(mcheck.journal_id.currency_id):
 				a = mcheck.to_word(abs(totald - totalc), mcheck.journal_id.currency_id.name)
 			else:
