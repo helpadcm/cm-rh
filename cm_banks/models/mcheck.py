@@ -112,9 +112,9 @@ class mcheck(models.Model):
 				for lines in mcheck.mcheck_ids:
 					total += lines.amount
 					if lines.type == 'dr':
-						totald += lines.amount
+						totald += round(lines.amount,2)
 					if lines.type == 'cr':
-						totalc += lines.amount
+						totalc += round(lines.amount,2)
 			mcheck.amount = '{0:,.2f}'.format(totald-totalc)
 		return result
 
