@@ -122,6 +122,7 @@ class HrEmployeeInh(models.Model):
         actual_date = datetime.now().date()
 
         employees = self.search([('contract_date_start', '!=', False)])
+        tickets_qty = 0
 
         for employee in employees:
 
@@ -139,12 +140,6 @@ class HrEmployeeInh(models.Model):
                 continue
 
             # Beneficio de boletos
-            if years == 1:
-                employee.program_to_fly = 2
-            elif years == 2:
-                employee.program_to_fly = 3
-            else:
-                employee.program_to_fly = 4
 
             # Fecha exacta del aniversario
             anniversary = contract_date + relativedelta(
@@ -154,7 +149,15 @@ class HrEmployeeInh(models.Model):
             # Solo asignar vacaciones el día del aniversario
 
             if actual_date == anniversary:
+                if years == 1:
+                    tickets_qty = 2
+                elif years == 2:
+                    tickets_qty = 3
+                else:
+                    tickets_qty = 4
+                    
                 self._create_vacation(employee,years)
+                employee.program_to_fly = tickets_qty
 
 class employeePublicHRInh(models.Model):
     _inherit = 'hr.employee.public'
