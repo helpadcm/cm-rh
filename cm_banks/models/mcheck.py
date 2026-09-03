@@ -112,7 +112,7 @@ class mcheck(models.Model):
 				for lines in mcheck.mcheck_ids:
 					total += lines.amount
 					if lines.type == 'dr':
-						totald += lines.amount
+						totald += round(lines.amount,2)
 					if lines.type == 'cr':
 						totalc += lines.amount
 			mcheck.amount = '{0:,.2f}'.format(totald-totalc)
@@ -152,22 +152,28 @@ class mcheck(models.Model):
 		return True
 
 	def _get_totalt(self):
+		print('2'*88)
 		result = {}
+		dtotal=0
 		total = 0
 		totald = 0
 		totalc = 0
 		for mcheck in self:
+			dtotal=mcheck.total
 			if len(mcheck.mcheck_ids) > 0:
 				for lines in mcheck.mcheck_ids:
 					total += lines.amount
 					if lines.type == 'dr':
-						totald += lines.amount
+						totald += round(lines.amount,2)
 					if lines.type == 'cr':
-						totalc += lines.amount
+						totalc += round(lines.amount,2)
 			if(mcheck.journal_id.currency_id):
-				a = mcheck.to_word(abs(totald - totalc), mcheck.journal_id.currency_id.name)
+                                
+				#a = mcheck.to_word(abs(dtotal), mcheck.journal_id.currency_id.name)
+				a=mcheck.journal_id.currency_id.amount_to_text(dtotal)
 			else:
-				a = mcheck.to_word(abs(totald - totalc), 'HNL')
+				#a = mcheck.to_word(abs(dtotal), 'HNL')
+				a=self.env.user.company_id.currency_id.amount_to_text(dtotal)
 			mcheck.amounttext = a
 
 	@api.onchange('date','journal_id')
