@@ -319,7 +319,7 @@ class expensesRequest(models.Model):
                 vals = {
                     'airline_id': line.airline_id.id,
                     'program_id': program_id.id,
-                    'program_code': program_id.zenith_code,
+                    'program_code': program_id.code,
                     'user_id': self.assign_to_id.user_id.id,
                     'boss_id': self.boss_id.id,
                     'request_type': line.request_type
