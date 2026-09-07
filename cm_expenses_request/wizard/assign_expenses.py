@@ -37,6 +37,7 @@ class assignExpenses(models.TransientModel):
 
     def create_debit(self):
         context = self.env.context
+        self.env.user.company_id = 1
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])
@@ -47,7 +48,7 @@ class assignExpenses(models.TransientModel):
                 if pen.state == 'assigned' and not pen.omit_settlement:
                     raise ValidationError(f"""No se puede realizar la asignacion de viaticos al empleado {req_id.assign_to_id.name} aun tiene la solicitud {pen.name} pendiente de liquidar.""")
 
-        debit_id = self.env['debit.credit'].create({
+        debit_id = self.env['debit.credit'].sudo().create({
             'journal_id': self.journal_id.id,
             'date': self.date,
             'doc_type': 'debit',
@@ -56,7 +57,7 @@ class assignExpenses(models.TransientModel):
             'request_id': req_id.id
         })
 
-        self.env['debit.credit.name'].create({
+        self.env['debit.credit.name'].sudo().create({
             'account_id': self.account_id.id,
             'name': req_id.purpose,
             'amount': self.amount,
