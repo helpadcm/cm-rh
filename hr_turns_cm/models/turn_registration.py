@@ -214,6 +214,7 @@ class turnRegistration(models.Model):
                                     'fortnight_line_id': fortnight_id.id
                                 }
                                 turn_id = self.create(vals)
+                                turn_id.calculate_data()
                                 created_turn.append(turn_id.id)
                                 count_days += 1
                     if len(created_turn) > 0:
