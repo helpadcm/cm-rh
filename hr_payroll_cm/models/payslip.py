@@ -206,19 +206,53 @@ class HrPayslipBonus(models.Model):
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id and payslip:
-                hours = mark_id.pay_extra_hours
+                if mark_id.hours_25 > 0 or mark_id.hours_50 > 0 or mark_id.hours_75 > 0:
+                    if mark_id.hours_25 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_25,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
 
-                if hours > 0:
-                    entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
-                    if not entry_work_id:
-                        raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
-                    
-                    values = {
-                        'work_entry_type_id': entry_work_id.id,
-                        'number_of_hours': hours,
-                        'from_entry_register': True
-                    }
-                    payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+                    if mark_id.hours_50 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME50')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_50,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+
+                    if mark_id.hours_75 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME75')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_75,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+                else:
+                    hours = mark_id.pay_extra_hours
+                    if hours > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
+                        if not entry_work_id:
+                            raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'name': entry_work_id.name,
+                            'number_of_hours': hours,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
         return res
 
     def compute_sheet(self):
@@ -370,6 +404,16 @@ class workedDaysInh(models.Model):
                     hours_amount = (wage / 30 / 8) * 1.25
                     amount_days = hours_amount * worked_days.number_of_hours
 
+                elif worked_days.work_entry_type_id.code == 'OVERTIME50':
+                    wage = employee_id.contract_wage * 2
+                    hours_amount = (wage / 30 / 8) * 1.50
+                    amount_days = hours_amount * worked_days.number_of_hours
+
+                elif worked_days.work_entry_type_id.code == 'OVERTIME75':
+                    wage = employee_id.contract_wage * 2
+                    hours_amount = (wage / 30 / 8) * 1.75
+                    amount_days = hours_amount * worked_days.number_of_hours
+
                 elif worked_days.work_entry_type_id.code == 'WORK100':
                     date_from = worked_days.payslip_id.date_from
                     date_to = worked_days.payslip_id.date_to
@@ -418,6 +462,58 @@ class workedDaysInh(models.Model):
                     hourly_rate = version.contract_wage / attendance_hours
                     amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             worked_days.amount = amount_days
+
+    @api.depends('work_entry_type_id', 'number_of_days', 'number_of_hours', 'payslip_id')
+    def _compute_name(self):
+        if not self.payslip_id:
+            return
+
+        to_check_public_holiday = dict(
+            self.env['resource.calendar.leaves']._read_group(
+                [
+                    ('resource_id', '=', False),
+                    ('work_entry_type_id', 'in', self.mapped('work_entry_type_id').ids),
+                    ('date_from', '<=', max(self.payslip_id.mapped('date_to'))),
+                    ('date_to', '>=', min(self.payslip_id.mapped('date_from'))),
+                ],
+                ['work_entry_type_id'],
+                ['id:recordset']
+            )
+        )
+        work_entries = {
+            (employee, date): we
+            for employee, date, we in self.env['hr.work.entry']._read_group(
+            domain=[
+                ('date', '<=', max(self.payslip_id.mapped('date_to'))),
+                ('date', '>=', min(self.payslip_id.mapped('date_from'))),
+                ('employee_id', 'in', self.payslip_id.employee_id.ids)
+            ],
+            groupby=['employee_id', 'date:day'],
+            aggregates=['id:recordset'])}
+
+        for worked_days in self:
+            public_holidays = to_check_public_holiday.get(worked_days.work_entry_type_id, '')
+            holidays = public_holidays and public_holidays.filtered(lambda p:
+               (p.calendar_id.id == worked_days.payslip_id.version_id.resource_calendar_id.id or not p.calendar_id.id)
+                and p.date_from.date() <= worked_days.payslip_id.date_to
+                and p.date_to.date() >= worked_days.payslip_id.date_from
+                and p.company_id == worked_days.payslip_id.company_id)
+            actual_holidays = self.env['resource.calendar.leaves']
+            if holidays:
+                for holiday in holidays:
+                    work_entry_list = work_entries.get(
+                        (worked_days.payslip_id.employee_id, holiday.date_from.date()),
+                        self.env['hr.work.entry']
+                    )
+                    if any(we.code == holiday.work_entry_type_id.code for we in work_entry_list):
+                        actual_holidays |= holiday
+            if actual_holidays:
+                name = (', '.join(actual_holidays.mapped('name')))
+            else:
+                name = worked_days.work_entry_type_id.name or ''
+            half_day = worked_days._is_half_day()
+            # worked_days.name = name + (_(' (Half-Day)') if half_day else '')
+            worked_days.name = name
 
 class payslipLineInh(models.Model):
     _inherit = 'hr.payslip.line'

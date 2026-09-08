@@ -35,23 +35,32 @@ class employeeAttendanceRecords(models.Model):
     record_line_ids = fields.One2many('hr.employee.attendance.line','attendance_rec_id',string="Lineas de asistencia")
     eh_limit = fields.Float(string="HE Limite")
     tb_max = fields.Integer(string="BT Maximo")
-    total_hours = fields.Float(string="Horas Totales",compute='compute_eh_totals',help="Suma de horas trabajadas + total horas extras")
-    diff_hours = fields.Float(string="Dif. Horas",compute='compute_eh_totals',help="Diferencia Total de horas - Horas esperadas")
-    eh_pay = fields.Float(string="Pagar HE",compute='compute_eh_totals',help="Horas Extras a pagar ")
-    real_eh_pay = fields.Float(string="Pagar HE Real",help="Horas Extras reales a pagar",tracking=True)
+    total_hours = fields.Float(string="Horas Totales",compute='compute_eh_totals',help="Suma de horas trabajadas + total horas extras", store=True)
+    diff_hours = fields.Float(string="Dif. Horas",compute='compute_eh_totals',help="Diferencia Total de horas - Horas esperadas", store=True)
+    eh_pay = fields.Float(string="Pagar HE",compute='compute_eh_totals',help="Horas Extras a pagar ", store=True)
+    real_eh_pay = fields.Float(string="Total HE",help="Horas Extras reales a pagar",tracking=True)
     pay_extra_hours = fields.Float(string="HE Real",help="Horas Extras reales",compute="get_eh_real")
-    aditional_he = fields.Float(string="Compensatorio",compute='compute_eh_totals',help="Horas extras restantes")
+    aditional_he = fields.Float(string="Compensatorio",compute='compute_eh_totals',help="Horas extras restantes", store=True)
     real_aditional_he = fields.Float(string="Compensatorias Reales", help="Horas compensatorias reales a aplicar",tracking=True)
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
-    tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals')
-    eh_holiday = fields.Float(string="Horas Feriado",compute='compute_eh_totals')
-    eh_holiday_extra = fields.Float(string="HE Feriado",compute='compute_eh_totals')
+    tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals', store=True)
+    eh_holiday = fields.Float(string="Horas Feriado",compute='compute_eh_totals', store=True)
+    eh_holiday_extra = fields.Float(string="HE Feriado",compute='compute_eh_totals', store=True)
     state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft',tracking=True)
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
     department_id = fields.Many2one('hr.department',string="Departamento")
     sum_compensatory = fields.Boolean(string="Sumar Compensatorio",default=True,tracking=True)
+
+    hours_25 = fields.Float(string="HE 25%",help="Horas extras al 25%", tracking=True)
+    hours_50 = fields.Float(string="HE 50%",help="Horas extras al 50%", tracking=True)
+    hours_75 = fields.Float(string="HE 75%",help="Horas extras al 75%", tracking=True)
+
+    @api.onchange('hours_25','hours_50','hours_75')
+    def update_hr_real(self):
+        for rec in self:
+            rec.real_eh_pay = rec.hours_25 + rec.hours_50 + rec.hours_75
 
     def update_name(self):
         name = ''

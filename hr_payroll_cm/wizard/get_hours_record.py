@@ -96,6 +96,7 @@ class getRecordHours(models.TransientModel):
                 'payslip_date_to': self.payslip_date_to
             })
 
+            total_eh = 0
             for row in rows_data:
                 vals = {
                     'attendance_rec_id': rec_id.id,
@@ -253,7 +254,9 @@ class getRecordHours(models.TransientModel):
                             vals.update({'holiday_hours': oh, 'holiday_extra_hours': extra_hours, 'personal_action': 'wh'})
                         else:
                             vals.update({'holiday_hours': oh, 'personal_action': 'wh'})
-    
+
+
+                    total_eh += extra_hours
                     vals.update({
                         'bonus': bonus,
                         'total_hours': total_h
@@ -261,6 +264,13 @@ class getRecordHours(models.TransientModel):
 
                 line_id = self.env['hr.employee.attendance.line'].create(vals)
                 line_id.personal_action_change()
+
+            if total_eh > 0:
+                if total_eh <= employee_id.max_extra_hours:
+                    rec_id.write({'real_eh_pay': total_eh})
+                elif total_eh > employee_id.max_extra_hours:
+                    rec_id.write({'real_eh_pay': employee_id.max_extra_hours})
+
         return True
 
     def get_name_rec(self, date_from):

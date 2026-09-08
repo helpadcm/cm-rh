@@ -66,7 +66,7 @@ class lotFormatXlsx(models.AbstractModel):
 
             for employee in department_info.get('employees'):
                 salario_quincenal = employee.get('salary')
-                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT','SM'] )
+                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM'] )
                 total_devengado = total_ingresos  # **CORREGIDO**
                 total_deducciones = abs(sum(x['amount'] for x in employee.get('deductions')))
                 total_neto = total_devengado - total_deducciones
@@ -211,21 +211,63 @@ class lotFormatXlsx(models.AbstractModel):
             
             if payslip.worked_days_line_ids and payslip.use_worked_day_lines:
                 for entry in payslip.worked_days_line_ids:
-                    if entry.work_entry_type_id.code != 'WORK100' and entry.work_entry_type_id.code != 'OUT':
-                        if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' not in incomes_name:
-                            incomes_name.append('Horas Extra')
-                            incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
-                            incomes_sequence['Horas Extra'] = 4
-                        elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas Extra' in incomes_name:
-                            incomes.append({'rule_name': 'Horas Extra', 'amount': entry.number_of_hours, 'code': 'EXT'})
-                            incomes_sequence['Horas Extra'] = 4
+                    if entry.work_entry_type_id.code in  ['WORK100','OUT']:
+                        continue
 
-                        if entry.work_entry_type_id.name not in incomes_name:
-                            incomes_name.append(entry.work_entry_type_id.name)
-                            incomes_sequence['Horas Extra'] = 4
-                        
+                    if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' not in incomes_name:
+                        incomes_name.append('Horas 25%')
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': entry.number_of_hours, 'code': 'EXT25'})
+                        incomes_sequence['Horas 25%'] = 4
+
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
-                        incomes_sequence[entry.work_entry_type_id.name] = 3
+                        incomes_sequence[entry.work_entry_type_id.name] = 5
+
+                    elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' in incomes_name:
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': entry.number_of_hours, 'code': 'EXT25'})
+                        incomes_sequence['Horas 25%'] = 4
+
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 5
+
+                    if entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' not in incomes_name:
+                        incomes_name.append('Horas 50%')
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': entry.number_of_hours, 'code': 'EXT50'})
+                        incomes_sequence['Horas 50%'] = 6
+
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 7
+
+                    elif entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' in incomes_name:
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': entry.number_of_hours, 'code': 'EXT50'})
+                        incomes_sequence['Horas 50%'] = 6
+
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 7
+
+                    if entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' not in incomes_name:
+                        incomes_name.append('Horas 75%')
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': entry.number_of_hours, 'code': 'EXT75'})
+                        incomes_sequence['Horas 75%'] = 8
+
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 9
+
+                    elif entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' in incomes_name:
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': entry.number_of_hours, 'code': 'EXT75'})
+                        incomes_sequence['Horas 75%'] = 8
+
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes_sequence[entry.work_entry_type_id.name] = 9
+
+                    if entry.work_entry_type_id.name not in incomes_name:
+                        incomes_name.append(entry.work_entry_type_id.name)
+                        if entry.work_entry_type_id.code == 'OVERTIME':
+                            incomes_sequence['Horas 25%'] = 5
+                        elif entry.work_entry_type_id.code == 'OVERTIME50':
+                            incomes_sequence['Horas 50%'] = 7
+                        elif entry.work_entry_type_id.code == 'OVERTIME75':
+                            incomes_sequence['Horas 75%'] = 9
+                        
 
             for line in payslip.line_ids:
                 if line.total != 0:

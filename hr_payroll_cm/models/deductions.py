@@ -8,6 +8,7 @@ class otherDeductions(models.Model):
     _name = 'hr.other.deductions'
     _description = 'Deducciones: Modelo para agregar otras deducciones para calculo de planilla'
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = 'employee_id asc, start_date desc'
 
     name = fields.Char(string="Descripcion",tracking=True)
     employee_id = fields.Many2one('hr.employee',string="Empleado", tracking=True)
@@ -27,7 +28,7 @@ class otherDeductions(models.Model):
     fixed_fee = fields.Float(string="Cuota fija")
     payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
     pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
-    amount_to_deducted = fields.Float(string="Monto a Deducir")
+    amount_to_deducted = fields.Float(string="Monto a Deducir", compute="get_amounts", store=True)
 
     def get_amount_to_deduct(self):
         if self.by_quotes:
@@ -44,12 +45,14 @@ class otherDeductions(models.Model):
         'payment_plan_ids',
         'payment_plan_ids.state',
         'payment_plan_ids.amount',
+        'payment_plan_ids.payslip_id',
         'by_quotes',
         'amount')
     def get_amounts(self):
         for rec in self:
             total_payment_amount = 0
             total_pending_amount = 0
+            deduct_amount = 0
             if rec.by_quotes:
                 for line in rec.payment_plan_ids:
                     if line.state == 'paid':
@@ -57,17 +60,22 @@ class otherDeductions(models.Model):
 
                     if line.state in ['draft','validated',False,None]:
                         total_pending_amount += line.amount
+                        if deduct_amount == 0:
+                            deduct_amount = line.amount
             else:
                 if rec.payslip_id:
                     if rec.payslip_id.state == 'paid':
                         total_payment_amount = rec.amount
                     if rec.payslip_id.state in ['draft','validated',False,None]:
                         total_pending_amount = rec.amount
+                        deduct_amount = rec.amount
                 else:
                     total_pending_amount = rec.amount
+                    deduct_amount = rec.amount
             
             rec.payment_amount = total_payment_amount
             rec.pending_amount = total_pending_amount
+            rec.amount_to_deducted = deduct_amount
 
     @api.onchange('input_type_id')
     def _onchange_input_type_id(self):
@@ -75,8 +83,8 @@ class otherDeductions(models.Model):
 
     def change_state(self):
         self.state = 'in_progress'
-        if self.by_quotes:
-            self.create_plan()
+        if self.by_quotes and not self.payment_plan_ids:
+            raise ValidationError("No se puede cambiar el estado a en progreso si no hay un plan de pago creado")
 
     def send_draft(self):
         self.state = 'draft'
@@ -123,6 +131,7 @@ class otherDeductions(models.Model):
                         
                         if finalize:
                             ded.write({'state':'completed'})
+                ded.get_amounts()
         return True
 
     def create_deduction(self, start_date, end_date, amount, deduction):

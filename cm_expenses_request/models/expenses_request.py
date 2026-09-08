@@ -537,7 +537,7 @@ class expensesRequest(models.Model):
                 'views': [[False, "form"]],
                 'res_model': 'debit.credit',
                 'target': 'current',
-                'res_id': debit_id.id
+                'res_id': debit_ids.id
             }
         if len(debit_ids) > 1:
             return {
