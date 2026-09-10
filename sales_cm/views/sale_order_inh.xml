@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order..form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page/field[@name='order_line']/list/field[@name='price_unit']" position="before">
+                <field name="departure_date"/>
+                <field name="return_date"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/list/field[@name='price_unit']" position="after">
+                <field name="yq_amount"/>
+            </xpath>
+            <group name="partner_details" position="inside">
+                <field name="airport_tax"/>
+                <field name="same_currency" invisible="1"/>
+            </group>
+
+            <xpath expr="//field[@name='tax_totals']" position="after">
+
+                <div class="w-100 d-flex justify-content-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <span class="me-4">Tasa de cambio</span>
+                        <field name="currency_rate" nolabel="1" class="oe_inline"/>
+                    </div>
+                </div>
+
+                <div class="w-100 d-flex justify-content-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <span class="me-4">Moneda Local</span>
+                        <field name="amount_local_company" nolabel="1" class="oe_inline"/>
+                    </div>
+                </div>
+
+            </xpath>
+        </field>
+    </record>
+</odoo>
