@@ -270,6 +270,7 @@ class getRecordHours(models.TransientModel):
                     rec_id.write({'real_eh_pay': total_eh})
                 elif total_eh > employee_id.max_extra_hours:
                     rec_id.write({'real_eh_pay': employee_id.max_extra_hours})
+            rec_id.update_real_eh()
 
         return True
 

@@ -223,68 +223,88 @@ class lineAttendanceRecords(models.Model):
             bonus = 0
             min_hours = []
             max_hours = []
+
             if rec.check_type == 'turn':
-                try:
-                    hour_1 = self.convert_timedelta(rec.schedule1_in_date)
-                    hour_2 = self.convert_timedelta(rec.schedule1_out_date)
-                    diff = hour_2 - hour_1
-                    amount1 = diff.total_seconds()/3600
-                    min_hours.append(hour_1.total_seconds()/3600)
-                    max_hours.append(hour_2.total_seconds()/3600)
-                except:
-                    amount1 = 0
 
-                try:
-                    hour_1 = self.convert_timedelta(rec.schedule2_in_date)
-                    hour_2 = self.convert_timedelta(rec.schedule2_out_date)
-                    diff = hour_2 - hour_1
-                    amount2 = diff.total_seconds()/3600
-                    min_hours.append(hour_1.total_seconds()/3600)
-                    max_hours.append(hour_2.total_seconds()/3600)
-                except:
-                    amount2 = 0
+                amount1, hour_1, hour_2 = self._calculate_hours(
+                    rec.schedule1_in_date,
+                    rec.schedule1_out_date
+                )
 
-                bonus =  self.calculate_bonus(min_hours, max_hours)
+                if hour_1 is not None:
+                    min_hours.append(hour_1)
+                    max_hours.append(hour_2)
+
+                amount2, hour_1, hour_2 = self._calculate_hours(
+                    rec.schedule2_in_date,
+                    rec.schedule2_out_date
+                )
+
+                if hour_1 is not None:
+                    min_hours.append(hour_1)
+                    max_hours.append(hour_2)
+
             else:
-                try:
-                    hour_1 = self.convert_timedelta(rec.check_in_1)
-                    hour_2 = self.convert_timedelta(rec.check_out_1)
-                    diff = hour_2 - hour_1
-                    amount1 = diff.total_seconds()/3600
-                    min_hours.append(hour_1.total_seconds()/3600)
-                    max_hours.append(hour_2.total_seconds()/3600)
-                except:
-                    amount1 = 0
 
-                try:
-                    hour_1 = self.convert_timedelta(rec.check_in_2)
-                    hour_2 = self.convert_timedelta(rec.check_out_2)
-                    diff = hour_2 - hour_1
-                    amount2 = diff.total_seconds()/3600
-                    min_hours.append(hour_1.total_seconds()/3600)
-                    max_hours.append(hour_2.total_seconds()/3600)
-                except:
-                    amount2 = 0
+                amount1, hour_1, hour_2 = self._calculate_hours(
+                    rec.check_in_1,
+                    rec.check_out_1
+                )
 
-                try:
-                    hour_1 = self.convert_timedelta(rec.check_in_3)
-                    hour_2 = self.convert_timedelta(rec.check_out_3)
-                    diff = hour_2 - hour_1
-                    amount3 = diff.total_seconds()/3600
-                    min_hours.append(hour_1.total_seconds()/3600)
-                    max_hours.append(hour_2.total_seconds()/3600)
-                except:
-                    amount3 = 0
+                if hour_1 is not None:
+                    min_hours.append(hour_1)
+                    max_hours.append(hour_2)
 
-                bonus =  self.calculate_bonus(min_hours, max_hours)
+                amount2, hour_1, hour_2 = self._calculate_hours(
+                    rec.check_in_2,
+                    rec.check_out_2
+                )
+
+                if hour_1 is not None:
+                    min_hours.append(hour_1)
+                    max_hours.append(hour_2)
+
+                amount3, hour_1, hour_2 = self._calculate_hours(
+                    rec.check_in_3,
+                    rec.check_out_3
+                )
+
+                if hour_1 is not None:
+                    min_hours.append(hour_1)
+                    max_hours.append(hour_2)
+
+            bonus = self.calculate_bonus(min_hours, max_hours)
 
             rec.bonus = bonus
             rec.total_hours = amount1 + amount2 + amount3
+
             if rec.total_hours > 0:
-                rec.ordinary_hours = 8
-                rec.extra_hours = rec.total_hours - rec.ordinary_hours
-            elif rec.total_hours == 0:
+                rec.ordinary_hours = min(rec.total_hours, 8)
+                rec.extra_hours = max(rec.total_hours - 8, 0)
+            else:
+                rec.ordinary_hours = 0
                 rec.extra_hours = 0
+
+    def _calculate_hours(self, start, end):
+        try:
+            hour_1 = self.convert_timedelta(start)
+            hour_2 = self.convert_timedelta(end)
+
+            diff = hour_2 - hour_1
+
+            # Si la salida es después de medianoche,
+            # significa que pertenece al día siguiente.
+            if diff.total_seconds() < 0:
+                diff += timedelta(days=1)
+
+            return (
+                diff.total_seconds() / 3600,
+                hour_1.total_seconds() / 3600,
+                hour_2.total_seconds() / 3600,
+            )
+
+        except Exception:
+            return 0, None, None
 
     def convert_timedelta(self, hour):
         h, m, s = map(int, hour.split(":"))
