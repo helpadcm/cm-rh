@@ -139,29 +139,30 @@ class getRecordHours(models.TransientModel):
                         'extra_hours': turn_line_id.aditional_hours,
                     })
 
-                    if turn_line_id.turn_type_a.id == turn_line_id.turn_type_b.id:
-                        personal_action = False
-                        if turn_line_id.turn_type_a.code == 'LID':
-                            personal_action = 'free'
-                        elif turn_line_id.turn_type_a.code == 'F':
-                            personal_action = 'holiday'
-                        elif turn_line_id.turn_type_a.code == 'INC':
-                            personal_action = 'inc'
-                        elif turn_line_id.turn_type_a.code == 'PER':
-                            personal_action = 'special'
-                        elif turn_line_id.turn_type_a.code == 'COM':
-                            personal_action = 'comp'
-                        elif turn_line_id.turn_type_a.code == 'VAC':
-                            personal_action = 'vac'
-                        elif turn_line_id.turn_type_a.code == 'CAP':
-                            personal_action = 'cap'
-                        elif turn_line_id.turn_type_a.code == 'FT':
-                            personal_action = 'wh'
-                        elif turn_line_id.turn_type_a.code == 'CUB':
-                            personal_action = 'coe'
+                    if employee_id.check_type == 'turn':
+                        if turn_line_id.turn_type_a.id == turn_line_id.turn_type_b.id:
+                            personal_action = False
+                            if turn_line_id.turn_type_a.code == 'LID':
+                                personal_action = 'free'
+                            elif turn_line_id.turn_type_a.code == 'F':
+                                personal_action = 'holiday'
+                            elif turn_line_id.turn_type_a.code == 'INC':
+                                personal_action = 'inc'
+                            elif turn_line_id.turn_type_a.code == 'PER':
+                                personal_action = 'special'
+                            elif turn_line_id.turn_type_a.code == 'COM':
+                                personal_action = 'comp'
+                            elif turn_line_id.turn_type_a.code == 'VAC':
+                                personal_action = 'vac'
+                            elif turn_line_id.turn_type_a.code == 'CAP':
+                                personal_action = 'cap'
+                            elif turn_line_id.turn_type_a.code == 'FT':
+                                personal_action = 'wh'
+                            elif turn_line_id.turn_type_a.code == 'CUB':
+                                personal_action = 'coe'
 
-                        if personal_action:                        
-                            vals.update({'personal_action': personal_action})
+                            if personal_action:                        
+                                vals.update({'personal_action': personal_action})
 
                 min_hours = []
                 max_hours = []

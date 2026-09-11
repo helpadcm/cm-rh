@@ -9,6 +9,7 @@
                     <button string="En progreso" name="change_state" invisible="state != 'draft'" type="object" class="oe_highlight"/>
                     <button string="Crear Plan" name="create_plan" invisible="state != 'draft'" type="object" class="oe_highlight"/>
                     <button string="Regresar a Borrador" name="send_draft" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <button string="Marcar como Completado" name="send_completed" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
                     <button string="Cancelar" name="send_cancel" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
                     <field name="state" widget="statusbar" readonly="1"/>
                 </header>

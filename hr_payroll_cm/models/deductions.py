@@ -89,6 +89,13 @@ class otherDeductions(models.Model):
     def send_draft(self):
         self.state = 'draft'
 
+    def send_completed(self):
+        self.state = 'completed'
+        if self.by_quotes:
+            for line in self.payment_plan_ids:
+                if not line.payslip_id:
+                    line.unlink()
+
     def send_cancel(self):
         self.state = 'cancel'
 
