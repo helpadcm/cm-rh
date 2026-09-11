@@ -3,6 +3,7 @@ from odoo.http import request
 from odoo.tools.misc import format_date
 from math import ceil,floor
 from odoo.exceptions import AccessError, UserError, ValidationError
+from collections import defaultdict
 
 class HrLeavesType(models.Model):
     _inherit = 'hr.leave.type'
@@ -12,6 +13,12 @@ class HrLeavesType(models.Model):
 
 class HrLeavesInh(models.Model):
     _inherit = 'hr.leave'
+
+    HOURS_PER_DAY = 8.0
+
+    # Horario utilizado únicamente para descontar el almuerzo
+    LUNCH_START = 12.0
+    LUNCH_END = 13.0    
     
     tickets_request = fields.Integer(string="Boletos Solicitados", tracking=True)
     code = fields.Char(related="holiday_status_id.code",string="Codigo")
@@ -289,45 +296,268 @@ class HrLeavesInh(models.Model):
     #                     "Un empleado ya programó un permiso que coincide con este periodo: %s",
     #                     "".join(conflicting_holidays_strings)))
 
-    def _get_duration(self, check_leave_type=True, resource_calendar=None):
+    def _get_durations(self, check_leave_type=True, resource_calendar=None):
         """
-        This method is factored out into a separate method from
-        _compute_duration so it can be hooked and called without necessarily
-        modifying the fields and triggering more computes of fields that
-        depend on number_of_hours or number_of_days.
-        """
-        self.ensure_one()
-        resource_calendar = resource_calendar or self.resource_calendar_id
+        Calcula la duración de los permisos sin utilizar el
+        resource.calendar del empleado para determinar días laborables.
 
-        if not self.date_from or not self.date_to or not resource_calendar:
-            return (0, 0)
-        hours, days = (0, 0)
-        if self.employee_id:
-            # We force the company in the domain as we are more than likely in a compute_sudo
-            domain = [('time_type', '=', 'leave'),
-                        ('holiday_id.code', 'not in', ['PFLY','SCP','SCSE']),
-                      ('company_id', 'in', self.env.companies.ids + self.env.context.get('allowed_company_ids', [])),
-                      # When searching for resource leave intervals, we exclude the one that
-                      # is related to the leave we're currently trying to compute for.
-                      ('holiday_id', '!=', self.id)]
-            if self.leave_type_request_unit == 'day' and check_leave_type:
-                # list of tuples (day, hours)
-                work_time_per_day_list = self.employee_id.list_work_time_per_day(self.date_from, self.date_to, calendar=resource_calendar, domain=domain)
-                days = len(work_time_per_day_list)
-                hours = sum(map(lambda t: t[1], work_time_per_day_list))
-            else:
-                work_days_data = self.employee_id._get_work_days_data_batch(self.date_from, self.date_to, domain=domain, calendar=resource_calendar)[self.employee_id.id]
-                hours, days = work_days_data['hours'], work_days_data['days']
-        else:
-            today_hours = resource_calendar.get_work_hours_count(
-                datetime.combine(self.date_from.date(), time.min),
-                datetime.combine(self.date_from.date(), time.max),
-                False)
-            hours = resource_calendar.get_work_hours_count(self.date_from, self.date_to)
-            days = hours / (today_hours or HOURS_PER_DAY)
-        if self.leave_type_request_unit == 'day' and check_leave_type:
-            days = ceil(days)
-        return (days, hours)
+        Reglas:
+
+        - Día completo       = 8 horas
+        - Medio día          = 4 horas
+        - Horas específicas  = horas solicitadas
+        - 08:00 - 17:00     = 8 horas
+        - Se descuenta 1 hora de almuerzo cuando el intervalo
+          atraviesa 12:00 - 13:00.
+        - Sábados y domingos cuentan normalmente.
+        """
+
+        # Primero dejamos que Odoo haga su cálculo normal.
+        # Esto permite mantener compatibilidad con otros casos
+        # que no modificamos.
+        result = super()._get_durations(
+            check_leave_type=check_leave_type,
+            resource_calendar=resource_calendar,
+        )
+
+        for leave in self:
+
+            if not leave.employee_id:
+                continue
+
+            if not leave.request_date_from or not leave.request_date_to:
+                continue
+
+            # =====================================================
+            # 1. PERMISOS POR DÍAS
+            # =====================================================
+
+            if leave.leave_type_request_unit == 'day':
+
+                date_from = leave.request_date_from
+                date_to = leave.request_date_to
+
+                # Cantidad de días calendario.
+                #
+                # IMPORTANTE:
+                # No utilizamos resource_calendar.
+                #
+                # Ejemplo:
+                # viernes -> sábado -> domingo = 3 días
+                number_of_days = (
+                    date_to - date_from
+                ).days + 1
+
+                number_of_hours = (
+                    number_of_days * self.HOURS_PER_DAY
+                )
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+            # =====================================================
+            # 2. MEDIO DÍA
+            # =====================================================
+
+            elif leave.leave_type_request_unit == 'half_day':
+
+                date_from = leave.request_date_from
+                date_to = leave.request_date_to
+
+                if date_from == date_to:
+
+                    # Mismo día
+                    #
+                    # AM -> AM = 0.5
+                    # PM -> PM = 0.5
+                    # AM -> PM = 1
+                    if (
+                        leave.request_date_from_period
+                        == leave.request_date_to_period
+                    ):
+                        number_of_days = 0.5
+                    else:
+                        number_of_days = 1.0
+
+                else:
+
+                    # Varios días.
+                    #
+                    # Ejemplo:
+                    #
+                    # Lunes AM -> Miércoles PM
+                    #
+                    # Lunes      = 0.5
+                    # Martes     = 1
+                    # Miércoles  = 1
+                    #
+                    # Total = 2.5 días
+
+                    total_calendar_days = (
+                        date_to - date_from
+                    ).days + 1
+
+                    number_of_days = float(total_calendar_days)
+
+                    # Primer día
+                    if leave.request_date_from_period == 'pm':
+                        number_of_days -= 0.5
+
+                    # Último día
+                    if leave.request_date_to_period == 'am':
+                        number_of_days -= 0.5
+
+                number_of_hours = (
+                    number_of_days * self.HOURS_PER_DAY
+                )
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+            # =====================================================
+            # 3. PERMISOS POR HORAS
+            # =====================================================
+
+            elif leave.leave_type_request_unit == 'hour':
+
+                hour_from = leave.request_hour_from
+                hour_to = leave.request_hour_to
+
+                if hour_from is None or hour_to is None:
+                    continue
+
+                # -------------------------------------------------
+                # Mismo día
+                # -------------------------------------------------
+
+                if leave.request_date_from == leave.request_date_to:
+
+                    number_of_hours = (
+                        hour_to - hour_from
+                    )
+
+                    if number_of_hours < 0:
+                        number_of_hours += 24
+
+                    # Descontar almuerzo únicamente si el intervalo
+                    # atraviesa completamente o parcialmente
+                    # el período 12:00 - 13:00.
+                    lunch_overlap = self._get_lunch_overlap(
+                        hour_from,
+                        hour_to,
+                    )
+
+                    number_of_hours -= lunch_overlap
+
+                    number_of_hours = max(
+                        number_of_hours,
+                        0.0
+                    )
+
+                    number_of_days = (
+                        number_of_hours /
+                        self.HOURS_PER_DAY
+                    )
+
+                # -------------------------------------------------
+                # Varios días
+                # -------------------------------------------------
+
+                else:
+
+                    total_calendar_days = (
+                        leave.request_date_to
+                        - leave.request_date_from
+                    ).days + 1
+
+                    daily_hours = (
+                        hour_to - hour_from
+                    )
+
+                    if daily_hours < 0:
+                        daily_hours += 24
+
+                    # Descontar almuerzo de cada día.
+                    lunch_overlap = self._get_lunch_overlap(
+                        hour_from,
+                        hour_to,
+                    )
+
+                    daily_hours -= lunch_overlap
+
+                    daily_hours = max(
+                        daily_hours,
+                        0.0
+                    )
+
+                    number_of_hours = (
+                        daily_hours *
+                        total_calendar_days
+                    )
+
+                    number_of_days = (
+                        number_of_hours /
+                        self.HOURS_PER_DAY
+                    )
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+        return result
+
+    def _get_lunch_overlap(self, hour_from, hour_to):
+        """
+        Devuelve cuántas horas del intervalo solicitado
+        coinciden con el horario de almuerzo 12:00 - 13:00.
+
+        Ejemplos:
+
+        08:00 - 17:00 -> 1 hora
+        08:00 - 12:00 -> 0 horas
+        13:00 - 17:00 -> 0 horas
+        10:00 - 14:00 -> 1 hora
+        11:00 - 12:30 -> 0.5 horas
+        """
+
+        lunch_start = self.LUNCH_START
+        lunch_end = self.LUNCH_END
+
+        overlap_start = max(
+            hour_from,
+            lunch_start,
+        )
+
+        overlap_end = min(
+            hour_to,
+            lunch_end,
+        )
+
+        if overlap_end <= overlap_start:
+            return 0.0
+
+        return overlap_end - overlap_start
+
+
+    @api.depends('date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit')
+    def _compute_duration(self):
+        durations = self._get_durations()
+        for leave in self:
+            days, hours = durations[leave.id]
+            if days == 0 and hours == 0:
+
+                print ("################################")
+                print (durations)
+                print (leave.request_hour_from)
+                print (leave.request_hour_to)
+
+            leave.number_of_hours = hours
+            leave.number_of_days = days
 
 class hrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
