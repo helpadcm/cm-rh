@@ -57,6 +57,15 @@ class employeeAttendanceRecords(models.Model):
     hours_50 = fields.Float(string="HE 50%",help="Horas extras al 50%", tracking=True)
     hours_75 = fields.Float(string="HE 75%",help="Horas extras al 75%", tracking=True)
 
+    def update_real_eh(self):
+        if self.diff_hours > 0:
+            if self.diff_hours > self.eh_limit:
+                self.real_eh_pay = self.eh_limit
+            else:
+                self.real_eh_pay = self.diff_hours
+        else:
+            self.real_eh_pay = 0
+
     @api.onchange('hours_25','hours_50','hours_75')
     def update_hr_real(self):
         for rec in self:
