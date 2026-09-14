@@ -325,7 +325,7 @@ class expensesRequest(models.Model):
                     'request_type': line.request_type
                 }
 
-                req_ticket_id = self.env['cm.ticket.request'].create(vals)
+                req_ticket_id = self.env['cm.ticket.request'].sudo().create(vals)
                 line.list_routes_ids.write({'request_id': req_ticket_id.id})
 
                 attachment_id = False
@@ -340,7 +340,7 @@ class expensesRequest(models.Model):
                 if not attachment_id:
                     raise ValidationError("Debe agregar fotocopia de su identidad o pasaporte en su solicitud de boletos aereos.")
 
-                passenge_id = self.env['cm.ticket.request.line'].create({
+                passenge_id = self.env['cm.ticket.request.line'].sudo().create({
                     'employee_id': self.assign_to_id.id,
                     'passenger_type': 'internal',
                     'request_id': req_ticket_id.id,
