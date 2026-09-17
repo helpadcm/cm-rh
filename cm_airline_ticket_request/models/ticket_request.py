@@ -213,6 +213,7 @@ class ticket_request(models.Model):
             force_send=True,
             email_values={
                 'email_to': 'conectividad@cmairlines.com',
+                'email_cc': 'martincobian@cmairlines.com',
             }
         )
         
