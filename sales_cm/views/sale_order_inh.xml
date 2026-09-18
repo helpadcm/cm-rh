@@ -17,6 +17,10 @@
                 <field name="same_currency" invisible="1"/>
             </group>
 
+            <button name="%(sale.action_view_sale_advance_payment_inv)d" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </button>
+
             <xpath expr="//field[@name='tax_totals']" position="after">
 
                 <div class="w-100 d-flex justify-content-end">
