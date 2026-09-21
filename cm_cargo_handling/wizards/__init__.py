@@ -6,3 +6,4 @@ from . import register_payment_inh
 from . import handling_reports
 from . import daily_sales_agent
 from . import pending_settlement_inh
+from . import custom_invoice_send
