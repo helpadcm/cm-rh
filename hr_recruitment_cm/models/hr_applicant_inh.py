@@ -107,8 +107,18 @@ class HrApplicantInh(models.Model):
             'birthday': self.birthday,
             'study_field': self.career_name,
             'study_school': self.last_institute,
+            'work_email': False,
             'marital': marital
         })
+
+        if self.requirement_id:
+            res.update({'job_id': self.requirement_id.new_position.id})
+        return res
+
+    def create_employee_from_applicant(self):
+        res = super().create_employee_from_applicant()
+        if self.employee_id:
+            self.employee_id.work_email = False
         return res
 
 class laboralHistory(models.Model):
