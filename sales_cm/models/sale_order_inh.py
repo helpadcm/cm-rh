@@ -9,6 +9,18 @@ class sale_order_inherit(models.Model):
     currency_rate = fields.Float(string="Tasa de Cambio",digits=(12, 4),compute="get_currency_rate",precompute=True,store=True)
     same_currency = fields.Boolean(string="Misma moneda",compute="get_currency_rate",precompute=True,store=True)
     amount_local_company = fields.Float(string="Moneda Local")
+    client_name = fields.Char(string="Nombre del cliente")
+    client_rtn = fields.Char(string="RTN del cliente")
+    client_mail = fields.Char(string="Correo del cliente")
+    default_client = fields.Boolean(string="Cliente por defecto")
+
+    @api.onchange('partner_id')
+    def client_data(self):
+        if self.partner_id:
+            self.client_name = self.partner_id.name
+            self.client_rtn = self.partner_id.vat
+            self.client_mail = self.partner_id.email
+            self.default_client = self.partner_id.default_client
 
     @api.depends("currency_id",'date_order')
     def get_currency_rate(self):

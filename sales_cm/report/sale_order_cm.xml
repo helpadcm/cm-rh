@@ -70,20 +70,20 @@
                     <table class="info-table" style="margin-bottom: 15px;">
                         <tr>
                             <td style="width: 10%;padding:3px; font-weight: bold;">Cliente:</td>
-                            <td style="width: 40%;padding:3px;"><span t-field="doc.partner_id.name"/></td>
+                            <td style="width: 40%;padding:3px;"><span t-esc="doc.client_name or doc.partner_id.name"/></td>
                             <td style="width: 12%;padding:3px; font-weight: bold;">Agente:</td>
                             <td style="width: 38%;padding:3px;"><span t-field="doc.user_id.name"/></td>
                         </tr>
                         <tr>
                             <td style="font-weight: bold;padding:3px">RTN:</td>
-                            <td style="padding:3px"><span t-field="doc.partner_id.vat"/></td>
+                            <td style="padding:3px"><span t-esc="doc.client_rtn or doc.partner_id.vat"/></td>
                             <td style="font-weight: bold;padding:3px">Contacto:</td>
                             <td t-if="doc.user_id.employee_id.mobile_phone" style="padding:3px"><span t-esc="doc.user_id.employee_id.mobile_phone"/></td>
                             <td t-if="not doc.user_id.employee_id.mobile_phone" style="padding:3px"><span t-esc="doc.user_id.phone"/></td>
                         </tr>
                         <tr>
                             <td style="font-weight: bold;padding:3px">Mail:</td>
-                            <td style="padding:3px"><span t-field="doc.partner_id.email"/></td>
+                            <td style="padding:3px"><span t-esc="doc.client_mail or doc.partner_id.email"/></td>
                             <td style="font-weight: bold;padding:3px">Fecha:</td>
                             <td style="padding:3px"><span t-field="doc.date_order" t-options='{"widget": "date"}'/></td>
                         </tr>

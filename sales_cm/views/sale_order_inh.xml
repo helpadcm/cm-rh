@@ -14,6 +14,10 @@
             </xpath>
             <group name="partner_details" position="inside">
                 <field name="airport_tax"/>
+                <field name="client_name" invisible="not default_client"/>
+                <field name="client_rtn" invisible="not default_client"/>
+                <field name="client_mail" invisible="not default_client"/>
+                <field name="default_client" invisible="1"/>
                 <field name="same_currency" invisible="1"/>
             </group>
 
@@ -33,7 +37,7 @@
                 <div class="w-100 d-flex justify-content-end">
                     <div class="d-flex align-items-center justify-content-end">
                         <span class="me-4">Moneda Local</span>
-                        <field name="amount_local_company" nolabel="1" class="oe_inline"/>
+                        <field name="amount_local_company" readonly="1" force_save="1" nolabel="1" class="oe_inline"/>
                     </div>
                 </div>
 
