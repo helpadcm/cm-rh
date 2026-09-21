@@ -11,6 +11,15 @@ cm_aff.access_variable_cost_lines,access_variable_cost_lines,cm_aff.model_variab
 
 
 cm_aff.access_aff_cost_template,access_aff_cost_template,cm_aff.model_aff_cost_template,base.group_user,1,1,1,1
-cm_aff.access_aff_cost_template_variable,access_aff_cost_template_variable,cm_aff.model_aff_cost_template_variable,base.group_user,1,1,1,1
-cm_aff.access_aff_fixed_cost_value,access_aff_fixed_cost_value,cm_aff.model_aff_fixed_cost_value,base.group_user,1,1,1,1
-cm_aff.access_aff_variable_cost_value,access_aff_variable_cost_value,cm_aff.model_aff_variable_cost_value,base.group_user,1,1,1,1
+cm_aff.access_cost_monthly_distribution,access_cost_monthly_distribution,cm_aff.model_cost_monthly_distribution,base.group_user,1,1,1,1
+cm_aff.access_cost_payslip_pilot,access_cost_payslip_pilot,cm_aff.model_cost_payslip_pilot,base.group_user,1,1,1,1
+cm_aff.access_cost_crew_bonus,access_cost_crew_bonus,cm_aff.model_cost_crew_bonus,base.group_user,1,1,1,1
+cm_aff.access_aff_trainings,access_aff_trainings,cm_aff.model_aff_trainings,base.group_user,1,1,1,1
+cm_aff.access_cost_training_crews,access_cost_training_crews,cm_aff.model_cost_training_crews,base.group_user,1,1,1,1
+cm_aff.access_cost_travel_expense,access_cost_travel_expense,cm_aff.model_cost_travel_expense,base.group_user,1,1,1,
+cm_aff.access_cost_maintenance_line,access_cost_maintenance_line,cm_aff.model_cost_maintenance_line,base.group_user,1,1,1,1
+cm_aff.access_aff_reservations,access_aff_reservations,cm_aff.model_aff_reservations,base.group_user,1,1,1,1
+cm_aff.access_aff_supplies,access_aff_supplies,cm_aff.model_aff_supplies,base.group_user,1,1,1,1
+cm_aff.access_cost_supplies_line,access_cost_supplies_line,cm_aff.model_cost_supplies_line,base.group_user,1,1,1,1
+cm_aff.access_aff_suppliers,access_aff_suppliers,cm_aff.model_aff_suppliers,base.group_user,1,1,1,1
+cm_aff.access_cost_suppliers_line,access_cost_suppliers_line,cm_aff.model_cost_suppliers_line,base.group_user,1,1,1,1

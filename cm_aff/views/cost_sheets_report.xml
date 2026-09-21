@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Columnas Estáticas del Reporte -->
+    <record id="col_cost_estimated" model="account.report.column">
+        <field name="name">Monto Estimado</field>
+        <field name="figure_type">monetary</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="col_cost_made" model="account.report.column">
+        <field name="name">Monto Realizado</field>
+        <field name="figure_type">monetary</field>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="col_cost_balance" model="account.report.column">
+        <field name="name">Diferencia</field>
+        <field name="figure_type">monetary</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <!-- Estructura Principal del Reporte -->
+    <record id="aff_cost_sheet_report_custom" model="account.report">
+        <field name="name">Reporte de Hojas de Costo</field>
+        <field name="search_bar" eval="True"/>
+        <field name="filter_date_range" eval="False"/>
+        <field name="filter_partner" eval="False"/>
+        <field name="filter_analytic" eval="False"/>
+        <field name="filter_unfold_all" eval="False"/>
+        <field name="filter_growth_comparison" eval="False"/>
+        <field name="filter_period_comparison" eval="False"/>
+        <field name="custom_handler_model_id" ref="model_aff_cost_sheets_report_handler"/>
+        <field name="column_ids" eval="[(6, 0, [
+            ref('col_cost_estimated'),
+            ref('col_cost_made'),
+            ref('col_cost_balance')
+        ])]"/>
+    </record>
+
+    <!-- Acción del Cliente -->
+    <record id="action_aff_cost_sheets_report" model="ir.actions.client">
+        <field name="name">Reporte Dinámico de Costos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('aff_cost_sheet_report_custom')}"/>
+    </record>
+
+</odoo>

@@ -26,6 +26,8 @@ class employeePublic(models.Model):
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
     resident_number = fields.Char(string="Número de Residencia")
     level_number = fields.Selection(levels, string="Nivel del empleado", default="10")
+    check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
+    monthly_wage = fields.Monetary(string="Salario Mensual", tracking=True)
 
 class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'

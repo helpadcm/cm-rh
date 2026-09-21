@@ -21,6 +21,15 @@
                 <field name="same_currency" invisible="1"/>
             </group>
 
+            <field name="partner_id" position="replace">
+                <field name="partner_id"
+                    options="{'no_create': True}"
+                    domain="[('is_customer','=',True)]"
+                    widget="res_partner_many2one"
+                    context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}"
+                    placeholder="Type to find a customer..." readonly="state in ['cancel', 'sale']"/>
+            </field>
+
             <button name="%(sale.action_view_sale_advance_payment_inv)d" position="attributes">
                 <attribute name="invisible">1</attribute>
             </button>

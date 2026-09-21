@@ -1,38 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_financial_cost_template_form" model="ir.ui.view">
-        <field name="name">aff.cost.template.form</field>
-        <field name="model">aff.cost.template</field>
-        <field name="arch" type="xml">
-            <form>
-                <header>
-                    <button name="create_distribution" string="Crear Distribucion" type="object" class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="validate" string="Validar" type="object" class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="set_to_draft" string="Regresar a Borrador" invisible="state != 'validated'" type="object" class="btn-primary"/>
-                    <field name="state" widget="statusbar"/>
-                </header>
-                <sheet>
-                    <div class="oe_title">
-                        <h1><field name="name" readonly="state != 'draft'" placeholder="Nombre de la estimacion"/></h1>
-                    </div>
+        <record id="fixed_cost_form_view" model="ir.ui.view">
+            <field name="name">Costos Fijos</field>
+            <field name="model">fixed.cost.lines</field>
+            <field name="arch" type="xml">
+                <form string="Costos Fijos">
                     <group>
                         <group>
-                            <field name="form_type" readonly="state != 'draft'"/>
-                            <field name="period" required="1" readonly="state != 'draft'"/>
-                            <field name="sequence" readonly="state != 'draft'"/>
-                            <field name="estimation_type" required="1" readonly="state != 'draft'"/>
-                            <field name="airplane_ids" placeholder="Aeronaves para esta estimacion" options="{'no_create': True}" widget="many2many_tags"/>
+                            <field name="cost_id" readonly="1"/>
+                            <field name="estimated_amount" readonly="1"/>
+                            <field name="form_type" />
                         </group>
                         <group>
-                            <field name="cost_id" options="{'no_create': True}" required="1" readonly="state != 'draft'"/>
-                            <field name="initial_date" required="1" readonly="state != 'draft'"/>
-                            <field name="final_date" required="1" readonly="state != 'draft'"/>
-                            <field name="duration_months" readonly="1" force_save="1"/>
+                            <field name="description" />
+                            <field name="amount_made"/>
                         </group>
                     </group>
-
                     <group string="FORM 1" invisible="form_type != 'form01'">
-                        <field name="form1_amount" readonly="state != 'draft'"/>
+                        <field name="form1_amount" />
                     </group>
 
                     <group string="FORM 2" invisible="form_type != 'form02'">
@@ -41,7 +26,7 @@
                         </group>
                         <notebook>
                             <page string="Remuneraciones">
-                                <field name="pilot_payslip_ids" readonly="state != 'draft'">
+                                <field name="pilot_payslip_ids" >
                                     <list editable="bottom">
                                         <field name="qty" />
                                         <field name="position" />
@@ -57,7 +42,7 @@
 
                     <group string="FORM 3" col="3" invisible="form_type != 'form03'">
                         <group>
-                            <field name="qty_people" readonly="state != 'draft'"/>
+                            <field name="qty_people" />
                             <field name="total_1" readonly="1" force_save="1"/>
                         </group>
                         <group>
@@ -69,7 +54,7 @@
                         </group>
                         <notebook>
                             <page string="Capacitaciones">
-                                <field name="training_ids" readonly="state != 'draft'" context="{'default_qty_people': qty_people}">
+                                <field name="training_ids"  context="{'default_qty_people': qty_people}">
                                     <list editable="bottom">
                                         <field name="training_id" required="1"/>
                                         <field name="people" />
@@ -84,7 +69,7 @@
                             </page>
 
                             <page string="Viaticos">
-                                <field name="travel_expense_ids" readonly="state != 'draft'" context="{'default_qty_people': qty_people}">
+                                <field name="travel_expense_ids"  context="{'default_qty_people': qty_people}">
                                     <list editable="bottom">
                                         <field name="travel_expense" required="1"/>
                                         <field name="assignment" />
@@ -123,8 +108,8 @@
                             </table>
                         </group>
                         <group>
-                            <field name="hours_flown" readonly="state != 'draft'"/>
-                            <field name="cycles" readonly="state != 'draft'" force_save="1"/>
+                            <field name="hours_flown" />
+                            <field name="cycles"  force_save="1"/>
                         </group>
                         <group>
                             <field name="ratio" readonly="1" force_save="1"/>
@@ -133,7 +118,7 @@
                         </group>
                         <notebook>
                             <page string="Mantenimiento">
-                                <field name="maintenance_line_ids" readonly="state != 'draft'" context="{'default_hours_flown': hours_flown, 'default_cycles': cycles, 'default_ratio': ratio, 'default_penalty': penalty}">
+                                <field name="maintenance_line_ids"  context="{'default_hours_flown': hours_flown, 'default_cycles': cycles, 'default_ratio': ratio, 'default_penalty': penalty}">
                                     <list editable="bottom">
                                         <field name="reservation_id" required="1"/>
                                         <field name="hourly_reservation" />
@@ -174,7 +159,7 @@
                         </group>
                         <notebook>
                             <page string="Bonificaciones">
-                                <field name="crew_bonus_ids" readonly="state != 'draft'" context="{'default_cycles': cycles}">
+                                <field name="crew_bonus_ids"  context="{'default_cycles': cycles}">
                                     <list editable="bottom">
                                         <field name="position" />
                                         <field name="min_sectors" />
@@ -197,7 +182,7 @@
                         </group>
                         <notebook>
                             <page string="Suministros y Lubricantes">
-                                <field name="supplies_ids" readonly="state != 'draft'">
+                                <field name="supplies_ids" >
                                     <list editable="bottom">
                                         <field name="supplie_id" />
                                         <field name="qty" />
@@ -218,7 +203,7 @@
                         </group>
                         <notebook>
                             <page string="Proveedores">
-                                <field name="suppliers_ids" readonly="state != 'draft'">
+                                <field name="suppliers_ids" >
                                     <list editable="bottom">
                                         <field name="supplier_id" options="{'no_create': 1}"/>
                                         <field name="amount__month1" sum="Mes 1"/>
@@ -233,47 +218,60 @@
                             </page>
                         </notebook>
                     </group>
+                </form>
+            </field>
+        </record>
+        
+        <record id="fixed_cost_view" model="ir.ui.view">
+            <field name="name">Costos Fijos</field>
+            <field name="model">fixed.cost.lines</field>
+            <field name="arch" type="xml">
+                <list string="Costos Fijos">
+                    <field name="cost_id"/>
+                    <field name="estimated_amount" sum="Total Estimado"/>
+                    <field name="amount_made" sum="Total Realizado"/>
+                    <field name="form_type"/>
+                </list>
+            </field>
+        </record>
 
-                    <notebook invisible="estimation_type != 'constant'">
-                        <page string="Distribuciones mensuales">
-                            <field name="distribution_line_ids" readonly="1">
-                                <list create="false">
-                                    <field name="name"/>
-                                    <field name="initial_date"/>
-                                    <field name="final_date"/>
-                                    <field name="amount" sum="Total"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-                <chatter reload_on_attachment="True"/>
-            </form>
-        </field>
-    </record>
+        <!-- <record id="cost_sheets_search_view" model="ir.ui.view">
+            <field name="name">Guiar de carga search</field>
+            <field name="model">fixed.cost.lines</field>
+            <field name="arch" type="xml">
+                <search string="Ordenes de venta">
+                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                    <field name="sender_name" filter_domain="[('sender_name', 'ilike', self)]"/>
+                    <field name="receiver_name" filter_domain="[('receiver_name', 'ilike', self)]"/>
+                    <separator/>
+                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
+                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
+                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <separator/>
+                    <filter string="Creadas" name="created_filter" domain="[('state','=','created')]"/>
+                    <filter string="Enviadas" name="send_filter" domain="[('state','=','sent')]"/>
+                    <filter string="Recibidas" name="received_filter" domain="[('state','=','received')]"/>
+                    <filter string="Entregadas" name="delivered_filter" domain="[('state','=','delivered')]"/>
+                    <filter string="Abandonadas" name="abandoned_filter" domain="[('state','=','abandoned')]"/>
+                    <filter string="Desechadas" name="desechada_filter" domain="[('state','=','desechada')]"/>
+                    <filter string="Canceladas" name="canceled_filter" domain="[('state','=','canceled')]"/>
+                    <group>
+                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
+                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
+                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                        <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
 
-    <record id="aff_costs_list_view" model="ir.ui.view">
-        <field name="name">Lista de Estimaciones</field>
-        <field name="model">aff.cost.template</field>
-        <field name="arch" type="xml">
-            <list string="Lista de Estimaciones">
-                <field name="sequence"/>
-                <field name="name"/>
-                <field name="cost_id"/>
-                <field name="period"/>
-                <field name="initial_date"/>
-                <field name="final_date"/>
-                <field name="state"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="action_financial_cost_template" model="ir.actions.act_window">            
-        <field name="name">Estimaciones</field>
-        <field name="res_model">aff.cost.template</field>
-        <field name="view_mode">list,form</field>
-        <field name="context">{}</field>
-        <field name="domain" eval="[]"/>
-    </record>
+        <!-- <record id="action_aff_cost_line_sheets" model="ir.actions.act_window">            
+            <field name="name">Lineas hojas de costo</field>
+            <field name="res_model">fixed.cost.lines</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+            <field name="domain" eval="[]"/>
+        </record> -->
 
 </odoo>

@@ -341,7 +341,7 @@ class mcheck(models.Model):
 		return {
 			'name':_("Usar como Plantilla"),
 			'view_mode': 'form',
-			'view_type': 'form,tree',
+			'view_type': 'form,list',
 		   	'res_model': 'banks.template',
 		    	'type': 'ir.actions.act_window',
 			'context': self.env.context,

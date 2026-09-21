@@ -25,6 +25,26 @@
                                 <field name="months_duration" />
                             </group>
                         </group>
+
+                        <table>
+                            <tr>
+                                <th colspan="5" style="text-align:center"><h3>Tabla de penalizacion</h3></th>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid black;text-align:center;padding:3px">0.24:1 or lower</td>
+                                <td style="border:1px solid black;text-align:center;padding:3px">0.25:1 or 0.49:1</td>
+                                <td style="border:1px solid black;text-align:center;padding:3px">0.50:1 or 0.74:1</td>
+                                <td style="border:1px solid black;text-align:center;padding:3px">0.75:1 or 0.99:1</td>
+                                <td style="border:1px solid black;text-align:center;padding:3px">1.0:1 or higher</td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_1" /></td>
+                                <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_2" /></td>
+                                <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_3" /></td>
+                                <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_4" /></td>
+                                <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_5" /></td>
+                            </tr>
+                        </table>
                     </sheet>
                     <chatter reload_on_attachment="True"/>
                 </form>

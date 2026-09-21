@@ -4,11 +4,18 @@
         id="aff_menu_root"
         name="AFF"
         web_icon="cm_aff,static/description/aff.png"
-        action="action_aff_fleet"
+        action="action_aff_cost_sheets_report"
         sequence="6"/>
 
 
 <!-- ##################################  COST SHEETS  ##################################################  -->
+
+    <menuitem 
+        id="menu_aff_cost_sheets_report"
+        name="Resumen"
+        parent="aff_menu_root"
+        action="action_aff_cost_sheets_report"
+        sequence="1"/>
 
     <menuitem
         id="aff_cost_sheets_menu"
@@ -21,13 +28,13 @@
 
     <menuitem
         id="aff_templates_menu"
-        name="Plantillas"
+        name="Estimaciones"
         parent="aff_menu_root"
         sequence="2"/>
 
     <menuitem
         id="aff_aircraft_template_menuitem"
-        name="Plantillas de Aeronaves"
+        name="Cedulas de estimacion"
         parent="aff_templates_menu"
         action="action_financial_cost_template"
         sequence="1"/>
@@ -59,5 +66,33 @@
         name="Listado de Rubros"
         parent="aff_configuration_menu"
         action="action_aff_costs"
-        sequence="2"/>
+        sequence="3"/>
+
+    <menuitem
+        id="aff_trainings_menuitem"
+        name="Listado de capacitaciones"
+        parent="aff_configuration_menu"
+        action="action_aff_training"
+        sequence="4"/>
+
+    <menuitem
+        id="aff_reservations_menuitem"
+        name="Listado de reservas"
+        parent="aff_configuration_menu"
+        action="action_aff_reservations"
+        sequence="5"/>
+
+    <menuitem
+        id="aff_supplies_menuitem"
+        name="Listado de Suministros y Lubricantes"
+        parent="aff_configuration_menu"
+        action="action_aff_supplies"
+        sequence="5"/>
+
+    <menuitem
+        id="aff_supplier_menuitem"
+        name="Listado de Proveedores"
+        parent="aff_configuration_menu"
+        action="action_aff_suppliers"
+        sequence="6"/>
 </odoo>
