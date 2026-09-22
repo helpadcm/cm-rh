@@ -45,14 +45,20 @@ class employeeContract(models.Model):
         compute='_compute_seniority'
         )
 
-    @api.depends('contract_date_start')
+    @api.depends('contract_date_start','contract_date_end')
     def _compute_seniority(self):
         for employee in self:
+            seniority = False
             if employee.contract_date_start:
-                seniority = relativedelta(fields.Date.today(), employee.contract_date_start)
-                employee.seniority = f'{seniority.years} años, {seniority.months} meses y {seniority.days} días'
-            else:
-                employee.seniority = False
+                date_end = fields.Date.today()
+
+                if employee.contract_date_end:
+                    date_end = employee.contract_date_end
+
+                date = relativedelta(date_end, employee.contract_date_start)
+                seniority = f'{date.years} años, {date.months} meses y {date.days} días'
+            
+            employee.seniority = seniority
 
 
     @api.model
