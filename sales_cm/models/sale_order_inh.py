@@ -38,7 +38,7 @@ class sale_order_inherit(models.Model):
                     rec.currency_rate = 1
                     rec.same_currency = True
 
-    @api.onchange('amount_total','currency_rate','airport_tax')
+    @api.onchange('amount_total','currency_rate','airport_tax','date_order','tax_totals')
     def calculate_amount_local(self):
         self.amount_local_company = self.currency_rate * self.amount_total
 
