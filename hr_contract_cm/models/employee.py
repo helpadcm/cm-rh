@@ -45,21 +45,31 @@ class employeeContract(models.Model):
         compute='_compute_seniority'
         )
 
-    @api.depends('contract_date_start','contract_date_end')
+    @api.depends('contract_date_start', 'contract_date_end')
     def _compute_seniority(self):
         for employee in self:
             seniority = False
             if employee.contract_date_start:
+
                 date_end = fields.Date.today()
 
                 if employee.contract_date_end:
                     date_end = employee.contract_date_end
 
-                date = relativedelta(date_end, employee.contract_date_start)
-                seniority = f'{date.years} años, {date.months} meses y {date.days} días'
-            
-            employee.seniority = seniority
+                total_days = (date_end - employee.contract_date_start).days
 
+                years = total_days // 360
+                remaining_days = total_days % 360
+
+                months = remaining_days // 30
+                days = remaining_days % 30
+
+                seniority = (
+                    f'{years} años, '
+                    f'{months} meses y '
+                    f'{days} días'
+                )
+            employee.seniority = seniority
 
     @api.model
     def cron_update_contract_bonus(self):
