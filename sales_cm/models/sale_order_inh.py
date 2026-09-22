@@ -5,7 +5,7 @@ from odoo.exceptions import UserError,ValidationError
 class sale_order_inherit(models.Model):
     _inherit = "sale.order"
 
-    airport_tax = fields.Monetary(string="Imp. Aeroportuario", digits=(16, 2), default=0.0)
+    airport_tax = fields.Monetary(string="Imp. Aeroportuario", default=0.0)
     currency_rate = fields.Float(string="Tasa de Cambio",digits=(12, 4),compute="get_currency_rate",precompute=True,store=True)
     same_currency = fields.Boolean(string="Misma moneda",compute="get_currency_rate",precompute=True,store=True)
     amount_local_company = fields.Float(string="Moneda Local")
@@ -125,7 +125,7 @@ class order_line_inherit(models.Model):
 
     departure_date = fields.Date(string="Ida")
     return_date = fields.Date(string="Regreso")
-    yq_amount = fields.Monetary(string="YQ", digits=(16, 2), default=0.0)
+    yq_amount = fields.Monetary(string="YQ", default=0.0)
 
     @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_ids', 'yq_amount')
     def _compute_amount(self):

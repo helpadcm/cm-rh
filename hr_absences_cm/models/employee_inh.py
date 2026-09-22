@@ -174,7 +174,7 @@ class employeePublicHRInh(models.Model):
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
     aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
     expiration_date_license = fields.Date(string="Fecha de vencimiento")
-    license_number = fields.Char(string="Número de Licencia",tracking=True)
+    license_number = fields.Char(string="Número de Licencia")
     license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia")
     years_old = fields.Integer(string="Años de antiguedad")
 

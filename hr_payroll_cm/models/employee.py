@@ -27,7 +27,7 @@ class employeePublic(models.Model):
     resident_number = fields.Char(string="Número de Residencia")
     level_number = fields.Selection(levels, string="Nivel del empleado", default="10")
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
-    monthly_wage = fields.Monetary(string="Salario Mensual", tracking=True)
+    monthly_wage = fields.Monetary(string="Salario Mensual")
 
 class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'
