@@ -105,6 +105,14 @@
             groups="cm_cargo_handling.group_guia_cargar_group_reports,cm_cargo_handling.group_print_daily_sales_agent"
             sequence="2"/>
 
+        <menuitem 
+            id="menu_ventas_por_cliente"
+            name="Ventas por cliente"
+            parent="cargo_handling_report_menu"
+            action="action_ventas_cliente_wizard"
+            groups="cm_cargo_handling.group_guia_cargar_group_reports,cm_cargo_handling.group_print_daily_sales_agent"
+            sequence="3"/>
+
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
         <menuitem
             id="cargo_handling_config"

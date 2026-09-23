@@ -169,4 +169,14 @@
         <field name="report_name">cm_cargo_handling.report_pending_upon_delivery_xlsx</field>
         <field name="report_file">cm_cargo_handling.report_pending_upon_delivery_xlsx</field>
     </record>
+
+    <record id="action_ventas_cliente_report_xlsx" model="ir.actions.report">
+        <field name="name">Ventas por Cliente XLSX</field>
+        <field name="model">ventas.cliente.wizard</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">reporte_ventas_clientes.report_ventas_cliente_xlsx</field>
+        <field name="report_file">reporte_ventas_clientes.report_ventas_cliente_xlsx</field>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Ventas por Clientes %s al %s' % (object.date_start.strftime('%d-%m-%Y') if object.date_start else '', object.date_end.strftime('%d-%m-%Y') if object.date_end else '')</field>
+    </record>
 </odoo>

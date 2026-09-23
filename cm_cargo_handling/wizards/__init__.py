@@ -7,3 +7,4 @@ from . import handling_reports
 from . import daily_sales_agent
 from . import pending_settlement_inh
 from . import custom_invoice_send
+from . import ventas_cliente_wizard
