@@ -53,7 +53,7 @@ class CustomPortalAbsences(http.Controller):
                     exit_date = (hist.exit_date - timedelta(hours=6)).strftime('%d/%m/%Y')
 
                 history_absences.append({
-                    'type': 'Programa a Volar',
+                    'type': hist.business_id.name,
                     'description': hist.observations,
                     'date_from': (hist.initial_date - timedelta(hours=6)).strftime('%d/%m/%Y'),
                     'date_to': exit_date,
