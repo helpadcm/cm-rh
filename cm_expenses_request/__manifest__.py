@@ -16,6 +16,7 @@
 		'wizard/deposit_expenses_view.xml',
 		'wizard/exeptional_reason_view.xml',
 		'wizard/return_draft_view.xml',
+		'wizard/expense_report_wizard_views.xml',
 		'views/conf_view.xml',
 		'views/expenses_request_view.xml',
 		'views/expense_inh_view.xml',
@@ -25,6 +26,7 @@
 		'views/portal_settlement_expenses.xml',
 		'views/portal_menu.xml',
         'views/menus.xml',
+		'reports/report_reports.xml'
 	],
 	'installable':True,
 	'assets': {

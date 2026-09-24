@@ -32,6 +32,23 @@
         sequence="2" 
     />
 
+<!-- ###############################  REPORTS  ###################################################### -->
+
+    <menuitem 
+        id="menu_cm_reports_root"
+        name="Reportes"
+        parent="expenses_request_root"
+        groups="group_expenses_request_responsible,group_expenses_request_manager,group_expenses_request_purchase"
+        sequence="2"/>
+
+    <menuitem 
+        id="menu_cm_expenses_report_action"
+        name="Viaticos por departamento"
+        parent="menu_cm_reports_root"
+        action="action_cm_expense_report_wizard"
+        sequence="1"/>
+
+
 <!-- ###############################  CONFIGURATIONS  ###################################################### -->
     <menuitem
         id="conf_expenses_request_menu"
