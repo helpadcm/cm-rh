@@ -76,13 +76,21 @@ class CustomInvoiceSend(models.TransientModel):
             # 1. VERIFICAR SI ES ENCOMIENDA
             order_id = self.env['sale.order.handling'].search([('move_id', '=', move.id)], limit=1)
             
-            if move.order_handling_id:
-                # Lógica para reporte de Encomienda con estructura de dat
-                data = {
-                    'order_id': move.order_handling_id.id,
-                    'print_guides': False
-                }
-                
+            if order_id:
+                if move.group_invoice_id:
+                    data = {
+                        'order_id': order_id,
+                        'group_invoice_id': move.group_invoice_id.id,
+                        'print_guides': False
+                    }
+
+                if move.order_handling_id:
+                    # Lógica para reporte de Encomienda con estructura de dat
+                    data = {
+                        'order_id': move.order_handling_id.id,
+                        'print_guides': False
+                    }
+                    
                 # Renderizar PDF de Encomienda pasando la estructura de data
                 report_action = self.env.ref('cm_cargo_handling.action_invoice_guide_format')
                 pdf_content, _ = report_action._render_qweb_pdf(report_action.id, res_ids=[move.id], data=data)
