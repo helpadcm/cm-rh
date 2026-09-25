@@ -292,8 +292,9 @@ class expensesRequest(models.Model):
             if self.balance_employee_amount > 0:
                 raise ValidationError("No puede enviar a liquidar, aun tiene saldo en control del empleado que debe ser tratado")
                 
-            self.create_report_expenses(with_exception)
-            self.send_email(next_state)
+            if self.expenses_ids:
+                self.create_report_expenses(with_exception)
+                self.send_email(next_state)
 
         self.state = next_state
 
