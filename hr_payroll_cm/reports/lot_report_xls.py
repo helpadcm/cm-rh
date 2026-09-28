@@ -1,4 +1,5 @@
-from odoo import models
+from odoo import models, fields
+from odoo.tools import float_round  # <--- IMPORTANTE
 import base64
 import io
 from collections import OrderedDict
@@ -12,12 +13,13 @@ class lotFormatXlsx(models.AbstractModel):
         info = self.get_data(docids.ids)
         sheet = workbook.add_worksheet('Planilla')
 
-        # Obtener la empresa y el logo
+        # Obtener precisión de la moneda
         company = self.env.user.company_id
-        if company.logo:
-            image_data = io.BytesIO(base64.b64decode(company.logo))  # Decodificar logo
-            sheet.insert_image('A1', 'logo.png', {'image_data': image_data, 'x_scale': 0.2, 'y_scale': 0.15})  # Ajustar tamaño
+        precision = company.currency_id.decimal_places or 2
 
+        if company.logo:
+            image_data = io.BytesIO(base64.b64decode(company.logo))
+            sheet.insert_image('A1', 'logo.png', {'image_data': image_data, 'x_scale': 0.2, 'y_scale': 0.15})
 
         # Formatos
         format1 = workbook.add_format({'font_size': 14, 'bottom': True, 'right': True, 'left': True, 'top': True, 'align': 'vcenter', 'bold': True})
@@ -55,34 +57,43 @@ class lotFormatXlsx(models.AbstractModel):
             else:
                 sheet.set_column(col, col, 15)
 
-
         row = 7
         emp_count = 1
-        grand_totals = {name: 0 for name in headers[6:]}  # Acumulador para gran total
+        grand_totals = {name: 0.0 for name in headers[6:]}
 
         # Iterar sobre departamentos y empleados agrupados
         for department_name, department_info in info.get('department_data').items():
-            dept_totals = {name: 0 for name in headers[6:]}  # Acumulador para cada departamento
+            dept_totals = {name: 0.0 for name in headers[6:]}
 
             for employee in department_info.get('employees'):
-                salario_quincenal = employee.get('salary')
-                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM','HEFF','HFF'] )
-                total_devengado = total_ingresos  # **CORREGIDO**
-                total_deducciones = abs(sum(x['amount'] for x in employee.get('deductions')))
-                total_neto = total_devengado - total_deducciones
+                # Redondear montos individuales antes de sumar
+                total_ingresos = float_round(
+                    sum(float_round(x['amount'], precision_digits=precision) 
+                        for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM','HEFF','HFF']),
+                    precision_digits=precision
+                )
+                total_devengado = total_ingresos
 
-                # Acumular valores al total del departamento
-                dept_totals['Total Devengado'] += total_devengado
-                dept_totals['Total Deducciones'] += total_deducciones
-                dept_totals['TOTAL NETO A PAGAR'] += total_neto
+                total_deducciones = float_round(
+                    abs(sum(float_round(x['amount'], precision_digits=precision) 
+                            for x in employee.get('deductions'))),
+                    precision_digits=precision
+                )
+
+                total_neto = float_round(total_devengado - total_deducciones, precision_digits=precision)
+
+                # Acumular valores al total del departamento usando float_round
+                dept_totals['Total Devengado'] = float_round(dept_totals['Total Devengado'] + total_devengado, precision_digits=precision)
+                dept_totals['Total Deducciones'] = float_round(dept_totals['Total Deducciones'] + total_deducciones, precision_digits=precision)
+                dept_totals['TOTAL NETO A PAGAR'] = float_round(dept_totals['TOTAL NETO A PAGAR'] + total_neto, precision_digits=precision)
 
                 for rule in info.get('incomes_name'):
-                    amount = next((x['amount'] for x in employee.get('incomes') if x['rule_name'] == rule), 0)
-                    dept_totals[rule] += amount
+                    amount = float_round(next((x['amount'] for x in employee.get('incomes') if x['rule_name'] == rule), 0.0), precision_digits=precision)
+                    dept_totals[rule] = float_round(dept_totals[rule] + amount, precision_digits=precision)
 
                 for rule in info.get('deductions_name'):
-                    amount = next((x['amount'] for x in employee.get('deductions') if x['rule_name'] == rule), 0)
-                    dept_totals[rule] += amount
+                    amount = float_round(next((x['amount'] for x in employee.get('deductions') if x['rule_name'] == rule), 0.0), precision_digits=precision)
+                    dept_totals[rule] = float_round(dept_totals[rule] + amount, precision_digits=precision)
 
                 # Escribir datos del empleado
                 sheet.write(row, 0, emp_count, count_format)
@@ -91,23 +102,21 @@ class lotFormatXlsx(models.AbstractModel):
                 sheet.write(row, 3, employee.get('bank_account') or '', money_format)
                 sheet.write(row, 4, employee.get('employee'), money_format)
                 sheet.write(row, 5, employee.get('job') or '', money_format)
-                # sheet.write_number(row, 6, employee.get('monthly_salary'), money_format)
-                # sheet.write_number(row, 7, salario_quincenal, money_format)
 
                 col = 6
                 for rule in info.get('incomes_name'):
-                    amount = next((x['amount'] for x in employee.get('incomes') if x['rule_name'] == rule), 0)
+                    amount = float_round(next((x['amount'] for x in employee.get('incomes') if x['rule_name'] == rule), 0.0), precision_digits=precision)
                     if amount == 0:
                         sheet.write(row, col, '', money_format)
                     else:
                         sheet.write_number(row, col, amount, money_format)
                     col += 1
 
-                sheet.write_number(row, col, total_devengado, total_totals_format)  # **CORREGIDO**
+                sheet.write_number(row, col, total_devengado, total_totals_format)
                 col += 1
 
                 for rule in info.get('deductions_name'):
-                    amount = abs(next((x['amount'] for x in employee.get('deductions') if x['rule_name'] == rule), 0))
+                    amount = abs(float_round(next((x['amount'] for x in employee.get('deductions') if x['rule_name'] == rule), 0.0), precision_digits=precision))
                     if amount == 0:
                         sheet.write(row, col, '', money_format)
                     else:
@@ -123,22 +132,22 @@ class lotFormatXlsx(models.AbstractModel):
 
             # Escribir totales del departamento
             sheet.merge_range('A%s:F%s'%(row+1,row+1), department_name, dept_name_format)
-            # sheet.write(row, 0, department_name, dept_format)
             col = 6
             for key in headers[6:]:
-                sheet.write_number(row, col, abs(dept_totals[key]), totals_format)
-                grand_totals[key] += dept_totals[key]  # Acumulamos en el gran total general
+                dept_val = float_round(abs(dept_totals[key]), precision_digits=precision)
+                sheet.write_number(row, col, dept_val, totals_format)
+                grand_totals[key] = float_round(grand_totals[key] + dept_totals[key], precision_digits=precision)
                 col += 1
             row += 1
 
         # Gran total general en la última fila
-        row+=3
+        row += 3
         sheet.merge_range('A%s:F%s'%(row+1,row+1), 'GRAN TOTAL GENERAL', dept_name_format)
         col = 6
         for key in headers[6:]:
-            sheet.write_number(row, col, grand_totals[key], total_totals_format)
+            grand_val = float_round(abs(grand_totals[key]), precision_digits=precision)
+            sheet.write_number(row, col, grand_val, total_totals_format)
             col += 1
-            
 
     def get_data(self, docids):
         if len(docids) > 1:
@@ -179,84 +188,68 @@ class lotFormatXlsx(models.AbstractModel):
 
             wage_amount = payslip.employee_id.wage * 2
             if len(payslip.employee_id.historical_salaries_ids) > 0:
-                # for line in payslip.employee_id.historical_salaries_ids:
-                #     if (line.start_date_payroll 
-                #     and line.start_date_payroll <= payslip.date_to 
-                #     and (not line.end_date_payroll or payslip.date_to <= line.end_date_payroll)):
-                #         print ("?????????????????????????????????")
-                #         print (payslip.employee_id.name)
-                #         print (payslip.date_to, line.end_date_payroll)
-                #         wage_amount = line.amount
-                #         fortnight_amount = line.amount / 2
                 lines = payslip.employee_id.historical_salaries_ids.sorted(
                     key=lambda l: l.end_date_payroll or fields.Date.max
                 )
-
-                found = False
 
                 for line in lines:
                     if payslip.date_to <= line.end_date_payroll:
                         wage_amount = line.amount
                         fortnight_amount = line.amount / 2
-                        found = True
                         break
 
-                # 🔥 fallback: usar el último salario
-                # if not found and lines:
-                #     wage_amount = lines[-1].amount
-                #     fortnight_amount = wage_amount / 2
-
-            incomes.append({'rule_name': 'Salario Quincenal', 'amount': fortnight_amount, 'code': 'SQ', 'sequence': 1})
-            incomes.append({'rule_name': 'Salario Mensual', 'amount': wage_amount, 'code': 'SM', 'sequence': 2})
+            # Redondear montos base al agregarlos
+            incomes.append({'rule_name': 'Salario Quincenal', 'amount': float_round(fortnight_amount, precision_digits=2), 'code': 'SQ', 'sequence': 1})
+            incomes.append({'rule_name': 'Salario Mensual', 'amount': float_round(wage_amount, precision_digits=2), 'code': 'SM', 'sequence': 2})
             
             if payslip.worked_days_line_ids and payslip.use_worked_day_lines:
                 for entry in payslip.worked_days_line_ids:
-                    if entry.work_entry_type_id.code in  ['WORK100','OUT']:
+                    if entry.work_entry_type_id.code in ['WORK100','OUT']:
                         continue
 
                     if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' not in incomes_name:
                         incomes_name.append('Horas 25%')
-                        incomes.append({'rule_name': 'Horas 25%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT25'})
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT25'})
                         incomes_sequence['Horas 25%'] = 4
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 5
 
                     elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 25%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT25'})
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT25'})
                         incomes_sequence['Horas 25%'] = 4
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 5
 
                     if entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' not in incomes_name:
                         incomes_name.append('Horas 50%')
-                        incomes.append({'rule_name': 'Horas 50%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT50'})
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT50'})
                         incomes_sequence['Horas 50%'] = 6
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 7
 
                     elif entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 50%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT50'})
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT50'})
                         incomes_sequence['Horas 50%'] = 6
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 7
 
                     if entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' not in incomes_name:
                         incomes_name.append('Horas 75%')
-                        incomes.append({'rule_name': 'Horas 75%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT75'})
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT75'})
                         incomes_sequence['Horas 75%'] = 8
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 9
 
                     elif entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 75%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT75'})
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': float_round(entry.number_of_hours, precision_digits=2), 'code': 'EXT75'})
                         incomes_sequence['Horas 75%'] = 8
 
-                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
+                        incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': float_round(entry.amount, precision_digits=2), 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 9
 
                     if entry.work_entry_type_id.name not in incomes_name:
@@ -270,6 +263,7 @@ class lotFormatXlsx(models.AbstractModel):
 
             for line in payslip.line_ids:
                 if line.total != 0:
+                    line_total_rounded = float_round(line.total, precision_digits=2)
                     if line.category_id.code == 'ALW':
                         rule_name = line.salary_rule_id.name
                         sequence = line.salary_rule_id.sequence
@@ -287,9 +281,7 @@ class lotFormatXlsx(models.AbstractModel):
                         mark_id = self.env['hr.employee.attendance.record'].search(domain)
                         if mark_id:
                             if line.salary_rule_id.code == 'HEF':
-                                # Solo agregar una vez para este empleado
                                 if not any(income['code'] == 'HEFF' for income in incomes):
-
                                     if 'Cant. Horas Extra Feriado' not in incomes_name:
                                         incomes_name.append('Cant. Horas Extra Feriado')
 
@@ -297,14 +289,12 @@ class lotFormatXlsx(models.AbstractModel):
 
                                     incomes.append({
                                         'rule_name': 'Cant. Horas Extra Feriado',
-                                        'amount': round(mark_id.eh_holiday_extra, 2),
+                                        'amount': float_round(mark_id.eh_holiday_extra, precision_digits=2),
                                         'code': 'HEFF'
                                     })
 
                             if line.salary_rule_id.code == 'HF':
-                                # Solo agregar una vez para este empleado
                                 if not any(income['code'] == 'HFF' for income in incomes):
-
                                     if 'Cant. Dias Feriado' not in incomes_name:
                                         incomes_name.append('Cant. Dias Feriado')
 
@@ -312,24 +302,20 @@ class lotFormatXlsx(models.AbstractModel):
 
                                     incomes.append({
                                         'rule_name': 'Cant. Dias Feriado',
-                                        'amount': round(mark_id.eh_holiday/8, 2),
+                                        'amount': float_round(mark_id.eh_holiday / 8.0, precision_digits=2),
                                         'code': 'HFF'
                                     })
 
-                        # if line.salary_rule_id.name not in incomes_name:
-                        #     incomes_name.append(line.salary_rule_id.name)
-                        incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
+                        incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
 
                     if line.category_id.code == 'DED':
-                        # if line.salary_rule_id.name not in deductions_name:
-                        #     deductions_name.append(line.salary_rule_id.name)
                         rule_name = line.salary_rule_id.name
                         sequence = line.salary_rule_id.sequence
 
                         if rule_name not in deductions_name:
                             deductions_name.append(rule_name)
                             deductions_sequence[rule_name] = sequence
-                        deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line.total, 'code': line.salary_rule_id.code})
+                        deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
 
             employee_vals = {
                 'contract_init_date': payslip.employee_id.contract_date_start,
@@ -338,9 +324,9 @@ class lotFormatXlsx(models.AbstractModel):
                 'bank_account': payslip.employee_id.bank_account_ids.acc_number,
                 'employee': payslip.employee_id.name,
                 'job': payslip.employee_id.job_id.name,
-                'monthly_salary': payslip.employee_id.wage * 2,
+                'monthly_salary': float_round(payslip.employee_id.wage * 2, precision_digits=2),
                 'level': int(payslip.employee_id.level_number),
-                'salary': payslip.employee_id.wage,
+                'salary': float_round(payslip.employee_id.wage, precision_digits=2),
                 'deductions': deductions,
                 'incomes': incomes
             }
