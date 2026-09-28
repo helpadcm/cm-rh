@@ -104,6 +104,7 @@ class importIncomesDeductions(models.TransientModel):
 
                 if fees_values:
                     deduction_id.create_plan()
+                deduction_id.get_amounts()
             else:
                 if not final_date:
                     raise ValidationError("Debe agregar la fecha de finalizacion")
@@ -124,4 +125,5 @@ class importIncomesDeductions(models.TransientModel):
 
                 if fees_values:
                     income_id.create_plan()
+                income_id.get_amounts()
             line_number += 1

@@ -8,6 +8,7 @@ class otherIncomes(models.Model):
     _name = 'hr.other.incomes'
     _description = 'Ingresos: Modelo para el agregar otros ingresos para calculo de planilla'
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = 'employee_id asc, start_date desc'
 
     name = fields.Char(string="Descripcion",tracking=True)
     employee_id = fields.Many2one('hr.employee',string="Empleado", tracking=True)
@@ -23,6 +24,47 @@ class otherIncomes(models.Model):
     monthly_type = fields.Selection([('first','Primera'),('second','Segunda')],string="Quincena", default="first")
     quotes_number = fields.Integer(string="Cuotas")
     by_quotes = fields.Boolean(string="Por Cuotas")
+    payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
+    pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
+    amount_to_applied = fields.Float(string="Monto a Aplica", compute="get_amounts", store=True)
+    
+    @api.depends(
+        'payslip_id',
+        'payslip_id.state',
+        'payment_plan_ids',
+        'payment_plan_ids.state',
+        'payment_plan_ids.amount',
+        'payment_plan_ids.payslip_id',
+        'by_quotes',
+        'amount')
+    def get_amounts(self):
+        for rec in self:
+            total_payment_amount = 0
+            total_pending_amount = 0
+            applied_amount = 0
+            if rec.by_quotes:
+                for line in rec.payment_plan_ids:
+                    if line.state == 'paid':
+                        total_payment_amount += line.amount
+
+                    if line.state in ['draft','validated',False,None]:
+                        total_pending_amount += line.amount
+                        if applied_amount == 0:
+                            applied_amount = line.amount
+            else:
+                if rec.payslip_id:
+                    if rec.payslip_id.state == 'paid':
+                        total_payment_amount = rec.amount
+                    if rec.payslip_id.state in ['draft','validated',False,None]:
+                        total_pending_amount = rec.amount
+                        applied_amount = rec.amount
+                else:
+                    total_pending_amount = rec.amount
+                    applied_amount = rec.amount
+            
+            rec.payment_amount = total_payment_amount
+            rec.pending_amount = total_pending_amount
+            rec.amount_to_applied = applied_amount
 
     @api.onchange('input_type_id')
     def _onchange_input_type_id(self):
