@@ -278,27 +278,42 @@ class lotFormatXlsx(models.AbstractModel):
                             incomes_name.append(rule_name)
                             incomes_sequence[rule_name] = sequence
 
-                        if line.salary_rule_id.code == 'HEF':
-                            domain = [
-                                ('payslip_date_from', '<=', payslip.date_from),
-                                ('payslip_date_to', '>=', payslip.date_to),
-                                ('employee_id', '=', payslip.employee_id.id),
-                                ('state', '=', 'finalized')
-                            ]
-                            mark_id = self.env['hr.employee.attendance.record'].search(domain)
-                            if mark_id:
+                        domain = [
+                            ('payslip_date_from', '<=', payslip.date_from),
+                            ('payslip_date_to', '>=', payslip.date_to),
+                            ('employee_id', '=', payslip.employee_id.id),
+                            ('state', '=', 'finalized')
+                        ]
+                        mark_id = self.env['hr.employee.attendance.record'].search(domain)
+                        if mark_id:
+                            if line.salary_rule_id.code == 'HEF':
                                 # Solo agregar una vez para este empleado
                                 if not any(income['code'] == 'HEFF' for income in incomes):
 
-                                    if 'Cant. Horas Feriado' not in incomes_name:
-                                        incomes_name.append('Cant. Horas Feriado')
+                                    if 'Cant. Horas Extra Feriado' not in incomes_name:
+                                        incomes_name.append('Cant. Horas Extra Feriado')
 
-                                    incomes_sequence['Cant. Horas Feriado'] = sequence - 1
+                                    incomes_sequence['Cant. Horas Extra Feriado'] = sequence - 1
 
                                     incomes.append({
-                                        'rule_name': 'Cant. Horas Feriado',
+                                        'rule_name': 'Cant. Horas Extra Feriado',
                                         'amount': round(mark_id.eh_holiday_extra, 2),
                                         'code': 'HEFF'
+                                    })
+
+                            if line.salary_rule_id.code == 'HF':
+                                # Solo agregar una vez para este empleado
+                                if not any(income['code'] == 'HFF' for income in incomes):
+
+                                    if 'Cant. Dias Feriado' not in incomes_name:
+                                        incomes_name.append('Cant. Dias Feriado')
+
+                                    incomes_sequence['Cant. Dias Feriado'] = sequence - 1
+
+                                    incomes.append({
+                                        'rule_name': 'Cant. Dias Feriado',
+                                        'amount': round(mark_id.eh_holiday/8, 2),
+                                        'code': 'HFF'
                                     })
 
                         # if line.salary_rule_id.name not in incomes_name:
