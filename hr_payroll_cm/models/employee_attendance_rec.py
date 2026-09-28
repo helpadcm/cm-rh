@@ -171,7 +171,32 @@ class employeeAttendanceRecords(models.Model):
         res = super(employeeAttendanceRecords, self).unlink()
         return res
                 
-    
+    def update_personal_action(self):
+        for line in self.record_line_ids:
+            if line.turn_type_a.id == line.turn_type_b.id:
+                personal_action = False
+                if line.turn_type_a.code == 'LID':
+                    personal_action = 'free'
+                elif line.turn_type_a.code == 'F':
+                    personal_action = 'holiday'
+                elif line.turn_type_a.code == 'INC':
+                    personal_action = 'inc'
+                elif line.turn_type_a.code == 'PER':
+                    personal_action = 'special'
+                elif line.turn_type_a.code == 'COM':
+                    personal_action = 'comp'
+                elif line.turn_type_a.code == 'VAC':
+                    personal_action = 'vac'
+                elif line.turn_type_a.code == 'CAP':
+                    personal_action = 'cap'
+                elif line.turn_type_a.code == 'FT':
+                    personal_action = 'wh'
+                elif line.turn_type_a.code == 'CUB':
+                    personal_action = 'coe'
+
+                if personal_action:                        
+                    line.write({'personal_action': personal_action})
+                    line.personal_action_change()
 
 class lineAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.line'
