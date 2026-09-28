@@ -14,6 +14,8 @@ actions = [
     ('holiday', 'Feriado'),
     ('comp', 'Compensatorio'),
     ('homeoffice', 'Home Office'),
+    ('sa', 'Sin Almuerzo'),
+    ('suspention', 'Suspención'),
     ('other', 'Otros'),
 ]
 
@@ -181,8 +183,14 @@ class employeeAttendanceRecords(models.Model):
                     personal_action = 'holiday'
                 elif line.turn_type_a.code == 'INC':
                     personal_action = 'inc'
-                elif line.turn_type_a.code == 'PER':
+                elif line.turn_type_a.code in ['PER','PGS','PSGS']:
                     personal_action = 'special'
+                elif line.turn_type_a.code == 'SA':
+                    personal_action = 'sa'
+                elif line.turn_type_a.code == 'SUSP':
+                    personal_action = 'suspention'
+                elif line.turn_type_a.code == 'HOME':
+                    personal_action = 'homeoffice'
                 elif line.turn_type_a.code == 'COM':
                     personal_action = 'comp'
                 elif line.turn_type_a.code == 'VAC':
@@ -237,7 +245,7 @@ class lineAttendanceRecords(models.Model):
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
             if self.personal_action == 'free':
                 self.ordinary_hours = 0
-            elif self.personal_action in ['holiday','inc','special','comp','vac','cap']:
+            elif self.personal_action in ['holiday','inc','special','comp','vac','cap','homeoffice']:
                 self.ordinary_hours = 8
 
     @api.onchange('check_type')

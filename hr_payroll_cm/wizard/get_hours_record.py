@@ -148,8 +148,14 @@ class getRecordHours(models.TransientModel):
                                 personal_action = 'holiday'
                             elif turn_line_id.turn_type_a.code == 'INC':
                                 personal_action = 'inc'
-                            elif turn_line_id.turn_type_a.code == 'PER':
+                            elif turn_line_id.turn_type_a.code in ['PER','PGS','PSGS']:
                                 personal_action = 'special'
+                            elif turn_line_id.turn_type_a.code == 'SA':
+                                personal_action = 'sa'
+                            elif turn_line_id.turn_type_a.code == 'SUSP':
+                                personal_action = 'suspention'
+                            elif turn_line_id.turn_type_a.code == 'HOME':
+                                personal_action = 'homeoffice'
                             elif turn_line_id.turn_type_a.code == 'COM':
                                 personal_action = 'comp'
                             elif turn_line_id.turn_type_a.code == 'VAC':
@@ -263,6 +269,8 @@ class getRecordHours(models.TransientModel):
                         'total_hours': total_h
                     })
 
+                print ("#################################")
+                print (vals)
                 line_id = self.env['hr.employee.attendance.line'].create(vals)
                 line_id.personal_action_change()
 
