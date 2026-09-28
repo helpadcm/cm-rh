@@ -80,7 +80,7 @@ class lotFormatXlsx(models.AbstractModel):
                     precision_digits=precision
                 )
 
-                total_neto = float_round(total_devengado - total_deducciones, precision_digits=precision)
+                total_neto = employee.get('net_amount', 0.0)
 
                 # Acumular valores al total del departamento usando float_round
                 dept_totals['Total Devengado'] = float_round(dept_totals['Total Devengado'] + total_devengado, precision_digits=precision)
@@ -317,6 +317,9 @@ class lotFormatXlsx(models.AbstractModel):
                             deductions_sequence[rule_name] = sequence
                         deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
 
+            net_line = payslip.line_ids.filtered(lambda l: l.code == 'NET')
+            net_amount = net_line.total if net_line else (payslip.net_wage or 0.0)
+
             employee_vals = {
                 'contract_init_date': payslip.employee_id.contract_date_start,
                 'entry_date': payslip.employee_id.contract_date_start.strftime('%d/%m/%Y'),
@@ -328,7 +331,8 @@ class lotFormatXlsx(models.AbstractModel):
                 'level': int(payslip.employee_id.level_number),
                 'salary': float_round(payslip.employee_id.wage, precision_digits=2),
                 'deductions': deductions,
-                'incomes': incomes
+                'incomes': incomes,
+                'net_amount': float_round(net_amount, precision_digits=2),
             }
 
             if department_name not in departments_dict:
