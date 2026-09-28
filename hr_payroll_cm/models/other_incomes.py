@@ -26,7 +26,7 @@ class otherIncomes(models.Model):
     by_quotes = fields.Boolean(string="Por Cuotas")
     payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
     pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
-    amount_to_applied = fields.Float(string="Monto a Aplica", compute="get_amounts", store=True)
+    amount_to_applied = fields.Float(string="Monto Aplicar", compute="get_amounts", store=True)
     
     @api.depends(
         'payslip_id',

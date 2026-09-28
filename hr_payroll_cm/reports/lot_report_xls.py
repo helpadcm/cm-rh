@@ -66,7 +66,7 @@ class lotFormatXlsx(models.AbstractModel):
 
             for employee in department_info.get('employees'):
                 salario_quincenal = employee.get('salary')
-                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM'] )
+                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM','HEFF'] )
                 total_devengado = total_ingresos  # **CORREGIDO**
                 total_deducciones = abs(sum(x['amount'] for x in employee.get('deductions')))
                 total_neto = total_devengado - total_deducciones
@@ -216,14 +216,14 @@ class lotFormatXlsx(models.AbstractModel):
 
                     if entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' not in incomes_name:
                         incomes_name.append('Horas 25%')
-                        incomes.append({'rule_name': 'Horas 25%', 'amount': entry.number_of_hours, 'code': 'EXT25'})
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT25'})
                         incomes_sequence['Horas 25%'] = 4
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 5
 
                     elif entry.work_entry_type_id.code == 'OVERTIME' and 'Horas 25%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 25%', 'amount': entry.number_of_hours, 'code': 'EXT25'})
+                        incomes.append({'rule_name': 'Horas 25%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT25'})
                         incomes_sequence['Horas 25%'] = 4
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
@@ -231,14 +231,14 @@ class lotFormatXlsx(models.AbstractModel):
 
                     if entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' not in incomes_name:
                         incomes_name.append('Horas 50%')
-                        incomes.append({'rule_name': 'Horas 50%', 'amount': entry.number_of_hours, 'code': 'EXT50'})
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT50'})
                         incomes_sequence['Horas 50%'] = 6
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 7
 
                     elif entry.work_entry_type_id.code == 'OVERTIME50' and 'Horas 50%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 50%', 'amount': entry.number_of_hours, 'code': 'EXT50'})
+                        incomes.append({'rule_name': 'Horas 50%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT50'})
                         incomes_sequence['Horas 50%'] = 6
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
@@ -246,14 +246,14 @@ class lotFormatXlsx(models.AbstractModel):
 
                     if entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' not in incomes_name:
                         incomes_name.append('Horas 75%')
-                        incomes.append({'rule_name': 'Horas 75%', 'amount': entry.number_of_hours, 'code': 'EXT75'})
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT75'})
                         incomes_sequence['Horas 75%'] = 8
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
                         incomes_sequence[entry.work_entry_type_id.name] = 9
 
                     elif entry.work_entry_type_id.code == 'OVERTIME75' and 'Horas 75%' in incomes_name:
-                        incomes.append({'rule_name': 'Horas 75%', 'amount': entry.number_of_hours, 'code': 'EXT75'})
+                        incomes.append({'rule_name': 'Horas 75%', 'amount': round(entry.number_of_hours, 2), 'code': 'EXT75'})
                         incomes_sequence['Horas 75%'] = 8
 
                         incomes.append({'rule_name': entry.work_entry_type_id.name, 'amount': entry.amount, 'code': entry.work_entry_type_id.code})
@@ -267,7 +267,6 @@ class lotFormatXlsx(models.AbstractModel):
                             incomes_sequence['Horas 50%'] = 7
                         elif entry.work_entry_type_id.code == 'OVERTIME75':
                             incomes_sequence['Horas 75%'] = 9
-                        
 
             for line in payslip.line_ids:
                 if line.total != 0:
@@ -278,6 +277,16 @@ class lotFormatXlsx(models.AbstractModel):
                         if rule_name not in incomes_name:
                             incomes_name.append(rule_name)
                             incomes_sequence[rule_name] = sequence
+
+                        if line.salary_rule_id.code == 'HEF':
+                            domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
+                            mark_id = self.env['hr.employee.attendance.record'].search(domain)
+
+                            if mark_id:
+                                incomes_name.append('Cant. Horas Feriado')
+                                incomes_sequence['Cant. Horas Feriado'] = sequence - 1
+
+                                incomes.append({'rule_name': 'Cant. Horas Feriado', 'amount': round(mark_id.eh_holiday_extra, 2), 'code': 'HEFF'})
 
                         # if line.salary_rule_id.name not in incomes_name:
                         #     incomes_name.append(line.salary_rule_id.name)
