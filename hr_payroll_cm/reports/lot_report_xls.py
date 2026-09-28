@@ -279,14 +279,27 @@ class lotFormatXlsx(models.AbstractModel):
                             incomes_sequence[rule_name] = sequence
 
                         if line.salary_rule_id.code == 'HEF':
-                            domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
+                            domain = [
+                                ('payslip_date_from', '<=', payslip.date_from),
+                                ('payslip_date_to', '>=', payslip.date_to),
+                                ('employee_id', '=', payslip.employee_id.id),
+                                ('state', '=', 'finalized')
+                            ]
                             mark_id = self.env['hr.employee.attendance.record'].search(domain)
-
                             if mark_id:
-                                incomes_name.append('Cant. Horas Feriado')
-                                incomes_sequence['Cant. Horas Feriado'] = sequence - 1
+                                # Solo agregar una vez para este empleado
+                                if not any(income['code'] == 'HEFF' for income in incomes):
 
-                                incomes.append({'rule_name': 'Cant. Horas Feriado', 'amount': round(mark_id.eh_holiday_extra, 2), 'code': 'HEFF'})
+                                    if 'Cant. Horas Feriado' not in incomes_name:
+                                        incomes_name.append('Cant. Horas Feriado')
+
+                                    incomes_sequence['Cant. Horas Feriado'] = sequence - 1
+
+                                    incomes.append({
+                                        'rule_name': 'Cant. Horas Feriado',
+                                        'amount': round(mark_id.eh_holiday_extra, 2),
+                                        'code': 'HEFF'
+                                    })
 
                         # if line.salary_rule_id.name not in incomes_name:
                         #     incomes_name.append(line.salary_rule_id.name)
