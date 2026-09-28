@@ -66,7 +66,7 @@ class lotFormatXlsx(models.AbstractModel):
 
             for employee in department_info.get('employees'):
                 salario_quincenal = employee.get('salary')
-                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM','HEFF'] )
+                total_ingresos = sum(x['amount'] for x in employee.get('incomes') if x.get('code') not in ['EXT25','EXT50','EXT75','SM','HEFF','HFF'] )
                 total_devengado = total_ingresos  # **CORREGIDO**
                 total_deducciones = abs(sum(x['amount'] for x in employee.get('deductions')))
                 total_neto = total_devengado - total_deducciones
