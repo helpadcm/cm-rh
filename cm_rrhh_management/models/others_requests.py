@@ -173,28 +173,29 @@ class othersRequests(models.Model):
     def send_email(self, type_business):
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
         base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
-        if type_business == 'hotel':
-            template_id = self.env.ref('cm_rrhh_management.other_request_email_template')
-        else:
-            template_id = self.env.ref('cm_rrhh_management.ferry_request_email_template')
 
         email_cc = ','.join(filter(None, [
             self.employee_id.private_email,
             self.business_id.cc_email,
         ]))
 
+        email_values = {'email_cc': email_cc, 'email_to': self.business_id.email}
+
+        if type_business == 'hotel':
+            template_id = self.env.ref('cm_rrhh_management.other_request_email_template')
+        else:
+            template_id = self.env.ref('cm_rrhh_management.ferry_request_email_template')
+
         if self.tickets_request:
             template_id = self.env.ref('cm_rrhh_management.rrhh_email_fly_ticket_template')
+            email_values.update({'email_to': 'conectividad@cmairlines.com'})
 
         template_ctx = {'action_url': base_url}
         template_id.attachment_ids = [(6, 0, self.attachment_ids.ids)]
         template_id.with_context(**template_ctx).sudo().send_mail(
             self.id, 
             force_send=True,
-            email_values={
-                'email_cc': email_cc,
-                'email_to': 'conectividad@cmairlines.com'
-            }
+            email_values=email_values
         )
 
     def convert_date(self, date):

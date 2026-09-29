@@ -239,13 +239,14 @@ class lineAttendanceRecords(models.Model):
     turn_note = fields.Text(string="Notas de turno")
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Revisar segun")
 
-    @api.onchange('personal_action')
+    @api.onchange('personal_action','check_type')
     def personal_action_change(self):
         if self.personal_action:
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
-            if self.personal_action == 'free':
+            if self.personal_action == 'free' and self.check_type == 'turn':
                 self.ordinary_hours = 0
-            elif self.personal_action in ['holiday','inc','special','comp','vac','cap','homeoffice']:
+            
+            if self.personal_action in ['holiday','inc','special','comp','vac','cap','homeoffice']:
                 self.ordinary_hours = 8
 
     @api.onchange('check_type')
