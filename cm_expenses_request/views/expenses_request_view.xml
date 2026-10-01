@@ -198,38 +198,35 @@
                     <field name="date"/>
                     <field name="purpose"/>
                     <field name="refund_state" widget="badge" decoration-info="refund_state == 'na'" decoration-danger="refund_state == 'without_refund'" decoration-success="refund_state == 'refunded'" />
+                    <field name="advance_amount" sum="Total"/>
                     <field name="state"/>
                 </list>
             </field>
         </record>
 
-        <!-- <record id="order_handling_search_view" model="ir.ui.view">
-            <field name="name">Ordenes de venta search</field>
+        <record id="expenses_request_search_view" model="ir.ui.view">
+            <field name="name">COBUS search</field>
             <field name="model">cm.expenses.request</field>
             <field name="arch" type="xml">
-                <search string="Ordenes de venta">
-                    <field name="name" filter_domain="[('name', 'ilike', self)]"/>
-                    <field name="sender_id" filter_domain="[('sender_id', 'ilike', self)]"/>
-                    <field name="receiver_id" filter_domain="[('receiver_id', 'ilike', self)]"/>
-                    <field name="partner_id" filter_domain="[('partner_id', 'ilike', self)]"/>
+                <search string="COBUS">
+                    <field name="employee_id" filter_domain="[('employee_id', 'ilike', self)]"/>
+                    <field name="assign_to_id" filter_domain="[('assign_to_id', 'ilike', self)]"/>
+                    <field name="purpose" filter_domain="[('purpose', 'ilike', self)]"/>
                     <separator/>
-                    <filter string="Por Cobrar" name="upon_delivery_filter" domain="[('modality','=','upon_delivery')]"/>
-                    <filter string="Contado" name="counted_filter" domain="[('modality','=','counted')]"/>
-                    <filter string="Credito" name="credit_filter" domain="[('modality','=','credit')]"/>
+                    <filter string="Aprobado" name="approved_filter" domain="[('state','=','approved')]"/>
+                    <filter string="Otorgado" name="assigned_filter" domain="[('state','=','assigned')]"/>
                     <separator/>
-                    <filter string="Creados Hoy" name="today" domain="[('create_date','>=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
-                    <filter string="Mis Registros" name="my_records" domain="[('create_uid','=',uid)]"/>
-                    <group expand="0" string="Group By">
-                        <filter name="group_origin" string="Origen" domain="[]" context="{'group_by':'origin_id'}"/>
-                        <filter name="group_destination" string="Destino" domain="[]" context="{'group_by':'destination_id'}"/>
-                        <filter name="group_modality" string="Modalidad" domain="[]" context="{'group_by':'modality'}"/>
+                    <group>
+                        <filter name="group_request_by" string="Solicitado por" domain="[]" context="{'group_by':'employee_id'}"/>
+                        <filter name="group_assigned" string="Asignado a" domain="[]" context="{'group_by':'assign_to_id'}"/>
+                        <filter name="group_date" string="Fecha de solicitud" domain="[]" context="{'group_by':'date'}"/>
                         <filter name="group_state" string="Estado" domain="[]" context="{'group_by':'state'}"/>
-                        <filter name="group_user" string="Agente" domain="[]" context="{'group_by':'employee_id'}"/>
-                        <filter name="group_client" string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter name="group_department" string="Departamento" domain="[]" context="{'group_by':'department_id'}"/>
+                        <filter name="group_process" string="Proceso" domain="[]" context="{'group_by':'process_id'}"/>
                     </group>
                 </search>
             </field>
-        </record> -->
+        </record>
 
         <record id="action_expenses_request" model="ir.actions.act_window">            
             <field name="name">COBUS</field>

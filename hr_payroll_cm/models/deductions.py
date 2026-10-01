@@ -31,13 +31,7 @@ class otherDeductions(models.Model):
     amount_to_deducted = fields.Float(string="Monto a Deducir", compute="get_amounts", store=True)
 
     def get_amount_to_deduct(self):
-        if self.by_quotes:
-            for line in self.payment_plan_ids:
-                if line.state in [False, None, 'draft','validated']:
-                    self.amount_to_deducted = line.amount
-                    break
-        else:
-            self.amount_to_deducted = self.amount
+        self.get_amounts()
 
     @api.depends(
         'payslip_id',
@@ -46,36 +40,84 @@ class otherDeductions(models.Model):
         'payment_plan_ids.state',
         'payment_plan_ids.amount',
         'payment_plan_ids.payslip_id',
+        'payment_type',
+        'monthly_type',
         'by_quotes',
-        'amount')
+        'amount'
+    )
     def get_amounts(self):
         for rec in self:
-            total_payment_amount = 0
-            total_pending_amount = 0
-            deduct_amount = 0
+            payment_amount = 0.0
+            pending_amount = 0.0
+            deduct_amount = 0.0
             if rec.by_quotes:
-                for line in rec.payment_plan_ids:
-                    if line.state == 'paid':
-                        total_payment_amount += line.amount
+                paid_lines = rec.payment_plan_ids.filtered(lambda l: l.state == 'paid')
+                pending_lines = rec.payment_plan_ids.filtered(lambda l: l.state != 'paid')
 
-                    if line.state in ['draft','validated',False,None]:
-                        total_pending_amount += line.amount
-                        if deduct_amount == 0:
-                            deduct_amount = line.amount
+                payment_amount = sum(paid_lines.mapped('amount'))
+                pending_amount = sum(pending_lines.mapped('amount'))
+
+                first_pending = pending_lines[0] if pending_lines else False
+                if first_pending:
+                    if rec.payment_type == 'monthly':
+                        if first_pending.payslip_id and first_pending.state in ['draft','validated']:
+                            deduct_amount = first_pending.amount
+                        else:
+                            if paid_lines:
+                                last_paid_id = paid_lines[-1]
+                                next_to, next_from = self.get_next_payslip_date(last_paid_id.payslip_id)
+                                next_pending = pending_lines.filtered(lambda l:l.date and next_from <= l.date <= next_to)[:1]
+                                if next_pending:
+                                    deduct_amount = next_pending.amount
+                            else:
+                                current_from, current_to = rec.get_initial_payslip_date(rec.start_date)
+                                if current_from and current_to:
+                                    next_pending = pending_lines.filtered(lambda l:l.date and current_from <= l.date <= current_to)[:1]
+                                    if next_pending:
+                                        deduct_amount = next_pending.amount
+                    else:
+                        deduct_amount = first_pending.amount if first_pending else 0.0
             else:
-                if rec.payslip_id:
-                    if rec.payslip_id.state == 'paid':
-                        total_payment_amount = rec.amount
-                    if rec.payslip_id.state in ['draft','validated',False,None]:
-                        total_pending_amount = rec.amount
-                        deduct_amount = rec.amount
+                payslip_state = rec.payslip_id.state if rec.payslip_id else False
+
+                if payslip_state == 'paid':
+                    payment_amount = rec.amount
+                    pending_amount = 0.0
+                    deduct_amount = 0.0
                 else:
-                    total_pending_amount = rec.amount
+                    payment_amount = 0.0
+                    pending_amount = rec.amount
                     deduct_amount = rec.amount
-            
-            rec.payment_amount = total_payment_amount
-            rec.pending_amount = total_pending_amount
+
+            rec.payment_amount = payment_amount
+            rec.pending_amount = pending_amount
             rec.amount_to_deducted = deduct_amount
+
+    def get_next_payslip_date(self, payslip):
+        last_from = payslip.date_from
+        last_to = payslip.date_to
+        if last_from.day == 1 and last_to.day <= 15:
+            next_from = last_from.replace(day=16)
+            next_to = (last_from + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
+        else:
+            next_from = (last_from + relativedelta(months=1)).replace(day=1)
+            next_to = next_from.replace(day=15)
+        return next_to, next_from
+
+    def get_initial_payslip_date(self, start_date, current_date=None):
+        current_date = current_date or date.today()
+
+        # La deducción todavía no ha comenzado
+        if start_date > current_date:
+            return False, False
+
+        if current_date.day <= 15:
+            current_from = current_date.replace(day=1)
+            current_to = current_date.replace(day=15)
+        else:
+            current_from = current_date.replace(day=16)
+            current_to = (current_date + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
+        return current_from, current_to
 
     @api.onchange('input_type_id')
     def _onchange_input_type_id(self):
@@ -99,7 +141,7 @@ class otherDeductions(models.Model):
     def send_cancel(self):
         self.state = 'cancel'
 
-    @api.constrains('start_date','end_date')
+    @api.onchange('start_date','end_date')
     def _validate_dates(self):
         for rec in self:
             if rec.start_date and rec.end_date:
@@ -255,26 +297,26 @@ class otherDeductions(models.Model):
         else:
             raise ValidationError("No existen registros de deducciones")
 
-    class otherPaymentPlanDed(models.Model):
-        _name = 'other.deductions.payment.plan'
-        _description = 'Plan de pago otras deducciones'
+class otherPaymentPlanDed(models.Model):
+    _name = 'other.deductions.payment.plan'
+    _description = 'Plan de pago otras deducciones'
 
-        number = fields.Integer(string="# Cuota")
-        date = fields.Date(string="Fecha")
-        state = fields.Selection(related='payslip_id.state',string="Estado")
-        amount = fields.Float(string="Monto")
-        payslip_id = fields.Many2one('hr.payslip',string="Nomina")
-        other_deduction_id = fields.Many2one('hr.other.deductions',string="Otra Deduccion")
-        rec_deduction_id = fields.Many2one('hr.salary.attachment',string="Rec. Deduccion")
-        deduction_created = fields.Boolean(string="Deduccion creada")
+    number = fields.Integer(string="# Cuota")
+    date = fields.Date(string="Fecha")
+    state = fields.Selection(related='payslip_id.state',string="Estado")
+    amount = fields.Float(string="Monto")
+    payslip_id = fields.Many2one('hr.payslip',string="Nomina")
+    other_deduction_id = fields.Many2one('hr.other.deductions',string="Otra Deduccion")
+    rec_deduction_id = fields.Many2one('hr.salary.attachment',string="Rec. Deduccion")
+    deduction_created = fields.Boolean(string="Deduccion creada")
 
-        def unlink(self):
-            for val in self:
-                if val.state == 'paid':
-                    raise ValidationError("No puede eliminar un registro pagado")
-            return super().unlink()
+    def unlink(self):
+        for val in self:
+            if val.state == 'paid':
+                raise ValidationError("No puede eliminar un registro pagado")
+        return super().unlink()
 
-        # @api.onchange('state')
-        # def update_paid_amount(self):
-        #     if self.state == 'paid':
-        #         self.deduction_id.paid_amount += self.amount
+    # @api.onchange('state')
+    # def update_paid_amount(self):
+    #     if self.state == 'paid':
+    #         self.deduction_id.paid_amount += self.amount

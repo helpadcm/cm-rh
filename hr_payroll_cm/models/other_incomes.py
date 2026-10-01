@@ -36,34 +36,34 @@ class otherIncomes(models.Model):
         'payment_plan_ids.amount',
         'payment_plan_ids.payslip_id',
         'by_quotes',
-        'amount')
+        'amount'
+    )
     def get_amounts(self):
         for rec in self:
-            total_payment_amount = 0
-            total_pending_amount = 0
-            applied_amount = 0
             if rec.by_quotes:
-                for line in rec.payment_plan_ids:
-                    if line.state == 'paid':
-                        total_payment_amount += line.amount
+                paid_lines = rec.payment_plan_ids.filtered(lambda l: l.state == 'paid')
+                pending_lines = rec.payment_plan_ids.filtered(lambda l: l.state != 'paid')
 
-                    if line.state in ['draft','validated',False,None]:
-                        total_pending_amount += line.amount
-                        if applied_amount == 0:
-                            applied_amount = line.amount
+                payment_amount = sum(paid_lines.mapped('amount'))
+                pending_amount = sum(pending_lines.mapped('amount'))
+
+                first_pending = pending_lines[0] if pending_lines else False
+                applied_amount = first_pending.amount if first_pending else 0.0
+
             else:
-                if rec.payslip_id:
-                    if rec.payslip_id.state == 'paid':
-                        total_payment_amount = rec.amount
-                    if rec.payslip_id.state in ['draft','validated',False,None]:
-                        total_pending_amount = rec.amount
-                        applied_amount = rec.amount
+                payslip_state = rec.payslip_id.state if rec.payslip_id else False
+
+                if payslip_state == 'paid':
+                    payment_amount = rec.amount
+                    pending_amount = 0.0
+                    applied_amount = 0.0
                 else:
-                    total_pending_amount = rec.amount
+                    payment_amount = 0.0
+                    pending_amount = rec.amount
                     applied_amount = rec.amount
-            
-            rec.payment_amount = total_payment_amount
-            rec.pending_amount = total_pending_amount
+
+            rec.payment_amount = payment_amount
+            rec.pending_amount = pending_amount
             rec.amount_to_applied = applied_amount
 
     @api.onchange('input_type_id')

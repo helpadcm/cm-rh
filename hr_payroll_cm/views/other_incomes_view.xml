@@ -38,11 +38,11 @@
                     </group>
                     <notebook>
                         <page name="payment_plan" string="Plan de pago" invisible="not by_quotes">
-                            <field name="payment_plan_ids">
-                                <list editable="bottom" create="false">
+                            <field name="payment_plan_ids" readonly="state in ['completed','cancel']">
+                                <list editable="bottom" create="false" delete="false">
                                     <field name="number" readonly="1"/>
                                     <field name="date" readonly="1"/>
-                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="amount" readonly="state not in ['draft',False]" sum="Total"/>
                                     <field name="state" readonly="1"/>
                                 </list>
                             </field>
