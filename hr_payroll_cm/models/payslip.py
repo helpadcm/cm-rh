@@ -274,6 +274,7 @@ class HrPayslipBonus(models.Model):
     def get_other_incomes(self):
         company = self.env.user.company_id
         precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         deduction_lines_ids = self.input_line_ids.filtered(lambda line: line.input_type_id.entry_type == 'deduction')
         if deduction_lines_ids:
             deduction_lines_ids.unlink()
@@ -309,14 +310,14 @@ class HrPayslipBonus(models.Model):
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         if mark_ids:
-            eh_amount = float_round(sum(mark_ids.mapped('eh_holiday')), precision_digits=precision)
+            eh_amount = sum(mark_ids.mapped('eh_holiday'))
             ehx_amount = float_round(sum(mark_ids.mapped('eh_holiday_extra')), precision_digits=precision)
             wage = self.employee_id.contract_wage * 2
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
                 if eh_type_id:
-                    hours_amount = float_round((wage / 30 / 8), precision_digits=precision)
-                    amount = float_round((hours_amount * eh_amount), precision_digits=precision)
+                    hours_amount = (wage / 30 / 8)
+                    amount = float_round((hours_amount * eh_amount), precision_rounding=rounding)
                     vals.update({
                         'input_type_id': eh_type_id.id,
                         'amount': amount,
@@ -392,6 +393,7 @@ class workedDaysInh(models.Model):
     def _compute_amount(self):
         company = self.env.user.company_id
         precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         for worked_days in self:
             if worked_days.payslip_id.edited or worked_days.payslip_id.state != 'draft':
                 continue
@@ -408,16 +410,16 @@ class workedDaysInh(models.Model):
                 amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             else:
                 if worked_days.work_entry_type_id.code == 'OVERTIME':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_digits=precision)
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
+                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_rounding=rounding)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME50':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.50), precision_digits=precision)
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
+                    hours_amount = float_round(((wage / 30 / 8) * 1.50), precision_rounding=rounding)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME75':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.75), precision_digits=precision)
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
+                    hours_amount = float_round(((wage / 30 / 8) * 1.75), precision_rounding=rounding)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':
                     date_from = worked_days.payslip_id.date_from
@@ -458,7 +460,7 @@ class workedDaysInh(models.Model):
                         daily_amount = (employee_id.contract_wage * 2) / 30
 
                         # Salario proporcional
-                        amount_days = float_round((daily_amount * days_worked), precision_digits=precision)
+                        amount_days = float_round((daily_amount * days_worked), precision_rounding=rounding)
                 else:
                     attendance_hours = sum(
                         wd.number_of_hours for wd in worked_days.payslip_id.worked_days_line_ids
