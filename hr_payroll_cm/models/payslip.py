@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time, timedelta
+from odoo.tools import float_round
 
 from odoo.tools.safe_eval import safe_eval, datetime as safe_eval_datetime, dateutil as safe_eval_dateutil
 
@@ -198,6 +199,8 @@ class HrPayslipBonus(models.Model):
     @api.depends('employee_id', 'version_id', 'struct_id', 'date_from', 'date_to')
     def _compute_worked_days_line_ids(self):
         res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
         valid_slips = self.filtered(lambda p: p.employee_id and p.date_from and p.date_to and p.struct_id)
         if not valid_slips:
             return
@@ -240,7 +243,7 @@ class HrPayslipBonus(models.Model):
                         }
                         payslip.update({'worked_days_line_ids': [(0, 0, values)]})
                 else:
-                    hours = mark_id.pay_extra_hours
+                    hours = float_round(mark_id.pay_extra_hours, precision_digits=precision)
                     if hours > 0:
                         entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
                         if not entry_work_id:
@@ -385,6 +388,8 @@ class workedDaysInh(models.Model):
         'is_paid', 'number_of_hours', 'payslip_id', 'version_id.wage', 'version_id.hourly_wage', 'payslip_id.sum_worked_hours',
         'work_entry_type_id.amount_rate', 'work_entry_type_id.is_extra_hours')
     def _compute_amount(self):
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
         for worked_days in self:
             if worked_days.payslip_id.edited or worked_days.payslip_id.state != 'draft':
                 continue
@@ -394,25 +399,23 @@ class workedDaysInh(models.Model):
             version = worked_days.payslip_id.version_id
             amount_rate = worked_days.work_entry_type_id.amount_rate
             amount_days = 0
+            employee_id = worked_days.payslip_id.employee_id
+            wage = employee_id.contract_wage * 2
             if worked_days.payslip_id.wage_type == "hourly":
                 hourly_rate = version.hourly_wage
                 amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             else:
-                employee_id = worked_days.payslip_id.employee_id
                 if worked_days.work_entry_type_id.code == 'OVERTIME':
-                    wage = employee_id.contract_wage * 2
-                    hours_amount = (wage / 30 / 8) * 1.25
-                    amount_days = hours_amount * worked_days.number_of_hours
+                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_digits=precision)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME50':
-                    wage = employee_id.contract_wage * 2
-                    hours_amount = (wage / 30 / 8) * 1.50
-                    amount_days = hours_amount * worked_days.number_of_hours
+                    hours_amount = float_round(((wage / 30 / 8) * 1.50), precision_digits=precision)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME75':
-                    wage = employee_id.contract_wage * 2
-                    hours_amount = (wage / 30 / 8) * 1.75
-                    amount_days = hours_amount * worked_days.number_of_hours
+                    hours_amount = float_round(((wage / 30 / 8) * 1.75), precision_digits=precision)
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_digits=precision)
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':
                     date_from = worked_days.payslip_id.date_from
@@ -453,7 +456,7 @@ class workedDaysInh(models.Model):
                         daily_amount = (employee_id.contract_wage * 2) / 30
 
                         # Salario proporcional
-                        amount_days = daily_amount * days_worked
+                        amount_days = float_round((daily_amount * days_worked), precision_digits=precision)
                 else:
                     attendance_hours = sum(
                         wd.number_of_hours for wd in worked_days.payslip_id.worked_days_line_ids
