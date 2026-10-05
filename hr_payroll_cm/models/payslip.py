@@ -272,6 +272,8 @@ class HrPayslipBonus(models.Model):
     #     return res
 
     def get_other_incomes(self):
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
         deduction_lines_ids = self.input_line_ids.filtered(lambda line: line.input_type_id.entry_type == 'deduction')
         if deduction_lines_ids:
             deduction_lines_ids.unlink()
@@ -307,14 +309,14 @@ class HrPayslipBonus(models.Model):
         domain = [('payslip_date_from','<=',self.date_from),('payslip_date_to','>=',self.date_to),('employee_id','=',self.employee_id.id),('state','=','finalized')]
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         if mark_ids:
-            eh_amount = sum(mark_ids.mapped('eh_holiday'))
-            ehx_amount = sum(mark_ids.mapped('eh_holiday_extra'))
+            eh_amount = float_round(sum(mark_ids.mapped('eh_holiday')), precision_digits=precision)
+            ehx_amount = float_round(sum(mark_ids.mapped('eh_holiday_extra')), precision_digits=precision)
             wage = self.employee_id.contract_wage * 2
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
                 if eh_type_id:
-                    hours_amount = (wage / 30 / 8)
-                    amount = hours_amount * eh_amount
+                    hours_amount = float_round((wage / 30 / 8), precision_digits=precision)
+                    amount = float_round((hours_amount * eh_amount), precision_digits=precision)
                     vals.update({
                         'input_type_id': eh_type_id.id,
                         'amount': amount,
@@ -332,12 +334,12 @@ class HrPayslipBonus(models.Model):
             if ehx_amount > 0:
                 ehx_type_id = self.env['hr.payslip.input.type'].search([('code','=','HEF')])
                 if ehx_type_id:
-                    hours_amount = (wage / 30 / 8) * 1.25
-                    amount = hours_amount * ehx_amount
+                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_digits=precision)
+                    amount = float_round((hours_amount * ehx_amount), precision_digits=precision)
                     vals.update({
                         'input_type_id': ehx_type_id.id,
                         'amount': amount,
-                        'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
+                        'name': "%s (%s horas)"%(ehx_type_id.name, float_round(ehx_amount, precision_digits=precision)) 
                     })
                     if self.input_line_ids:
                         hef_line_id = self.input_line_ids.filtered(lambda line: line.input_type_id.id == ehx_type_id.id)
