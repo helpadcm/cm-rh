@@ -134,6 +134,7 @@ class CustomInvoiceSend(models.TransientModel):
             'subject': self.subject,
             'body_html': self.body,
             'email_to': self.email_to,
+            'email_from': 'CM Airlines',
             'attachment_ids': [(6, 0, self.attachment_ids.ids)],
         }
 
