@@ -3,6 +3,7 @@ from odoo import api, models, fields, _
 from datetime import datetime, timedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
+from odoo.tools import float_is_zero, float_round, float_compare
 
 states = [
     ('draft', 'Borrador'),
@@ -24,6 +25,8 @@ class expensesRequest(models.Model):
 
     @api.model
     def default_get(self, fields):
+        print ("############################")
+        print (self.env.context)
         rec = super(expensesRequest, self).default_get(fields)
         user = self.env.user
         employee_id = self.env['hr.employee'].sudo().search([('user_id','=',user.id)])
@@ -107,6 +110,19 @@ class expensesRequest(models.Model):
     quote_amount_tickets = fields.Float(string="Cotizacion Boletos",compute="calculate_totals")
     ctis_hotels_ids = fields.Many2many('cargo.airport',string="Reservar hotel en:")
 
+    request_type = fields.Selection([('national','Nacional'),('international','Internacional')], string="Tipo de solicitud", default="national")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
+    direct_settlement = fields.Boolean(string="Liquidacion directa",default=False)
+
+    @api.onchange("request_type")
+    def request_type_change(self):
+        base_USD = self.env.ref('base.USD')
+        base_HNL = self.env.ref('base.HNL')
+        if self.request_type == 'national':
+            self.currency_id = base_HNL.id
+        else:
+            self.currency_id = base_USD.id
+
     def refunded_balance(self):
         if self.refund_state == 'without_refund':
             self.create_debit()
@@ -120,6 +136,7 @@ class expensesRequest(models.Model):
             'journal_id': journal_id.id,
             'date':(datetime.now() - timedelta(hours=6)).date(),
             'doc_type': 'debit',
+            'state': 'draft',
             'total': self.infavor_employee_amount,
             'name': f"Reembolso a empleado {self.assign_to_id.name} mediante solicitud {self.name}",
             'request_id': self.id
@@ -133,7 +150,7 @@ class expensesRequest(models.Model):
             'debit_credit_id': debit_id.id,
             'type': 'dr'
         })
-        debit_id.action_validate()
+        debit_id.with_context(state='draft', default_state='draft').action_validate()
 
     @api.onchange('infavor_employee_amount','refund_done','exeption_id')
     def _onchange_infavor_employee_amount(self):
@@ -180,7 +197,7 @@ class expensesRequest(models.Model):
                 total_advance += total_tickets_amount
             
             if rec.expenses_ids:
-                total_expenses = sum(rec.expenses_ids.mapped('total_amount'))
+                total_expenses = sum(rec.expenses_ids.mapped('total_amount_currency'))
 
             rec.advance_amount = total_advance
             rec.total_expense_amount = total_expenses
@@ -232,7 +249,12 @@ class expensesRequest(models.Model):
                     
     def change_state(self):
         next_state = self.env.context.get('state')
+        sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
         if next_state == 'required':
+            currency_ids = self.request_details_ids.mapped('currency_id')
+            if len(currency_ids) > 1:
+                raise ValidationError(f"Solo se puede realizar solicitud en una sola moneda, en este caso {self.currency_id.currency_unit_label}")
+
             if len(self.request_details_ids) == 0:
                 raise ValidationError("Debe agregar al menos una linea en los detalles de gastos")
 
@@ -243,10 +265,8 @@ class expensesRequest(models.Model):
                 for line in self.tickets_request_ids:
                     if not line.passport_file:
                         raise ValidationError("Debe agregar fotocopia de su identidad o pasaporte en su solicitud de boletos aereos.")
-                
 
             if self.name == 'Borrador':
-                sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
                 if sequence_id:
                     self.name = sequence_id.next_by_id()
             
@@ -260,6 +280,10 @@ class expensesRequest(models.Model):
                 if self.boss_id.user_id.id != self.env.user.id and next_state == 'approved':
                     raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
 
+            if next_state == 'exception' and self.direct_settlement:
+                if sequence_id and self.name == 'Borrador':
+                    self.name = sequence_id.next_by_id()
+
             if next_state == 'approved':
                 if self.need_hotel:
                     self.send_email_hotel()
@@ -268,13 +292,16 @@ class expensesRequest(models.Model):
 
             self.send_email(next_state)
 
+
         if next_state == 'pending':
             with_exception = False
             if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
                 if self.assign_to_id.user_id.id != self.env.user.id:
                     raise ValidationError("Solo el empleado asignado a la solicitud puede enviar a liquidar")
 
-            if len(self.expenses_ids) == 0 and self.balance_employee_amount > 0:
+            has_employee_balance = float_compare(self.balance_employee_amount, 0.0, precision_digits=2) > 0
+
+            if len(self.expenses_ids) == 0 and has_employee_balance:
                 raise ValidationError("Debe agregar al menos un gasto")
 
             if self.exeption_id and self.exeption_id.skip_exception:
@@ -286,16 +313,15 @@ class expensesRequest(models.Model):
                 if line.nb_attachment == 0:
                     raise ValidationError(f"""Debe agregar comprobantes de sus gastos, el gasto {line.name} no tiene adjuntos.""")
 
-            if amount_total == 0 and self.balance_employee_amount > 0:
+            if amount_total == 0 and has_employee_balance:
                 raise ValidationError("El total de gastos no puede ser 0, por favor revise los gastos agregados.")
 
-            if self.balance_employee_amount > 0:
+            if has_employee_balance:
                 raise ValidationError("No puede enviar a liquidar, aun tiene saldo en control del empleado que debe ser tratado")
                 
             if self.expenses_ids:
                 self.create_report_expenses(with_exception)
                 self.send_email(next_state)
-
         self.state = next_state
 
     def send_email_hotel(self):
@@ -573,8 +599,11 @@ class expensesRequest(models.Model):
             }
 
     def unlink(self):
-        if self.state != 'draft':
+        if self.state != 'draft' and not self.direct_settlement:
             raise ValidationError("Solo puede borrar solicitudes en estado borrador")
+
+        if self.state != 'assigned' and self.direct_settlement:
+            raise ValidationError("Para liquidaciones directas solo se puede borrar en estado otorgado.")
         return super(expensesRequest, self).unlink()
 
     def approve_exception(self):
@@ -590,7 +619,8 @@ class expensesRequest(models.Model):
             if self.boss_id.user_id.id != self.env.user.id:
                 raise ValidationError("Solo el aprobador de viaticos para este empleado puede rechazar esta solicitud")
         self.write({'state':'finalized', 'refund_state': 'na'})
-        self.create_report_expenses(with_exception='rejected')
+        if not self.direct_settlement:
+            self.create_report_expenses(with_exception='rejected')
 
     def cron_review_deadline(self):
         pending_expenses_ids = self.search([('state','=','assigned')])
@@ -692,6 +722,7 @@ class expensesRequestDetails(models.Model):
     breakfast_amount = fields.Float(string="Monto Desayuno")
     lunch_amount = fields.Float(string="Monto Almuerzo")
     dinner_amount = fields.Float(string="Monto Cena")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
 
     transport_amount = fields.Float(string="Transporte")
     tax_amount = fields.Float(string="Impuestos")
@@ -728,8 +759,11 @@ class expensesRequestDetails(models.Model):
             conf_job_id = conf.job_ids.filtered(lambda job: job.id == self.job_id.id)
             if conf_job_id:
                 for line in conf.details_expenses_ids:
-                        
+
                     if cti.id in line.ctis_ids.ids:
+                        if line.currency_id.id != self.currency_id.id:
+                            raise ValidationError(f"No se puede solicitar viaticos de alimentacion en {line.currency_id.currency_unit_label} si la solicitud esta en {self.currency_id.currency_unit_label}")
+                        
                         if food_time == 'breakfast':
                             amount = line.breakfast_amount
                         elif food_time == 'lunch':

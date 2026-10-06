@@ -8,11 +8,12 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="date" readonly="1"/>
-                            <field name="amount" readonly="1"/>
+                            <field name="date" required="1"/>
+                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
                         </group>
                         <group>
-                            <field name="journal_id" domain="[('type','in',['bank'])]" options="{'no_create': True}" required="1"/>
+                            <field name="journal_id" readonly="1" domain="[('type','in',['bank'])]" options="{'no_create': True, 'no_open': True}" required="1"/>
                             <field name="account_id" invisible="1"/>
                             <field name="voucher_number" required="1"/>
                             <field name="voucher" filename="voucher_filename" required="1"/>

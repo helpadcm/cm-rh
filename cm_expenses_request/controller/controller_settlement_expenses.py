@@ -19,7 +19,7 @@ class settlementExpensesCont(http.Controller):
         amount_assign = 0
         if len(expense_request_id) == 1:
             pending_expense = 'allow'
-            amount_assign = expense_request_id.advance_amount
+            amount_assign = round(expense_request_id.advance_amount, 2)
         if len(expense_request_id) == 0:
             message_form = "No tiene viaticos asignados para liquidar"
 

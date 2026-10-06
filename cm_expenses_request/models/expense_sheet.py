@@ -43,7 +43,7 @@ class expensesSheetRequest(models.Model):
 
     company_currency_id = fields.Many2one(
         comodel_name='res.currency',
-        related='company_id.currency_id',
+        related='request_id.currency_id',
         string="Report Company Currency"
     )
     # === Amount fields === #
@@ -83,80 +83,120 @@ class expensesSheetRequest(models.Model):
         self.state = next_state
 
     def create_move(self):
-        source_id = self.env['crossovered.source_expenditure'].search([('code','=','FP')])
+        source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
+        
+        # Moneda de la compañía del diario/asiento
+        company_currency = self.journal_id.company_id.currency_id
+        move_date = fields.Date.context_today(self)
 
         lines = []
-        total = 0
+        total_debit_company = 0.0  # Total acumulado en Moneda de la Compañía
+        total_amount_currency = 0.0 # Total acumulado en Moneda Extranjera
+
+        # 1. LÍNEAS DEL DEBE (GASTOS)
         for line in self.expenses_ids:
-            total += line.total_amount
+            expense_currency = line.currency_id or company_currency
+            amount_foreign = line.untaxed_amount_currency
+
+            # Convertimos el monto de la moneda del gasto a la moneda de la compañía
+            amount_company = expense_currency._convert(
+                amount_foreign,
+                company_currency,
+                self.journal_id.company_id,
+                move_date
+            )
+
+            total_debit_company += amount_company
+            total_amount_currency += amount_foreign
+
             move_line_vals = {
                 'name': line.name,
                 'account_id': line.account_id.id,
                 'analytic_distribution': line.analytic_distribution,
-                'analytic_account_id': line.budget_account_id.id,
-                'activity_id': line.process_id.id,
-                'source_id': source_id.id,
-                'debit': line.total_amount
+                'analytic_account_id': line.budget_account_id.id if hasattr(line, 'budget_account_id') else False,
+                'activity_id': line.process_id.id if hasattr(line, 'process_id') else False,
+                'source_id': source_id.id if source_id else False,
+                # En moneda base/compañía:
+                'debit': amount_company,
+                'credit': 0.0,
+                # En moneda de la transacción:
+                'currency_id': expense_currency.id,
+                'amount_currency': amount_foreign, # Positivo para el Debe
             }
+
             if self.employee_id.department_id.analytic_account_id:
                 analytic = self.employee_id.department_id.analytic_account_id.id
-                move_line_vals.update({'analytic_distribution': {str(analytic): 100.0}})
-            lines.append((0,0,move_line_vals))
+                move_line_vals['analytic_distribution'] = {str(analytic): 100.0}
 
-        # if self.request_id and self.request_id.refund_amount > 0:
-        #     deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',self.request_id.id),('state','=','validated')])
-        #     if deposit_ids:
-        #         for dep in deposit_ids:
-        #             total += dep.total
-        #             move_line_vals = {
-        #                 'name': dep.name,
-        #                 'account_id': dep.journal_id.default_account_id.id,
-        #                 'debit': dep.total
-        #             }
-        #             lines.append((0,0,move_line_vals))
+            lines.append((0, 0, move_line_vals))
 
+        # Definimos la moneda de la transacción para el resto de las líneas
+        tx_currency = self.expenses_ids[0].currency_id if self.expenses_ids else company_currency
+
+        # 2. LÍNEA DE REEMBOLSO (SI APLICA)
         if self.infavor_employee_amount > 0:
             desc = ''
-            account_id = self.env['account.account'].search([('code','=','512.06')])
-            if self.exception_solution == 'exception':
-                desc = f"""Reembolso aprobado para el empleado {self.employee_id.name}"""
-            elif self.exception_solution in ['rejected','according']:
-                desc = f"""Reembolso no realizado para el empleado {self.employee_id.name}"""
+            account_id = self.env['account.account'].search([('code', '=', '512.06')], limit=1)
+            if not account_id:
+                raise UserError("No se encontró la cuenta contable 512.06")
 
-            total -= self.infavor_employee_amount
+            if self.exception_solution == 'exception':
+                desc = f"Reembolso aprobado para el empleado {self.employee_id.name}"
+            elif self.exception_solution in ['rejected', 'according']:
+                desc = f"Reembolso no realizado para el empleado {self.employee_id.name}"
+
+            # Convertimos el valor a la moneda de la compañía
+            refund_company = tx_currency._convert(
+                self.infavor_employee_amount,
+                company_currency,
+                self.journal_id.company_id,
+                move_date
+            )
+
+            total_debit_company -= refund_company
+            total_amount_currency -= self.infavor_employee_amount
+
             vals = {
                 'name': desc,
                 'account_id': account_id.id,
-                'credit': self.infavor_employee_amount,
+                'debit': 0.0,
+                'credit': refund_company, # En moneda compañía
+                'currency_id': tx_currency.id,
                 'partner_id': self.employee_id.sudo().work_contact_id.id,
-                'amount_currency': -(self.infavor_employee_amount)
+                'amount_currency': -self.infavor_employee_amount, # Negativo para el Haber
             }
             if self.employee_id.analytic_account_id:
                 analytic = self.employee_id.analytic_account_id.id
                 vals['analytic_distribution'] = {str(analytic): 100.0}
             lines.append((0, 0, vals))
 
-        
-        account_id = self.env['account.account'].search([('code','=','105.01')])
+        # 3. LÍNEA DE CONTRAPARTIDA / HABER TOTAL (BANCO O EMPLEADO)
+        account_id = self.env['account.account'].search([('code', '=', '105.01')], limit=1)
+        if not account_id:
+            raise UserError("No se encontró la cuenta contable 105.01")
+
         vals = {
             'name': f'{self.employee_id.name}',
             'account_id': account_id.id,
-            'credit': total,
+            'debit': 0.0,
+            'credit': total_debit_company, # Garantiza que el asiento cuadre exactamente a 0.0 en la compañía
+            'currency_id': tx_currency.id,
             'partner_id': self.employee_id.sudo().work_contact_id.id,
-            'amount_currency': -(total)
+            'amount_currency': -total_amount_currency, # Negativo para el Haber
         }
         if self.employee_id.analytic_account_id:
             analytic = self.employee_id.analytic_account_id.id
             vals['analytic_distribution'] = {str(analytic): 100.0}
         lines.append((0, 0, vals))
 
+        # CREACIÓN DEL ASIENTO
         move_vals = {
             'partner_id': self.employee_id.work_contact_id.id,
             'journal_id': self.journal_id.id,
             'ref': self.name,
-            'date': datetime.now().date(),
+            'date': move_date,
             'move_type': 'entry',
-            'line_ids': lines
+            'line_ids': lines,
         }
 
         move_id = self.env['account.move'].sudo().create(move_vals)
@@ -203,7 +243,7 @@ class expensesSheetRequest(models.Model):
                 total += expense.total_amount_currency
                 exempt += expense.exempt_amount
                 if not expense.tax_ids:
-                    exempt += expense.total_amount
+                    exempt += expense.untaxed_amount_currency
 
                 if expense.tax_ids and expense.exempt_amount > 0:
                     extra_exempt_amount += expense.exempt_amount

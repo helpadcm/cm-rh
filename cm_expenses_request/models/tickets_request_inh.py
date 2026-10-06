@@ -36,6 +36,7 @@ class expensesTicketRequest(models.Model):
     passport_file = fields.Binary(string="ID/Pasaporte")
     passport_file_name = fields.Char(string="Nombre pasaporte")
     ticket_type_request = fields.Selection(string="Tipo de solicitud de boleto",related="airline_id.ticket_type_request")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
 
     quote_file = fields.Binary(string="Cotizacion")
     quote_file_name = fields.Char(string="Nombre Cotización")

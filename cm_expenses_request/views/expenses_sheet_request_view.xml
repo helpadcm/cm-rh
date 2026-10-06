@@ -33,17 +33,18 @@
                                 <field name="request_id" options="{'no_create': True,'no_open': True}" readonly="1"/>
                                 <field name="company_id" groups="base.group_multi_company" readonly="1"/>
                                 <field name="move_id" invisible="1"/>
+                                <field name="company_currency_id" invisible="1"/>
                             </group>
                         </group>
 
                         <group string="Datos de solicitud">
                             <group>
-                                <field name="advance_amount"/>
-                                <field name="total_expense_amount"/>
+                                <field name="advance_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="total_expense_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
                             </group>
                             <group>
-                                <field name="infavor_employee_amount" invisible="infavor_employee_amount == 0"/>
-                                <field name="refund_amount" invisible="refund_amount == 0"/>
+                                <field name="infavor_employee_amount" invisible="infavor_employee_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="refund_amount" invisible="refund_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
                             </group>
                         </group>
                         <group string="Resolucion a Reembolso" invisible="infavor_employee_amount == 0">

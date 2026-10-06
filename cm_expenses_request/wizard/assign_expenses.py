@@ -14,12 +14,19 @@ class assignExpenses(models.TransientModel):
         active_ids = context.get('active_ids')
         rec = super(assignExpenses, self).default_get(fields)
         req_id = self.env[active_model].search([('id','in',active_ids)])
-        account_id = self.env['account.account'].search([('code','=','105.01')])
-        journal_id = self.env['account.journal'].search([('code','=','BPLPS')])
+        company_id = self.env['res.company'].browse(1)
+        account_id = self.env['account.account'].search([('code','=','105.01'),('company_ids','in',[company_id.id])])
+
+        if req_id.currency_id.id == company_id.currency_id.id:
+            journal_id = self.env['account.journal'].search([('code','=','BPLPS'),('company_id','=',company_id.id)])
+        else:
+            journal_id = self.env['account.journal'].search([('code','=','BPDLS'),('company_id','=',company_id.id)])
+        
         if req_id:
             rec.update({
                 'description': f"""Viaticos para {req_id.assign_to_id.name}""",
-                'date': (datetime.now() - timedelta(hours=6)).date()
+                'date': (datetime.now() - timedelta(hours=6)).date(),
+                'currency_id': req_id.currency_id.id
             })
             if account_id:
                 rec.update({
@@ -29,11 +36,31 @@ class assignExpenses(models.TransientModel):
             rec.update({'journal_id': journal_id.id})
         return rec
 
-    journal_id = fields.Many2one('account.journal',string='Diario')
+    journal_id = fields.Many2one('account.journal' ,string='Diario')
     amount = fields.Float(string="Monto")
     description = fields.Char(string="Descripcion")
     date = fields.Date(string="Fecha")
     account_id = fields.Many2one('account.account',string="Cuenta")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
+    available_journal_ids = fields.Many2many(
+        'account.journal', 
+        compute='_compute_available_journal_ids',
+        string='Diarios Disponibles'
+    )
+
+    @api.depends('currency_id')
+    def _compute_available_journal_ids(self):
+        context = self.env.context
+        active_model = context.get('active_model')
+        active_ids = context.get('active_ids')
+        company_id = self.env['res.company'].browse(1)
+        domain = [('company_id', 'in', [company_id.id]),('type','in',['bank'])]
+        if self.currency_id.id == company_id.currency_id.id:
+            domain.extend(['|', ('currency_id', '=', self.currency_id.id), ('currency_id', '=', False)])
+        else:
+            domain.append(('currency_id', '=', self.currency_id.id))
+
+        self.available_journal_ids = self.env['account.journal'].search(domain)
 
     def create_debit(self):
         context = self.env.context

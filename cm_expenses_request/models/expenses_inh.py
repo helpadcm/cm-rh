@@ -14,6 +14,7 @@ class expensesInh(models.Model):
     process_id = fields.Many2one('crossovered.activity', string="Proceso")
     expense_sheet_req_id = fields.Many2one('expenses.sheet.request', string="Reporte de gasto")
     exempt_amount = fields.Float(string="Monto Excento")
+    request_type = fields.Selection([('national','Nacional'),('international','Internacional')], string="Tipo de solicitud", default="national")
 
     @api.depends(
         'date',
@@ -72,21 +73,21 @@ class expensesInh(models.Model):
             expense.currency_rate = (expense.total_amount - expense.exempt_amount) / expense.total_amount_currency if expense.total_amount_currency else 1.0
             expense.price_unit = expense.total_amount / expense.quantity if expense.quantity else expense.total_amount
 
-    @api.constrains('invoice_number')
+    @api.constrains('invoice_number','request_type')
     def _check_invoice_number(self):
         pattern = r'^\d{3}-\d{3}-\d{2}-\d{8}$'
-
         for rec in self:
             if rec.invoice_number:
-                if len(rec.invoice_number) != 19:
-                    raise ValidationError(
-                        "El número de factura debe contener exactamente 19 caracteres."
-                    )
+                if rec.request_type == 'national':
+                    if len(rec.invoice_number) != 19:
+                        raise ValidationError(
+                            "El número de factura debe contener exactamente 19 caracteres."
+                        )
 
-                if not re.match(pattern, rec.invoice_number):
-                    raise ValidationError(
-                        "El formato debe ser 000-000-00-00000000"
-                    )
+                    if not re.match(pattern, rec.invoice_number):
+                        raise ValidationError(
+                            "El formato debe ser 000-000-00-00000000"
+                        )
 
     @api.depends('product_id', 'account_id', 'employee_id')
     def _compute_analytic_distribution(self):
@@ -141,6 +142,8 @@ class expensesInh(models.Model):
                 else:
                     raise ValidationError(f"""La categoria de gasto {self.product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
 
+                self.description = self.product_id.name
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -151,6 +154,13 @@ class expensesInh(models.Model):
                     if employee.analytic_account_id:
                         analytic = employee.analytic_account_id.id
                         vals['analytic_distribution'] = {str(analytic): 100.0}
+
+        clean_ctx = dict(self.env.context)
+    
+        # 2. Eliminamos los 'defaults' y 'states' que heredó del flujo de la solicitud
+        clean_ctx.pop('default_state', None)
+        clean_ctx.pop('state', None)
+        
         res = super().create(vals_list)
         return res
 

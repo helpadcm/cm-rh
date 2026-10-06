@@ -10,11 +10,13 @@
                         <group>
                             <field name="date" required="1"/>
                             <field name="account_id" options="{'no_create': True}" required="1"/>
+                            <field name="currency_id" invisible="1" options="{'no_create': True}"/>
                         </group>
                         <group>
-                            <field name="journal_id" options="{'no_create': True}" required="1"/>
-                            <field name="amount" readonly="1"/>
+                            <field name="journal_id" domain="[('id', 'in', available_journal_ids)]" options="{'no_create': True}" required="1"/>
+                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
                             <field name="description" required="1"/>
+                            <field name="available_journal_ids" invisible="1" widget="many2many_tags"/>
                         </group>
                     </group>
                     <footer>
