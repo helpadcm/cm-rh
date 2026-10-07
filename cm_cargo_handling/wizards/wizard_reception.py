@@ -41,18 +41,20 @@ class wizard_recevie_cargo_manifest(models.TransientModel):
     def accept(self):
         obj = self.env['cargo.manifest'].browse(self.env.context.get('active_id'))
         for bcm in obj.cargo_bill_landing_ids:
-            if bcm.bill_landing_id.id in self.bill_landing_ids_hide.ids or self.env.user.has_group('cm_cargo_handling.group_cargo_manifest_validate_manifest') :
-                bcm.bill_landing_id.state='received'
-                bcm.bill_landing_id.cargo_manifest_id=False
-                res={
-                    'manifest_id':obj.id,
-                    'bill_landing_id':bcm.bill_landing_id.id,
-                    'observations':self.observations,
-                    'type':'received'
-                    }
-                self.env['cargo.bill_logs'].create(res)
-            else:
-                raise ValidationError(_('La guia de carga %s esta aun sin escanear, no puede recibir un manifiesto de carga incompleto') %(bcm.bill_landing_id.name))
+            if bcm.bill_landing_id.id:
+                if bcm.bill_landing_id.id in self.bill_landing_ids_hide.ids or self.env.user.has_group('cm_cargo_handling.group_cargo_manifest_validate_manifest') :
+                    bcm.bill_landing_id.state='received'
+                    bcm.bill_landing_id.cargo_manifest_id=False
+                    res={
+                        'manifest_id':obj.id,
+                        'bill_landing_id':bcm.bill_landing_id.id,
+                        'observations':self.observations,
+                        'type':'received'
+                        }
+                    self.env['cargo.bill_logs'].create(res)
+                else:
+                    raise ValidationError(_('La guia de carga %s esta aun sin escanear, no puede recibir un manifiesto de carga incompleto') %(bcm.bill_landing_id.name))
+        
         obj.reception_observations = self.observations
         obj.state = 'received'
         obj.create_log(obj.id, self.bill_landing_ids_hide.ids, self.observations, 'received')
