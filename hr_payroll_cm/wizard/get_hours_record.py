@@ -177,11 +177,11 @@ class getRecordHours(models.TransientModel):
 
                 min_hours = []
                 max_hours = []
+                bonus = 0
+                amount1 = 0
+                amount2 = 0
+                amount3 = 0
                 if employee_id.check_type == 'mark':
-                    bonus = 0
-                    amount1 = 0
-                    amount2 = 0
-                    amount3 = 0
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
                         entry_total_sec = entry_hour.total_seconds()/3600
