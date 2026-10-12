@@ -45,6 +45,7 @@
                             <group>
                                 <field name="infavor_employee_amount" invisible="infavor_employee_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
                                 <field name="refund_amount" invisible="refund_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="refund" invisible="infavor_employee_amount == 0" readonly="state not in ['draft','sent']"/>
                             </group>
                         </group>
                         <group string="Resolucion a Reembolso" invisible="infavor_employee_amount == 0">

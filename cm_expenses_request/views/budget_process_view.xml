@@ -78,5 +78,16 @@
                 </field>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="airplane_list_inh">
+            <field name="name">airplane.list.inh</field>
+            <field name="model">cm.ticket.request.airline</field>
+            <field name="inherit_id" ref="cm_airline_ticket_request.airline_request_list_view"/>
+            <field name="arch" type="xml">
+                <field name="default_airline" position="before">
+                    <field name="exit_tax"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -9,7 +9,7 @@ states = [
     ('draft', 'Borrador'),
     ('required', 'Solicitado'),
     ('approved', 'Aprobado'),
-    ('assigned', 'Otorgado'),
+    ('assigned', 'Pendiente de liquidar'),
     ('pending','Liquidacion Conforme'),
     ('exception','Liquidacion Excepcional'),
     ('legal','Legal'),
@@ -25,8 +25,6 @@ class expensesRequest(models.Model):
 
     @api.model
     def default_get(self, fields):
-        print ("############################")
-        print (self.env.context)
         rec = super(expensesRequest, self).default_get(fields)
         user = self.env.user
         employee_id = self.env['hr.employee'].sudo().search([('user_id','=',user.id)])
@@ -74,6 +72,7 @@ class expensesRequest(models.Model):
     department_id = fields.Many2one('hr.department',string="Departamento",tracking=True)
     purpose = fields.Char(string="Proposito del gasto",tracking=True,copy=False)
     account_number = fields.Char(string="Numero de cuenta",tracking=True)
+    account_number_usd = fields.Char(string="Numero de cuenta(USD)",tracking=True)
     date = fields.Date(string="Fecha de solicitud",tracking=True)
     observations = fields.Text(string="Observaciones",tracking=True,copy=False)
     state = fields.Selection(states,string="Estado",default="draft",tracking=True,copy=False)
@@ -113,6 +112,9 @@ class expensesRequest(models.Model):
     request_type = fields.Selection([('national','Nacional'),('international','Internacional')], string="Tipo de solicitud", default="national")
     currency_id = fields.Many2one('res.currency',string="Moneda")
     direct_settlement = fields.Boolean(string="Liquidacion directa",default=False)
+
+    lodging_details_ids = fields.One2many('cm.expenses.request.lodging','request_id',string="Detalles de hospedaje")
+
 
     @api.onchange("request_type")
     def request_type_change(self):
@@ -221,31 +223,41 @@ class expensesRequest(models.Model):
             if not self.assign_to_id.expense_approver_id:
                 raise ValidationError("No se ha definido un aprobador de viáticos para el colaborador %s, por favor contacte a su administrador de odoo" % (self.assign_to_id.name))
 
-            self.write({
-                'department_id': self.assign_to_id.department_id.id,
-                'job_id': self.assign_to_id.job_id.id,
-                'boss_id': self.assign_to_id.expense_approver_id.id,
-                'account_number': self.assign_to_id.bank_account_ids.acc_number
-            })
+            # ASIGNACIÓN DIRECTA (Sin self.write):
+            self.department_id = self.assign_to_id.department_id.id
+            self.job_id = self.assign_to_id.job_id.id
+            self.boss_id = self.assign_to_id.expense_approver_id.id
+            
+            # Validación segura de la cuenta bancaria:
+            if self.assign_to_id.bank_account_ids:
+                self.account_number = self.assign_to_id.bank_account_ids[0].acc_number
+            else:
+                self.account_number = False
 
     @api.onchange('employee_id')
     def get_employee_data(self):
-        permitted_processes_ids = False
-        default_process_id = False
-        if self.employee_id:
-            if self.employee_id.user_id:
-                permitted_processes_ids = self.env['crossovered.activity'].search([('user_ids','in',self.employee_id.user_id.ids)])
-                allow_employee_ids = self.env['hr.employee'].search([('expense_approver_id','=',self.employee_id.id)])
-                if self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
-                    allow_employee_ids = self.env['hr.employee'].search([])
+        if not self.employee_id:
+            # Limpiar asignando False para no corromper la memoria del cliente web
+            self.process_ids = False
+            self.process_id = False
+            self.allow_employee_ids = False
+            return
 
-                if len(permitted_processes_ids) == 1:
-                    default_process_id = permitted_processes_ids.id
-                    self.write({
-                        'process_ids': permitted_processes_ids,
-                        'process_id': default_process_id,
-                        'allow_employee_ids': allow_employee_ids
-                    })
+        if self.employee_id.user_id:
+            permitted_processes_ids = self.env['crossovered.activity'].search([('user_ids', 'in', self.employee_id.user_id.ids)])
+            allow_employee_ids = self.env['hr.employee'].search([('expense_approver_id', '=', self.employee_id.id)])
+            
+            if self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+                allow_employee_ids = self.env['hr.employee'].search([])
+
+            # Asignación directa limpia:
+            self.process_ids = permitted_processes_ids
+            self.allow_employee_ids = allow_employee_ids
+
+            if len(permitted_processes_ids) == 1:
+                self.process_id = permitted_processes_ids.id
+            else:
+                self.process_id = False
                     
     def change_state(self):
         next_state = self.env.context.get('state')
@@ -257,6 +269,9 @@ class expensesRequest(models.Model):
 
             if len(self.request_details_ids) == 0:
                 raise ValidationError("Debe agregar al menos una linea en los detalles de gastos")
+
+            if self.need_hotel and not self.lodging_details_ids:
+                raise ValidationError("Si necesita hotel debe agregar al menos un detalle de hospedaje para enviar la solicitud.")
 
             if self.need_tickets: 
                 if len(self.tickets_request_ids) == 0:
@@ -322,17 +337,115 @@ class expensesRequest(models.Model):
             if self.expenses_ids:
                 self.create_report_expenses(with_exception)
                 self.send_email(next_state)
+
+            if not self.expenses_ids and not has_employee_balance:
+                next_state = 'finalized'
         self.state = next_state
 
     def send_email_hotel(self):
         ctis_name = ''
-        if self.ctis_hotels_ids:
-            ctis_name = ', '.join([cti.ref for cti in self.ctis_hotels_ids])
+        if not self.lodging_details_ids:
+            raise ValidationError("Debe agregar al menos un detalle de hospedaje para enviar la solicitud.")
+
+        # Generación de filas de la tabla
+        table_rows = []
+        for lodging in self.lodging_details_ids:
+            table_rows.append(f"""
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; text-align: center;">
+                    {lodging.cti_id.ref or ''}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; text-align: left;">
+                    {lodging.lodging_id.name or ''}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; text-align: center;">
+                    {lodging.check_in_date.strftime("%d/%m/%Y") or ''}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; text-align: center;">
+                    {lodging.check_out_date.strftime("%d/%m/%Y") or ''}
+                </td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #334155; text-align: left;">
+                    {lodging.observations or '-'}
+                </td>
+            </tr>
+            """)
+
+        rows_html = "".join(table_rows)
+
+        table_body = f"""
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #2C3E50; color: #ffffff;">
+                    <th style="padding: 10px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: center;">Estación</th>
+                    <th style="padding: 10px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: left;">Hospedaje</th>
+                    <th style="padding: 10px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: center;">Entrada</th>
+                    <th style="padding: 10px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: center;">Salida</th>
+                    <th style="padding: 10px 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; text-align: left;">Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows_html}
+            </tbody>
+        </table>
+        """
+
+        body = f"""
+        <div style="background-color: #F8FAFC; width: 100%; margin: 0; padding: 30px 0; font-family: Arial, sans-serif;">
+            <!--[if mso]>
+            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
+            <tr>
+            <td align="center" valign="top" width="600">
+            <![endif]-->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; border-collapse: separate;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="padding: 24px 25px 15px 25px; background-color: #ffffff; border-bottom: 2px solid #F1F5F9;">
+                            <h2 style="font-size: 20px; font-weight: bold; color: #1E293B; margin: 0;">
+                                Información de Hospedaje
+                            </h2>
+                        </td>
+                    </tr>
+                    <!-- CONTENT -->
+                    <tr>
+                        <td style="padding: 20px 25px; font-size: 14px; line-height: 1.6; color: #334155;">
+                            <p style="margin: 0 0 15px 0;">
+                                Estimado(a),
+                            </p>
+                            <p style="margin: 0 0 15px 0;">
+                                Se ha generado una nueva solicitud de hospedaje asociada a la solicitud de viáticos <strong>{self.name}</strong> por parte de <strong>{self.assign_to_id.name}</strong>.
+                            </p>
+                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #1E293B;">
+                                Detalles de la reserva:
+                            </p>
+                            
+                            {table_body}
+                            
+                            <p style="margin: 20px 0 0 0;">
+                                Saludos cordiales,<br/>
+                                <strong>Sistema de Gestión de Viáticos</strong>
+                            </p>
+                        </td>
+                    </tr>
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="padding: 15px 25px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center; font-size: 12px; color: #94A3B8;">
+                            Este es un mensaje automático, por favor no responda directamente a este correo.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!--[if mso]>
+            </td>
+            </tr>
+            </table>
+            <![endif]-->
+        </div>
+        """
 
         mail = self.env['mail.mail'].sudo().create({
-            'subject': f"Solicitud de hotel creada por {self.assign_to_id.name} en las estaciones {ctis_name} mediante solicitud de viaticos {self.name}",
-            'body_html': f"""<p>El empleado {self.assign_to_id.name} solicita la reservacion de hotel por motivos de {self.purpose} con las siguientes especificaciones: </p></br>
-                        {self.hotel_specifications}""",
+            'subject': f"Solicitud de hospedaje creada",
+            'body_html': body,
             'email_from': self.assign_to_id.user_id.login,
             'email_to': 'esevilla@cmairlines.com',
             'email_cc': 'rosa@cmairlines.com',
@@ -427,7 +540,7 @@ class expensesRequest(models.Model):
             base_url += '/web#id=%d&view_type=form&model=%s' % (self.id, self._name)
             for_user = self.assign_to_id.name
             email_to = self.assign_to_id.user_id.login
-            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de gastos o depositos realizados por dinero sobrante de manera fisica al area de finanzas."""
+            message_txt = f"""Su solicitud de viaticos ha sido asignada a su cuenta. Recuerde que tiene 3 dias habiles despues de su fecha de regreso para realizar su liquidación a travez de odoo, debera hacer entrega de sus comprobantes de gastos o depositos realizados por dinero sobrante de manera fisica al area de finanzas. Todo comprobante debera ser en la moneda original de la solicitud"""
             subject = 'Asignación de viaticos'
             title = f"<h2>Asignación de viaticos</h2>"
             show_button = False
@@ -451,58 +564,54 @@ class expensesRequest(models.Model):
             </div>
             """
         
-        body = """
-            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
-                    <tr>
-                        <td align="center">
-                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; border-collapse:separate;">
-                                <tbody>
-                                    <!-- HEADER -->
-                                    <tr>
-                                        <td align="center" style="min-width: 590px;">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
-                                                <tr>
-                                                    <td valign="middle" style="font-size: 10px;color:black">
-                                                        <span style="font-size: 10px;color:black">{title}</span><br/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2" style="text-align:center;">
-                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                    <!-- CONTENT -->
-                                    <tr>
-                                        <td align="center" style="min-width: 590px;">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
-                                                <tr>
-                                                    <td valign="top" style="font-size: 13px;">
-                                                        <div>
-                                                            <p>Estimado(a) {for_user},</p>
-
-                                                            {message}
-                                                            {show_button_html}
-                                                            <br/>Saludos<br/>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="text-align:center;">
-                                                        <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
+        body = f"""
+            <div style="background-color: #F1F1F1; width: 100%; margin: 0; padding: 20px 0; font-family: Arial, sans-serif;">
+                <!--[if mso]>
+                <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
+                <tr>
+                <td align="center" valign="top" width="600">
+                <![endif]-->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; table-layout: fixed;">
+                    <tbody>
+                        <!-- HEADER -->
+                        <tr>
+                            <td style="padding: 20px 25px 10px 25px; width: 550px; word-wrap: break-word;">
+                                <div style="font-size: 18px; font-weight: bold; color: #2C3E50; margin: 0;">
+                                    {title}
+                                </div>
+                                <div style="border-bottom: 1px solid #CCCCCC; margin-top: 10px; margin-bottom: 5px;"></div>
+                            </td>
+                        </tr>
+                        <!-- CONTENT -->
+                        <tr>
+                            <td style="padding: 15px 25px; width: 550px; font-size: 14px; line-height: 1.6; color: #333333; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
+                                <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 1.6; color: #333333;">
+                                    Estimado(a) <strong>{for_user}</strong>,
+                                </p>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; line-height: 1.6; color: #333333; text-align: left; white-space: normal;">
+                                    {message_txt}
+                                </p>
+                                {button_html}
+                                <p style="margin: 15px 0 0 0; font-size: 14px; line-height: 1.6; color: #333333;">
+                                    Saludos,
+                                </p>
+                            </td>
+                        </tr>
+                        <!-- FOOTER -->
+                        <tr>
+                            <td style="padding: 10px 25px 20px 25px; width: 550px;">
+                                <div style="border-bottom: 1px solid #CCCCCC; margin-bottom: 5px;"></div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
-        """.format(title=title,for_user=for_user,message=message_txt,url=base_url,show_button_html=button_html)
+                <!--[if mso]>
+                </td>
+                </tr>
+                </table>
+                <![endif]-->
+            </div>
+            """
 
         mail_values = {
             'body_html': body,
@@ -533,6 +642,8 @@ class expensesRequest(models.Model):
                 vals['exception_solution'] = 'according'
             else:
                 vals['exception_solution'] = with_exception
+                if with_exception == 'exception':
+                    vals['refund'] = True
                 
             vals['exeption_id'] = self.exeption_id.id
             vals['description'] = self.description or self.exeption_id.name
@@ -771,11 +882,35 @@ class expensesRequestDetails(models.Model):
                         elif food_time == 'dinner':
                             amount = line.dinner_amount
 
-                        if line.currency_id.id == base_USD.id:
-                            amount = base_USD._convert(
-                                amount,
-                                base_HNL,
-                                self.env.company,
-                                self.date
-                            )
+                        # if line.currency_id.id == base_USD.id:
+                        #     amount = base_USD._convert(
+                        #         amount,
+                        #         base_HNL,
+                        #         self.env.company,
+                        #         self.date
+                        #     )
                         return amount
+
+class lodgingRequest(models.Model):
+    _name = 'cm.expenses.request.lodging'
+    _description = "Detalles de Hospedaje"
+
+    request_id = fields.Many2one('cm.expenses.request',string="Solicitud")
+    cti_id = fields.Many2one('cargo.airport',string="Estacion")
+    check_in_date = fields.Date(string="Fecha de ingreso")
+    check_out_date = fields.Date(string="Fecha de salida")
+    job_id = fields.Many2one('hr.job',string="Puesto")
+    lodging_id = fields.Many2one('expense.lodging.cobus',string="Lugar de hospedaje")
+    allow_lodging_ids = fields.Many2many('expense.lodging.cobus',string="Hospedajes permitidos")
+    observations = fields.Char(string="Observaciones")
+
+    @api.onchange('job_id','cti_id')
+    def get_employee_data(self):
+        if not self.cti_id:
+            self.allow_lodging_ids = False
+            return
+
+        conf_id = self.env['conf.expenses.request'].search([('job_ids', 'in', self.job_id.ids)])
+        if conf_id:
+            allow_lodgings_ids = self.env['cm.lodging.availables'].search([('cti_id', '=', self.cti_id.id)]).mapped('lodging_ids')
+            self.allow_lodging_ids = allow_lodgings_ids

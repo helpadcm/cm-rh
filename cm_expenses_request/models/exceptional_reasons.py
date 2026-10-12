@@ -11,3 +11,10 @@ class exceptionalReason(models.Model):
     skip_exception = fields.Boolean(string="Omitir Excepcion")
 
     _code_unique = models.Constraint('unique(code)', message='El codigo debe ser unico por motivo de excepcion!')
+
+class lodgingCobus(models.Model):
+    _name = 'expense.lodging.cobus'
+    _description = "Hoteles o lugares de hospedaje"
+
+    name = fields.Char(string="Nombre")
+    cti_id = fields.Many2one('cargo.airport',string="Ciudad")

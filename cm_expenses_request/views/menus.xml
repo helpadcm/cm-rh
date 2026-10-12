@@ -82,4 +82,12 @@
         action="action_expetional_reason"
         groups="group_expenses_request_manager"
         sequence="2"/>
+
+    <menuitem
+        id="lodging_list_menu"
+        name="Sitios de Hospedaje"
+        parent="conf_expenses_request_menu"
+        action="action_lodging_cobus"
+        groups="group_expenses_request_manager"
+        sequence="3"/>
 </odoo>

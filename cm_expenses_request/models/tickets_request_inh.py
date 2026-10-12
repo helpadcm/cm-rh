@@ -51,3 +51,8 @@ class routesInh(models.Model):
     _inherit = 'cm.routes.line'
 
     expense_line_request_id = fields.Many2one('cm.expenses.request.ticket',string="Solicitud de tickets viaticos")
+
+class airlineInh(models.Model):    
+    _inherit = 'cm.ticket.request.airline'
+
+    exit_tax = fields.Float(string="Impuestos de salida")

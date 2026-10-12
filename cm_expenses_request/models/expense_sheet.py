@@ -40,6 +40,7 @@ class expensesSheetRequest(models.Model):
 
     exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',related='request_id.exeption_id')
     description = fields.Text(string="Motivo", related='request_id.description')
+    refund = fields.Boolean(string="Reembolsar")    
 
     company_currency_id = fields.Many2one(
         comodel_name='res.currency',
@@ -135,15 +136,18 @@ class expensesSheetRequest(models.Model):
 
         # 2. LÍNEA DE REEMBOLSO (SI APLICA)
         if self.infavor_employee_amount > 0:
+
             desc = ''
             account_id = self.env['account.account'].search([('code', '=', '512.06')], limit=1)
             if not account_id:
                 raise UserError("No se encontró la cuenta contable 512.06")
 
-            if self.exception_solution == 'exception':
+            if self.exception_solution == 'exception' and self.refund:
                 desc = f"Reembolso aprobado para el empleado {self.employee_id.name}"
-            elif self.exception_solution in ['rejected', 'according']:
+            
+            if self.exception_solution in ['rejected', 'according'] or not self.refund:
                 desc = f"Reembolso no realizado para el empleado {self.employee_id.name}"
+                self.request_id.refund_state = 'na'
 
             # Convertimos el valor a la moneda de la compañía
             refund_company = tx_currency._convert(
@@ -202,6 +206,70 @@ class expensesSheetRequest(models.Model):
         move_id = self.env['account.move'].sudo().create(move_vals)
         move_id.action_post()
         self.move_id = move_id.id
+        # if self.request_id.need_tickets and self.request_id.tickets_request_ids:
+        #     self.create_exit_tax_move()
+
+    # def create_exit_tax_move(self):
+    #     move_date = fields.Date.context_today(self)
+    #     source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
+    #     journal_id = self.env['account.journal'].search([('code', '=', 'VARIO')], limit=1)
+    #     account_id = self.env['account.account'].search([('code', '=', '513.04')], limit=1)
+
+    #     lines = []
+    #     amount_company = 0
+    #     currency_id = self.request_id.currency_id
+    #     for ticket in self.request_id.tickets_request_ids:
+    #         if ticket.airline_id.exit_tax > 0:
+    #             amount_foreign = ticket.tax_amount
+    #             company_currency = currency_id
+
+    #             # Convertimos el monto de la moneda del gasto a la moneda de la compañía
+    #             amount_company += ticket.currency_id._convert(
+    #                 amount_foreign,
+    #                 company_currency,
+    #                 journal_id.company_id,
+    #                 move_date
+    #             )
+
+    #     if amount_company > 0:
+    #         move_line_vals = {
+    #             'name': f'Impuesto de salida por solicitud de viaticos {self.request_id.name}',
+    #             'account_id': account_id.id,
+    #             'debit': amount_company,
+    #             'credit': 0.0,
+    #             'currency_id': currency_id.id,
+    #             'amount_currency': amount_foreign, # Positivo para el Debe
+    #             'source_id': source_id.id if source_id else False,
+    #         }
+
+    #         lines.append((0, 0, move_line_vals))
+
+    #         vals = {
+    #             'name': f'{self.employee_id.name}',
+    #             'account_id': account_id.id,
+    #             'debit': 0.0,
+    #             'credit': total_debit_company, # Garantiza que el asiento cuadre exactamente a 0.0 en la compañía
+    #             'currency_id': currency_id.id,
+    #             'partner_id': self.employee_id.sudo().work_contact_id.id,
+    #             'amount_currency': -total_amount_currency, # Negativo para el Haber
+    #         }
+    #         if self.employee_id.analytic_account_id:
+    #             analytic = self.employee_id.analytic_account_id.id
+    #             vals['analytic_distribution'] = {str(analytic): 100.0}
+    #         lines.append((0, 0, vals))
+
+    #         move_vals = {
+    #             'partner_id': self.employee_id.work_contact_id.id,
+    #             'journal_id': journal_id.id,
+    #             'ref': f'Impuesto de salida por solicitud de viaticos {self.request_id.name}',
+    #             'date': move_date,
+    #             'move_type': 'entry',
+    #             'line_ids': lines,
+    #         }
+
+    #         move_id = self.env['account.move'].sudo().create(move_vals)
+    #         move_id.action_post()
+    #     return True
 
     def _get_mail_thread_data_attachments(self):
         self.ensure_one()
