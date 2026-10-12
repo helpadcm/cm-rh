@@ -239,7 +239,7 @@ class lineAttendanceRecords(models.Model):
     turn_note = fields.Text(string="Notas de turno")
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Revisar segun")
 
-    @api.onchange('personal_action','check_type')
+    @api.onchange('personal_action','check_type','date')
     def personal_action_change(self):
         if self.personal_action:
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
@@ -247,7 +247,12 @@ class lineAttendanceRecords(models.Model):
                 self.ordinary_hours = 0
             
             if self.personal_action in ['holiday','inc','special','comp','vac','cap','homeoffice']:
-                self.ordinary_hours = 8
+                day = self.date.weekday()
+                if day in [5,6]:
+                    oh_value = self.attendance_rec_id.employee_id.sudo().weekend_hours
+                else:
+                    oh_value = 8
+                self.ordinary_hours = oh_value
 
     @api.onchange('check_type')
     def calculate_data(self):
