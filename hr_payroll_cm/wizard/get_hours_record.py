@@ -181,6 +181,7 @@ class getRecordHours(models.TransientModel):
                 amount1 = 0
                 amount2 = 0
                 amount3 = 0
+                total_h = 0
                 if employee_id.check_type == 'mark':
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
