@@ -206,6 +206,10 @@ class employeeAttendanceRecords(models.Model):
                     line.write({'personal_action': personal_action})
                     line.personal_action_change()
 
+    def calculate_data(self):
+        for line in self.record_line_ids:
+            line.calculate_data()
+
 class lineAttendanceRecords(models.Model):
     _name = 'hr.employee.attendance.line'
     _description = 'Lineas de registro de asistencia de empleados'

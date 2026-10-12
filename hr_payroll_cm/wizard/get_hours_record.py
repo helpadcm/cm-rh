@@ -118,6 +118,11 @@ class getRecordHours(models.TransientModel):
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 extra_hours = 0
                 oh = 0
+                bonus = 0
+                amount1 = 0
+                amount2 = 0
+                amount3 = 0
+                total_h = 0
                 if turn_line_id:
                     if turn_line_id.state == 'draft':
                         raise ValidationError('La fecha %s del empleado %s en el equipo %s no ha sido validada'%(turn_line_id.date, employee_id.name, turn_line_id.team_id.name))
@@ -143,6 +148,7 @@ class getRecordHours(models.TransientModel):
 
                     extra_hours = turn_line_id.aditional_hours
                     oh = turn_line_id.oh
+                    total_h = turn_line_id.ordinary_hours
 
                     # if employee_id.check_type == 'turn':
                     if turn_line_id.turn_type_a.id == turn_line_id.turn_type_b.id:
@@ -177,11 +183,6 @@ class getRecordHours(models.TransientModel):
 
                 min_hours = []
                 max_hours = []
-                bonus = 0
-                amount1 = 0
-                amount2 = 0
-                amount3 = 0
-                total_h = 0
                 if employee_id.check_type == 'mark':
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
