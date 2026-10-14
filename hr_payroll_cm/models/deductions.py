@@ -65,7 +65,7 @@ class otherDeductions(models.Model):
                         else:
                             if paid_lines:
                                 last_paid_id = paid_lines[-1]
-                                next_to, next_from = self.get_next_payslip_date(last_paid_id.payslip_id)
+                                next_from, next_to = self.get_next_payslip_date(last_paid_id.payslip_id)
                                 next_pending = pending_lines.filtered(lambda l:l.date and next_from <= l.date <= next_to)[:1]
                                 if next_pending:
                                     deduct_amount = next_pending.amount
@@ -93,19 +93,21 @@ class otherDeductions(models.Model):
             rec.pending_amount = pending_amount
             rec.amount_to_deducted = deduct_amount
 
-    def get_next_payslip_date(self, payslip):
-        last_from = payslip.date_from
-        last_to = payslip.date_to
+    def get_next_payslip_date(self, payslip=None):
+        # Usa la fecha actual de hoy
+        today = fields.Date.today()  # O date.today()
 
-        next_from = last_from + relativedelta(months=1)
-        next_to = last_to + relativedelta(months=1)
-        # if last_from.day == 1 and last_to.day <= 15:
-        #     next_from = last_from.replace(day=16)
-        #     next_to = (last_from + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
-        # else:
-        #     next_from = (last_from + relativedelta(months=1)).replace(day=1)
-        #     next_to = next_from.replace(day=15)
-        return next_to, next_from
+        # Primera quincena: días 1 al 15 del mes actual
+        if today.day <= 15:
+            current_from = today.replace(day=1)
+            current_to = today.replace(day=15)
+        # Segunda quincena: día 16 al último día del mes actual
+        else:
+            current_from = today.replace(day=16)
+            # Siguiente mes, día 1 menos 1 día = último día del mes actual
+            current_to = (today + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
+
+        return current_from, current_to
 
     def get_initial_payslip_date(self, start_date, current_date=None):
         current_date = current_date or date.today()
