@@ -96,12 +96,15 @@ class otherDeductions(models.Model):
     def get_next_payslip_date(self, payslip):
         last_from = payslip.date_from
         last_to = payslip.date_to
-        if last_from.day == 1 and last_to.day <= 15:
-            next_from = last_from.replace(day=16)
-            next_to = (last_from + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
-        else:
-            next_from = (last_from + relativedelta(months=1)).replace(day=1)
-            next_to = next_from.replace(day=15)
+
+        next_from = last_from + relativedelta(months=1)
+        next_to = last_to + relativedelta(months=1)
+        # if last_from.day == 1 and last_to.day <= 15:
+        #     next_from = last_from.replace(day=16)
+        #     next_to = (last_from + relativedelta(months=1)).replace(day=1) - relativedelta(days=1)
+        # else:
+        #     next_from = (last_from + relativedelta(months=1)).replace(day=1)
+        #     next_to = next_from.replace(day=15)
         return next_to, next_from
 
     def get_initial_payslip_date(self, start_date, current_date=None):

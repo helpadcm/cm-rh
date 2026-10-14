@@ -53,7 +53,7 @@ class employeeAttendanceRecords(models.Model):
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
     payslip_date_to = fields.Date('Fecha Fin Nomina')
     department_id = fields.Many2one('hr.department',string="Departamento")
-    sum_compensatory = fields.Boolean(string="Sumar Compensatorio",default=True,tracking=True)
+    sum_compensatory = fields.Boolean(string="Sumar Compensatorio",tracking=True)
 
     hours_25 = fields.Float(string="HE 25%",help="Horas extras al 25%", tracking=True)
     hours_50 = fields.Float(string="HE 50%",help="Horas extras al 50%", tracking=True)
