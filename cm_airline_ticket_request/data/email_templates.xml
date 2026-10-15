@@ -71,7 +71,8 @@
                                                                 <tbody>
                                                                     <tr t-foreach="object.list_request_ids" t-as="ben">
                                                                         <td style="padding:3px;">
-                                                                            <strong>Nombre:</strong> <t t-out="ben.employee_id.name.upper() or ben.external_user_id.name.upper() or ben.name.upper()"/>
+                                                                            <t t-set="ben_name" t-value="ben.employee_id.name or ben.external_user_id.name or ben.name or ''"/>
+                                                                            <strong>Nombre:</strong> <t t-out="ben_name.upper()"/>
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
@@ -96,7 +97,7 @@
                                                                     </tr>
                                                                     <tr>
                                                                         <td style="padding:3px;">
-                                                                            <strong>Fecha de Nacimiento:</strong> <t t-out="ben.birthdate.strftime('%d/%m/%Y') or ''"/>
+                                                                            <strong>Fecha de Nacimiento:</strong> <t t-out="format_date(ben.birthdate) or ''"/>
                                                                         </td>
                                                                     </tr>
                                                                     <tr>
