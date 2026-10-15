@@ -79,13 +79,14 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="airplane_list_inh">
-            <field name="name">airplane.list.inh</field>
-            <field name="model">cm.ticket.request.airline</field>
-            <field name="inherit_id" ref="cm_airline_ticket_request.airline_request_list_view"/>
+        <record model="ir.ui.view" id="flight_routes_list_inh">
+            <field name="name">flight.routes.list.inh</field>
+            <field name="model">flight.routes</field>
+            <field name="inherit_id" ref="hr_absences_cm.flight_routes_tree"/>
             <field name="arch" type="xml">
-                <field name="default_airline" position="before">
+                <field name="name" position="after">
                     <field name="exit_tax"/>
+                    <field name="analytic_account_id" options="{'no_create': True}"/>
                 </field>
             </field>
         </record>

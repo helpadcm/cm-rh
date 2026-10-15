@@ -206,70 +206,121 @@ class expensesSheetRequest(models.Model):
         move_id = self.env['account.move'].sudo().create(move_vals)
         move_id.action_post()
         self.move_id = move_id.id
-        # if self.request_id.need_tickets and self.request_id.tickets_request_ids:
-        #     self.create_exit_tax_move()
+        if self.request_id.need_tickets and self.request_id.tickets_request_ids:
+            self.create_exit_tax_move()
 
-    # def create_exit_tax_move(self):
-    #     move_date = fields.Date.context_today(self)
-    #     source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
-    #     journal_id = self.env['account.journal'].search([('code', '=', 'VARIO')], limit=1)
-    #     account_id = self.env['account.account'].search([('code', '=', '513.04')], limit=1)
+    def create_exit_tax_move(self):
+        move_date = fields.Date.context_today(self)
+        
+        # 1. Búsqueda y validación de registros requeridos
+        source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
+        journal_id = self.env['account.journal'].search([('code', '=', 'VARIO')], limit=1)
+        account_debit_id = self.env['account.account'].search([('code', '=', '513.04')], limit=1)
+        account_credit_id = self.env['account.account'].search([('code', '=', '202.01')], limit=1)
+        base_USD = self.env.ref('base.USD')
+        
+        if not journal_id or not account_debit_id or not account_credit_id:
+            raise UserError("Asegúrese de contar con el diario 'VARIO' y las cuentas contables '513.04' y '201.01'.")
 
-    #     lines = []
-    #     amount_company = 0
-    #     currency_id = self.request_id.currency_id
-    #     for ticket in self.request_id.tickets_request_ids:
-    #         if ticket.airline_id.exit_tax > 0:
-    #             amount_foreign = ticket.tax_amount
-    #             company_currency = currency_id
+        company = journal_id.company_id
+        company_currency = company.currency_id
+        currency_id = base_USD
+        is_foreign = currency_id and currency_id != company_currency
 
-    #             # Convertimos el monto de la moneda del gasto a la moneda de la compañía
-    #             amount_company += ticket.currency_id._convert(
-    #                 amount_foreign,
-    #                 company_currency,
-    #                 journal_id.company_id,
-    #                 move_date
-    #             )
+        lines = []
+        analytic_ids = []
+        analytic_values = []
+        total_debit_company = 0.0
+        total_amount_currency = 0.0
 
-    #     if amount_company > 0:
-    #         move_line_vals = {
-    #             'name': f'Impuesto de salida por solicitud de viaticos {self.request_id.name}',
-    #             'account_id': account_id.id,
-    #             'debit': amount_company,
-    #             'credit': 0.0,
-    #             'currency_id': currency_id.id,
-    #             'amount_currency': amount_foreign, # Positivo para el Debe
-    #             'source_id': source_id.id if source_id else False,
-    #         }
+        partner_contact = self.employee_id.sudo().work_contact_id
 
-    #         lines.append((0, 0, move_line_vals))
+        # 2. Iterar por cada ticket y sus rutas asociadas
+        for ticket in self.request_id.tickets_request_ids:
+            ticket_currency = ticket.currency_id or currency_id
 
-    #         vals = {
-    #             'name': f'{self.employee_id.name}',
-    #             'account_id': account_id.id,
-    #             'debit': 0.0,
-    #             'credit': total_debit_company, # Garantiza que el asiento cuadre exactamente a 0.0 en la compañía
-    #             'currency_id': currency_id.id,
-    #             'partner_id': self.employee_id.sudo().work_contact_id.id,
-    #             'amount_currency': -total_amount_currency, # Negativo para el Haber
-    #         }
-    #         if self.employee_id.analytic_account_id:
-    #             analytic = self.employee_id.analytic_account_id.id
-    #             vals['analytic_distribution'] = {str(analytic): 100.0}
-    #         lines.append((0, 0, vals))
+            for route in ticket.list_routes_ids:
+                # Leemos el impuesto de salida directamente de la ruta
+                route_tax = route.route_id.exit_tax
+                if route_tax > 0:
 
-    #         move_vals = {
-    #             'partner_id': self.employee_id.work_contact_id.id,
-    #             'journal_id': journal_id.id,
-    #             'ref': f'Impuesto de salida por solicitud de viaticos {self.request_id.name}',
-    #             'date': move_date,
-    #             'move_type': 'entry',
-    #             'line_ids': lines,
-    #         }
 
-    #         move_id = self.env['account.move'].sudo().create(move_vals)
-    #         move_id.action_post()
-    #     return True
+                    # Convertimos el monto de esta ruta individual a la moneda de la compañía
+                    route_debit_company = ticket_currency._convert(
+                        route_tax,
+                        company_currency,
+                        company,
+                        move_date
+                    )
+
+                    # Monto en moneda original
+                    amount_debit_curr = route_tax if is_foreign else route_debit_company
+
+                    # Nombre personalizado por ruta
+                    line_name = f'Impuesto de salida - Ruta: {route.route_id.name}'
+
+                    # --- LÍNEA DEBE (Gasto por ruta) ---
+                    debit_line_vals = {
+                        'name': line_name,
+                        'account_id': account_debit_id.id,
+                        'debit': route_debit_company,
+                        'credit': 0.0,
+                        'currency_id': currency_id.id,
+                        'amount_currency': amount_debit_curr,
+                        'source_id': source_id.id if source_id else False,
+                    }
+                    if self.employee_id.department_id.analytic_account_id:
+                        analytic = self.employee_id.department_id.analytic_account_id.id
+                        debit_line_vals['analytic_distribution'] = {str(analytic): 100.0}
+
+                    budget_account_id = account_debit_id.fbudget_line_ids.filtered(lambda b: b.process_id.id == self.request_id.process_id.id)
+                    if budget_account_id:
+                        debit_line_vals['analytic_account_id'] = budget_account_id.id
+                        debit_line_vals['activity_id'] = self.request_id.process_id.id
+
+                    lines.append((0, 0, debit_line_vals))
+
+                    # Acumulamos los totales para la contrapartida (Haber)
+                    # total_debit_company += route_debit_company
+                    # total_amount_currency += route_tax
+
+                    amount_credit_curr = -route_tax if is_foreign else -route_debit_company
+                    
+                    if route.route_id.analytic_account_id.id in analytic_ids:
+                        index = analytic_ids.index(route.route_id.analytic_account_id.id)
+                        analytic_values[index]['credit'] += route_debit_company
+                        analytic_values[index]['amount_currency'] += amount_credit_curr
+                    else:
+                        analytic_ids.append(route.route_id.analytic_account_id.id)
+                        analytic_values.append({
+                            'analytic_account_id': route.route_id.analytic_account_id.id,
+                            'credit': route_debit_company,
+                            'amount_currency': amount_credit_curr
+                        })
+        for analytic in analytic_values:
+            distribution = {str(analytic['analytic_account_id']): 100.0} if analytic['analytic_account_id'] else False
+            lines.append((0, 0, {
+                'name': f'Impuesto de salida - {self.employee_id.name}',
+                'account_id': account_credit_id.id,
+                'analytic_distribution': distribution,
+                'debit': 0.0,
+                'credit': analytic['credit'],
+                'currency_id': currency_id.id,
+                'amount_currency': analytic['amount_currency'],
+            }))
+
+        # --- CREACIÓN DEL ASIENTO CONTABLE ---
+        move_vals = {
+            'partner_id': partner_contact.id if partner_contact else False,
+            'journal_id': journal_id.id,
+            'ref': f'Impuesto de salida por solicitud de viáticos {self.request_id.name}',
+            'date': move_date,
+            'move_type': 'entry',
+            'line_ids': lines,
+        }
+        move_id = self.env['account.move'].sudo().create(move_vals)
+        move_id.action_post()
+        return True
 
     def _get_mail_thread_data_attachments(self):
         self.ensure_one()
