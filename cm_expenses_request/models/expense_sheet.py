@@ -232,13 +232,14 @@ class expensesSheetRequest(models.Model):
         analytic_values = []
         total_debit_company = 0.0
         total_amount_currency = 0.0
+        pnrs = []
 
         partner_contact = self.employee_id.sudo().work_contact_id
 
         # 2. Iterar por cada ticket y sus rutas asociadas
         for ticket in self.request_id.tickets_request_ids:
             ticket_currency = ticket.currency_id or currency_id
-
+            pnrs.append(ticket.request_ticket_id.pnr)
             for route in ticket.list_routes_ids:
                 # Leemos el impuesto de salida directamente de la ruta
                 route_tax = route.route_id.exit_tax
@@ -309,11 +310,13 @@ class expensesSheetRequest(models.Model):
                 'amount_currency': analytic['amount_currency'],
             }))
 
+        pnr_str = ", ".join(pnrs)
+
         # --- CREACIÓN DEL ASIENTO CONTABLE ---
         move_vals = {
             'partner_id': partner_contact.id if partner_contact else False,
             'journal_id': journal_id.id,
-            'ref': f'Impuesto de salida por solicitud de viáticos {self.request_id.name}',
+            'ref': f'Impuesto de salida por solicitud de viáticos {self.request_id.name} con PNR(s): {pnr_str}',
             'date': move_date,
             'move_type': 'entry',
             'line_ids': lines,
