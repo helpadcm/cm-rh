@@ -365,41 +365,38 @@ class HrLeavesInh(models.Model):
                 # -------------------------------------------------
 
                 else:
+                    total_calendar_days = (leave.request_date_to - leave.request_date_from).days + 1
 
-                    total_calendar_days = (
-                        leave.request_date_to
-                        - leave.request_date_from
-                    ).days + 1
+                    # Definición dinámica de la jornada laboral basada en el horario configurado
+                    # Si hour_from es temprano (ej. 8), fin de jornada es hour_from + HOURS_PER_DAY + almuerzo
+                    work_hours = getattr(self, 'HOURS_PER_DAY', 8.0)
+                    
+                    # 1. PRIMER DÍA: Desde hour_from hasta la hora de cierre de jornada habitual
+                    # Se asume que la jornada termina a (hour_from + horas de trabajo + 1 hr de almuerzo)
+                    standard_work_end = hour_from + work_hours + 1.0  
+                    first_day_hours = max(standard_work_end - hour_from, 0.0)
+                    first_day_hours -= self._get_lunch_overlap(hour_from, standard_work_end)
+                    first_day_hours = min(first_day_hours, work_hours)  # Cap a jornada completa
 
-                    daily_hours = (
-                        hour_to - hour_from
-                    )
+                    # 2. ÚLTIMO DÍA: Desde la hora de inicio de jornada habitual hasta hour_to
+                    # Se asume que la jornada inicia a (hour_to - horas de trabajo - 1 hr de almuerzo) si hour_to es salida
+                    standard_work_start = max(hour_to - work_hours - 1.0, 0.0)
+                    
+                    # Si hour_to es menor que hour_from en casos estándar, ajustamos inicio al hour_from habitual
+                    if hour_to <= (hour_from + work_hours):
+                        standard_work_start = hour_from
 
-                    if daily_hours < 0:
-                        daily_hours += 24
+                    last_day_hours = max(hour_to - standard_work_start, 0.0)
+                    last_day_hours -= self._get_lunch_overlap(standard_work_start, hour_to)
+                    last_day_hours = min(last_day_hours, work_hours)  # Cap a jornada completa
 
-                    # Descontar almuerzo de cada día.
-                    lunch_overlap = self._get_lunch_overlap(
-                        hour_from,
-                        hour_to,
-                    )
+                    # 3. DÍAS INTERMEDIOS: Días completos (multiplicados por HOURS_PER_DAY)
+                    intermediate_days = total_calendar_days - 2
+                    intermediate_hours = max(intermediate_days, 0) * work_hours
 
-                    daily_hours -= lunch_overlap
-
-                    daily_hours = max(
-                        daily_hours,
-                        0.0
-                    )
-
-                    number_of_hours = (
-                        daily_hours *
-                        total_calendar_days
-                    )
-
-                    number_of_days = (
-                        number_of_hours /
-                        self.HOURS_PER_DAY
-                    )
+                    # Totalización general
+                    number_of_hours = first_day_hours + intermediate_hours + last_day_hours
+                    number_of_days = number_of_hours / work_hours
 
                 result[leave.id] = (
                     number_of_days,
