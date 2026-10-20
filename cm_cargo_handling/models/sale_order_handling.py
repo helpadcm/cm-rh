@@ -41,7 +41,7 @@ class saleOrderHandling(models.Model):
         lps_currency_id = self.env.ref('base.HNL')
         usd_currency_id = self.env.ref('base.USD')
         rec = super(saleOrderHandling, self).default_get(fields)
-        context = dict(self._context or {})
+        context = self.env.context
         active_ids = context.get('active_ids')
         rec.update({
             'local_currency_id': lps_currency_id.id,

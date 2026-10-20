@@ -78,22 +78,22 @@
             <field name="perm_read" eval="True"/>
         </record>
 
-        <record id="responsible_expenses_request_rule" model="ir.rule">
+        <!-- <record id="responsible_expenses_request_rule" model="ir.rule">
             <field name="name">Aprobador de reportes de viaticos</field>
             <field name="model_id" ref="cm_expenses_request.model_cm_expenses_request"/>
-            <field name="domain_force">[('state', 'in', ['pending','finalized','canceled'])]</field>
+            <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('cm_expenses_request.group_expenses_request_responsible'))]"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
             <field name="perm_read" eval="True"/>
-        </record>
+        </record> -->
 
 		<record id="manager_expenses_request_rule" model="ir.rule">
             <field name="name">Administrador Solicitudes de Viaticos</field>
             <field name="model_id" ref="cm_expenses_request.model_cm_expenses_request"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('cm_expenses_request.group_expenses_request_manager')),(4, ref('cm_expenses_request.group_expenses_request_purchase'))]"/>
+            <field name="groups" eval="[(4, ref('cm_expenses_request.group_expenses_request_manager')),(4, ref('cm_expenses_request.group_expenses_request_purchase')),(4, ref('cm_expenses_request.group_expenses_request_responsible'))]"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
