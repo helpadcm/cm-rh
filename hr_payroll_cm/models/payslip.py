@@ -335,8 +335,9 @@ class HrPayslipBonus(models.Model):
             if ehx_amount > 0:
                 ehx_type_id = self.env['hr.payslip.input.type'].search([('code','=','HEF')])
                 if ehx_type_id:
-                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_digits=precision)
-                    amount = float_round((hours_amount * ehx_amount), precision_digits=precision)
+                    hours_amount = wage / 30 / 8
+                    hours_extra = hours_amount * 1.25
+                    amount = float_round((hours_extra * ehx_amount), precision_digits=precision)
                     vals.update({
                         'input_type_id': ehx_type_id.id,
                         'amount': amount,
@@ -382,6 +383,11 @@ class HrPayslipBonus(models.Model):
                 #     template.send_mail(payslip.id, email_layout_xmlid='mail.mail_notification_light')
                 return True
 
+    def recalculate_work_days(self):
+        for line in self.worked_days_line_ids:
+            print ("////////////////////////////////////")
+            line._compute_amount()
+
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
 
@@ -409,16 +415,17 @@ class workedDaysInh(models.Model):
                 hourly_rate = version.hourly_wage
                 amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             else:
+                hours_amount = (wage / 30 / 8)
                 if worked_days.work_entry_type_id.code == 'OVERTIME':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.25), precision_rounding=rounding)
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
+                    hours_extra = hours_amount * 1.25
+                    amount_days = float_round((hours_extra * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME50':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.50), precision_rounding=rounding)
+                    hours_extra = hours_amount * 1.50
                     amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME75':
-                    hours_amount = float_round(((wage / 30 / 8) * 1.75), precision_rounding=rounding)
+                    hours_extra = hours_extra * 1.75
                     amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':

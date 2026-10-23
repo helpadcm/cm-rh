@@ -390,7 +390,7 @@
                     <field name="assign_to_id" />
                     <field name="date"/>
                     <field name="purpose"/>
-                    <field name="refund_state" widget="badge" decoration-info="refund_state == 'na'" decoration-danger="refund_state == 'without_refund'" decoration-success="refund_state == 'refunded'" />
+                    <field name="refund_state" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_purchase,cm_expenses_request.group_expenses_request_responsible" widget="badge" decoration-info="refund_state == 'na'" decoration-danger="refund_state == 'without_refund'" decoration-success="refund_state == 'refunded'" />
                     <field name="advance_amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total"/>
                     <field name="infavor_employee_amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total a favor"/>
                     <field name="currency_id" column_invisible="1"/>
