@@ -118,7 +118,7 @@ class getRecordHours(models.TransientModel):
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
                 extra_hours = 0
                 oh = 0
-                bonus = 0
+                bonus = row.get('transport_bonus')
                 amount1 = 0
                 amount2 = 0
                 amount3 = 0
