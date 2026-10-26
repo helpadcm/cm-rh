@@ -86,10 +86,10 @@
                         <fieldset class="border rounded p-3 mb-4">
                             <group col="2" class="m-0">
                                 <group>
-                                    <field name="eh_holiday"/>
+                                    <field name="eh_holiday" readonly="state != 'draft'"/>
                                 </group>
                                 <group>
-                                    <field name="eh_holiday_extra"/>
+                                    <field name="eh_holiday_extra" readonly="state != 'draft'"/>
                                 </group>
                             </group>
                         </fieldset>

@@ -47,7 +47,7 @@ class employeeAttendanceRecords(models.Model):
     tb_bonus = fields.Float(string="Valor de Bono")
     tb_limit = fields.Float(string="BT Limite",help="BT Maximo * Valor Bono")
     tb_pay = fields.Float(string="Pagar BT",help="BT a pagar",compute='compute_eh_totals', store=True)
-    eh_holiday = fields.Float(string="Horas Feriado",compute='compute_eh_totals', store=True)
+    eh_holiday = fields.Float(string="HO Feriado",compute='compute_eh_totals', store=True)
     eh_holiday_extra = fields.Float(string="HE Feriado",compute='compute_eh_totals', store=True)
     state = fields.Selection([('draft','Borrador'),('revised','Revisado'),('finalized','Finalizado')],string="Estado",default='draft',tracking=True)
     payslip_date_from = fields.Date('Fecha Inicio Nomina')
