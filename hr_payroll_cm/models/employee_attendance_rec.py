@@ -15,7 +15,7 @@ actions = [
     ('comp', 'Compensatorio'),
     ('homeoffice', 'Home Office'),
     ('sa', 'Sin Almuerzo'),
-    ('suspention', 'Suspención'),
+    ('suspention', 'Suspensión'),
     ('other', 'Otros'),
 ]
 
@@ -138,8 +138,8 @@ class employeeAttendanceRecords(models.Model):
                         holiday_hours += line.holiday_hours
                         e_holiday_hours += line.holiday_extra_hours
 
-                    if line.personal_action == 'cap':
-                        eh_total -= line.extra_hours
+                    # if line.personal_action == 'cap':
+                    #     eh_total -= line.extra_hours
 
                     if line.personal_action == 'vac' and line.special_hours > 0:
                         hours_total -= line.ordinary_hours
