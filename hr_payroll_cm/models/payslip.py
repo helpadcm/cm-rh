@@ -460,6 +460,9 @@ class workedDaysInh(models.Model):
                             date_to,
                             contract_end
                         ) if contract_end else date_to
+                        
+                        if payment_end.day == 31:
+                            payment_end = payment_end - timedelta(days=1)
 
                         # Días trabajados, incluyendo ambos días
                         days_worked = (payment_end - payment_start).days + 1
