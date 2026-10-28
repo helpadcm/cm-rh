@@ -261,7 +261,11 @@ class expensesRequest(models.Model):
                     
     def change_state(self):
         next_state = self.env.context.get('state')
-        sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
+        if self.name == 'Borrador':
+            sequence_id = self.env.ref('cm_expenses_request.expenses_request_sequence')
+            if sequence_id:
+                self.name = sequence_id.next_by_id()
+        
         if next_state == 'required':
             currency_ids = self.request_details_ids.mapped('currency_id')
             if len(currency_ids) > 1:
@@ -280,10 +284,6 @@ class expensesRequest(models.Model):
                 for line in self.tickets_request_ids:
                     if not line.passport_file:
                         raise ValidationError("Debe agregar fotocopia de su identidad o pasaporte en su solicitud de boletos aereos.")
-
-            if self.name == 'Borrador':
-                if sequence_id:
-                    self.name = sequence_id.next_by_id()
             
             if self.boss_id.id == self.employee_id.id:
                 next_state = 'approved'
@@ -294,10 +294,6 @@ class expensesRequest(models.Model):
             if not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
                 if self.boss_id.user_id.id != self.env.user.id and next_state == 'approved':
                     raise ValidationError("Solo el aprobador de viaticos para este empleado puede aprobar en esta solicitud")
-
-            if next_state == 'exception' and self.direct_settlement:
-                if sequence_id and self.name == 'Borrador':
-                    self.name = sequence_id.next_by_id()
 
             if next_state == 'approved':
                 if self.need_hotel:
