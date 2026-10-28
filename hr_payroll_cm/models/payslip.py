@@ -461,6 +461,7 @@ class workedDaysInh(models.Model):
                             contract_end
                         ) if contract_end else date_to
                         
+                        #Si el dia final tiene 31 dias
                         if payment_end.day == 31:
                             payment_end = payment_end - timedelta(days=1)
 
