@@ -4,6 +4,7 @@ from odoo.tools.misc import format_date
 from math import ceil,floor
 from odoo.exceptions import AccessError, UserError, ValidationError
 from collections import defaultdict
+from datetime import timedelta
 
 class HrLeavesType(models.Model):
     _inherit = 'hr.leave.type'
@@ -220,7 +221,33 @@ class HrLeavesInh(models.Model):
                 continue
 
             if ( not leave.employee_id.aeronatical_license and leave.holiday_status_id.code == 'VAC' ): 
-                continue
+                leave_key = leave.id or leave._origin.id
+                if leave_key not in result:
+                    continue
+
+                d_start = fields.Date.to_date(leave.request_date_from)
+                d_end = fields.Date.to_date(leave.request_date_to)
+
+                if not d_start or not d_end:
+                    continue
+
+                # 1. Contar los sábados en el rango de fechas
+                saturdays = 0
+                curr_date = d_start
+                while curr_date <= d_end:
+                    if curr_date.weekday() == 5:  # 5 = Sábado
+                        saturdays += 1
+                    curr_date += timedelta(days=1)
+
+                # 2. Descontar 0.5 días y 4.0 horas por cada sábado encontrado
+                if saturdays > 0:
+                    days, hours = result[leave_key]
+                    new_days = max(0.0, days - (saturdays * 0.5))
+                    new_hours = max(0.0, hours - (saturdays * 4.0))
+
+                    result[leave_key] = (new_days, new_hours)
+                
+                return result
 
             if not leave.request_date_from or not leave.request_date_to:
                 continue
