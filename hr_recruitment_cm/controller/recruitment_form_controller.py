@@ -64,7 +64,17 @@ class RecruitmentPublicForm(http.Controller):
             'with_life': post.get('with_life'),
             'plans': post.get('plans'),
             # 'job_id': int(post.get('job_id')) if post.get('job_id') else False,
+  
+            'recruitment_source': post.get('recruitment_source'),
+            'recruitment_source_other': post.get('recruitment_source_other') if post.get('recruitment_source') == 'other' else False,
+         
+            
+        
+            'gender': post.get('gender'),
+            'gender_other': post.get('gender_other') if post.get('gender') == 'other' else False,
         }
+        
+        
 
         applicant = request.env['hr.applicant'].sudo().create(vals)
         applicant.sudo().calculate_age()

@@ -7,11 +7,22 @@ marital = [
     ('single', 'Soltero(a)'), ('married','Casado(a)'),
     ('free_union', 'Union Libre'), ('widower','Viudo(a)')
 ]
-
+gender_select = [
+    ('female', 'Femenino'),
+    ('male', 'Masculino'),
+    ('other', 'Otro')
+]
 situation_select = [
     ('1', 'No tengo cuenta ni relacion'), ('2','Tengo una cuenta de ahorro'),
     ('3', 'Tengo una cuenta de cheques'), ('4','Tengo un credito activo'),
     ('5', 'Estoy en proceso de abrir una cuenta'), ('6','Tengo mora o situacion irregular')
+]
+recruitment_source_select = [
+    ('social_media', 'Redes sociales'),
+    ('linkedin', 'Portal de empleo (LinkedIn)'),
+    ('whatsapp', 'Whatsapp'),
+    ('referral', 'Recomendación de un colaborador / amigo'),
+    ('other', 'Otro'),
 ]
 
 class HrApplicantInh(models.Model):
@@ -23,6 +34,10 @@ class HrApplicantInh(models.Model):
     age = fields.Integer(string="Edad")
     negotiable = fields.Boolean(string="Negociable")
     marital_status = fields.Selection(marital, string="Estado Civil")
+
+    gender = fields.Selection(gender_select, string="Género")
+    gender_other = fields.Char(string="Especifique otro género")
+    
     children = fields.Text(string="Hijos, Genero y Edad")
     academic_level = fields.Selection([('1','Primaria Completa'),('2','Secundaria Completa'),('3','Diversificado'),('4','Pregrado'),('5','Postgrado')],string="Nivel Academico")
     last_institute = fields.Char(string="Institucion")
@@ -40,6 +55,9 @@ class HrApplicantInh(models.Model):
     vigent_licence = fields.Boolean(string="Licencia Vigente")
     address = fields.Char(string="Direccion")
     city = fields.Char(string="Ciudad")
+    
+    recruitment_source = fields.Selection(recruitment_source_select, string="Medio de enterado")
+    recruitment_source_other = fields.Char(string="Especifique otro medio")
 
     laboral_history_ids = fields.One2many('applicant.laboral.history','applicant_id',string="Historial Academico")
     unemployed = fields.Text(string="Sin Empleo")
