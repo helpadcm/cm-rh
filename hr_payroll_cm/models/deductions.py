@@ -94,7 +94,6 @@ class otherDeductions(models.Model):
             rec.amount_to_deducted = deduct_amount
 
     def get_next_payslip_date(self, payslip=None):
-        # Usa la fecha actual de hoy
         today = fields.Date.today()  # O date.today()
 
         # Primera quincena: días 1 al 15 del mes actual
