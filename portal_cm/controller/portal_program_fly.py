@@ -53,7 +53,7 @@ class CustomPortalAbsences(http.Controller):
                     exit_date = (hist.exit_date - timedelta(hours=6)).strftime('%d/%m/%Y')
 
                 history_absences.append({
-                    'type': 'Programa a Volar',
+                    'type': hist.business_id.name,
                     'description': hist.observations,
                     'date_from': (hist.initial_date - timedelta(hours=6)).strftime('%d/%m/%Y'),
                     'date_to': exit_date,
@@ -111,7 +111,8 @@ class CustomPortalAbsences(http.Controller):
     @http.route('/request_tickets/submit', type='http', auth="user", methods=["POST"], website=True)
     def request_tickets_submit(self, **post):
         user = request.env.user
-        company_id = request.env.user.company_id
+        # company_id = request.env.user.company_id
+        company_id = 1
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         if not employee_id:
             return "Error: No se encontró un empleado vinculado a este usuario. Verifique su configuración en Odoo."
@@ -151,11 +152,12 @@ class CustomPortalAbsences(http.Controller):
                     return_route_id = ret_route_id.id
 
         type_id = request.env['hr.leave.type'].sudo().browse(int(type_value_id))
-        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code)])
+        business_id = request.env['cm.business.list'].sudo().search([('code','=',type_id.code),('company_id','=',company_id)])
         
         vals = {
             'employee_id': employee_id.id,
             'people_qty': str(tickets_request),
+            'company_id': company_id,
             'tickets_request': True,
             'business_id': business_id.id,
             'observations': notes,
@@ -252,11 +254,13 @@ class CustomPortalAbsences(http.Controller):
             vals.update({'char_date_from': self.convert_date(date_from), 'char_date_to': self.convert_date(date_to)})
             leave_id = request.env['rrhh.others.requests'].sudo().create(vals)
             for i in tickets:
-                request.env['request.beneficiary'].sudo().create({
+                beneficiary_id = request.env['request.beneficiary'].sudo().create({
                     'request_id': leave_id.id,
                     'beneficiary_id': i,
                     'employee_id': employee_id.id
                 })
+                beneficiary_id.sudo().data_beneficiary()
+                beneficiary_id.sudo()._onchange_birth_date()
 
             attachment_ids_to_link = []
             for attachment in attachments:

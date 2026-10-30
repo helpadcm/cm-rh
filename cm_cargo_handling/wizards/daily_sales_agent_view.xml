@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record id="view_daily_sales_agent_report" model='ir.ui.view'>
+            <field name="name">Ventas diarias agentes</field>
+            <field name="model">handling.daily_sales_agent</field>
+            <field name="arch" type="xml">
+                <form string='Ventas diarias de agentes'>
+                    <group>
+                        <group>
+                            <field name="start_date" required="1"/>
+                        </group>
+                        <group>
+                            <field name="final_date" required="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="employee_ids" domain="[('id','in',allow_employee_ids)]" placeholder="Si se deja vacio se obtendran los datos de todos los empleados a su cargo" options="{'no_create': True}" widget="many2many_tags"/>
+                        <field name="allow_employee_ids" options="{'no_create': True}" widget="many2many_tags" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="print_report" class="oe_highlight" string="Imprimir" type="object"/>
+                        <button special="cancel" string="Cancelar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_daily_sales_agent" model="ir.actions.act_window">
+            <field name="name">Ventas Diarias Agentes</field>
+            <field name="res_model">handling.daily_sales_agent</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_daily_sales_agent_report"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

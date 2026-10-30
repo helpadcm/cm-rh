@@ -71,12 +71,23 @@
                             <tr>
                                 <td style="">No. Celular</td>
                                 <td style="">Correo electrónico</td>
-                                <td style="">Hijo (s) género y edad</td>
+                                <td style="">Género</td>
                             </tr>
                             <tr>
                                 <td style="" class="answer"><span t-field="o.partner_phone"/></td>
                                 <td style="" class="answer"><span t-field="o.email_from"/></td>
-                                <td style="" class="answer"><span t-field="o.children"/></td>
+                                <td style="" class="answer">
+                                    <span t-field="o.gender"/>
+                                    <t t-if="o.gender == 'other'">
+                                        (<span t-field="o.gender_other"/>)
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="" colspan="3">Hijo (s) género y edad</td>
+                            </tr>
+                            <tr>
+                                <td style="" class="answer" colspan="3"><span t-field="o.children"/></td>
                             </tr>
                             <tr>
                                 <td style="">Nivel académico (graduado)</td>
@@ -258,6 +269,17 @@
                             </tr>
                             <tr>
                                 <td style="text-align:left;border:0px;padding-left:30px" colspan="3"><span t-field="o.plans"/></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-top:20px" colspan="3">18. ¿A través de qué medio se enteró de esta vacante?</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border:0px;padding-left:30px" colspan="3">
+                                    <span t-field="o.recruitment_source"/>
+                                    <t t-if="o.recruitment_source == 'other'">
+                                        (<span t-field="o.recruitment_source_other"/>)
+                                    </t>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="text-align:left;border:0px;padding-top:20px" colspan="3"><strong>Referencias LABORALES:</strong> nombre, empresa, puesto, número de teléfono o celular</td>

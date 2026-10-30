@@ -19,9 +19,9 @@
                                             <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
                                                 <tr>
                                                     <td rowspan="3" style="text-align:center; padding-bottom:10px;">
-                                                        <img t-att-src="'/web/image/res.company/%s/logo' % object.employee_id.user_id.company_id.id"
+                                                        <img t-att-src="'/web/image/res.company/%s/logo' % object.employee_id.company_id.id"
                                                             style="height:80px;"
-                                                            t-att-alt="object.employee_id.user_id.company_id.name"/>
+                                                            t-att-alt="object.employee_id.company_id.name"/>
                                                     </td>
                                                     <td style="text-align:center;" valign="middle">
                                                         Solicitud de boletos para <span style="font-size: 13px; font-weight: bold;" t-out="object.employee_id.name or ''"/>
@@ -56,12 +56,13 @@
 
                                                             <table style="border:1px solid black;border-collapse: collapse;width:100%">
                                                                 <tr>
-                                                                    <td style="border:1px solid black;text-align:center;padding:3px" colspan="3"><strong>BENEFICIARIOS</strong></td>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px" colspan="4"><strong>BENEFICIARIOS</strong></td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Nombre</strong></td>
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Identidad</strong></td>
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Fecha de Nacimiento</strong></td>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px"><strong>Tipo de pasajero</strong></td>
                                                                 </tr>
                                                                 <tbody>
                                                                     <tr t-foreach="object.beneficiary_ids" t-as="ben">
@@ -72,7 +73,16 @@
                                                                             <t t-out="ben.identity or ''"/>
                                                                         </td>
                                                                         <td style="border:1px solid black;padding:3px;text-align:center">
-                                                                            <t t-out="ben.birthday.strftime('%d/%m/%Y') or ''"/>
+                                                                            <t t-out="ben.birthday.strftime('%d/%m/%Y') if ben.birthday else ''"/>
+                                                                        </td>
+                                                                        <td t-if="ben.passenger_type == 'adult'" style="border:1px solid black;padding:3px;text-align:center">
+                                                                            Adulto
+                                                                        </td>
+                                                                        <td t-if="ben.passenger_type == 'child'" style="border:1px solid black;padding:3px;text-align:center">
+                                                                            Niño
+                                                                        </td>
+                                                                        <td t-if="ben.passenger_type == 'infant'" style="border:1px solid black;padding:3px;text-align:center">
+                                                                            Infante
                                                                         </td>
                                                                     </tr>
                                                                 </tbody>

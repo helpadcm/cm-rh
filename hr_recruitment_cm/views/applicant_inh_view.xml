@@ -9,6 +9,19 @@
                 <field name="department_id" position="after">
                     <field name="requirement_id" domain="[('new_position','=',job_id),('state','=','in_progress')]" options="{'no_create': True}"/>
                 </field>
+                <!-- Ocultar el campo 'Medio' (medium_id) -->
+                <xpath expr="//field[@name='medium_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <field name="campaign_id" position="after">
+                    <field name="recruitment_source" string="Fuente de información de trabajo"/>
+                    <field name="recruitment_source_other" 
+                           string="Especifique otra fuente" 
+                           invisible="recruitment_source != 'other'"/>
+                           
+                </field>
+                
                 <field name="availability" position="replace">
                 </field>
                 <xpath expr="//form/sheet/group/group[1]" position="attributes">
@@ -38,6 +51,13 @@
                             <group>
                                 <field name="availability" />
                                 <field name="partner_phone" />
+                                
+                                <!--CAMPOS DE GÉNERO -->
+                                <field name="gender" string="Género"/>
+                                <field name="gender_other" 
+                                       string="Especifique otro género" 
+                                       invisible="gender != 'other'"/>
+                                       
                                 <field name="children" />
                             </group>
                         </group>

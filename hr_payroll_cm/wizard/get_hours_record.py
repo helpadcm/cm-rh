@@ -96,6 +96,7 @@ class getRecordHours(models.TransientModel):
                 'payslip_date_to': self.payslip_date_to
             })
 
+            total_eh = 0
             for row in rows_data:
                 vals = {
                     'attendance_rec_id': rec_id.id,
@@ -115,6 +116,13 @@ class getRecordHours(models.TransientModel):
                     'check_type': employee_id.check_type
                 }
                 turn_line_id = self.env['hr.turn.registration'].search([('employee_id','=',id_employee),('date','=',row.get('date'))])
+                extra_hours = 0
+                oh = 0
+                bonus = row.get('transport_bonus')
+                amount1 = 0
+                amount2 = 0
+                amount3 = 0
+                total_h = 0
                 if turn_line_id:
                     if turn_line_id.state == 'draft':
                         raise ValidationError('La fecha %s del empleado %s en el equipo %s no ha sido validada'%(turn_line_id.date, employee_id.name, turn_line_id.team_id.name))
@@ -138,6 +146,11 @@ class getRecordHours(models.TransientModel):
                         'extra_hours': turn_line_id.aditional_hours,
                     })
 
+                    extra_hours = turn_line_id.aditional_hours
+                    oh = turn_line_id.oh
+                    total_h = turn_line_id.ordinary_hours
+
+                    # if employee_id.check_type == 'turn':
                     if turn_line_id.turn_type_a.id == turn_line_id.turn_type_b.id:
                         personal_action = False
                         if turn_line_id.turn_type_a.code == 'LID':
@@ -146,8 +159,14 @@ class getRecordHours(models.TransientModel):
                             personal_action = 'holiday'
                         elif turn_line_id.turn_type_a.code == 'INC':
                             personal_action = 'inc'
-                        elif turn_line_id.turn_type_a.code == 'PER':
+                        elif turn_line_id.turn_type_a.code in ['PER','PGS','PSGS']:
                             personal_action = 'special'
+                        elif turn_line_id.turn_type_a.code == 'SA':
+                            personal_action = 'sa'
+                        elif turn_line_id.turn_type_a.code == 'SUSP':
+                            personal_action = 'suspention'
+                        elif turn_line_id.turn_type_a.code == 'HOME':
+                            personal_action = 'homeoffice'
                         elif turn_line_id.turn_type_a.code == 'COM':
                             personal_action = 'comp'
                         elif turn_line_id.turn_type_a.code == 'VAC':
@@ -165,10 +184,6 @@ class getRecordHours(models.TransientModel):
                 min_hours = []
                 max_hours = []
                 if employee_id.check_type == 'mark':
-                    bonus = 0
-                    amount1 = 0
-                    amount2 = 0
-                    amount3 = 0
                     if vals.get('check_in_1'):
                         entry_hour = self.convert_timedelta(vals.get('check_in_1'))
                         entry_total_sec = entry_hour.total_seconds()/3600
@@ -226,7 +241,6 @@ class getRecordHours(models.TransientModel):
                     bonus = self.calculate_bonus(min_hours, max_hours, employee_id)
 
                     total_h = amount1 + amount2 + amount3
-                    extra_hours = 0
                     oh = 0
                     if row.get('date').weekday() in [5,6]:
                         if total_h > 0:
@@ -247,20 +261,30 @@ class getRecordHours(models.TransientModel):
                             'extra_hours': extra_hours
                         })
 
-                    
+                if turn_line_id:
                     if turn_line_id.turn_type_a.code == 'FT' and turn_line_id.turn_type_b.code == 'FT':
                         if extra_hours > 0:
                             vals.update({'holiday_hours': oh, 'holiday_extra_hours': extra_hours, 'personal_action': 'wh'})
                         else:
                             vals.update({'holiday_hours': oh, 'personal_action': 'wh'})
-    
-                    vals.update({
-                        'bonus': bonus,
-                        'total_hours': total_h
-                    })
+
+
+                total_eh += extra_hours
+                vals.update({
+                    'bonus': bonus,
+                    'total_hours': total_h
+                })
 
                 line_id = self.env['hr.employee.attendance.line'].create(vals)
                 line_id.personal_action_change()
+
+            if total_eh > 0:
+                if total_eh <= employee_id.max_extra_hours:
+                    rec_id.write({'real_eh_pay': total_eh})
+                elif total_eh > employee_id.max_extra_hours:
+                    rec_id.write({'real_eh_pay': employee_id.max_extra_hours})
+            rec_id.update_real_eh()
+
         return True
 
     def get_name_rec(self, date_from):

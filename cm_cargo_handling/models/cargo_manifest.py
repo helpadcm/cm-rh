@@ -121,6 +121,19 @@ class Cargo_manifest(models.Model):
     def print_abandonment_report(self):
         return self.env.ref('cm_cargo_handling.action_abandonment_report_id').report_action(self)
 
+    def finalized_manifest(self):
+        peu_id = self.env['cargo.airport'].search([('ref','=','PEU')])
+        if peu_id:
+            manifest_ids = self.search([('reception_airport','=',peu_id.id),('state','=','sent')])
+            if manifest_ids:
+                manifest_ids.write({'state': 'received'})
+
+            station_peu_id = self.env['cargo.station'].search([('airport_id','=',peu_id.id)])
+            if station_peu_id:
+                guide_ids = self.env['cargo.bill'].search([('destination_id','=',station_peu_id.id),('state','in',['sent','received'])])
+                if guide_ids:
+                    guide_ids.write({'state': 'delivered'})
+
 class Cargo_manifest_bill_landing(models.Model):
     _name   =   'cargo.manifest_bill_landing'
     _description = "Guias de Carga en Manifiesto"

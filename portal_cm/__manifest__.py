@@ -24,6 +24,7 @@
         'views/portal_program_fly.xml',
         'views/portal_reserver_room.xml',
         'views/portal_download_signature.xml',
+        'views/portal_update_emp_data.xml',
         'views/team_hour_rec_view.xml',
         'views/leave_view_inh.xml',
         'views/menus.xml',

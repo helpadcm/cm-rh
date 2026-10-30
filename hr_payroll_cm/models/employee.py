@@ -7,10 +7,14 @@ selection_type = [
     ('department','Por departamento'),
 ]
 
+levels = [('1', 'Nivel 1'),('2', 'Nivel 2'),('3', 'Nivel 3'),('4', 'Nivel 4'),('5', 'Nivel 5'),('6', 'Nivel 6'),('7', 'Nivel 7'),('8', 'Nivel 8'),('9', 'Nivel 9'),('10', 'Nivel 10')]
+
 class Employee(models.Model):
     _inherit = 'hr.employee'
 
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
+    resident_number = fields.Char(string="Número de Residencia")
+    level_number = fields.Selection(levels, string="Nivel del empleado", default="10")
 
     def get_employee_no(self):
         for employee in self:
@@ -20,6 +24,10 @@ class employeePublic(models.Model):
     _inherit = 'hr.employee.public'
 
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
+    resident_number = fields.Char(string="Número de Residencia")
+    level_number = fields.Selection(levels, string="Nivel del empleado", default="10")
+    check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Tipo de revision",default="turn")
+    monthly_wage = fields.Monetary(string="Salario Mensual")
 
 class EmployeeMembersInh(models.Model):
     _inherit = 'hr.employees.members'
@@ -38,6 +46,7 @@ class departmentInherit(models.Model):
 
     calculate_hours = fields.Selection([('one','1 vez'),('two','2 veces')], string="Calculo Horas al Mes", default="two")
     analytic_account_id = fields.Many2one('account.analytic.account',string="Cuenta Analitica")
+    priority_level = fields.Integer(string="Nivel de prioridad")
 
 class salaryRulesInh(models.Model):
     _inherit = 'hr.salary.rule'
@@ -54,6 +63,15 @@ class salaryRulesInh(models.Model):
                     'category_id': rule.category_id.id
                 })
         return rules
+
+class workEntryInh(models.Model):
+    _inherit = 'hr.work.entry'
+
+    @api.model
+    def delete_conflict(self):
+        entry_ids = self.search([('state','=','conflict')])
+        if entry_ids:
+            entry_ids.sudo().unlink()
 
 class accountAccountInh(models.Model):
     _inherit = 'account.account'

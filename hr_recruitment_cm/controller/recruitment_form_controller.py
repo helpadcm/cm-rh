@@ -7,8 +7,8 @@ class RecruitmentPublicForm(http.Controller):
 
     @http.route('/job/apply/<int:requirement_id>', type='http', auth='public', website=True)
     def recruitment_form(self, requirement_id, **kw):
-        jobs = request.env['hr.job'].sudo().search([])
-        return request.render('hr_recruitment_cm.recruitment_public_form', {'jobs': jobs, 'requirement_id': requirement_id})
+        req_id = request.env['hr.staff.requirement'].sudo().browse(int(requirement_id))
+        return request.render('hr_recruitment_cm.recruitment_public_form', {'jobs': req_id.new_position, 'requirement_id': requirement_id})
 
     @http.route('/job/apply/submit', type='http', auth='public', website=True, methods=['POST'], csrf=False)
     def recruitment_form_submit(self, **post):
@@ -64,7 +64,17 @@ class RecruitmentPublicForm(http.Controller):
             'with_life': post.get('with_life'),
             'plans': post.get('plans'),
             # 'job_id': int(post.get('job_id')) if post.get('job_id') else False,
+  
+            'recruitment_source': post.get('recruitment_source'),
+            'recruitment_source_other': post.get('recruitment_source_other') if post.get('recruitment_source') == 'other' else False,
+         
+            
+        
+            'gender': post.get('gender'),
+            'gender_other': post.get('gender_other') if post.get('gender') == 'other' else False,
         }
+        
+        
 
         applicant = request.env['hr.applicant'].sudo().create(vals)
         applicant.sudo().calculate_age()

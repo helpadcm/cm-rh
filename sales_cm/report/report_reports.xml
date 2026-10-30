@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_custom_cotizacion" model="ir.actions.report">
+        <field name="name">Cotización CM Airlines</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sales_cm.report_cotizacion_cm_document</field>
+        <field name="report_file">sales_cm.report_cotizacion_cm_document</field>
+        <field name="print_report_name">'Cotizacion - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+		<field name="paperformat_id" ref="sales_cm.paperformat_sale_order_cm"/>
+    </record>
+</odoo>

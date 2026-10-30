@@ -12,26 +12,41 @@
                             <field name="x_name_position" string="Pos. Horizontal"/>
                             <field name="y_name_position" string="Pos. Vertical"/>
                             <field name="name_font_size" string="Tamaño Letra"/>
+                            <field name="name_color" />
+                            <field name="name_font" filename="name_font_filename"/>
+                            <field name="name_font_filename" invisible="1"/>
                         </group>
                         <group string="Conf. Puesto">
                             <field name="x_job_position" string="Pos. Horizontal"/>
                             <field name="y_job_position" string="Pos. Vertical"/>
                             <field name="job_font_size" string="Tamaño Letra"/>
+                            <field name="job_color" />
+                            <field name="job_font" filename="job_font_filename"/>
+                            <field name="job_font_filename" invisible="1"/>
                         </group>
                         <group string="Conf. Telefono">
                             <field name="x_mobile_position" string="Pos. Horizontal"/>
                             <field name="y_mobile_position" string="Pos. Vertical"/>
                             <field name="mobile_font_size" string="Tamaño Letra"/>
+                            <field name="mobile_color" />
+                            <field name="mobile_font" filename="mobile_font_filename"/>
+                            <field name="mobile_font_filename" invisible="1"/>
                         </group>
                         <group string="Conf. Telefono Empresa">
                             <field name="x_phone_comp_position" string="Pos. Horizontal"/>
                             <field name="y_phone_comp_position" string="Pos. Vertical"/>
                             <field name="phone_comp_font_size" string="Tamaño Letra"/>
+                            <field name="company_color" />
+                            <field name="company_font" filename="company_font_filename"/>
+                            <field name="company_font_filename" invisible="1"/>
                         </group>
                         <group string="Conf. Direccion">
                             <field name="x_address_position" string="Pos. Horizontal"/>
                             <field name="y_address_position" string="Pos. Vertical"/>
                             <field name="address_font_size" string="Tamaño Letra"/>
+                            <field name="address_color" />
+                            <field name="address_font" filename="address_font_filename"/>
+                            <field name="address_font_filename" invisible="1"/>
                         </group>
                     </group>
                     <label for="sign_template"/>

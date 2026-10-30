@@ -5,12 +5,12 @@
             <field name="name">Reporte de viaticos</field>
             <field name="model">expenses.sheet.request</field>
             <field name="arch" type="xml">
-                <form string="Solicitud de viaticos" create="false">
+                <form string="COBUS" create="false">
                     <field name="company_currency_id" invisible="1"/>
                     <header>
                         <button name="change_state" context="{'state': 'approved'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight" type="object" string="Aprobar" invisible="state != 'sent'"/>
                         <button name="change_state" context="{'state': 'done'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight" type="object" string="Finalizar" invisible="state != 'approved'"/>
-                        <button name="change_state" context="{'state': 'draft'}" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'sent'"/>
+                        <button name="%(cm_expenses_request.expense_return_to_draft_action)d" groups="cm_expenses_request.group_expenses_request_manager,cm_expenses_request.group_expenses_request_responsible" class="oe_highlight btn-info" type="action" string="Regresar a Borrador" invisible="state != 'sent'"/>
                         <field name="state" widget="statusbar"/>
                   	</header>
                     <sheet>
@@ -33,8 +33,31 @@
                                 <field name="request_id" options="{'no_create': True,'no_open': True}" readonly="1"/>
                                 <field name="company_id" groups="base.group_multi_company" readonly="1"/>
                                 <field name="move_id" invisible="1"/>
+                                <field name="company_currency_id" invisible="1"/>
                             </group>
                         </group>
+
+                        <group string="Datos de solicitud">
+                            <group>
+                                <field name="advance_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="total_expense_amount" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                            </group>
+                            <group>
+                                <field name="infavor_employee_amount" invisible="infavor_employee_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="refund_amount" invisible="refund_amount == 0" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="refund" invisible="infavor_employee_amount == 0" readonly="state not in ['draft','sent']"/>
+                            </group>
+                        </group>
+                        <group string="Resolucion a Reembolso" invisible="infavor_employee_amount == 0">
+                            <group>
+                                <field name="exception_solution" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="exeption_id"/>
+                                <field name="description"/>
+                            </group>
+                        </group>
+
                         <notebook>
                             <page name="expenses" string="Gastos">
                                 <field name="expenses_ids" readonly="state != 'draft'" 
@@ -72,20 +95,25 @@
                                         <field name="price_unit" optional="hide" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
                                         <field name="currency_id" optional="hide" readonly="True" groups="base.group_multi_currency"/>
                                         <field name="quantity" optional="hide" readonly="not product_has_cost"/>
-                                        <field name="exempt_amount" optional="hide"/>
+                                        <field name="exempt_amount" optional="hide" options="{'currency_field': 'currency_id'}"/>
                                         <field name="tax_ids" string="Impuestos" optional="show" widget="many2many_tags"
                                             context="{'default_company_id': company_id}"/>
+                                        <field name="untaxed_amount_currency" string="Monto Sin Impuestos" options="{'currency_field': 'currency_id'}" />
                                         <field name="tax_amount_currency" optional="hide"  options="{'currency_field': 'currency_id'}"
                                             context="{'default_company_id': company_id}" readonly="True" groups="base.group_multi_currency"/>
                                         <field name="tax_amount" optional="hide" readonly="True"/>
                                         <field name="total_amount_currency" options="{'currency_field': 'currency_id'}"
-                                            string="Subtotal In Currency " optional="show"
+                                            string="Subtotal In Currency " optional="hide"
                                             readonly="not is_multiple_currency" groups="base.group_multi_currency"/>
-                                        <field name="total_amount" string="Subtotal" readonly="product_has_cost"/>
+                                        <field name="total_amount" string="Subtotal" optional="hide" readonly="product_has_cost"/>
                                     </list>
                                 </field>
                                 <group class="oe_subtotal_footer" colspan="2" name="expense_total">
                                     <field name="untaxed_amount"/>
+                                    <div class="oe_inline o_td_label">
+                                        <label for="taxable_amount"/>
+                                    </div>
+                                    <field name="taxable_amount" nolabel="1"/>
                                     <div class="oe_inline o_td_label">
                                         <label for="exempt_amount"/>
                                     </div>
@@ -111,10 +139,10 @@
         </record>
 
         <record id="expenses_request_sheet_tree_view" model="ir.ui.view">
-            <field name="name">Solicitud de viaticos</field>
+            <field name="name">COBUS</field>
             <field name="model">expenses.sheet.request</field>
             <field name="arch" type="xml">
-                <list string="Solicitud de viaticos" decoration-info="state == 'draft'">
+                <list string="COBUS" decoration-info="state == 'draft'">
                     <field name="company_currency_id" column_invisible="1"/>
                     <field name="number" readonly="1"/>
                     <field name="name"/>
@@ -154,7 +182,7 @@
         </record> -->
 
         <record id="action_expenses_request_sheet" model="ir.actions.act_window">            
-            <field name="name">Solicitud de viaticos</field>
+            <field name="name">COBUS</field>
             <field name="res_model">expenses.sheet.request</field>
             <field name="view_mode">list,form</field>
             <field name="context">{}</field>         

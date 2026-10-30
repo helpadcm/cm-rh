@@ -1,6 +1,7 @@
 from odoo import fields, models , api
-from odoo.tools.date_utils import relativedelta
-
+from dateutil.relativedelta import relativedelta
+from datetime import date
+import calendar
 
 class employeeContract(models.Model):
     _inherit = 'hr.employee'
@@ -45,15 +46,42 @@ class employeeContract(models.Model):
         compute='_compute_seniority'
         )
 
-    @api.depends('contract_date_start')
+    @api.depends('contract_date_start', 'contract_date_end')
     def _compute_seniority(self):
         for employee in self:
-            if employee.contract_date_start:
-                seniority = relativedelta(fields.Date.today(), employee.contract_date_start)
-                employee.seniority = f'{seniority.years} años, {seniority.months} meses y {seniority.days} días'
-            else:
-                employee.seniority = False
+            seniority = False
 
+            if employee.contract_date_start:
+                date_start = employee.contract_date_start
+                date_end = employee.contract_date_end or fields.Date.today()
+
+                # Cálculo utilizando:
+                # 1 año = 360 días
+                # 1 mes = 30 días
+
+                total_days = (
+                    (date_end.year - date_start.year) * 360
+                    + (date_end.month - date_start.month) * 30
+                    + (date_end.day - date_start.day)
+                )
+
+                # Evitar resultados negativos
+                if total_days < 0:
+                    total_days = 0
+
+                years = total_days // 360
+                remaining_days = total_days % 360
+
+                months = remaining_days // 30
+                days = remaining_days % 30
+
+                seniority = (
+                    f'{years} años, '
+                    f'{months} meses y '
+                    f'{days} días'
+                )
+
+            employee.seniority = seniority
 
     @api.model
     def cron_update_contract_bonus(self):
@@ -84,3 +112,45 @@ class employeeContract(models.Model):
             'target': 'current',
             'context': self.env.context
         }
+
+class employeePublic(models.Model):
+    _inherit = 'hr.employee.public'
+
+    early_checkin_bonus_time = fields.Float(
+        string='Hora de Bono de Entrada',
+        help='Hora de Bono de Trasporte de Entrada Temprana'
+    )
+    late_checkout_bonus_time = fields.Float(
+        string='Hora de Bono de Salida Tarde',
+        help='Hora de Bono de Trasporte de Salida Tarde'
+    )
+    max_extra_hours = fields.Float(
+        string='Máximo de Horas Extras',
+        help='Máximo de horas extras que el empleado puede realizar'
+    )
+    max_performance_bonus = fields.Monetary(
+        string='Máximo de Bono de Desempeño',
+        help='Bono de Desempeño que se le otorgara al empleado'
+    )
+
+    max_transportation_bonus = fields.Integer(
+        string='Bono de Trasporte Máximo',
+        help='Bono de Trasporte Máximo'
+    )
+    value_bonus = fields.Monetary(
+        string='Valor de Bono',
+        help='Valor unitario del bono de transporte'
+    )
+
+    temporal_amount =  fields.Float(string="Monto Temporal")
+
+    seniority = fields.Text(
+        string='Antigüedad',
+        help='Calcula la antigüedad basado en la fecha de contrato',
+        compute='_compute_seniority'
+        )
+
+    currency_id = fields.Many2one(
+        "res.currency",
+        string='Currency',
+        related='company_id.currency_id')

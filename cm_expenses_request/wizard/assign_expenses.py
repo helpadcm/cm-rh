@@ -9,36 +9,73 @@ class assignExpenses(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
-        context = dict(self._context or {})
+        context = self.env.context
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         rec = super(assignExpenses, self).default_get(fields)
         req_id = self.env[active_model].search([('id','in',active_ids)])
-        account_id = self.env['account.account'].search([('code','=','105.01')])
+        company_id = self.env['res.company'].browse(1)
+        account_id = self.env['account.account'].search([('code','=','105.01'),('company_ids','in',[company_id.id])])
+
+        if req_id.currency_id.id == company_id.currency_id.id:
+            journal_id = self.env['account.journal'].search([('code','=','BPLPS'),('company_id','=',company_id.id)])
+        else:
+            journal_id = self.env['account.journal'].search([('code','=','BPDLS'),('company_id','=',company_id.id)])
+        
         if req_id:
             rec.update({
                 'description': f"""Viaticos para {req_id.assign_to_id.name}""",
-                'date': (datetime.now() - timedelta(hours=6)).date()
+                'date': (datetime.now() - timedelta(hours=6)).date(),
+                'currency_id': req_id.currency_id.id
             })
             if account_id:
                 rec.update({
                     'account_id': account_id.id
                 })
+        if journal_id:
+            rec.update({'journal_id': journal_id.id})
         return rec
 
-    journal_id = fields.Many2one('account.journal',string='Diario')
+    journal_id = fields.Many2one('account.journal' ,string='Diario')
     amount = fields.Float(string="Monto")
     description = fields.Char(string="Descripcion")
     date = fields.Date(string="Fecha")
     account_id = fields.Many2one('account.account',string="Cuenta")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
+    available_journal_ids = fields.Many2many(
+        'account.journal', 
+        compute='_compute_available_journal_ids',
+        string='Diarios Disponibles'
+    )
+
+    @api.depends('currency_id')
+    def _compute_available_journal_ids(self):
+        context = self.env.context
+        active_model = context.get('active_model')
+        active_ids = context.get('active_ids')
+        company_id = self.env['res.company'].browse(1)
+        domain = [('company_id', 'in', [company_id.id]),('type','in',['bank'])]
+        if self.currency_id.id == company_id.currency_id.id:
+            domain.extend(['|', ('currency_id', '=', self.currency_id.id), ('currency_id', '=', False)])
+        else:
+            domain.append(('currency_id', '=', self.currency_id.id))
+
+        self.available_journal_ids = self.env['account.journal'].search(domain)
 
     def create_debit(self):
-        context = dict(self._context or {})
+        context = self.env.context
+        self.env.user.company_id = 1
         active_model = context.get('active_model')
         active_ids = context.get('active_ids')
         req_id = self.env[active_model].search([('id','in',active_ids)])
 
-        debit_id = self.env['debit.credit'].create({
+        pending_expenses_ids = self.env['cm.expenses.request'].search([('assign_to_id','=',req_id.assign_to_id.id)])
+        for pen in pending_expenses_ids:
+            if pen.id != req_id.id:
+                if pen.state == 'assigned' and not pen.omit_settlement:
+                    raise ValidationError(f"""No se puede realizar la asignacion de viaticos al empleado {req_id.assign_to_id.name} aun tiene la solicitud {pen.name} pendiente de liquidar.""")
+
+        debit_id = self.env['debit.credit'].sudo().create({
             'journal_id': self.journal_id.id,
             'date': self.date,
             'doc_type': 'debit',
@@ -47,7 +84,7 @@ class assignExpenses(models.TransientModel):
             'request_id': req_id.id
         })
 
-        self.env['debit.credit.name'].create({
+        self.env['debit.credit.name'].sudo().create({
             'account_id': self.account_id.id,
             'name': req_id.purpose,
             'amount': self.amount,

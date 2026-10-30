@@ -3,9 +3,6 @@ from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
-second = [26,27,28,29,30,31,1,2,3,4,5,6,7,8,9,10]
-first = [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
-
 class CustomPortal(http.Controller):
 
     @http.route('/turns/record_hours_team', type='http', auth="user", website=True)
@@ -23,37 +20,44 @@ class CustomPortal(http.Controller):
         turn_final_b_id = request.env['hr.options.schedules'].sudo().search([('name','=','1700')])
 
         actual_date = datetime.now() - timedelta(hours=6)
-        
-        domain = [('employee_id','=',employee_id.id),('state','=','validated')]
-        actual_domain = [('employee_id','=',employee_id.id),('state','=','validated')]
+        # ===========================
+        # Quincena actual
+        # ===========================
+        current_start, current_end = self._get_period(actual_date)
 
-        if actual_date.day in first:
-            min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
-            max_date = actual_date.replace(day=10).date()
-            domain.extend([('date','>=',min_date),('date','<=',max_date)])
+        # ===========================
+        # Quincena anterior
+        # ===========================
+        previous_reference = datetime.combine(
+            current_start,
+            datetime.min.time()
+        ) - timedelta(days=1)
 
-            actual_min_date = actual_date.replace(day=11).date()
-            actual_max_date = actual_date.replace(day=25).date()
-            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
+        previous_start, previous_end = self._get_period(previous_reference)
+        domain = [
+            ('employee_id', '=', employee_id.id),
+            ('state', '=', 'validated'),
+            ('date', '>=', previous_start),
+            ('date', '<=', previous_end),
+        ]
 
-        elif actual_date.day in second:
-            if actual_date.day <= 10:
-                min_date = actual_date.replace(day=11).date() - relativedelta(months=1)
-                max_date = actual_date.replace(day=25).date() - relativedelta(months=1)
-                actual_min_date = actual_date.replace(day=26).date() - relativedelta(months=1)
-                actual_max_date = actual_date.replace(day=10).date()
-            else:
-                max_date = actual_date.replace(day=25).date()
-                min_date = actual_date.replace(day=10).date()
-                actual_min_date = actual_date.replace(day=26).date()
-                actual_max_date = actual_date.replace(day=10).date() + relativedelta(months=1)
+        actual_domain = [
+            ('employee_id', '=', employee_id.id),
+            ('state', '=', 'validated'),
+            ('date', '>=', current_start),
+            ('date', '<=', current_end),
+        ]
 
-            domain.extend([('date','>=',min_date),('date','<=',max_date)])
+        validate_record_ids = request.env['hr.turn.registration'].sudo().search(
+            domain,
+            order="date desc"
+        )
 
-            actual_domain.extend([('date','>=',actual_min_date),('date','<=',actual_max_date)])
-        
-        validate_record_ids = request.env['hr.turn.registration'].sudo().search(domain, order="date desc")
-        actual_record_ids = request.env['hr.turn.registration'].sudo().search(actual_domain, order="date desc")
+        actual_record_ids = request.env['hr.turn.registration'].sudo().search(
+            actual_domain,
+            order="date desc"
+        )
+
         values = {
             "records": types_turn_ids, 
             "schedules": schedule_ids, 
@@ -236,3 +240,31 @@ class CustomPortal(http.Controller):
                 request.session['flash_message'] = "\n".join(messages)
                 request.session['flash_message_type'] = 'alert-danger'
                 return False
+
+    def _get_period(self, date):
+        """
+        Devuelve la quincena a la que pertenece una fecha.
+
+        Retorna:
+            (fecha_inicio, fecha_fin)
+        """
+
+        # Quincena del 11 al 25
+        if 11 <= date.day <= 25:
+            return (
+                date.replace(day=11).date(),
+                date.replace(day=25).date(),
+            )
+
+        # Quincena del 26 al 10 siguiente
+        if date.day >= 26:
+            return (
+                date.replace(day=26).date(),
+                (date.replace(day=10) + relativedelta(months=1)).date(),
+            )
+
+        # Del 1 al 10 pertenece a la quincena iniciada el mes anterior
+        return (
+            (date.replace(day=26) - relativedelta(months=1)).date(),
+            date.replace(day=10).date(),
+        )

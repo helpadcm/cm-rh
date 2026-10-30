@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="aff_training_list_view" model="ir.ui.view">
+        <field name="name">Lista de Capacitaciones</field>
+        <field name="model">aff.trainings</field>
+        <field name="arch" type="xml">
+            <list string="Lista de Capacitaciones" editable="top">
+                <field name="name"/>
+                <field name="apply_to" required="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="aff_reservations_list_view" model="ir.ui.view">
+        <field name="name">Lista de Reservas</field>
+        <field name="model">aff.reservations</field>
+        <field name="arch" type="xml">
+            <list string="Lista de Reservas" editable="top">
+                <field name="name" required="1"/>
+                <field name="calculate_type" required="1"/>
+                <field name="penalty_applies"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="aff_supplies_list_view" model="ir.ui.view">
+        <field name="name">Lista de Suministros</field>
+        <field name="model">aff.supplies</field>
+        <field name="arch" type="xml">
+            <list string="Lista de Suministros y Lubricantes" editable="top">
+                <field name="name" required="1"/>
+                <field name="amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="aff_supplier_list_view" model="ir.ui.view">
+        <field name="name">Lista de Proveedores</field>
+        <field name="model">aff.suppliers</field>
+        <field name="arch" type="xml">
+            <list string="Lista de Proveedores" editable="top">
+                <field name="name" required="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_aff_training" model="ir.actions.act_window">            
+        <field name="name">Capacitaciones</field>
+        <field name="res_model">aff.trainings</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+
+    <record id="action_aff_reservations" model="ir.actions.act_window">            
+        <field name="name">Reservas</field>
+        <field name="res_model">aff.reservations</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+
+    <record id="action_aff_supplies" model="ir.actions.act_window">            
+        <field name="name">Suministros y Lubricantes</field>
+        <field name="res_model">aff.supplies</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+
+    <record id="action_aff_suppliers" model="ir.actions.act_window">            
+        <field name="name">Proveedores</field>
+        <field name="res_model">aff.suppliers</field>
+        <field name="view_mode">list</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+</odoo>

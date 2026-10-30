@@ -6,7 +6,7 @@
             name="Solicitud de Boletos"
             web_icon="cm_airline_ticket_request,static/description/icon.jpg"
             action="action_ticket_request_cm"
-            groups="group_ticket_request_manager,group_ticket_request_user,group_ticket_request_admin"
+            groups="group_ticket_request_manager,group_ticket_request_user,group_ticket_request_admin,group_ticket_request_last_approver,group_ticket_request_approver"
             sequence="6"/>
 
 <!-- ##################################  REQUESTS  ##################################################  -->
@@ -29,7 +29,7 @@
             name="Boletos Solicitados"
             parent="ticket_request_menu"
             action="pax_request_cm"
-            groups="group_ticket_request_manager,group_ticket_request_admin"
+            groups="group_ticket_request_manager,group_ticket_request_admin,group_ticket_request_last_approver"
             sequence="2"/>
 
 <!-- ##################################  EXTERNAL  ##################################################  -->
@@ -51,12 +51,20 @@
             sequence="3"/>
 
         <menuitem
-            id="conf_ticket_request_menuitem"
+            id="conf_program_request_menuitem"
             name="Programas"
             parent="conf_ticket_request_menu"
             groups="group_ticket_request_admin"
             action="program_request_cm_action"
             sequence="1"/>
+
+        <menuitem
+            id="conf_airline_request_menuitem"
+            name="Aerolineas"
+            parent="conf_ticket_request_menu"
+            groups="group_ticket_request_admin"
+            action="airline_request_cm_action"
+            sequence="2"/>
     </data>
 
 </odoo>

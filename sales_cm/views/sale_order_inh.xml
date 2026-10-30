@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order..form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page/field[@name='order_line']/list/field[@name='price_unit']" position="before">
+                <field name="departure_date"/>
+                <field name="return_date"/>
+            </xpath>
+            <xpath expr="//page/field[@name='order_line']/list/field[@name='price_unit']" position="after">
+                <field name="yq_amount"/>
+            </xpath>
+            <group name="partner_details" position="inside">
+                <field name="airport_tax"/>
+                <field name="client_name" invisible="not default_client"/>
+                <field name="client_rtn" invisible="not default_client"/>
+                <field name="client_mail" invisible="not default_client"/>
+                <field name="default_client" invisible="1"/>
+                <field name="same_currency" invisible="1"/>
+            </group>
+
+            <field name="partner_id" position="replace">
+                <field name="partner_id"
+                    options="{'no_create': True}"
+                    domain="[('is_customer','=',True)]"
+                    widget="res_partner_many2one"
+                    context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}"
+                    placeholder="Type to find a customer..." readonly="state in ['cancel', 'sale']"/>
+            </field>
+
+            <button name="%(sale.action_view_sale_advance_payment_inv)d" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </button>
+
+            <xpath expr="//field[@name='tax_totals']" position="after">
+
+                <div class="w-100 d-flex justify-content-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <span class="me-4">Tasa de cambio</span>
+                        <field name="currency_rate" nolabel="1" class="oe_inline"/>
+                    </div>
+                </div>
+
+                <div class="w-100 d-flex justify-content-end">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <span class="me-4">Moneda Local</span>
+                        <field name="amount_local_company" readonly="1" force_save="1" nolabel="1" class="oe_inline"/>
+                    </div>
+                </div>
+
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time, timedelta
+from odoo.tools import float_round
 
 from odoo.tools.safe_eval import safe_eval, datetime as safe_eval_datetime, dateutil as safe_eval_dateutil
 
@@ -198,6 +199,8 @@ class HrPayslipBonus(models.Model):
     @api.depends('employee_id', 'version_id', 'struct_id', 'date_from', 'date_to')
     def _compute_worked_days_line_ids(self):
         res = super(HrPayslipBonus, self)._compute_worked_days_line_ids()
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
         valid_slips = self.filtered(lambda p: p.employee_id and p.date_from and p.date_to and p.struct_id)
         if not valid_slips:
             return
@@ -206,19 +209,53 @@ class HrPayslipBonus(models.Model):
             domain = [('payslip_date_from','<=',payslip.date_from),('payslip_date_to','>=',payslip.date_to),('employee_id','=',payslip.employee_id.id),('state','=','finalized')]
             mark_id = self.env['hr.employee.attendance.record'].search(domain)
             if mark_id and payslip:
-                hours = mark_id.pay_extra_hours
+                if mark_id.hours_25 > 0 or mark_id.hours_50 > 0 or mark_id.hours_75 > 0:
+                    if mark_id.hours_25 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_25,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
 
-                if hours > 0:
-                    entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
-                    if not entry_work_id:
-                        raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
-                    
-                    values = {
-                        'work_entry_type_id': entry_work_id.id,
-                        'number_of_hours': hours,
-                        'from_entry_register': True
-                    }
-                    payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+                    if mark_id.hours_50 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME50')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_50,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+
+                    if mark_id.hours_75 > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME75')])
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'number_of_hours': mark_id.hours_75,
+                            'name': entry_work_id.name,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
+                else:
+                    hours = float_round(mark_id.pay_extra_hours, precision_digits=precision)
+                    if hours > 0:
+                        entry_work_id = self.env['hr.work.entry.type'].search([('code','=','OVERTIME')])
+                        if not entry_work_id:
+                            raise ValidationError('No existe entrada de trabajo con codigo OVERTIME para horas adicionales')
+                        
+                        values = {
+                            'work_entry_type_id': entry_work_id.id,
+                            'name': entry_work_id.name,
+                            'number_of_hours': hours,
+                            'from_entry_register': True
+                        }
+                        payslip.update({'worked_days_line_ids': [(0, 0, values)]})
         return res
 
     def compute_sheet(self):
@@ -235,6 +272,9 @@ class HrPayslipBonus(models.Model):
     #     return res
 
     def get_other_incomes(self):
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         deduction_lines_ids = self.input_line_ids.filtered(lambda line: line.input_type_id.entry_type == 'deduction')
         if deduction_lines_ids:
             deduction_lines_ids.unlink()
@@ -271,13 +311,13 @@ class HrPayslipBonus(models.Model):
         mark_ids = self.env['hr.employee.attendance.record'].search(domain)
         if mark_ids:
             eh_amount = sum(mark_ids.mapped('eh_holiday'))
-            ehx_amount = sum(mark_ids.mapped('eh_holiday_extra'))
+            ehx_amount = float_round(sum(mark_ids.mapped('eh_holiday_extra')), precision_digits=precision)
             wage = self.employee_id.contract_wage * 2
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
                 if eh_type_id:
                     hours_amount = (wage / 30 / 8)
-                    amount = hours_amount * eh_amount
+                    amount = float_round((hours_amount * eh_amount), precision_rounding=rounding)
                     vals.update({
                         'input_type_id': eh_type_id.id,
                         'amount': amount,
@@ -295,12 +335,13 @@ class HrPayslipBonus(models.Model):
             if ehx_amount > 0:
                 ehx_type_id = self.env['hr.payslip.input.type'].search([('code','=','HEF')])
                 if ehx_type_id:
-                    hours_amount = (wage / 30 / 8) * 1.25
-                    amount = hours_amount * ehx_amount
+                    hours_amount = wage / 30 / 8
+                    hours_extra = hours_amount * 1.25
+                    amount = float_round((hours_extra * ehx_amount), precision_digits=precision)
                     vals.update({
                         'input_type_id': ehx_type_id.id,
                         'amount': amount,
-                        'name': "%s (%s horas)"%(ehx_type_id.name, ehx_amount) 
+                        'name': "%s (%s horas)"%(ehx_type_id.name, float_round(ehx_amount, precision_digits=precision)) 
                     })
                     if self.input_line_ids:
                         hef_line_id = self.input_line_ids.filtered(lambda line: line.input_type_id.id == ehx_type_id.id)
@@ -342,6 +383,10 @@ class HrPayslipBonus(models.Model):
                 #     template.send_mail(payslip.id, email_layout_xmlid='mail.mail_notification_light')
                 return True
 
+    def recalculate_work_days(self):
+        for line in self.worked_days_line_ids:
+            line._compute_amount()
+
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
 
@@ -351,6 +396,9 @@ class workedDaysInh(models.Model):
         'is_paid', 'number_of_hours', 'payslip_id', 'version_id.wage', 'version_id.hourly_wage', 'payslip_id.sum_worked_hours',
         'work_entry_type_id.amount_rate', 'work_entry_type_id.is_extra_hours')
     def _compute_amount(self):
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         for worked_days in self:
             if worked_days.payslip_id.edited or worked_days.payslip_id.state != 'draft':
                 continue
@@ -360,34 +408,71 @@ class workedDaysInh(models.Model):
             version = worked_days.payslip_id.version_id
             amount_rate = worked_days.work_entry_type_id.amount_rate
             amount_days = 0
+            employee_id = worked_days.payslip_id.employee_id
+            wage = employee_id.contract_wage * 2
             if worked_days.payslip_id.wage_type == "hourly":
                 hourly_rate = version.hourly_wage
                 amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             else:
-                employee_id = worked_days.payslip_id.employee_id
+                hours_amount = (wage / 30 / 8)
                 if worked_days.work_entry_type_id.code == 'OVERTIME':
-                    wage = employee_id.contract_wage * 2
-                    hours_amount = (wage / 30 / 8) * 1.25
-                    amount_days = hours_amount * worked_days.number_of_hours
+                    hours_extra = hours_amount * 1.25
+                    raw_total = hours_extra * worked_days.number_of_hours
+                    clean_total = round(raw_total, 6)
+                    amount_days = float_round(clean_total, precision_rounding=rounding, rounding_method='DOWN')
+
+                elif worked_days.work_entry_type_id.code == 'OVERTIME50':
+                    hours_extra = hours_amount * 1.50
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
+
+                elif worked_days.work_entry_type_id.code == 'OVERTIME75':
+                    hours_extra = hours_extra * 1.75
+                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':
-                    before_diff = 0
-                    after_diff = 0
-                    if employee_id.contract_date_start > worked_days.payslip_id.date_from:
-                        before_diff = (worked_days.payslip_id.date_to - employee_id.contract_date_start).days + 1
+                    date_from = worked_days.payslip_id.date_from
+                    date_to = worked_days.payslip_id.date_to
 
-                    if employee_id.contract_date_end and employee_id.contract_date_end < worked_days.payslip_id.date_to:
-                        after_diff = (employee_id.contract_date_end - worked_days.payslip_id.date_from).days + 1
+                    contract_start = employee_id.contract_date_start
+                    contract_end = employee_id.contract_date_end
 
-                    diff_total = before_diff + after_diff
-                    amount = employee_id.wage
-                    day_amount = employee_id.wage/15
-                    diff_days_amount = 0
-                    if diff_total > 0:
-                        diff_days_amount = day_amount * diff_total
-                        amount_days = diff_days_amount
-                    else:
-                        amount_days = employee_id.contract_wage
+                    # Por defecto, salario completo
+                    amount_days = employee_id.contract_wage
+
+                    # Verificar si el inicio o final del contrato
+                    # están dentro del período de la nómina
+                    contract_affects_period = (
+                        (contract_start and date_from <= contract_start <= date_to)
+                        or
+                        (contract_end and date_from <= contract_end <= date_to)
+                    )
+
+                    if contract_affects_period:
+
+                        # Fecha desde la que se debe pagar
+                        payment_start = max(
+                            date_from,
+                            contract_start
+                        ) if contract_start else date_from
+
+                        # Fecha hasta la que se debe pagar
+                        payment_end = min(
+                            date_to,
+                            contract_end
+                        ) if contract_end else date_to
+                        
+                        #Si el dia final tiene 31 dias restar un dia
+                        if payment_end.day == 31:
+                            payment_end = payment_end - timedelta(days=1)
+
+                        # Días trabajados, incluyendo ambos días
+                        days_worked = (payment_end - payment_start).days + 1
+
+                        # Salario diario usando 30 días
+                        daily_amount = (employee_id.contract_wage * 2) / 30
+
+                        # Salario proporcional
+                        amount_days = float_round((daily_amount * days_worked), precision_rounding=rounding)
                 else:
                     attendance_hours = sum(
                         wd.number_of_hours for wd in worked_days.payslip_id.worked_days_line_ids
@@ -396,6 +481,58 @@ class workedDaysInh(models.Model):
                     hourly_rate = version.contract_wage / attendance_hours
                     amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             worked_days.amount = amount_days
+
+    @api.depends('work_entry_type_id', 'number_of_days', 'number_of_hours', 'payslip_id')
+    def _compute_name(self):
+        if not self.payslip_id:
+            return
+
+        to_check_public_holiday = dict(
+            self.env['resource.calendar.leaves']._read_group(
+                [
+                    ('resource_id', '=', False),
+                    ('work_entry_type_id', 'in', self.mapped('work_entry_type_id').ids),
+                    ('date_from', '<=', max(self.payslip_id.mapped('date_to'))),
+                    ('date_to', '>=', min(self.payslip_id.mapped('date_from'))),
+                ],
+                ['work_entry_type_id'],
+                ['id:recordset']
+            )
+        )
+        work_entries = {
+            (employee, date): we
+            for employee, date, we in self.env['hr.work.entry']._read_group(
+            domain=[
+                ('date', '<=', max(self.payslip_id.mapped('date_to'))),
+                ('date', '>=', min(self.payslip_id.mapped('date_from'))),
+                ('employee_id', 'in', self.payslip_id.employee_id.ids)
+            ],
+            groupby=['employee_id', 'date:day'],
+            aggregates=['id:recordset'])}
+
+        for worked_days in self:
+            public_holidays = to_check_public_holiday.get(worked_days.work_entry_type_id, '')
+            holidays = public_holidays and public_holidays.filtered(lambda p:
+               (p.calendar_id.id == worked_days.payslip_id.version_id.resource_calendar_id.id or not p.calendar_id.id)
+                and p.date_from.date() <= worked_days.payslip_id.date_to
+                and p.date_to.date() >= worked_days.payslip_id.date_from
+                and p.company_id == worked_days.payslip_id.company_id)
+            actual_holidays = self.env['resource.calendar.leaves']
+            if holidays:
+                for holiday in holidays:
+                    work_entry_list = work_entries.get(
+                        (worked_days.payslip_id.employee_id, holiday.date_from.date()),
+                        self.env['hr.work.entry']
+                    )
+                    if any(we.code == holiday.work_entry_type_id.code for we in work_entry_list):
+                        actual_holidays |= holiday
+            if actual_holidays:
+                name = (', '.join(actual_holidays.mapped('name')))
+            else:
+                name = worked_days.work_entry_type_id.name or ''
+            half_day = worked_days._is_half_day()
+            # worked_days.name = name + (_(' (Half-Day)') if half_day else '')
+            worked_days.name = name
 
 class payslipLineInh(models.Model):
     _inherit = 'hr.payslip.line'

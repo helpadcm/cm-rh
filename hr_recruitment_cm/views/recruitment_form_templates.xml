@@ -108,6 +108,35 @@
                                         <option value="widower">Viudo(a)</option>
                                     </select>
                                 </div>
+                                <!-- CAMPOS DE GÉNERO -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-venus-mars me-1"></i>
+                                        Género
+                                    </label>
+                                    <select
+                                        name="gender"
+                                        id="gender_select_id"
+                                        class="form-select"
+                                        required="required">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="female">Femenino</option>
+                                        <option value="male">Masculino</option>
+                                        <option value="other">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6" id="gender_other_div" style="display: none;">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-pencil me-1"></i>
+                                        Especifique otro género
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="gender_other"
+                                        id="gender_other_input"
+                                        class="form-control"
+                                        placeholder="Escriba su género..."/>
+                                </div>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">
                                         <i class="fa fa-users me-1"></i>
@@ -438,6 +467,43 @@
 
                                     </select>
                                 </div>
+
+                                <!-- CAMPO: Fuente de información de Trabajo -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-bullhorn me-1"></i>
+                                        ¿A través de qué medio se enteró de esta vacante?
+                                    </label>
+
+                                    <select
+                                        name="recruitment_source"
+                                        id="recruitment_source_id"
+                                        class="form-select"
+                                        required="required">
+
+                                        <option value="">Seleccionar...</option>
+                                        <option value="social_media">Redes sociales</option>
+                                        <option value="linkedin">Portal de empleo (LinkedIn)</option>
+                                        <option value="whatsapp">Whatsapp</option>
+                                        <option value="referral">Recomendación de un colaborador / amigo</option>
+                                        <option value="other">Otro</option>
+
+                                    </select>
+                                </div>
+
+                                <!-- Campo de texto condicional para "Otro" (Oculto por defecto con style="display: none;") -->
+                                <div class="col-md-6" id="recruitment_source_other_div" style="display: none;">
+                                    <label class="form-label fw-bold">
+                                        <i class="fa fa-pencil me-1"></i>
+                                        Especifique otro medio:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="recruitment_source_other"
+                                        class="form-control"
+                                        placeholder="Escriba el medio..." />
+                                </div>
+                                <div class="w-100"></div>
 
                                 <div class="col-md-4">
 
@@ -1047,23 +1113,61 @@
                 </form>
             </div>
 
+            <!-- Script dinámico del formulario (ambas funcionalidades juntas) -->
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
+                    // Lógica para Estudios Actuales
                     var currently_study_id = document.getElementById("currently_studying_id");
-                    var currently_study_div = document.getElementById("currently_studying_div")
+                    var currently_study_div = document.getElementById("currently_studying_div");
 
-                    function setDefaultValues() {
-                        if (currently_study_id.checked) {
-                            currently_study_div.style.display = "block";
-                        } else{
-                            currently_study_div.style.display = "none";
+                    if (currently_study_id &amp;&amp; currently_study_div) {
+                        function setDefaultValues() {
+                            if (currently_study_id.checked) {
+                                currently_study_div.style.display = "block";
+                            } else {
+                                currently_study_div.style.display = "none";
+                            }
                         }
-
+                        setDefaultValues();
+                        currently_study_id.addEventListener("change", setDefaultValues);
                     }
 
-                    setDefaultValues();
-                    currently_study_id.addEventListener("change", setDefaultValues);
-                })
+                    // Lógica para Fuente de Información (Otro)
+                    var selectElement = document.getElementById("recruitment_source_id");
+                    var otherContainer = document.getElementById("recruitment_source_other_div");
+
+                    if (selectElement &amp;&amp; otherContainer) {
+                        selectElement.addEventListener("change", function () {
+                            if (this.value === "other") {
+                                otherContainer.style.display = "block";
+                            } else {
+                                otherContainer.style.display = "none";
+                                var input = otherContainer.querySelector("input");
+                                if (input) {
+                                    input.value = "";
+                                }
+                            }
+                        });
+                    }
+                
+                    // 3. Lógica para Género (Otro)
+                    var genderSelect = document.getElementById("gender_select_id");
+                    var genderOtherContainer = document.getElementById("gender_other_div");
+
+                    if (genderSelect &amp;&amp; genderOtherContainer) {
+                        genderSelect.addEventListener("change", function () {
+                            if (this.value === "other") {
+                                genderOtherContainer.style.display = "block";
+                            } else {
+                                genderOtherContainer.style.display = "none";
+                                var genderInput = genderOtherContainer.querySelector("input");
+                                if (genderInput) {
+                                    genderInput.value = "";
+                                }
+                            }
+                        });
+                    }
+                });
             </script>
         </t>
     </template>
@@ -1076,4 +1180,5 @@
             </div>
         </t>
     </template>
+
 </odoo>

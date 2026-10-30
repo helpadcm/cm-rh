@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_financial_cost_template_form" model="ir.ui.view">
+        <field name="name">aff.cost.template.form</field>
+        <field name="model">aff.cost.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="create_distribution" string="Crear Distribucion" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="validate" string="Validar" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="set_to_draft" string="Regresar a Borrador" invisible="state != 'validated'" type="object" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="state != 'draft'" placeholder="Nombre de la estimacion"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="form_type" readonly="state != 'draft'"/>
+                            <field name="period" required="1" readonly="state != 'draft'"/>
+                            <field name="sequence" readonly="state != 'draft'"/>
+                            <field name="estimation_type" required="1" readonly="state != 'draft'"/>
+                            <field name="airplane_ids" placeholder="Aeronaves para esta estimacion" options="{'no_create': True}" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="cost_id" options="{'no_create': True}" required="1" readonly="state != 'draft'"/>
+                            <field name="initial_date" required="1" readonly="state != 'draft'"/>
+                            <field name="final_date" required="1" readonly="state != 'draft'"/>
+                            <field name="duration_months" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+
+                    <group string="FORM 1" invisible="form_type != 'form01'">
+                        <field name="form1_amount" readonly="state != 'draft'"/>
+                    </group>
+
+                    <group string="FORM 2" invisible="form_type != 'form02'">
+                        <group>
+                            <field name="form2_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Remuneraciones">
+                                <field name="pilot_payslip_ids" readonly="state != 'draft'">
+                                    <list editable="bottom">
+                                        <field name="qty" />
+                                        <field name="position" />
+                                        <field name="salary" />
+                                        <field name="monthly_trip" readonly="1" force_save="1"/>
+                                        <field name="crews" />
+                                        <field name="total_monthly_trip" sum="Total" readonly="1" force_save="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="FORM 3" col="3" invisible="form_type != 'form03'">
+                        <group>
+                            <field name="qty_people" readonly="state != 'draft'"/>
+                            <field name="total_1" readonly="1" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="total_anual_crews" string="Monto" readonly="1" force_save="1"/>
+                            <field name="total_2" readonly="1" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="form3_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Capacitaciones">
+                                <field name="training_ids" readonly="state != 'draft'" context="{'default_qty_people': qty_people}">
+                                    <list editable="bottom">
+                                        <field name="training_id" required="1"/>
+                                        <field name="people" />
+                                        <field name="unit_cost" />
+                                        <field name="cost" />
+                                        <field name="first_year" readonly="1" force_save="1" sum="Total 1"/>
+                                        <field name="second_year" readonly="1" force_save="1" sum="Total 2"/>
+                                        <field name="total" sum="Total" readonly="1" force_save="1"/>
+                                        <field name="qty_people" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+
+                            <page string="Viaticos">
+                                <field name="travel_expense_ids" readonly="state != 'draft'" context="{'default_qty_people': qty_people}">
+                                    <list editable="bottom">
+                                        <field name="travel_expense" required="1"/>
+                                        <field name="assignment" />
+                                        <field name="days1" string="Dias"/>
+                                        <field name="first_year" readonly="1" force_save="1" sum="Total 1"/>
+                                        <field name="days2" string="Dias"/>
+                                        <field name="second_year" readonly="1" force_save="1" sum="Total 2"/>
+                                        <field name="total" sum="Total" readonly="1" force_save="1"/>
+                                        <field name="qty_people" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="FORM 4" col="3" invisible="form_type != 'form04'">
+                        <group>
+                            <table>
+                                <tr>
+                                    <th colspan="5" style="text-align:center"><h3>Tabla de penalizacion</h3></th>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid black;text-align:center;padding:3px">0.24:1 or lower</td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px">0.25:1 or 0.49:1</td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px">0.50:1 or 0.74:1</td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px">0.75:1 or 0.99:1</td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px">1.0:1 or higher</td>
+                                </tr>
+                                <tr>
+                                    <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_1" readonly="1" force_save="1"/></td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_2" readonly="1" force_save="1"/></td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_3" readonly="1" force_save="1"/></td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_4" readonly="1" force_save="1"/></td>
+                                    <td style="border:1px solid black;text-align:center;padding:3px"><field name="value_5" readonly="1" force_save="1"/></td>
+                                </tr>
+                            </table>
+                        </group>
+                        <group>
+                            <field name="hours_flown" readonly="state != 'draft'"/>
+                            <field name="cycles" readonly="state != 'draft'" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="ratio" readonly="1" force_save="1"/>
+                            <field name="penalty" readonly="1" force_save="1"/>
+                            <field name="form4_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Mantenimiento">
+                                <field name="maintenance_line_ids" readonly="state != 'draft'" context="{'default_hours_flown': hours_flown, 'default_cycles': cycles, 'default_ratio': ratio, 'default_penalty': penalty}">
+                                    <list editable="bottom">
+                                        <field name="reservation_id" required="1"/>
+                                        <field name="hourly_reservation" />
+                                        <field name="monthly_total" sum="Total mes" readonly="1" force_save="1"/>
+                                        <field name="hours_flown" column_invisible="1"/>
+                                        <field name="cycles" column_invisible="1"/>
+                                        <field name="ratio" column_invisible="1"/>
+                                        <field name="penalty" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="FORM 5" col="3" invisible="form_type != 'form05'">
+                        <group>
+                            <field name="bt" />
+                            <field name="gallons_gassed" />
+                            <field name="bt_gallons" readonly="1" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="average_price" />
+                            <field name="reminder" />
+                            <field name="fuel_price" readonly="1" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="gallons_burned" readonly="1" force_save="1"/>
+                            <field name="form5_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+
+                    <group string="FORM 6" invisible="form_type != 'form06'">
+                        <group>
+                            <field name="cycles" />
+                        </group>
+                        <group>
+                            <field name="form6_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Bonificaciones">
+                                <field name="crew_bonus_ids" readonly="state != 'draft'" context="{'default_cycles': cycles}">
+                                    <list editable="bottom">
+                                        <field name="position" />
+                                        <field name="min_sectors" />
+                                        <field name="sector_bonus" />
+                                        <field name="crew_qty"/>
+                                        <field name="qty_sectors" readonly="1" force_save="1"/>
+                                        <field name="sectors_carried" readonly="1" force_save="1"/>
+                                        <field name="bonus" readonly="1" force_save="1"/>
+                                        <field name="amount" readonly="1" force_save="1" sum="Total"/>
+                                        <field name="cycles" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="FORM 8" invisible="form_type != 'form08'">
+                        <group>
+                            <field name="form8_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Suministros y Lubricantes">
+                                <field name="supplies_ids" readonly="state != 'draft'">
+                                    <list editable="bottom">
+                                        <field name="supplie_id" />
+                                        <field name="qty" />
+                                        <field name="cost" />
+                                        <field name="total" readonly="1" force_save="1" sum="Total"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="FORM 10" invisible="form_type != 'form10'">
+                        <group>
+                            <field name="monthly_average" readonly="1" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="form10_amount" string="Monto" readonly="1" force_save="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Proveedores">
+                                <field name="suppliers_ids" readonly="state != 'draft'">
+                                    <list editable="bottom">
+                                        <field name="supplier_id" options="{'no_create': 1}"/>
+                                        <field name="amount__month1" sum="Mes 1"/>
+                                        <field name="amount__month2" sum="Mes 2"/>
+                                        <field name="amount__month3" sum="Mes 3"/>
+                                        <field name="amount__month4" sum="Mes 4"/>
+                                        <field name="amount__month5" sum="Mes 5"/>
+                                        <field name="amount__month6" sum="Mes 6"/>
+                                        <field name="total" readonly="1" force_save="1" sum="Total"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <notebook invisible="estimation_type != 'constant'">
+                        <page string="Distribuciones mensuales">
+                            <field name="distribution_line_ids" readonly="1">
+                                <list create="false">
+                                    <field name="name"/>
+                                    <field name="initial_date"/>
+                                    <field name="final_date"/>
+                                    <field name="amount" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="aff_costs_list_view" model="ir.ui.view">
+        <field name="name">Lista de Estimaciones</field>
+        <field name="model">aff.cost.template</field>
+        <field name="arch" type="xml">
+            <list string="Lista de Estimaciones">
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="cost_id"/>
+                <field name="period"/>
+                <field name="initial_date"/>
+                <field name="final_date"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_financial_cost_template" model="ir.actions.act_window">            
+        <field name="name">Estimaciones</field>
+        <field name="res_model">aff.cost.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+        <field name="domain" eval="[]"/>
+    </record>
+
+</odoo>
