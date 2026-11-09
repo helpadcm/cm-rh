@@ -22,6 +22,9 @@ class importIncomesDeductions(models.TransientModel):
     note = fields.Text(string="Nota", default=_get_default_note)
 
     def import_document(self):
+        if not self.format_doc:
+            raise ValidationError("Debe cargar un archivo para importar")
+
         file_content = base64.b64decode(self.format_doc)
 
         wb = load_workbook(filename=BytesIO(file_content))
@@ -127,3 +130,7 @@ class importIncomesDeductions(models.TransientModel):
                     income_id.create_plan()
                 income_id.get_amounts()
             line_number += 1
+
+
+    def download_template(self):
+        return self.env.ref('hr_payroll_cm.action_download_inc_ded_template_xlsx').report_action(self,data=False)

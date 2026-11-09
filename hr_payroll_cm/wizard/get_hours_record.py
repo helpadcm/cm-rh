@@ -267,8 +267,7 @@ class getRecordHours(models.TransientModel):
                             vals.update({'holiday_hours': oh, 'holiday_extra_hours': extra_hours, 'personal_action': 'wh'})
                         else:
                             vals.update({'holiday_hours': oh, 'personal_action': 'wh'})
-
-
+                            
                 total_eh += extra_hours
                 vals.update({
                     'bonus': bonus,
@@ -277,6 +276,7 @@ class getRecordHours(models.TransientModel):
 
                 line_id = self.env['hr.employee.attendance.line'].create(vals)
                 line_id.personal_action_change()
+                line_id.calculate_data()
 
             if total_eh > 0:
                 if total_eh <= employee_id.max_extra_hours:
