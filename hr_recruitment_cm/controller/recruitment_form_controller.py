@@ -25,7 +25,6 @@ class RecruitmentPublicForm(http.Controller):
             'department_id': requirement_id.sudo().department_id.id or False,
             'interviewer_ids': interviewer_ids,
             'job_id': requirement_id.sudo().new_position.id or False,
-            # 'name': f"""Postulacion { post.get('partner_name') }""",
             'partner_name': post.get('partner_name'),
             'email_from': post.get('email_from'),
             'identity': post.get('identity'),
@@ -63,23 +62,21 @@ class RecruitmentPublicForm(http.Controller):
             'free_time': post.get('free_time'),
             'with_life': post.get('with_life'),
             'plans': post.get('plans'),
-            # 'job_id': int(post.get('job_id')) if post.get('job_id') else False,
   
             'recruitment_source': post.get('recruitment_source'),
             'recruitment_source_other': post.get('recruitment_source_other') if post.get('recruitment_source') == 'other' else False,
          
-            
+            # CORREGIDO AQUÍ: Evaluando 'referral' que es el value del HTML
+            'recommender_name': post.get('recommender_name') if post.get('recruitment_source') == 'referral' else False,
         
             'gender': post.get('gender'),
             'gender_other': post.get('gender_other') if post.get('gender') == 'other' else False,
         }
         
-        
-
         applicant = request.env['hr.applicant'].sudo().create(vals)
         applicant.sudo().calculate_age()
 
-        # Crear hasta 3 historiales laborales
+        # Resto de tus bucles (historiales laborales, referencias, etc.)...
         for i in range(1, 4):
             company = post.get(f'company_name_{i}')
             if company:
@@ -133,7 +130,7 @@ class RecruitmentPublicForm(http.Controller):
         if file:
             attachment = request.env['ir.attachment'].sudo().create({
                 'name': file.filename,
-                'res_model': 'hr.applicant',   # o su modelo personalizado
+                'res_model': 'hr.applicant',
                 'res_id': applicant.id,
                 'type': 'binary',
                 'datas': base64.b64encode(file.read()),

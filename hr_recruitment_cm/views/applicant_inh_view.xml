@@ -19,6 +19,9 @@
                     <field name="recruitment_source_other" 
                            string="Especifique otra fuente" 
                            invisible="recruitment_source != 'other'"/>
+                    <field name="recommender_name" 
+                           string="Nombre del Colaborador / Amigo" 
+                           invisible="recruitment_source != 'referral'"/>     
                            
                 </field>
                 

@@ -490,6 +490,14 @@
 
                                     </select>
                                 </div>
+                                <!-- Campo condicional 1: Recomendación (AHORA CON col-md-6 PARA QUE QUEDE A LA PAR) -->
+                                <div class="col-md-6 mb-3" id="recommender_name_div" style="display: none;">
+                                    <label for="recommender_name" class="form-label fw-bold">
+                                        <i class="fa fa-user me-1"></i>
+                                        Nombre del Colaborador / Amigo
+                                    </label>
+                                    <input type="text" id="recommender_name" name="recommender_name" class="form-control" placeholder="Escriba el nombre completo..."/>
+                                </div>
 
                                 <!-- Campo de texto condicional para "Otro" (Oculto por defecto con style="display: none;") -->
                                 <div class="col-md-6" id="recruitment_source_other_div" style="display: none;">
@@ -1113,7 +1121,7 @@
                 </form>
             </div>
 
-            <!-- Script dinámico del formulario (ambas funcionalidades juntas) -->
+            <!-- Script dinámico del formulario (todas las funcionalidades juntas) -->
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
                     // Lógica para Estudios Actuales
@@ -1137,17 +1145,15 @@
                     var otherContainer = document.getElementById("recruitment_source_other_div");
 
                     if (selectElement &amp;&amp; otherContainer) {
-                        selectElement.addEventListener("change", function () {
-                            if (this.value === "other") {
+                        function setOtherSourceDefault() {
+                            if (selectElement.value === "other") {
                                 otherContainer.style.display = "block";
                             } else {
                                 otherContainer.style.display = "none";
-                                var input = otherContainer.querySelector("input");
-                                if (input) {
-                                    input.value = "";
-                                }
                             }
-                        });
+                        }
+                        setOtherSourceDefault();
+                        selectElement.addEventListener("change", setOtherSourceDefault);
                     }
                 
                     // 3. Lógica para Género (Otro)
@@ -1155,17 +1161,35 @@
                     var genderOtherContainer = document.getElementById("gender_other_div");
 
                     if (genderSelect &amp;&amp; genderOtherContainer) {
-                        genderSelect.addEventListener("change", function () {
-                            if (this.value === "other") {
+                        function setGenderDefault() {
+                            if (genderSelect.value === "other") {
                                 genderOtherContainer.style.display = "block";
                             } else {
                                 genderOtherContainer.style.display = "none";
-                                var genderInput = genderOtherContainer.querySelector("input");
-                                if (genderInput) {
-                                    genderInput.value = "";
+                            }
+                        }
+                        setGenderDefault();
+                        genderSelect.addEventListener("change", setGenderDefault);
+                    }
+
+                    // 4. Lógica para Recomendación de Colaborador / Amigo (Referral)
+                    var recruitmentSelect = document.getElementById("recruitment_source_id");
+                    var recommenderDiv = document.getElementById("recommender_name_div");
+
+                    if (recruitmentSelect &amp;&amp; recommenderDiv) {
+                        function setReferralDefault() {
+                            if (recruitmentSelect.value === "referral") {
+                                recommenderDiv.style.display = "block";
+                            } else {
+                                recommenderDiv.style.display = "none";
+                                var input = recommenderDiv.querySelector("input");
+                                if (input) {
+                                    input.value = "";
                                 }
                             }
-                        });
+                        }
+                        setReferralDefault();
+                        recruitmentSelect.addEventListener("change", setReferralDefault);
                     }
                 });
             </script>

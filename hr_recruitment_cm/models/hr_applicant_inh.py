@@ -58,6 +58,8 @@ class HrApplicantInh(models.Model):
     
     recruitment_source = fields.Selection(recruitment_source_select, string="Medio de enterado")
     recruitment_source_other = fields.Char(string="Especifique otro medio")
+    # Campo nuevo para capturar el nombre del colaborador o amigo
+    recommender_name = fields.Char(string="Nombre del Colaborador / Amigo")
 
     laboral_history_ids = fields.One2many('applicant.laboral.history','applicant_id',string="Historial Academico")
     unemployed = fields.Text(string="Sin Empleo")
