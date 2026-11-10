@@ -899,6 +899,7 @@ class lodgingRequest(models.Model):
     lodging_id = fields.Many2one('expense.lodging.cobus',string="Lugar de hospedaje")
     allow_lodging_ids = fields.Many2many('expense.lodging.cobus',string="Hospedajes permitidos")
     observations = fields.Char(string="Observaciones")
+    status = fields.Selection([('active','Confirmado'),('canceled','Cancelado')],string="Estado",default='active')
 
     @api.onchange('job_id','cti_id')
     def get_employee_data(self):

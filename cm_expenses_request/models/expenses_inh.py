@@ -16,6 +16,37 @@ class expensesInh(models.Model):
     exempt_amount = fields.Float(string="Monto Excento")
     request_type = fields.Selection([('national','Nacional'),('international','Internacional')], string="Tipo de solicitud", default="national")
 
+    preview_attachment_file = fields.Binary(
+        string="Archivo Adjunto",
+        compute="_compute_preview_attachment"
+    )
+    preview_attachment_filename = fields.Char(
+        string="Nombre del Adjunto",
+        compute="_compute_preview_attachment"
+    )
+    preview_mimetype = fields.Char(
+        string="Tipo MIME",
+        compute="_compute_preview_attachment"
+    )
+
+    @api.depends('message_main_attachment_id')
+    def _compute_preview_attachment(self):
+        for record in self:
+            # Buscamos el adjunto del Chatter asociado a este registro
+            attachment = record.message_main_attachment_id or self.env['ir.attachment'].search([
+                ('res_model', '=', self._name),
+                ('res_id', '=', record.id)
+            ], order='id desc', limit=1)
+
+            if attachment and attachment.datas:
+                record.preview_attachment_file = attachment.datas
+                record.preview_attachment_filename = attachment.name
+                record.preview_mimetype = attachment.mimetype or mimetypes.guess_type(attachment.name)[0] or ''
+            else:
+                record.preview_attachment_file = False
+                record.preview_attachment_filename = False
+                record.preview_mimetype = False
+
     @api.depends(
         'date',
         'company_id',

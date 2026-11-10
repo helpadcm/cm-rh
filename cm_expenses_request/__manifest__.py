@@ -16,6 +16,7 @@
 		'wizard/deposit_expenses_view.xml',
 		'wizard/exeptional_reason_view.xml',
 		'wizard/return_draft_view.xml',
+		'wizard/cancel_hosting_view.xml',
 		'wizard/expense_report_wizard_views.xml',
 		'views/conf_view.xml',
 		'views/expenses_request_view.xml',
