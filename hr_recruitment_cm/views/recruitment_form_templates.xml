@@ -125,15 +125,15 @@
                                         <option value="other">Otro</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6" id="gender_other_div" style="display: none;">
+                               <div class="col-md-6 mb-3" id="gender_other_div" style="display: none;">
                                     <label class="form-label fw-bold">
                                         <i class="fa fa-pencil me-1"></i>
-                                        Especifique otro género
+                                        Especifique otro género <span class="text-danger">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         name="gender_other"
-                                        id="gender_other_input"
+                                        id="gender_other"
                                         class="form-control"
                                         placeholder="Escriba su género..."/>
                                 </div>
@@ -265,7 +265,7 @@
                                         name="academic_level"
                                         class="form-select"
                                         required="required">
-
+                                        <option value="">Seleccionar...</option>
                                         <option value="1">Primaria Completa</option>
                                         <option value="2">Secundaria Completa</option>
                                         <option value="3">Diversificado</option>
@@ -403,7 +403,8 @@
 
                                     <select
                                         name="has_with"
-                                        class="form-select">
+                                        class="form-select"
+                                        required="required">
 
                                         <option value="">Seleccionar...</option>
                                         <option value="own_house">Casa Propia</option>
@@ -422,7 +423,7 @@
                                         name="own_vehicle"
                                         class="form-select"
                                         required="required">
-
+                                        <option value="">Seleccionar...</option>
                                         <option value="car">Carro</option>
                                         <option value="motorcycle">Moto</option>
                                         <option value="no">Ninguno</option>
@@ -490,7 +491,7 @@
 
                                     </select>
                                 </div>
-                                <!-- Campo condicional 1: Recomendación (AHORA CON col-md-6 PARA QUE QUEDE A LA PAR) -->
+                                <!-- Campo condicional 1 -->
                                 <div class="col-md-6 mb-3" id="recommender_name_div" style="display: none;">
                                     <label for="recommender_name" class="form-label fw-bold">
                                         <i class="fa fa-user me-1"></i>
@@ -499,14 +500,15 @@
                                     <input type="text" id="recommender_name" name="recommender_name" class="form-control" placeholder="Escriba el nombre completo..."/>
                                 </div>
 
-                                <!-- Campo de texto condicional para "Otro" (Oculto por defecto con style="display: none;") -->
-                                <div class="col-md-6" id="recruitment_source_other_div" style="display: none;">
+                               <!-- Campo de texto condicional para "Otro" -->
+                                <div class="col-md-6 mb-3" id="recruitment_source_other_div" style="display: none;">
                                     <label class="form-label fw-bold">
                                         <i class="fa fa-pencil me-1"></i>
-                                        Especifique otro medio:
+                                        Especifique otro medio: <span class="text-danger">*</span>
                                     </label>
                                     <input
                                         type="text"
+                                        id="recruitment_source_other"
                                         name="recruitment_source_other"
                                         class="form-control"
                                         placeholder="Escriba el medio..." />
@@ -637,7 +639,7 @@
                                         name="banpais_situation"
                                         class="form-select"
                                         required="required">
-
+                                        <option value="">Seleccionar...</option>
                                         <option value="1">No tengo cuenta ni relación</option>
                                         <option value="2">Tengo una cuenta de ahorro</option>
                                         <option value="3">Tengo una cuenta de cheques</option>
@@ -1121,10 +1123,9 @@
                 </form>
             </div>
 
-            <!-- Script dinámico del formulario (todas las funcionalidades juntas) -->
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
-                    // Lógica para Estudios Actuales
+                    // 1. Lógica para Estudios Actuales
                     var currently_study_id = document.getElementById("currently_studying_id");
                     var currently_study_div = document.getElementById("currently_studying_div");
 
@@ -1140,56 +1141,68 @@
                         currently_study_id.addEventListener("change", setDefaultValues);
                     }
 
-                    // Lógica para Fuente de Información (Otro)
+                    // 2. Lógica para Fuente de Información (Recomendación / Otro) -> Ambos con la misma regla
                     var selectElement = document.getElementById("recruitment_source_id");
                     var otherContainer = document.getElementById("recruitment_source_other_div");
-
-                    if (selectElement &amp;&amp; otherContainer) {
-                        function setOtherSourceDefault() {
-                            if (selectElement.value === "other") {
-                                otherContainer.style.display = "block";
-                            } else {
-                                otherContainer.style.display = "none";
-                            }
-                        }
-                        setOtherSourceDefault();
-                        selectElement.addEventListener("change", setOtherSourceDefault);
-                    }
-                
-                    // 3. Lógica para Género (Otro)
-                    var genderSelect = document.getElementById("gender_select_id");
-                    var genderOtherContainer = document.getElementById("gender_other_div");
-
-                    if (genderSelect &amp;&amp; genderOtherContainer) {
-                        function setGenderDefault() {
-                            if (genderSelect.value === "other") {
-                                genderOtherContainer.style.display = "block";
-                            } else {
-                                genderOtherContainer.style.display = "none";
-                            }
-                        }
-                        setGenderDefault();
-                        genderSelect.addEventListener("change", setGenderDefault);
-                    }
-
-                    // 4. Lógica para Recomendación de Colaborador / Amigo (Referral)
-                    var recruitmentSelect = document.getElementById("recruitment_source_id");
+                    var otherInput = document.getElementById("recruitment_source_other");
+                    
                     var recommenderDiv = document.getElementById("recommender_name_div");
+                    var recommenderInput = document.getElementById("recommender_name");
 
-                    if (recruitmentSelect &amp;&amp; recommenderDiv) {
-                        function setReferralDefault() {
-                            if (recruitmentSelect.value === "referral") {
-                                recommenderDiv.style.display = "block";
+                    if (selectElement) {
+                        function handleSourceChange() {
+                            var value = selectElement.value;
+
+                            // Opción: Recomendación (referral)
+                            if (value === "referral") {
+                                if (recommenderDiv) recommenderDiv.style.display = "block";
+                                if (recommenderInput) recommenderInput.setAttribute("required", "required");
                             } else {
-                                recommenderDiv.style.display = "none";
-                                var input = recommenderDiv.querySelector("input");
-                                if (input) {
-                                    input.value = "";
+                                if (recommenderDiv) recommenderDiv.style.display = "none";
+                                if (recommenderInput) {
+                                    recommenderInput.removeAttribute("required");
+                                    recommenderInput.value = "";
+                                }
+                            }
+
+                            // Opción: Otro (other)
+                            if (value === "other") {
+                                if (otherContainer) otherContainer.style.display = "block";
+                                if (otherInput) otherInput.setAttribute("required", "required");
+                            } else {
+                                if (otherContainer) otherContainer.style.display = "none";
+                                if (otherInput) {
+                                    otherInput.removeAttribute("required");
+                                    otherInput.value = "";
                                 }
                             }
                         }
-                        setReferralDefault();
-                        recruitmentSelect.addEventListener("change", setReferralDefault);
+
+                        handleSourceChange();
+                        selectElement.addEventListener("change", handleSourceChange);
+                    }
+                
+                    // 3. Lógica para Género (Otro) -> Con la misma regla exacta
+                    var genderSelect = document.getElementById("gender_select_id");
+                    var genderOtherContainer = document.getElementById("gender_other_div");
+                    var genderOtherInput = document.getElementById("gender_other");
+
+                    if (genderSelect) {
+                        function handleGenderChange() {
+                            if (genderSelect.value === "other") {
+                                if (genderOtherContainer) genderOtherContainer.style.display = "block";
+                                if (genderOtherInput) genderOtherInput.setAttribute("required", "required");
+                            } else {
+                                if (genderOtherContainer) genderOtherContainer.style.display = "none";
+                                if (genderOtherInput) {
+                                    genderOtherInput.removeAttribute("required");
+                                    genderOtherInput.value = "";
+                                }
+                            }
+                        }
+
+                        handleGenderChange();
+                        genderSelect.addEventListener("change", handleGenderChange);
                     }
                 });
             </script>
