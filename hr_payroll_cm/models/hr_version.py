@@ -14,14 +14,18 @@ class versionInh(models.Model):
             if code in ['RAP','SSH']:
                 amount, name = self.calculate_rap(code)
             else:
-                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('other_input_type_id.code','=',code)])
+                deduction_ids = self.env['hr.other.deductions'].search([('employee_id','=',self.employee_id.id),('state','=','in_progress'),('input_type_id.code','=',code)])
                 if deduction_ids:
-                    name = ','.join([dedu.description for dedu in deduction_ids])
+                    name = ','.join([dedu.name for dedu in deduction_ids])
                     for ded in deduction_ids:
-                        if ded.other_input_type_id.code == code:
-                            payslip.salary_attachment_ids = [(4, ded.id)]
+                        if ded.input_type_id.code == code:
+                            # payslip.salary_attachment_ids = [(4, ded.id)]
                             if not ded.by_quotes:
-                                amount += ded.monthly_amount
+                                amount += ded.amount
+                                if not payslip:
+                                    raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
+                                    
+                                ded.payslip_id = payslip.id
                             else:
                                 if not payslip:
                                     raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
@@ -42,14 +46,38 @@ class versionInh(models.Model):
         return amount
 
     def calculate_basic(self,payslip):
+        # if payslip.worked_days_line_ids:
+        #     work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
+        #     extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+        #     if work100_amount == 0:
+        #         work100_amount = self.wage
+        #     amount = work100_amount + extras_amount
+        # else:
+        #     amount = self.wage
+        # return amount
         if payslip.worked_days_line_ids:
             work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
             extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+
             if work100_amount == 0:
                 work100_amount = self.wage
+
             amount = work100_amount + extras_amount
         else:
             amount = self.wage
+
+        # contract_end_date = payslip.version_id.contract_date_end
+
+        # Si el contrato inició durante esta quincena, calcular proporcional
+        # extra_day = 0
+        # if contract_end_date and out_line_id:
+        #     if contract_end_date and payslip.date_from <= contract_end_date <= payslip.date_to:
+        #         # total_days = (payslip.date_to - payslip.date_from).days
+        #         # worked_days = (payslip.date_to - contract_end_date).days
+        #         total_days = 15
+        #         extra_day = payslip.version_id.wage/total_days
+        #         amount += extra_day
+                # amount = (amount / total_days) * worked_days
         return amount
 
 

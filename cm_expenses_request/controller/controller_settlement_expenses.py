@@ -3,21 +3,23 @@ from odoo import http
 from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import ValidationError
 
 class settlementExpensesCont(http.Controller):
 
     @http.route('/expenses/settlement_expenses', type='http', auth="user", website=True)
-    def custom_option(self, **kwargs):
+    def settlement_expenses(self, **kwargs):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         expenses_categories = request.env['product.product'].sudo().search([('company_id','=',employee_id.company_id.id),('can_be_expensed','=',True)])
-        expense_request_id = request.env['cm.expenses.request'].sudo().search([('assign_to_id','=',employee_id.id),('state','in',['assigned'])])
+        expense_request_id = request.env['cm.expenses.request'].sudo().search([('assign_to_id','=',employee_id.id),('state','in',['assigned'])], order='name asc', limit=1)
+        exceptional_reason_ids = request.env['expense.exceptional.reason'].sudo().search([])
         pending_expense = 'not_allow'
         message_form = ''
         amount_assign = 0
         if len(expense_request_id) == 1:
             pending_expense = 'allow'
-            amount_assign = expense_request_id.advance_amount
+            amount_assign = round(expense_request_id.advance_amount, 2)
         if len(expense_request_id) == 0:
             message_form = "No tiene viaticos asignados para liquidar"
 
@@ -52,7 +54,7 @@ class settlementExpensesCont(http.Controller):
                     'invoice_number': dep.number,
                     'date': dep.date.strftime('%d/%m/%Y'),
                     'amount': dep.total,
-                    'att_created': False,
+                    'att_created': True,
                     'category': 'Deposito'
                 })
 
@@ -65,13 +67,15 @@ class settlementExpensesCont(http.Controller):
             'purpose': expense_request_id.purpose,
             'amount_assign': amount_assign,
             'balance_employee_amount': round(expense_request_id.balance_employee_amount, 2),
+            'infavor_employee_amount': round(expense_request_id.infavor_employee_amount, 2),
+            'exceptional_reason_ids': exceptional_reason_ids,
             'expenses_data': expenses_data,
             'message_form': message_form
         }
         return request.render("cm_expenses_request.portal_settlement_expense", values)
 
     @http.route('/create_expense/submit', type='http', auth="user", methods=["POST"], website=True)
-    def hours_form_submit(self, **post):
+    def create_expense_submit(self, **post):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
 
@@ -85,6 +89,7 @@ class settlementExpensesCont(http.Controller):
             exempt_amount = post.get("exempt_amount")
             notes = post.get("record_notes") or False
             request_id = post.get("request_id")
+            no_taxes = post.get("no_taxes")
             
             # Obtener los archivos adjuntos
             uploaded_files = request.httprequest.files.getlist('rec_expenses_attachments')
@@ -98,11 +103,12 @@ class settlementExpensesCont(http.Controller):
                 if budget_account_id:
                     budget_account_id = budget_account_id.id
                 else:
-                    raise ValidationError(f"""La categoria de gasto {self.product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
+                    raise ValidationError(f"""La categoria de gasto {product_id.name} no tiene configurada una cuenta de presupuesto, consulte con el encargado de gastos.""")
 
             values = {
                 'name': description,
                 'invoice_number': invoice_number,
+                'date': date,
                 'product_id': int(expense_type_id),
                 'description': notes or description,
                 'employee_id': rec_request_id.assign_to_id.id,
@@ -113,6 +119,9 @@ class settlementExpensesCont(http.Controller):
                 'budget_account_id': budget_account_id,
                 'request_id': int(request_id)
             }
+
+            if no_taxes:
+                values.update({'tax_ids': False})
 
             if rec_request_id.assign_to_id.analytic_account_id:
                 analytic = rec_request_id.assign_to_id.analytic_account_id.id
@@ -138,7 +147,7 @@ class settlementExpensesCont(http.Controller):
         return request.redirect('/expenses/settlement_expenses')
 
     @http.route('/create_expense_deposit',type='http',auth='user',methods=['POST'],website=True)
-    def create_expense_line(self, **post):
+    def create_expense_deposit(self, **post):
         user = request.env.user
         employee_id = request.env['hr.employee'].sudo().search(
             [('user_id', '=', user.id)],
@@ -148,9 +157,10 @@ class settlementExpensesCont(http.Controller):
         voucher_number = post.get("voucher_number_record")
         amount = post.get("amount_balance")
         request_id = post.get("request_id")
+        uploaded_files = request.httprequest.files.getlist('rec_deposit_attachments')
 
         account_id = request.env['account.account'].sudo().search([('code','=','105.01')])
-        journal_id = request.env['account.journal'].sudo().search([('code','=','BACL')])
+        journal_id = request.env['account.journal'].sudo().search([('code','=','BPLPS')])
         rec_request_id = request.env['cm.expenses.request'].sudo().browse(int(request_id))
         
         deposit_id = self.env['banks.deposit'].sudo().create({
@@ -162,6 +172,19 @@ class settlementExpensesCont(http.Controller):
             'request_id': rec_request_id.id
         })
 
+        for uploaded_file in uploaded_files:
+            if uploaded_file and uploaded_file.filename:
+                attachment_data = base64.b64encode(uploaded_file.read())
+                # Crea el adjunto
+                attachment = request.env['ir.attachment'].sudo().create({
+                    'name': uploaded_file.filename,
+                    'datas': attachment_data,
+                    'res_model': 'banks.deposit',    # Modelo al que se adjunta
+                    'res_id': deposit_id.id,      # ID del registro de la solicitud de ausencia
+                    'type': 'binary',
+                    'mimetype': uploaded_file.content_type,
+                })
+
         request.env['banks.deposit.name'].sudo().create({
             'account_id': account_id.id,
             'name': f"""Deposito sobrante voucher {voucher_number}""",
@@ -172,6 +195,25 @@ class settlementExpensesCont(http.Controller):
         })
         deposit_id.sudo().action_validate()
         rec_request_id.sudo().write({'refund_amount': amount})
+
+        return request.redirect('/expenses/settlement_expenses')
+
+    @http.route('/refund_expense_amount',type='http',auth='user',methods=['POST'],website=True)
+    def create_expense_line(self, **post):
+
+        option_id = post.get("selection_refund_expense")
+        amount = post.get("infavor_amount")
+        request_id = post.get("request_id")
+        description_refund = post.get("description_refund")
+        rec_request_id = request.env['cm.expenses.request'].sudo().browse(int(request_id))
+        exception_id = request.env['expense.exceptional.reason'].sudo().browse(int(option_id))
+
+        rec_request_id.sudo().write({'exeption_id': int(option_id), 'description': description_refund or ''})
+        next_state = 'exception'
+        if exception_id.skip_exception:
+            next_state = 'pending'
+            
+        rec_request_id.sudo().with_context({'state':next_state}).change_state()
 
         return request.redirect('/expenses/settlement_expenses')
 

@@ -8,6 +8,11 @@ class processBudgetInh(models.Model):
 
     user_ids = fields.Many2many('res.users', string="Usuarios Permitidos")
 
+class airportInh(models.Model):
+    _inherit = 'cargo.airport'
+
+    hotel_contact = fields.Boolean(string="Posee contactos de Hotel")
+
 class accountBudgetInh(models.Model):
     _inherit = 'account.budget.account'
 
@@ -30,8 +35,10 @@ class employeeInh(models.Model):
         help='Employee bank accounts to pay salaries')
 
     show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")
+    expense_approver_id = fields.Many2one('hr.employee', string="Aprobador de Viaticos")
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
 
     show_settlement_menu = fields.Boolean(string="Liquidacion de Viaticos")
+    expense_approver_id = fields.Many2one('hr.employee', string="Aprobador de Viaticos")

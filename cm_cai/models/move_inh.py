@@ -156,8 +156,10 @@ class moveInh(models.Model):
             
             if inv.move_type in ['in_invoice']:
                 if inv.duplicated_ref_ids:
-                    duplicate_invoice = ', '.join([inv_ref.name for inv_ref in inv.duplicated_ref_ids])
-                    raise ValidationError (f"No se puede validar la factura, la referencia {inv.ref} ya existe en la(s) factura(s) {duplicate_invoice}")
+                    # duplicate_invoice = ', '.join([inv_ref.name for inv_ref in inv.duplicated_ref_ids])
+                    for inv_ref in inv.duplicated_ref_ids:
+                        if inv_ref.ref == inv.ref:
+                            raise ValidationError (f"No se puede validar la factura, la referencia {inv.ref} ya existe en la(s) factura(s) {inv_ref.name}")
 
                 if inv.internal_number in ['Borrador','/'] or not inv.internal_number:
                     if inv.journal_id.sequence_id:

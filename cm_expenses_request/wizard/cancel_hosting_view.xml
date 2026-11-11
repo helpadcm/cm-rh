@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_cancel_hosting" model="ir.ui.view">
+        <field name="name">expense.cancel.hosting.form</field>
+        <field name="model">expense.cancel.hosting</field>
+        <field name="arch" type="xml">
+            <form string="Cancelar Hospedaje">
+                <sheet>
+                    <group>
+                        <field name="lodging_details_ids" nolabel="1" options="{'no_create': True, 'no_open': True}">
+                            <list string="Detalles de hospedaje" editable="bottom" create="false" delete="false">
+                                <field name="req_id" readonly="1" force_save="1" column_invisible="1"/>
+                                <field name="cti_id" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="check_in_date" force_save="1" readonly="1"/>
+                                <field name="check_out_date" force_save="1" readonly="1"/>
+                                <field name="lodging_id"  readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="cancel_reason" required="1"/>
+                            </list>
+                        </field>
+                    </group>
+                    <footer>
+                        <button string="Cancelar Hospedaje" type="object" name="cancel_hosting" class="oe_highlight"/>
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="cancel_hosting_action" model="ir.actions.act_window">
+        <field name="name">Cancelar Hospedaje</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">expense.cancel.hosting</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

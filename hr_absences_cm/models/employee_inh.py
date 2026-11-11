@@ -1,5 +1,6 @@
 from odoo import fields, models, api
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 relationship_list = [
     ('mother', 'Madre'), ('father','Padre'),
@@ -10,17 +11,20 @@ relationship_list = [
 class HrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
 
-    compensatory_hours = fields.Float(string="Horas compensatorios Disp.")
+    compensatory_hours = fields.Float(string="Horas compensatorios Disp.",tracking=True)
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
     vacations_day = fields.Float(string="Vacaciones Disp.",compute="get_available_vacations")
-    early_vacations = fields.Float(string="Vacaciones Adelantadas")
-    program_to_fly = fields.Float(string="Programa a Volar Disp.")
+    early_vacations = fields.Float(string="Vacaciones Adelantadas",tracking=True)
+    program_to_fly = fields.Float(string="Programa a Volar Disp.",tracking=True)
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
-    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
+    aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica",tracking=True)
+    expiration_date_license = fields.Date(string="Fecha de vencimiento",tracking=True)
+    license_number = fields.Char(string="Número de Licencia",tracking=True)
+    license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia",tracking=True)
     years_old = fields.Integer(string="Años de antiguedad")
 
     @api.depends('vacation_details_ids','early_vacations')
@@ -41,105 +45,119 @@ class HrEmployeeInh(models.Model):
                 rec.compensatory_day = 0
                 rec.compensatory_day_string = 'No disponibles'
 
+    def _get_contract_years(self, contract_date, actual_date=None):
+        """Devuelve los años completos de antigüedad."""
+        actual_date = actual_date or datetime.now().date()
+
+        if not contract_date or actual_date < contract_date:
+            return 0
+
+        return relativedelta(actual_date, contract_date).years
+
+    def _get_vacation_days(self, years, has_aeronautical_license=False):
+        """Devuelve los días de vacaciones correspondientes."""
+        
+        if has_aeronautical_license:
+            return 30
+
+        vacation_days = {
+            1: 10,
+            2: 12,
+            3: 15,
+        }
+
+        return vacation_days.get(years, 20) if years >= 1 else 0
+
+    def _create_vacation(self, employee, year):
+        """Crea el período de vacaciones manteniendo máximo 2 períodos acumulados."""
+
+        vacation_obj = self.env['vacations.detail.list']
+
+        # Verificar si ya existe este año
+        existing = employee.vacation_details_ids.filtered(
+            lambda line: line.year == year
+        )
+
+        if existing:
+            return
+
+        # Obtener los períodos actuales
+        vacations = employee.vacation_details_ids.sorted(
+            key=lambda line: line.year
+        )
+
+        # Si ya tiene 2 períodos, eliminar el más antiguo
+        if len(vacations) >= 2:
+            oldest = vacations[0]
+            oldest.unlink()
+
+        assigned_days = self._get_vacation_days(
+            year,
+            employee.aeronatical_license
+        )
+
+        if assigned_days <= 0:
+            return
+
+        # Calcular días pendientes
+        pending_days = assigned_days
+
+        if employee.early_vacations > 0:
+            pending_days = max(
+                assigned_days - employee.early_vacations,
+                0
+            )
+
+            employee.early_vacations = 0
+
+        vacation_obj.create({
+            'name': f'Vacaciones {year} año(s)',
+            'employee_id': employee.id,
+            'assigned_days': assigned_days,
+            'pending_days': pending_days,
+            'year': year,
+        })
+
     def update_personal_time(self):
         actual_date = datetime.now().date()
-        for rec in self.search([]):
-            if rec.contract_date_start:
-                contract_date = rec.contract_date_start
-                antique = int((actual_date - contract_date).days / 365)
-                tickets = 0
-                if antique == 1 and not rec.first_year:
-                    tickets = 2
-                    rec.first_year = True
-                    self.create_vacations(rec,antique)
-                elif antique == 2 and not rec.second_year:
-                    tickets = 3
-                    rec.second_year = True
-                    self.create_vacations(rec,antique)
-                elif antique >= 3:
-                    tickets = 4
-                    rec.second_year = True
-                    rec.first_year = True
-                    self.create_vacations(rec,antique)
 
-                if antique != rec.years_old:
-                    rec.program_to_fly = tickets
-                
-                rec.years_old = antique
-                
+        employees = self.search([('contract_date_start', '!=', False)])
+        tickets_qty = 0
 
-    def create_vacations(self, employee_id, years):
-        days_qty = 0
-        if years == 1:
-            days_qty = 10
-        elif years == 2:
-            days_qty = 12
-        elif years == 3:
-            days_qty = 15
-        elif years >= 4:
-            days_qty = 20
-        
-        if days_qty > 0:
-            if self.aeronatical_license:
-                days_qty = 30
+        for employee in employees:
 
-            vals = {
-                'name': 'Vacaciones %s año(s)'%(years),
-                'employee_id': employee_id.id,
-                'assigned_days': days_qty,
-                'pending_days': days_qty,
-                'year': years
-            }
-            if len(employee_id.vacation_details_ids) > 0:
-                line_id = employee_id.vacation_details_ids.filtered(lambda line: line.year == years)
-                if not line_id:
-                    if len(employee_id.vacation_details_ids) in [0,1]:
-                        employee_id.env['vacations.detail.list'].create(vals)
-                    elif len(employee_id.vacation_details_ids) == 2:
-                        employee_id.vacation_details_ids[0].unlink()
-                        employee_id.env['vacations.detail.list'].create(vals)
-            else:
-                employee_id.env['vacations.detail.list'].create(vals)
+            contract_date = employee.contract_date_start
 
-    def assign_vacations(self):
-        actual_date = datetime.now().date()
-        if self.date_start_contract:
-            contract_date = self.date_start_contract
-            years = int((actual_date - contract_date).days / 365)
-            days_qty = 0
-            
-            for year in range(1,years+1):
-                if year == 1:
-                    days_qty = 10
-                elif year == 2:
-                    days_qty = 12
-                elif year == 3:
-                    days_qty = 15
-                elif year >= 4:
-                    days_qty = 20
+            # Años completos de antigüedad
+            years = self._get_contract_years(contract_date,actual_date)
 
-                if self.aeronatical_license:
-                    days_qty = 30
-                    
-                vals = {
-                    'name': 'Vacaciones %s año(s)'%(year),
-                    'employee_id': self.id,
-                    'assigned_days': days_qty,
-                    'pending_days': days_qty,
-                    'year': year
-                }
-                if len(self.vacation_details_ids) > 0:
-                    line_id = self.vacation_details_ids.filtered(lambda line: line.year == year)
-                    if not line_id:
-                        if year in [1,2]:
-                            if len(self.vacation_details_ids) in [0,1]:
-                                self.env['vacations.detail.list'].create(vals)
-                        elif year >= 3:
-                            if len(self.vacation_details_ids) == 2:
-                                self.vacation_details_ids[0].unlink()
-                                self.env['vacations.detail.list'].create(vals)
+            # Actualizar antigüedad
+            employee.years_old = years
+
+            # Menos de un año
+            if years < 1:
+                employee.program_to_fly = 0
+                continue
+
+            # Beneficio de boletos
+
+            # Fecha exacta del aniversario
+            anniversary = contract_date + relativedelta(
+                years=years
+            )
+
+            # Solo asignar vacaciones el día del aniversario
+
+            if actual_date == anniversary:
+                if years == 1:
+                    tickets_qty = 2
+                elif years == 2:
+                    tickets_qty = 3
                 else:
-                    self.env['vacations.detail.list'].create(vals)
+                    tickets_qty = 4
+                    
+                self._create_vacation(employee,years)
+                employee.program_to_fly = tickets_qty
 
 class employeePublicHRInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -155,6 +173,9 @@ class employeePublicHRInh(models.Model):
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
     beneficiaries_ids = fields.One2many('beneficiaries.detail.list','employee_id',string="Beneficiarios")
     aeronatical_license = fields.Boolean(string="Posee Licencia Aeronautica")
+    expiration_date_license = fields.Date(string="Fecha de vencimiento")
+    license_number = fields.Char(string="Número de Licencia")
+    license_type = fields.Selection([('pilot','Piloto'),('cabin_crew','Tripulante de Cabina'),('flight_dispatcher','Despachador de Vuelos'),('maintenance','Tecnico de Mantenimiento')],string="Tipo de Licencia")
     years_old = fields.Integer(string="Años de antiguedad")
 
     @api.depends('compensatory_hours')
@@ -179,7 +200,7 @@ class vacationsDetail(models.Model):
     employee_id = fields.Many2one('hr.employee',string="Empleado")
     year = fields.Integer(string="Año")
 
-class vacationsDetail(models.Model):
+class beneficiariesDetail(models.Model):
     _name = 'beneficiaries.detail.list'
     _description = 'Beneficiarios programa a volar'
 

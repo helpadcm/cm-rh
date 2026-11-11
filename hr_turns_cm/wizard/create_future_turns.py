@@ -87,6 +87,7 @@ class createFutureTurn(models.TransientModel):
                         'fortnight_line_id': fortnight_id.id
                     }
                     turn_id = self.env['hr.turn.registration'].create(vals)
+                    turn_id.calculate_data()
                     created_turn.append(turn_id.id)
                     turn_date = self.start_date + timedelta(days=count_days)
                     count_days += 1

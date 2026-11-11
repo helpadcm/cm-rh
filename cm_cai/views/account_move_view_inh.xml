@@ -189,6 +189,20 @@
                         <field name="cai_ids" context="{'default_document_type':'purchase','default_is_active':True,'default_supplier_id':id}"/>
                     </page>
                 </notebook>
+                <span name="address_name" position="before">
+                    <field name="comercial_name" placeholder="Nombre Comercial de la empresa"/>
+                </span>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="partner_inh_search">
+            <field name="name">partner.search.inh</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="comercial_name"/>
+                </field>
             </field>
         </record>
     </data>

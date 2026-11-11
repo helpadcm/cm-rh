@@ -141,7 +141,7 @@ class CmPrepago(models.Model):
                     cash.invoice_id.partner_name = cash.client_name
 
                 partner_user_id = cash.user_id.partner_id
-                if partner_user_id and cash.journal_id.code == 'EFU':
+                if partner_user_id and cash.journal_id.code in ['EFU','TRBKS']:
                     analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',partner_user_id.id)])
                     if analytic_account_id:
                         vals.update({'analytic_account_id': analytic_account_id.id})

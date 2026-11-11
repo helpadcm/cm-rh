@@ -10,23 +10,32 @@
                     </header>
                     <sheet>
                         <h1>
-                            <field name="name" readonly="1" force_save="1"/>
+                            <field name="name"/>
                         </h1>
                         <group>
                             <group>
                                 <field name="initial_date" required="1"/>
-                                <field name="trimester" readonly="1" force_save="1"/>
                             </group>
                             <group>
                                 <field name="final_date" required="1"/>
                             </group>
                         </group>
+
+                        <group string="TOTALES">
+                            <group>
+                                <field name="estimated_amount" />
+                            </group>
+                            <group>
+                                <field name="amount_made" />
+                            </group>
+                        </group>
                         <notebook>
                             <page name="lines" string="Lineas de costo">
-                                <field name="line_ids">
+                                <field name="line_ids" context="{'default_initial_date': initial_date, 'default_final_date': final_date}">
                                     <list create="false">
                                         <field name="aircraft_id" />
-                                        <field name="trimester" />
+                                        <field name="estimated_amount" sum="Total Estimado"/>
+                                        <field name="amount_made" sum="Total Realizado"/>
                                     </list>
                                 </field>
                             </page>

@@ -31,28 +31,41 @@ class expensesSheetRequest(models.Model):
     number = fields.Char("Numero")
     company_id = fields.Many2one('res.company',string="Empresa",required=True,readonly=True,default=lambda self: self.env.company)
     move_id = fields.Many2one('account.move',string="Asiento Contable")
+    exception_solution = fields.Selection([('according','Conforme'),('exception','Reembolsado'),('rejected','Rechazado')],string="Solucion de Reembolso")
+
+    advance_amount = fields.Float(string="Anticipo al Empleado", related="request_id.advance_amount")
+    total_expense_amount = fields.Float(string="Total de gastos", related="request_id.total_expense_amount")
+    infavor_employee_amount = fields.Float(string="A reembolsar", related="request_id.infavor_employee_amount")
+    refund_amount = fields.Float(string="Devuelto", related="request_id.refund_amount")
+
+    exeption_id = fields.Many2one('expense.exceptional.reason',string='Motivo de Excepcion',related='request_id.exeption_id')
+    description = fields.Text(string="Motivo", related='request_id.description')
+    refund = fields.Boolean(string="Reembolsar")    
+
     company_currency_id = fields.Many2one(
         comodel_name='res.currency',
-        related='company_id.currency_id',
+        related='request_id.currency_id',
         string="Report Company Currency"
     )
     # === Amount fields === #
     total_amount = fields.Monetary(string="Total", currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-        tracking=True,
-    )
+        compute='_compute_amount', tracking=True)
+
     untaxed_amount = fields.Monetary(
         string="Subtotal",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-    )
+        compute='_compute_amount')
+
     total_tax_amount = fields.Monetary(
-        string="Impuestos",
+        string="Impuesto",
         currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True,
-    )
+        compute='_compute_amount')
+
     exempt_amount = fields.Monetary(string="Monto Excento", currency_field='company_currency_id',
-        compute='_compute_amount', store=True, readonly=True)
+        compute='_compute_amount')
+
+    taxable_amount = fields.Monetary(string="Monto Gravable", currency_field='company_currency_id',
+        compute='_compute_amount')
 
     def change_state(self):
         next_state = self.env.context.get('state')
@@ -71,63 +84,246 @@ class expensesSheetRequest(models.Model):
         self.state = next_state
 
     def create_move(self):
-        source_id = self.env['crossovered.source_expenditure'].search([('code','=','FP')])
+        source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
+        
+        # Moneda de la compañía del diario/asiento
+        company_currency = self.journal_id.company_id.currency_id
+        move_date = fields.Date.context_today(self)
 
         lines = []
-        total = 0
+        total_debit_company = 0.0  # Total acumulado en Moneda de la Compañía
+        total_amount_currency = 0.0 # Total acumulado en Moneda Extranjera
+
+        # 1. LÍNEAS DEL DEBE (GASTOS)
         for line in self.expenses_ids:
-            total += line.total_amount
+            expense_currency = line.currency_id or company_currency
+            amount_foreign = line.untaxed_amount_currency
+
+            # Convertimos el monto de la moneda del gasto a la moneda de la compañía
+            amount_company = expense_currency._convert(
+                amount_foreign,
+                company_currency,
+                self.journal_id.company_id,
+                move_date
+            )
+
+            total_debit_company += amount_company
+            total_amount_currency += amount_foreign
+
             move_line_vals = {
                 'name': line.name,
                 'account_id': line.account_id.id,
                 'analytic_distribution': line.analytic_distribution,
-                'analytic_account_id': line.budget_account_id.id,
-                'activity_id': line.process_id.id,
-                'source_id': source_id.id,
-                'debit': line.total_amount
+                'analytic_account_id': line.budget_account_id.id if hasattr(line, 'budget_account_id') else False,
+                'activity_id': line.process_id.id if hasattr(line, 'process_id') else False,
+                'source_id': source_id.id if source_id else False,
+                # En moneda base/compañía:
+                'debit': amount_company,
+                'credit': 0.0,
+                # En moneda de la transacción:
+                'currency_id': expense_currency.id,
+                'amount_currency': amount_foreign, # Positivo para el Debe
             }
+
             if self.employee_id.department_id.analytic_account_id:
                 analytic = self.employee_id.department_id.analytic_account_id.id
-                move_line_vals.update({'analytic_distribution': {str(analytic): 100.0}})
-            lines.append((0,0,move_line_vals))
+                move_line_vals['analytic_distribution'] = {str(analytic): 100.0}
 
-        if self.request_id and self.request_id.refund_amount > 0:
-            deposit_ids = request.env['banks.deposit'].sudo().search([('request_id','=',self.request_id.id),('state','=','validated')])
-            if deposit_ids:
-                for dep in deposit_ids:
-                    total += dep.total
-                    move_line_vals = {
-                        'name': dep.name,
-                        'account_id': dep.journal_id.default_account_id.id,
-                        'debit': dep.total
-                    }
-                    lines.append((0,0,move_line_vals))
-        
-        account_id = self.env['account.account'].search([('code','=','105.01')])
+            lines.append((0, 0, move_line_vals))
+
+        # Definimos la moneda de la transacción para el resto de las líneas
+        tx_currency = self.expenses_ids[0].currency_id if self.expenses_ids else company_currency
+
+        # 2. LÍNEA DE REEMBOLSO (SI APLICA)
+        if self.infavor_employee_amount > 0:
+
+            desc = ''
+            account_id = self.env['account.account'].search([('code', '=', '512.06')], limit=1)
+            if not account_id:
+                raise UserError("No se encontró la cuenta contable 512.06")
+
+            if self.exception_solution == 'exception' and self.refund:
+                desc = f"Reembolso aprobado para el empleado {self.employee_id.name}"
+            
+            if self.exception_solution in ['rejected', 'according'] or not self.refund:
+                desc = f"Reembolso no realizado para el empleado {self.employee_id.name}"
+                self.request_id.refund_state = 'na'
+
+            # Convertimos el valor a la moneda de la compañía
+            refund_company = tx_currency._convert(
+                self.infavor_employee_amount,
+                company_currency,
+                self.journal_id.company_id,
+                move_date
+            )
+
+            total_debit_company -= refund_company
+            total_amount_currency -= self.infavor_employee_amount
+
+            vals = {
+                'name': desc,
+                'account_id': account_id.id,
+                'debit': 0.0,
+                'credit': refund_company, # En moneda compañía
+                'currency_id': tx_currency.id,
+                'partner_id': self.employee_id.sudo().work_contact_id.id,
+                'amount_currency': -self.infavor_employee_amount, # Negativo para el Haber
+            }
+            if self.employee_id.analytic_account_id:
+                analytic = self.employee_id.analytic_account_id.id
+                vals['analytic_distribution'] = {str(analytic): 100.0}
+            lines.append((0, 0, vals))
+
+        # 3. LÍNEA DE CONTRAPARTIDA / HABER TOTAL (BANCO O EMPLEADO)
+        account_id = self.env['account.account'].search([('code', '=', '105.01')], limit=1)
+        if not account_id:
+            raise UserError("No se encontró la cuenta contable 105.01")
+
         vals = {
             'name': f'{self.employee_id.name}',
             'account_id': account_id.id,
-            'credit': total,
+            'debit': 0.0,
+            'credit': total_debit_company, # Garantiza que el asiento cuadre exactamente a 0.0 en la compañía
+            'currency_id': tx_currency.id,
             'partner_id': self.employee_id.sudo().work_contact_id.id,
-            'amount_currency': -(total)
+            'amount_currency': -total_amount_currency, # Negativo para el Haber
         }
         if self.employee_id.analytic_account_id:
             analytic = self.employee_id.analytic_account_id.id
             vals['analytic_distribution'] = {str(analytic): 100.0}
         lines.append((0, 0, vals))
 
+        # CREACIÓN DEL ASIENTO
         move_vals = {
             'partner_id': self.employee_id.work_contact_id.id,
             'journal_id': self.journal_id.id,
             'ref': self.name,
-            'date': datetime.now().date(),
+            'date': move_date,
             'move_type': 'entry',
-            'line_ids': lines
+            'line_ids': lines,
         }
 
-        move_id = self.env['account.move'].create(move_vals)
+        move_id = self.env['account.move'].sudo().create(move_vals)
         move_id.action_post()
         self.move_id = move_id.id
+        if self.request_id.need_tickets and self.request_id.tickets_request_ids:
+            self.create_exit_tax_move()
+
+    def create_exit_tax_move(self):
+        move_date = fields.Date.context_today(self)
+        
+        # 1. Búsqueda y validación de registros requeridos
+        source_id = self.env['crossovered.source_expenditure'].search([('code', '=', 'FP')], limit=1)
+        journal_id = self.env['account.journal'].search([('code', '=', 'VARIO')], limit=1)
+        account_debit_id = self.env['account.account'].search([('code', '=', '513.04')], limit=1)
+        account_credit_id = self.env['account.account'].search([('code', '=', '202.01')], limit=1)
+        base_USD = self.env.ref('base.USD')
+        
+        if not journal_id or not account_debit_id or not account_credit_id:
+            raise UserError("Asegúrese de contar con el diario 'VARIO' y las cuentas contables '513.04' y '201.01'.")
+
+        company = journal_id.company_id
+        company_currency = company.currency_id
+        currency_id = base_USD
+        is_foreign = currency_id and currency_id != company_currency
+
+        lines = []
+        analytic_ids = []
+        analytic_values = []
+        total_debit_company = 0.0
+        total_amount_currency = 0.0
+        pnrs = []
+
+        partner_contact = self.employee_id.sudo().work_contact_id
+
+        # 2. Iterar por cada ticket y sus rutas asociadas
+        for ticket in self.request_id.tickets_request_ids:
+            ticket_currency = ticket.currency_id or currency_id
+            pnrs.append(ticket.request_ticket_id.pnr)
+            for route in ticket.list_routes_ids:
+                # Leemos el impuesto de salida directamente de la ruta
+                route_tax = route.route_id.exit_tax
+                if route_tax > 0:
+
+
+                    # Convertimos el monto de esta ruta individual a la moneda de la compañía
+                    route_debit_company = ticket_currency._convert(
+                        route_tax,
+                        company_currency,
+                        company,
+                        move_date
+                    )
+
+                    # Monto en moneda original
+                    amount_debit_curr = route_tax if is_foreign else route_debit_company
+
+                    # Nombre personalizado por ruta
+                    line_name = f'Impuesto de salida - Ruta: {route.route_id.name}'
+
+                    # --- LÍNEA DEBE (Gasto por ruta) ---
+                    debit_line_vals = {
+                        'name': line_name,
+                        'account_id': account_debit_id.id,
+                        'debit': route_debit_company,
+                        'credit': 0.0,
+                        'currency_id': currency_id.id,
+                        'amount_currency': amount_debit_curr,
+                        'source_id': source_id.id if source_id else False,
+                    }
+                    if self.employee_id.department_id.analytic_account_id:
+                        analytic = self.employee_id.department_id.analytic_account_id.id
+                        debit_line_vals['analytic_distribution'] = {str(analytic): 100.0}
+
+                    budget_account_id = account_debit_id.fbudget_line_ids.filtered(lambda b: b.process_id.id == self.request_id.process_id.id)
+                    if budget_account_id:
+                        debit_line_vals['analytic_account_id'] = budget_account_id.id
+                        debit_line_vals['activity_id'] = self.request_id.process_id.id
+
+                    lines.append((0, 0, debit_line_vals))
+
+                    # Acumulamos los totales para la contrapartida (Haber)
+                    # total_debit_company += route_debit_company
+                    # total_amount_currency += route_tax
+
+                    amount_credit_curr = -route_tax if is_foreign else -route_debit_company
+                    
+                    if route.route_id.analytic_account_id.id in analytic_ids:
+                        index = analytic_ids.index(route.route_id.analytic_account_id.id)
+                        analytic_values[index]['credit'] += route_debit_company
+                        analytic_values[index]['amount_currency'] += amount_credit_curr
+                    else:
+                        analytic_ids.append(route.route_id.analytic_account_id.id)
+                        analytic_values.append({
+                            'analytic_account_id': route.route_id.analytic_account_id.id,
+                            'credit': route_debit_company,
+                            'amount_currency': amount_credit_curr
+                        })
+        for analytic in analytic_values:
+            distribution = {str(analytic['analytic_account_id']): 100.0} if analytic['analytic_account_id'] else False
+            lines.append((0, 0, {
+                'name': f'Impuesto de salida - {self.employee_id.name}',
+                'account_id': account_credit_id.id,
+                'analytic_distribution': distribution,
+                'debit': 0.0,
+                'credit': analytic['credit'],
+                'currency_id': currency_id.id,
+                'amount_currency': analytic['amount_currency'],
+            }))
+
+        pnr_str = ", ".join(pnrs)
+
+        # --- CREACIÓN DEL ASIENTO CONTABLE ---
+        move_vals = {
+            'partner_id': partner_contact.id if partner_contact else False,
+            'journal_id': journal_id.id,
+            'ref': f'Impuesto de salida por solicitud de viáticos {self.request_id.name} con PNR(s): {pnr_str}',
+            'date': move_date,
+            'move_type': 'entry',
+            'line_ids': lines,
+        }
+        move_id = self.env['account.move'].sudo().create(move_vals)
+        move_id.action_post()
+        return True
 
     def _get_mail_thread_data_attachments(self):
         self.ensure_one()
@@ -136,15 +332,50 @@ class expensesSheetRequest(models.Model):
             [('res_id', 'in', self.expenses_ids.ids), ('res_model', '=', 'hr.expense')],
             order='id desc',
         )
-        return res | expense_attachments
+        deposit_ids = self.env['banks.deposit'].search([('request_id','=',self.request_id.id),('state','=','validated')])
+        deposit_attachments = self.env['ir.attachment']
+        if deposit_ids:
+            deposit_attachments = self.env['ir.attachment'].search(
+                [('res_id', 'in', deposit_ids.ids), ('res_model', '=', 'banks.deposit')],
+                order='id desc',
+            )
+        if len(deposit_attachments) > 0:
+            return res | expense_attachments | deposit_attachments
+        else:
+            return res | expense_attachments
 
-    @api.depends('expenses_ids.total_amount', 'expenses_ids.tax_amount')
+    @api.depends(
+        'expenses_ids',
+        'expenses_ids.total_amount', 
+        'expenses_ids.tax_amount',
+        'expenses_ids.untaxed_amount_currency',
+        'expenses_ids.exempt_amount',
+        'expenses_ids.total_amount_currency',
+        'expenses_ids.tax_ids')
     def _compute_amount(self):
         for sheet in self:
-            sheet.total_amount = sum(sheet.expenses_ids.mapped('total_amount'))
-            sheet.total_tax_amount = sum(sheet.expenses_ids.mapped('tax_amount'))
-            sheet.exempt_amount = sum(sheet.expenses_ids.mapped('exempt_amount'))
-            sheet.untaxed_amount = sheet.total_amount - sheet.total_tax_amount - sheet.exempt_amount
+            subtotal = 0
+            taxes = 0
+            exempt = 0
+            extra_exempt_amount = 0
+            total = 0
+            for expense in sheet.expenses_ids:
+                taxes += expense.tax_amount
+                subtotal += expense.untaxed_amount_currency
+                total += expense.total_amount_currency
+                exempt += expense.exempt_amount
+                if not expense.tax_ids:
+                    exempt += expense.untaxed_amount_currency
+
+                if expense.tax_ids and expense.exempt_amount > 0:
+                    extra_exempt_amount += expense.exempt_amount
+
+            sheet.untaxed_amount = subtotal
+            sheet.taxable_amount = subtotal + extra_exempt_amount - exempt
+            sheet.exempt_amount = exempt
+            sheet.total_tax_amount = taxes
+            sheet.total_amount = total + extra_exempt_amount
+
 
     def show_move(self):
         if self.move_id:
@@ -158,3 +389,15 @@ class expensesSheetRequest(models.Model):
                 'res_id': self.move_id.id
             }
 
+    def get_attachment(self):
+        for expense in self.expenses_ids:
+            attachments = self.env['ir.attachment'].search([
+                ('res_model', '=', 'hr.expense'),
+                ('res_id', '=', expense.id),
+            ])
+
+            for attachment in attachments:
+                attachment.copy({
+                    'res_model': self._name,
+                    'res_id': self.id,
+                })

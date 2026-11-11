@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="pending_sett_view_inherit" model="ir.ui.view">
+            <field name="name">Pagos pendientes inh</field>
+            <field name="model">pending.settlement</field>
+            <field name="inherit_id" ref="settlement.view_pending_settlement_report"/>
+            <field name="arch" type="xml">
+                <button name="print_report" position="after">
+                    <button name="print_guides" class="oe_highlight" string="Guias por cobrar" type="object" groups="cm_cargo_handling.group_guia_cargar_admin"/>
+                </button>
+            </field>
+        </record>
+    </data>
+</odoo>

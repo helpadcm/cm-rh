@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Form en ventana modal -->
+    <record id="view_ventas_cliente_wizard_form" model="ir.ui.view">
+        <field name="name">ventas.cliente.wizard.form</field>
+        <field name="model">ventas.cliente.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Ventas por Cliente">
+                <sheet>
+                    <div class="row">
+                        <div class="col-6">
+                            <group>
+                                <field name="date_start" string="Fecha Inicial"/>
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group>
+                                <field name="date_end" string="Fecha Final"/>
+                            </group>
+                        </div>
+                    </div>
+                    <!-- Fila para Cliente(s) y Modalidad juntos -->
+                    <div class="row">
+                        <div class="col-6">
+                            <group>
+                                <field name="partner_ids" 
+                                       string="Cliente(s)" 
+                                       widget="many2many_tags" 
+                                       options="{'no_create': True}" 
+                                       domain="[('default_client', '=', False), ('cargo_client', '=', True),('discount_id', '!=', False)]"
+                                       placeholder="Seleccione uno o más clientes (Opcional)..."/>
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group>
+                                <field name="modality" string="Modalidad"/>
+                            </group>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Imprimir" name="action_print_report" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la ventana modal -->
+    <record id="action_ventas_cliente_wizard" model="ir.actions.act_window">
+        <field name="name">Ventas por Cliente</field>
+        <field name="res_model">ventas.cliente.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
