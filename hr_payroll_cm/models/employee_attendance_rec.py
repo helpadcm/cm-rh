@@ -247,7 +247,7 @@ class lineAttendanceRecords(models.Model):
     def personal_action_change(self):
         if self.personal_action:
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
-            if self.personal_action == 'free' and self.check_type == 'turn':
+            if self.personal_action == 'free':
                 self.ordinary_hours = 0
             
             if self.personal_action in ['holiday','inc','special','comp','vac','cap','homeoffice']:
