@@ -14,6 +14,7 @@
     'data': [
         'security/groups.xml',
         'security/ir.model.access.csv',
+        'wizard/send_survey_view.xml',
         'views/hr_branch_views.xml',
         'views/hr_employee_views.xml',
         'views/hr_employee_public_views.xml',
@@ -27,7 +28,6 @@
         # 'data/cron_create_portal_user_to_employee.xml',
         'data/cron_award_one_anniversary_badge.xml',
         'data/gamification_badge_data_cm.xml',
-        'wizard/send_survey_view.xml',
         'reports/employee_exit_survey_report.xml',
 
         ],
