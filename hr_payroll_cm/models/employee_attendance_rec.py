@@ -165,6 +165,7 @@ class employeeAttendanceRecords(models.Model):
                 elif rec.diff_hours > rec.eh_limit:
                     rec.eh_pay = rec.eh_limit
                     rec.aditional_he = rec.diff_hours - rec.eh_limit
+                rec.update_real_eh()
 
     def unlink(self):
         for rec in self:
