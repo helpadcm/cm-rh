@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Tree / Lista -->
+    <record id="view_employee_exit_survey_tree" model="ir.ui.view">
+        <field name="name">employee.exit.survey.tree</field>
+        <field name="model">employee.exit.survey</field>
+        <field name="arch" type="xml">
+            <list string="Entrevistas de Salida">
+                <field name="employee_name"/>
+                <field name="job_title"/>
+                <field name="department_name"/>
+                <field name="departure_date"/>
+                <field name="departure_type_display" string="Tipo de Salida"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulario Backend en Dos Columnas -->
+    <record id="view_employee_exit_survey_form" model="ir.ui.view">
+        <field name="name">employee.exit.survey.form</field>
+        <field name="model">employee.exit.survey</field>
+        <field name="arch" type="xml">
+            <form string="Entrevista de Salida">
+                <sheet>
+                    <group col="2">
+                        <group string="Datos del Colaborador">
+                            <field name="employee_id" invisible="1"/>
+                            <field name="employee_name"/>
+                            <field name="job_title"/>
+                            <field name="department_name"/>
+                            <field name="manager_name"/>
+                            <field name="first_contract_date"/>
+                            <field name="departure_date"/>
+                            <field name="seniority"/>
+                            <field name="departure_type"/>
+                            <field name="other_departure_text" invisible="departure_type != 'Otro'"/>
+                        </group>
+
+                        <group string="Motivo de Salida">
+                            <field name="main_reason" string="Motivo Principal"/>
+                            <field name="other_reason_text" invisible="main_reason != 'Otro'"/>
+                            <field name="other_factors"/>
+                        </group>
+                    </group>
+
+                    <separator string="Evaluación de Experiencia"/>
+                    <group col="2">
+                        <group>
+                            <field name="q1"/><field name="q2"/><field name="q3"/>
+                            <field name="q4"/><field name="q5"/><field name="q6"/>
+                        </group>
+                        <group>
+                            <field name="q7"/><field name="q8"/><field name="q9"/>
+                            <field name="q10"/><field name="q11"/><field name="q12"/>
+                        </group>
+                    </group>
+
+                    <separator string="Preguntas Abiertas"/>
+                    <group col="2">
+                        <group>
+                            <field name="positive_aspects"/>
+                            <field name="improvement_aspects"/>
+                            <field name="manager_relationship"/>
+                            <field name="growth_opportunities"/>
+                            <field name="retention_actions"/>
+                        </group>
+                        <group>
+                            <field name="what_would_change"/>
+                            <field name="would_recommend"/>
+                            <field name="would_recommend_why"/>
+                            <field name="additional_comments"/>
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de Ventana -->
+    <record id="action_employee_exit_survey" model="ir.actions.act_window">
+        <field name="name">Entrevistas de Salida</field>
+        <field name="res_model">employee.exit.survey</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menús jerárquicos -->
+    <menuitem id="menu_employee_interview_category"
+              name="Entrevista"
+              parent="hr.hr_menu_hr_reports"
+              sequence="50"/>
+
+    <menuitem id="menu_employee_exit_survey_report"
+              name="Entrevista de salida"
+              parent="menu_employee_interview_category"
+              action="action_employee_exit_survey"
+              sequence="10"/>
+
+    <!-- ========================================== -->
+    <!-- CONFIGURACIÓN DE PAPEL Y FORMATO PDF       -->
+    <!-- ========================================== -->
+    <record id="paperformat_exit_survey_cm" model="report.paperformat">
+        <field name="name">Formato Entrevista de Salida</field>
+        <field name="default" eval="False"/>
+        <field name="orientation">Portrait</field>
+        <field name="format">Letter</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">15</field>
+        <field name="margin_right">15</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Acción del Reporte PDF vinculada al Paperformat -->
+    <record id="action_report_employee_exit_survey" model="ir.actions.report">
+        <field name="name">Entrevista de Salida (PDF)</field>
+        <field name="model">employee.exit.survey</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_cm.report_employee_exit_survey_document</field>
+        <field name="report_file">hr_employee_cm.report_employee_exit_survey_document</field>
+        <field name="binding_model_id" ref="model_employee_exit_survey"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_exit_survey_cm"/>
+    </record>
+
+    <!-- Plantilla QWeb del PDF -->
+    <template id="report_employee_exit_survey_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article" style="font-size: 12px; font-family: Arial, sans-serif; color: #000; line-height: 1.5;">
+                    <h2 class="text-center" style="text-transform: uppercase; color: #1a2b4c; font-weight: bold; margin-bottom: 20px; margin-top: 0px;">ENTREVISTA DE SALIDA - CM AIRLINES</h2>
+                    
+                    <!-- I. DATOS GENERALES -->
+                    <h4 style="border-bottom: 2px solid #1a2b4c; padding-bottom: 4px; color: #1a2b4c; font-weight: bold; margin-top: 15px;">I. DATOS GENERALES</h4>
+                    <table style="width: 100%; margin-bottom: 15px;">
+                        <tr><td style="padding: 3px 0;"><strong>Nombre del colaborador:</strong> <span t-field="o.employee_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Puesto:</strong> <span t-field="o.job_title"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Departamento:</strong> <span t-field="o.department_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Jefe inmediato:</strong> <span t-field="o.manager_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Fecha de ingreso:</strong> <span t-field="o.first_contract_date"/> &#160;&#160;&#160;&#160; <strong>Fecha de salida:</strong> <span t-field="o.departure_date"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Antigüedad en la empresa:</strong> <span t-field="o.seniority"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Tipo de salida:</strong> <span t-field="o.departure_type_display"/></td></tr>
+                    </table>
+
+                    <!-- II. MOTIVO DE SALIDA -->
+                    <h4 style="border-bottom: 2px solid #1a2b4c; padding-bottom: 4px; color: #1a2b4c; font-weight: bold; margin-top: 15px;">II. MOTIVO DE SALIDA</h4>
+                    <div style="margin-bottom: 12px;">
+                        <p style="margin-bottom: 3px;"><strong>1. ¿Cuál es el principal motivo por el que deja de laborar en CM Airlines?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;">
+                            <span t-field="o.main_reason_display"/>
+                        </div>
+                        
+                        <p style="margin-top: 8px; margin-bottom: 3px;"><strong>2. ¿Qué otros factores influyeron en su decisión de salir de la empresa?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.other_factors"/></div>
+                    </div>
+
+                    <!-- III. EVALUACIÓN DE LA EXPERIENCIA LABORAL -->
+                    <h4 style="border-bottom: 2px solid #1a2b4c; padding-bottom: 4px; color: #1a2b4c; font-weight: bold; margin-top: 15px;">III. EVALUACIÓN DE LA EXPERIENCIA LABORAL</h4>
+                    <p style="margin-bottom: 3px;"><em>Instrucciones: Califique los siguientes aspectos según su experiencia durante el tiempo que laboró en CM Airlines.</em></p>
+                    <p style="margin-bottom: 6px; font-size: 11px;"><strong>Escala de calificación:</strong> 1 = Muy insatisfecho | 2 = Insatisfecho | 3 = Neutral | 4 = Satisfecho | 5 = Muy satisfecho | N/A = No aplica</p>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2; text-align: left;">
+                                <th style="padding: 6px; border: 1px solid #ddd; width: 80%;">Aspecto a evaluar</th>
+                                <th style="padding: 6px; border: 1px solid #ddd; width: 20%; text-align: center;">Calificación (1-5)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">1. Herramientas, equipos y recursos proporcionados para realizar sus funciones.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q1"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">2. Condiciones de las instalaciones, mantenimiento e higiene.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q2"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">3. Ambiente laboral y relaciones entre compañeros.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q3"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">4. Comunicación y trabajo en equipo dentro de su departamento.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q4"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">5. Liderazgo, apoyo y trato recibido por parte de su jefe inmediato.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q5"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">6. Claridad de sus funciones y responsabilidades.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q6"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">7. Carga laboral y distribución de tareas.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q7"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">8. Oportunidades de capacitación, aprendizaje y desarrollo profesional.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q8"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">9. Salario en relación con sus funciones y responsabilidades.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q9"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">10. Beneficios laborales ofrecidos por la empresa.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q10"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">11. Reconocimiento y valoración de su trabajo.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q11"/></td></tr>
+                            <tr><td style="padding: 4px 6px; border: 1px solid #ddd;">12. Cumplimiento de las expectativas que tenía al ingresar a la empresa.</td><td style="padding: 4px 6px; border: 1px solid #ddd; text-align: center;"><span t-field="o.q12"/></td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- IV. PREGUNTAS ABIERTAS -->
+                    <h4 style="border-bottom: 2px solid #1a2b4c; padding-bottom: 4px; color: #1a2b4c; font-weight: bold; margin-top: 15px;">IV. PREGUNTAS ABIERTAS</h4>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>1. ¿Qué aspectos de CM Airlines considera positivos y destacaría de su experiencia laboral?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.positive_aspects"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>2. ¿Qué aspectos de la empresa considera que deberían mejorarse?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.improvement_aspects"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>3. ¿Cómo describiría su relación con su jefe inmediato? ¿Qué aspectos positivos o áreas de mejora destacaría?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.manager_relationship"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>4. ¿Considera que tuvo oportunidades suficientes para crecer y desarrollarse profesionalmente dentro de la empresa? ¿Por qué?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.growth_opportunities"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>5. ¿Qué acciones considera que podrían ayudar a mejorar la satisfacción y retención de los colaboradores?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.retention_actions"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>6. ¿Qué tendría que haber cambiado para que usted considerara permanecer en CM Airlines?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.what_would_change"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>7. ¿Recomendaría CM Airlines como un buen lugar para trabajar?</strong></p>
+                        <p style="margin-left: 15px; margin-bottom: 2px;">Respuesta: <span t-field="o.would_recommend"/></p>
+                        <p style="margin-left: 15px; margin-bottom: 2px;"><strong>¿Por qué?:</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.would_recommend_why"/></div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 2px;"><strong>8. ¿Desea agregar algún comentario o compartir alguna situación que considere importante?</strong></p>
+                        <div style="margin-left: 15px; background-color: #f8f9fa; padding: 6px; border-left: 3px solid #1a2b4c; word-break: break-word;"><span t-field="o.additional_comments"/></div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

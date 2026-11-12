@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 import logging
 import re
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 
 _logger = logging.getLogger(__name__)
 
@@ -121,28 +122,6 @@ class HrEmployee(models.Model):
             else:
                 record.format_identification_id = False
 
-    # @api.model
-    # def cron_create_portal_user_to_employee(self):
-    #     employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
-    #     for employee in employees:
-    #         login = employee.work_email
-    #         if self.env['res.users'].search([('login', '=', login)]):
-    #             if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
-    #                 employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
-    #                 _logger.info("User found for employee %s: %s", employee.name, login)
-    #             continue
-    #         user = self.env['res.users'].create(
-    #             {
-    #                 'name': employee.name,
-    #                 'login': login,
-    #                 'share': True,
-    #                 'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
-    #                 }
-    #             )
-    #         employee.user_id = user.id
-    #         _logger.info("User created for employee %s: %s", employee.name, login)
-    #     _logger.info("Cron job to create portal users executed")
-
     @api.model
     def cron_award_one_year_badge(self):
         today = fields.Date.today()
@@ -178,3 +157,25 @@ class HrEmployee(models.Model):
                             'employee_id': employee.id,
                             }
                         )
+
+    def action_send_survey(self):
+        """Abre la ventana emergente para enviar la entrevista de salida."""
+        self.ensure_one()
+        email_to = self.work_email or self.private_email or ''
+        return {
+            'name': _('Enviar Formulario'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'send.survey',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_emails': email_to,
+                'default_employee_id': self.id,
+            }
+        }
+
+class employeePublicInh(models.Model):
+    _inherit = 'hr.employee.public'
+
+    rrhh_boss = fields.Boolean(string="Encargado RRHH")
+    function_rrhh = fields.Selection([('rrhh_boss','Encargado RRHH'),('rrhh_manager','Responsable RRHH')],string="Puesto en RRHH")

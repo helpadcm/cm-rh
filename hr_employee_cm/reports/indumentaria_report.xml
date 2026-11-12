@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_indumentaria_cm" model="ir.actions.report">
+        <field name="name">Comprobante de Entrega de Uniforme e Indumentaria</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_cm.report_indumentaria_document</field>
+        <field name="report_file">hr_employee_cm.report_indumentaria_document</field>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Configuración de márgenes equilibrados para estirar el contenido verticalmente -->
+    <record id="paperformat_indumentaria_cm" model="report.paperformat">
+        <field name="name">Formato Comprobante Indumentaria</field>
+        <field name="default" eval="False"/>
+        <field name="orientation">Portrait</field>
+        <field name="format">Letter</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">15</field>
+        <field name="margin_right">15</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_indumentaria_cm" model="ir.actions.report">
+        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
+    </record>
+
+    <template id="report_indumentaria_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Letra aumentada a 14px y mayor espaciado interno para ocupar mejor la hoja -->
+                <div class="article" style="font-size: 14px; font-family: Arial, sans-serif; color: #000; padding: 10px 10px; line-height: 1.6;">
+                    
+                    <!-- ENCABEZADO: Tabla cerrada con el logo a la izquierda y el título -->
+                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 30%; padding: 10px;">
+                                <img t-att-src="'/hr_employee_cm/static/src/logo_cm.png'" style="max-height: 60px; max-width: 150px; object-fit: contain;" alt="CM Airlines"/>
+                            </td>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 70%; padding: 14px;">
+                                <h3 style="font-weight: bold; text-decoration: underline; margin: 0; font-size: 19px;">COMPROBANTE ENTREGA DE UNIFORME</h3>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- DATOS DEL EMPLEADO -->
+                    <div style="margin-bottom: 25px; line-height: 28px;">
+                        <div><strong>Nombre del Empleado:</strong> <span t-field="o.name" style="border-bottom: 1px solid #000; display: inline-block; width: 73%; padding-left: 5px; font-weight: bold;"/></div>
+                        <div style="margin-top: 10px;">
+                            <span style="display: inline-block; width: 50%;"><strong>Numero de identidad:</strong> <span t-field="o.identification_id" style="border-bottom: 1px solid #000; display: inline-block; width: 40%; padding-left: 5px;"/></span>
+                            <span style="display: inline-block; width: 50%;"><strong>Departamento/área:</strong> <span t-field="o.department_id.name" style="border-bottom: 1px solid #000; display: inline-block; width: 48%; padding-left: 5px;"/></span>
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 15px; margin-bottom: 15px; font-weight: bold;">
+                        Por este medio confirmo que he recibido:
+                    </p>
+
+                    <!-- TABLA DE ARTÍCULOS -->
+                    <t t-set="uniforme_lines" t-value="o.indumentaria_line_ids.filtered(lambda l: l.tipo_activo == 'uniforme')"/>
+                    <t t-set="has_reposicion" t-value="any(line.fecha_reposicion for line in uniforme_lines)"/>
+
+                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2; text-align: center;">
+                                <th style="border: 1px solid #000; padding: 11px; width: 35%;">Concepto</th>
+                                <th style="border: 1px solid #000; padding: 11px; width: 12%;">Cantidad</th>
+                                <th style="border: 1px solid #000; padding: 11px; width: 15%;">Talla</th>
+                                <th style="border: 1px solid #000; padding: 11px; width: 18%;">Color</th>
+                                <th t-if="has_reposicion" style="border: 1px solid #000; padding: 11px; width: 20%;">Fecha Reposición</th>
+                             </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="uniforme_lines" t-as="line">
+                                <tr>
+                                    <td style="border: 1px solid #000; padding: 10px;"><span t-field="line.product_id.name"/></td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.quantity"/></td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.talla"/></td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.color"/></td>
+                                    <td t-if="has_reposicion" style="border: 1px solid #000; padding: 10px; text-align: center;">
+                                        <span t-field="line.fecha_reposicion"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- BLOQUE DE OBSERVACIONES (Altura ampliada a 130px para ocupar mejor el espacio) -->
+                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 14px; width: 25%; vertical-align: top; font-weight: bold;">
+                                Observaciones
+                            </td>
+                            <td style="border: 1px solid #000; padding: 14px; width: 75%; height: 130px; vertical-align: top;">
+                                <t t-foreach="uniforme_lines" t-as="line">
+                                    <span t-if="line.observaciones"><span t-field="line.observaciones"/><br/></span>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- PÁRRAFOS LEGALES Y DE PUESTO -->
+                    <p style="text-align: justify; margin-top: 15px; margin-bottom: 18px; line-height: 24px;">
+                        En calidad de préstamo, para realizar las funciones en el puesto de: <strong><span t-field="o.job_id.name"/></strong>
+                    </p>
+
+                    <p style="text-align: justify; margin-top: 15px; margin-bottom: 30px; line-height: 24px;">
+                        Así mismo, confirmo que he leído y comprendido el Manual de Uso de Uniformes e Imagen Profesional (RH-MA-01) y me comprometo a cumplir con el procedimiento establecido.
+                    </p>
+
+                    <!-- LUGAR Y FECHA -->
+                    <div style="margin-top: 30px; margin-bottom: 50px; font-size: 14.5px;">
+                        <strong>Lugar y Fecha:</strong> Torre Xcala, piso 9, Tegucigalpa, M.D.C., a <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+                    </div>
+
+                    <!-- SECCIÓN DE FIRMA Y HUELLA -->
+                    <div class="row" style="page-break-inside: avoid; margin-top: 60px;">
+                        <div class="col-12 text-center">
+                            <div style="border-top: 1px solid #000; width: 50%; margin: 0 auto; padding-top: 10px;">
+                                <strong style="font-size: 15px;">Firma y Huella</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

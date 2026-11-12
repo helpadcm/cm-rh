@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_indumentaria_line_list_cm" model="ir.ui.view">
+        <field name="name">hr.employee.indumentaria.line.list.cm</field>
+        <field name="model">hr.employee.indumentaria.line</field>
+        <field name="arch" type="xml">
+            <list string="Líneas de Indumentaria" editable="bottom">
+                <field name="tipo_activo"/>
+                <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                <field name="talla" readonly="1"/>
+                <field name="color"/>
+                <field name="quantity"/>
+                <field name="fecha_entrega"/>
+                <field name="fecha_reposicion"/>
+                <field name="observaciones"/>
+                <field name="state" widget="badge" decoration-success="state == 'delivered'" decoration-info="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_employee_form_inherit_indumentaria_cm" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.indumentaria.cm</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_deliver_indumentaria" 
+                        string="Entregar Indumentaria" 
+                        type="object" 
+                        class="btn-primary" 
+                        data-hotkey="q"
+                        groups="hr.group_hr_user,base.group_system"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Indumentaria" name="page_indumentaria" groups="hr.group_hr_user,base.group_system">
+                    <field name="indumentaria_line_ids" nolabel="1">
+                        <list string="Líneas de Indumentaria" editable="bottom">
+                            <field name="tipo_activo"/>
+                            <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="talla" readonly="1"/>
+                            <field name="color"/>
+                            <field name="quantity"/>
+                            <field name="fecha_entrega"/>
+                            <field name="fecha_reposicion"/>
+                            <field name="observaciones"/>
+                            <field name="state" widget="badge" decoration-success="state == 'delivered'" decoration-info="state == 'draft'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

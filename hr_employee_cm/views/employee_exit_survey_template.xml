@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. PLANTILLA DEL FORMULARIO DE ENTREVISTA DE SALIDA -->
+    <template id="employee_exit_survey_template" name="Entrevista de Salida y Evaluación CM Airlines">
+        <t t-call="website.layout">
+            <div class="container my-5">
+                <!-- CABECERA PRINCIPAL -->
+                <div class="text-center py-4 mb-4 border-bottom" style="background: rgba(255,255,255,0.8); border-radius:10px;">
+                    <h1 class="display-5 fw-bold text-primary">
+                        <i class="fa fa-clipboard me-2"></i>
+                        Entrevista de Salida y Evaluación
+                    </h1>
+                    <p class="lead text-muted mb-0">
+                        Agradecemos sinceramente el tiempo, la dedicación y el compromiso brindados durante su trayectoria en <strong>CM Airlines</strong>.
+                    </p>
+                </div>
+
+                <form action="/employee/exit/submit" method="post" class="o_website_form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="employee_id" t-att-value="employee_id"/>
+
+                    <!-- SECCIÓN I: DATOS GENERALES -->
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.4)">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-user me-2"></i>
+                                I. Datos Generales
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fa fa-user me-1"></i> Nombre del Colaborador</label>
+                                    <input type="text" name="employee_name" class="form-control" placeholder="Escriba su nombre completo" required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fa fa-briefcase me-1"></i> Puesto</label>
+                                    <input type="text" name="job_title" class="form-control" placeholder="Escriba su puesto" required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fa fa-building me-1"></i> Departamento</label>
+                                    <input type="text" name="department_name" class="form-control" placeholder="Escriba su departamento" required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fa fa-user-secret me-1"></i> Jefe Inmediato</label>
+                                    <input type="text" name="manager_name" class="form-control" placeholder="Escriba el nombre de su jefe" required="required"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fa fa-calendar-check-o me-1"></i> Fecha de Ingreso</label>
+                                    <input type="date" name="first_contract_date" class="form-control" required="required"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fa fa-calendar-times-o me-1"></i> Fecha de Salida</label>
+                                    <input type="date" name="departure_date" class="form-control" required="required"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fa fa-clock-o me-1"></i> Antigüedad en la empresa</label>
+                                    <input type="text" name="seniority" class="form-control" placeholder="Ej. 2 años 4 meses" required="required"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fa fa-sign-out me-1"></i> Tipo de Salida</label>
+                                    <select name="departure_type" id="departure_type_select" class="form-select" required="required">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Renuncia voluntaria">Renuncia voluntaria</option>
+                                        <option value="Terminación de contrato">Terminación de contrato</option>
+                                        <option value="Decisión de la empresa">Decisión de la empresa</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                                <!-- CAMPO CONDICIONAL PARA TIPO DE SALIDA "OTRO" -->
+                                <div class="col-md-6 d-none" id="other_departure_container">
+                                    <label class="form-label fw-bold text-primary">Especifique el otro tipo de salida:</label>
+                                    <input type="text" name="other_departure_text" class="form-control" placeholder="Escriba aquí..."/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN II: MOTIVO DE SALIDA -->
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.4)">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-question-circle me-2"></i>
+                                II. Motivo de Salida
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">1. ¿Cuál es el principal motivo por el que deja de laborar en CM Airlines?</label>
+                                    <div class="row g-2 ms-1">
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r1" value="Mejor oportunidad laboral" required="required"/>
+                                            <label class="form-check-label" for="r1">Mejor oportunidad laboral</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r2" value="Mejor salario o beneficios"/>
+                                            <label class="form-check-label" for="r2">Mejor salario o beneficios</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r3" value="Falta de oportunidades de crecimiento profesional"/>
+                                            <label class="form-check-label" for="r3">Falta de oportunidades de crecimiento profesional</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r4" value="Relación con el jefe inmediato"/>
+                                            <label class="form-check-label" for="r4">Relación con el jefe inmediato</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r5" value="Ambiente laboral"/>
+                                            <label class="form-check-label" for="r5">Ambiente laboral</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r6" value="Horarios o turnos de trabajo"/>
+                                            <label class="form-check-label" for="r6">Horarios o turnos de trabajo</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r7" value="Motivos personales o familiares"/>
+                                            <label class="form-check-label" for="r7">Motivos personales o familiares</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r8" value="Estudios o desarrollo profesional"/>
+                                            <label class="form-check-label" for="r8">Estudios o desarrollo profesional</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r9" value="Condiciones de trabajo"/>
+                                            <label class="form-check-label" for="r9">Condiciones de trabajo</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r10" value="Insatisfacción con las funciones del puesto"/>
+                                            <label class="form-check-label" for="r10">Insatisfacción con las funciones del puesto</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="r11" value="Reubicación o cambio de residencia"/>
+                                            <label class="form-check-label" for="r11">Reubicación o cambio de residencia</label>
+                                        </div>
+                                        <div class="col-md-6 form-check">
+                                            <input class="form-check-input reason-radio" type="radio" name="main_reason" id="other_reason_radio" value="Otro"/>
+                                            <label class="form-check-label" for="other_reason_radio">Otro</label>
+                                        </div>
+                                    </div>
+                                    <!-- CAMPO DE TEXTO CONDICIONAL PARA MOTIVO "OTRO" -->
+                                    <div class="mt-3 d-none" id="other_reason_container">
+                                        <label class="form-label fw-bold text-primary">Especifique su otro motivo:</label>
+                                        <input type="text" name="other_reason_text" class="form-control" placeholder="Escriba aquí el motivo..."/>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <label class="form-label fw-bold">2. ¿Qué otros factores influyeron en su decisión de salir de la empresa?</label>
+                                    <textarea name="other_factors" class="form-control" rows="3" placeholder="Escriba aquí otros factores..." required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN III: EVALUACIÓN DE LA EXPERIENCIA LABORAL -->
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.4)">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-star me-2"></i>
+                                III. Evaluación de la Experiencia Laboral
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">
+                                <strong>Escala de calificación:</strong> 1 = Muy insatisfecho | 2 = Insatisfecho | 3 = Neutral | 4 = Satisfecho | 5 = Muy satisfecho | N/A = No aplica
+                            </p>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover bg-white align-middle">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th style="width: 50%;">Aspecto a evaluar</th>
+                                            <th>1</th>
+                                            <th>2</th>
+                                            <th>3</th>
+                                            <th>4</th>
+                                            <th>5</th>
+                                            <th>N/A</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="aspects" t-value="[
+                                            ('q1', '1. Herramientas, equipos y recursos proporcionados para realizar sus funciones.'),
+                                            ('q2', '2. Condiciones de las instalaciones, mantenimiento e higiene.'),
+                                            ('q3', '3. Ambiente laboral y relaciones entre compañeros.'),
+                                            ('q4', '4. Comunicación y trabajo en equipo dentro de su departamento.'),
+                                            ('q5', '5. Liderazgo, apoyo y trato recibido por parte de su jefe inmediato.'),
+                                            ('q6', '6. Claridad de sus funciones y responsabilidades.'),
+                                            ('q7', '7. Carga laboral y distribución de tareas.'),
+                                            ('q8', '8. Oportunidades de capacitación, aprendizaje y desarrollo profesional.'),
+                                            ('q9', '9. Salario en relación con sus funciones y responsabilidades.'),
+                                            ('q10', '10. Beneficios laborales ofrecidos por la empresa.'),
+                                            ('q11', '11. Reconocimiento y valoración de su trabajo.'),
+                                            ('q12', '12. Cumplimiento de las expectativas que tenía al ingresar a la empresa.')
+                                        ]"/>
+                                        <t t-foreach="aspects" t-as="asp">
+                                            <tr>
+                                                <td class="fw-bold"><t t-esc="asp[1]"/></td>
+                                                <t t-foreach="['1','2','3','4','5','NA']" t-as="val">
+                                                    <td class="text-center">
+                                                        <input class="form-check-input" type="radio" t-att-name="asp[0]" t-att-value="val" required="1"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN IV: PREGUNTAS ABIERTAS -->
+                    <div class="card shadow border-0 mb-4" style="background: rgba(255,255,255,0.4)">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-comments me-2"></i>
+                                IV. Preguntas Abiertas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">1. ¿Qué aspectos de CM Airlines considera positivos y destacaría de su experiencia laboral?</label>
+                                    <textarea name="positive_aspects" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">2. ¿Qué aspectos de la empresa considera que deberían mejorarse?</label>
+                                    <textarea name="improvement_aspects" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">3. ¿Cómo describiría su relación con su jefe inmediato? ¿Qué aspectos positivos o áreas de mejora destacaría?</label>
+                                    <textarea name="manager_relationship" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">4. ¿Considera que tuvo oportunidades suficientes para crecer y desarrollarse profesionalmente dentro de la empresa? ¿Por qué?</label>
+                                    <textarea name="growth_opportunities" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">5. ¿Qué acciones considera que podrían ayudar a mejorar la satisfacción y retención de los colaboradores?</label>
+                                    <textarea name="retention_actions" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">6. ¿Qué tendría que haber cambiado para que usted considerara permanecer en CM Airlines?</label>
+                                    <textarea name="what_would_change" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">7. ¿Recomendaría CM Airlines como un buen lugar para trabajar?</label>
+                                    <div class="d-flex gap-4 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="would_recommend" id="rec1" value="yes" required="required"/>
+                                            <label class="form-check-label" for="rec1">Sí</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="would_recommend" id="rec2" value="no"/>
+                                            <label class="form-check-label" for="rec2">No</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="would_recommend" id="rec3" value="maybe"/>
+                                            <label class="form-check-label" for="rec3">Tal vez</label>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="would_recommend_why" class="form-control" placeholder="¿Por qué?" required="required"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">8. ¿Desea agregar algún comentario o compartir alguna situación que considere importante?</label>
+                                    <textarea name="additional_comments" class="form-control" rows="3" required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN DE ENVÍO -->
+                    <div class="text-center my-4">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                            <i class="fa fa-paper-plane me-2"></i> Enviar Formulario
+                        </button>
+                    </div>
+                </form>
+
+                <!-- SCRIPT PARA MOSTRAR/OCULTAR LOS CAMPOS "OTRO" Y VALIDACIÓN MODERNA DE FECHAS -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        // 1. Lógica para el Select de Tipo de Salida
+                        const departureSelect = document.getElementById("departure_type_select");
+                        const otherDepartureContainer = document.getElementById("other_departure_container");
+                        if (departureSelect &amp;&amp; otherDepartureContainer) {
+                            const otherDepartureInput = otherDepartureContainer.querySelector("input, textarea");
+
+                            function handleDepartureChange() {
+                                if (departureSelect.value === "Otro") {
+                                    otherDepartureContainer.classList.remove("d-none");
+                                    if (otherDepartureInput) otherDepartureInput.setAttribute("required", "required");
+                                } else {
+                                    otherDepartureContainer.classList.add("d-none");
+                                    if (otherDepartureInput) {
+                                        otherDepartureInput.removeAttribute("required");
+                                        otherDepartureInput.value = "";
+                                    }
+                                }
+                            }
+
+                            handleDepartureChange();
+                            departureSelect.addEventListener("change", handleDepartureChange);
+                        }
+
+                        // 2. Lógica para los Radios de Motivo de Salida
+                        const radios = document.querySelectorAll(".reason-radio");
+                        const otherReasonContainer = document.getElementById("other_reason_container");
+                        if (otherReasonContainer &amp;&amp; radios.length > 0) {
+                            const otherReasonInput = otherReasonContainer.querySelector("input, textarea");
+
+                            function handleRadioChange() {
+                                let isOtherChecked = false;
+                                radios.forEach(radio => {
+                                    if (radio.id === "other_reason_radio" &amp;&amp; radio.checked) {
+                                        isOtherChecked = true;
+                                    }
+                                });
+
+                                if (isOtherChecked) {
+                                    otherReasonContainer.classList.remove("d-none");
+                                    if (otherReasonInput) otherReasonInput.setAttribute("required", "required");
+                                } else {
+                                    otherReasonContainer.classList.add("d-none");
+                                    if (otherReasonInput) {
+                                        otherReasonInput.removeAttribute("required");
+                                        otherReasonInput.value = "";
+                                    }
+                                }
+                            }
+
+                            radios.forEach(radio => {
+                                radio.addEventListener("change", handleRadioChange);
+                            });
+                            handleRadioChange();
+                        }
+
+                        // 3. Función para mostrar una alerta elegante de Bootstrap
+                        function showCustomAlert(message) {
+                            // Evitar duplicados si ya hay una alerta visible
+                            let existingAlert = document.getElementById("custom-date-alert");
+                            if (existingAlert) existingAlert.remove();
+
+                            let alertDiv = document.createElement("div");
+                            alertDiv.id = "custom-date-alert";
+                            alertDiv.className = "alert alert-danger alert-dismissible fade show position-fixed shadow-lg";
+                            alertDiv.style.cssText = "top: 20px; right: 20px; z-index: 9999; max-width: 400px; border-radius: 8px;";
+                            alertDiv.innerHTML = `
+                                <strong><i class="fa fa-exclamation-triangle me-2"></i> Atención:</strong> ${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            `;
+                            document.body.appendChild(alertDiv);
+
+                            // Auto-ocultar después de 5 segundos
+                            setTimeout(() => {
+                                if (alertDiv) alertDiv.remove();
+                            }, 5000);
+                        }
+
+                        // 4. Validación de Fechas Estilizada
+                        const dateIn = document.querySelector('input[name="first_contract_date"]');
+                        const dateOut = document.querySelector('input[name="departure_date"]');
+
+                        function validateExitDates() {
+                            if (dateIn &amp;&amp; dateOut &amp;&amp; dateIn.value &amp;&amp; dateOut.value) {
+                                if (dateIn.value >= dateOut.value) {
+                                    showCustomAlert("La fecha de ingreso debe ser menor que la fecha de salida.");
+                                    dateOut.value = ""; // Limpia la fecha incorrecta
+                                    dateOut.focus();
+                                }
+                            }
+                        }
+
+                        if (dateIn &amp;&amp; dateOut) {
+                            dateIn.addEventListener("change", validateExitDates);
+                            dateOut.addEventListener("change", validateExitDates);
+                        }
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+
+    <!-- 2. PLANTILLA DE AGRADECIMIENTO -->
+    <template id="exit_survey_thanks_template" name="Gracias - Entrevista de Salida">
+        <t t-call="website.layout">
+            <div class="container my-5 text-center">
+                <div class="card shadow border-0 p-5 mx-auto" style="max-width: 600px; background: rgba(255,255,255,0.8);">
+                    <div class="card-body">
+                        <i class="fa fa-check-circle text-success fa-4x mb-3"></i>
+                        <h2 class="fw-bold text-success">¡Formulario Enviado con Éxito!</h2>       
+
+                        <p class="text-muted mt-3">
+                            Agradecemos sinceramente su tiempo y sus valiosos comentarios. Su entrevista de salida ha sido registrada correctamente. Le deseamos el mayor de los éxitos en sus futuros proyectos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

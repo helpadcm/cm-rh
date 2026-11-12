@@ -133,5 +133,18 @@
             </field>
         </field>
     </record>
-
+  <record id="view_employee_form_inherit_send_survey" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.send.survey</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="%(hr_employee_cm.action_send_survey_wizard)d" 
+                        string="Enviar Encuesta" 
+                        type="action" 
+                        class="oe_highlight"
+                        invisible="active"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>
