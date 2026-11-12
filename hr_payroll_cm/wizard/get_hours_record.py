@@ -275,8 +275,8 @@ class getRecordHours(models.TransientModel):
                 })
 
                 line_id = self.env['hr.employee.attendance.line'].create(vals)
-                line_id.personal_action_change()
                 line_id.calculate_data()
+                line_id.personal_action_change()
 
             if total_eh > 0:
                 if total_eh <= employee_id.max_extra_hours:

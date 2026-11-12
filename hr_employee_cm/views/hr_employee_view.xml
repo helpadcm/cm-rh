@@ -18,7 +18,7 @@
         </field>
     </record>
 
-    <record id="view_employee_form_inherit_indumentaria_cm" model="ir.ui.view">
+    <!-- <record id="view_employee_form_inherit_indumentaria_cm" model="ir.ui.view">
         <field name="name">hr.employee.form.inherit.indumentaria.cm</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
@@ -50,5 +50,5 @@
                 </page>
             </xpath>
         </field>
-    </record>
+    </record> -->
 </odoo>

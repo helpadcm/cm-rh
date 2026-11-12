@@ -243,7 +243,7 @@ class lineAttendanceRecords(models.Model):
     turn_note = fields.Text(string="Notas de turno")
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Revisar segun")
 
-    @api.onchange('personal_action','check_type','date')
+    @api.onchange('personal_action','date')
     def personal_action_change(self):
         if self.personal_action:
             self.observations = dict(self._fields['personal_action'].selection).get(self.personal_action, '')
@@ -358,9 +358,9 @@ class lineAttendanceRecords(models.Model):
         employee_id = self.attendance_rec_id.employee_id
         bonus = 0
         if check1:
-            if min(check1) < employee_id.early_checkin_bonus_time:
+            if min(check1) <= employee_id.early_checkin_bonus_time:
                 bonus += employee_id.value_bonus
         if check2:
-            if max(check2) > employee_id.late_checkout_bonus_time:
+            if max(check2) >= employee_id.late_checkout_bonus_time:
                 bonus += employee_id.value_bonus
         return bonus
