@@ -112,7 +112,15 @@ class teamHourRecord(models.Model):
                 elif rec.turn_type_b.code == 'VAC' and rec.turn_type_a.code == 'LID':
                     rec.oh = amount2 / 100
 
-                rec.aditional_hours = rec.ordinary_hours - rec.oh
+                if rec.ordinary_hours <= rec.oh:
+                    rec.oh = rec.ordinary_hours
+                    
+                ah = rec.ordinary_hours - rec.oh
+                if ah > 0:
+                    rec.aditional_hours = ah
+                else:
+                    rec.aditional_hours = 0
+            
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
                 rec.oh = 0

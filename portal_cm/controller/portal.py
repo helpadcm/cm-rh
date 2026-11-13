@@ -1,4 +1,5 @@
-from odoo import http
+import calendar
+from odoo import http, fields
 from odoo.http import request
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -11,7 +12,6 @@ class CustomPortal(http.Controller):
         employee_id = request.env['hr.employee'].sudo().search([('user_id','=',user.id)], limit=1)
         types_turn_ids = request.env['hr.turn.types'].sudo().search([])
         schedule_ids = request.env['hr.options.schedules'].sudo().search([('alphabetical','=',False)])
-        draft_record_ids = request.env['team.hour.record'].sudo().search([('employee_id','=',employee_id.id)], order="date desc")
         turn_na_id = request.env['hr.options.schedules'].sudo().search([('name','=','NA')])
 
         turn_initial_a_id = request.env['hr.options.schedules'].sudo().search([('name','=','800')])
@@ -23,7 +23,14 @@ class CustomPortal(http.Controller):
         # ===========================
         # Quincena actual
         # ===========================
-        current_start, current_end = self._get_period(actual_date)
+        cal_start, cal_end = self._get_period(actual_date)
+        date_from_payslip, date_to_payslip = self.get_payslips_date(cal_start, employee_id.department_id)
+        ach1 = self.get_esperated_hours(cal_start, cal_end, date_from_payslip, date_to_payslip, employee_id.department_id)
+
+        # 2. Retrocedemos 1 día desde su inicio (10 nov) para obtener la quincena vigente/en cierre (26 oct - 10 nov)
+        current_start, current_end = self._get_period(datetime.combine(cal_start - timedelta(days=1), datetime.min.time()))
+        date_from_payslip, date_to_payslip = self.get_payslips_date(current_start, employee_id.department_id)
+        eh1 = self.get_esperated_hours(current_start, current_end, date_from_payslip, date_to_payslip, employee_id.department_id)
 
         # ===========================
         # Quincena anterior
@@ -34,6 +41,16 @@ class CustomPortal(http.Controller):
         ) - timedelta(days=1)
 
         previous_start, previous_end = self._get_period(previous_reference)
+        date_from_payslip, date_to_payslip = self.get_payslips_date(previous_start, employee_id.department_id)
+        eh2 = self.get_esperated_hours(previous_start, previous_end, date_from_payslip, date_to_payslip, employee_id.department_id)
+
+
+        draft_domain = [
+            ('employee_id', '=', employee_id.id),
+            ('date', '>=', cal_start),
+            ('date', '<=', cal_end),
+        ]
+
         domain = [
             ('employee_id', '=', employee_id.id),
             ('state', '=', 'validated'),
@@ -48,6 +65,9 @@ class CustomPortal(http.Controller):
             ('date', '<=', current_end),
         ]
 
+
+        draft_record_ids = request.env['team.hour.record'].sudo().search(draft_domain, order="date desc")
+
         validate_record_ids = request.env['hr.turn.registration'].sudo().search(
             domain,
             order="date desc"
@@ -57,6 +77,18 @@ class CustomPortal(http.Controller):
             actual_domain,
             order="date desc"
         )
+
+        oh = sum(draft_record_ids.mapped('oh'))
+        ah = sum(draft_record_ids.mapped('aditional_hours'))
+        totalh = oh + ah
+
+        oh1 = sum(actual_record_ids.mapped('oh'))
+        ah1 = sum(actual_record_ids.mapped('aditional_hours'))
+        totalh1 = oh1 + ah1
+
+        oh2 = sum(validate_record_ids.mapped('oh'))
+        ah2 = sum(validate_record_ids.mapped('aditional_hours'))
+        totalh2 = oh2 + ah2
 
         values = {
             "records": types_turn_ids, 
@@ -68,7 +100,16 @@ class CustomPortal(http.Controller):
             'turn_final_a_id' : turn_final_a_id.id,
             'turn_initial_b_id' : turn_initial_b_id.id,
             'turn_final_b_id' : turn_final_b_id.id,
-            'actual_record_ids': actual_record_ids
+            'actual_record_ids': actual_record_ids,
+            'eh': ach1,
+            'totalh': totalh,
+            'diff': totalh - ach1,
+            'eh1': eh1,
+            'totalh1': totalh1,
+            'diff1': totalh1 - eh1,
+            'eh2': eh2,
+            'totalh2': totalh2,
+            'diff2': totalh2 - eh2
         }
         return request.render("portal_cm.portal_hours_record_team", values)
 
@@ -268,3 +309,67 @@ class CustomPortal(http.Controller):
             (date.replace(day=26) - relativedelta(months=1)).date(),
             date.replace(day=10).date(),
         )
+
+    def get_payslips_date(self, date_from, department_id):
+        year = date_from.year
+        month = date_from.month
+        if date_from.day >= 26:
+            if month == 12:
+                date_from_payslip = "%s-%s-%s"%(year + 1, '01', '01')
+                date_to_payslip = "%s-%s-%s"%(year + 1, '01', 15)
+            else:
+                date_from_payslip = "%s-%s-%s"%(year, month + 1, '01')
+                date_to_payslip = "%s-%s-%s"%(year, month + 1, 15)
+        elif date_from.day <= 26:
+            _, num_days = calendar.monthrange(year, month)
+            date_from_payslip = "%s-%s-%s"%(year, month, 16)
+            date_to_payslip = "%s-%s-%s"%(year, month, num_days)
+            if department_id:
+                if department_id.calculate_hours == 'one':
+                    if month == 12:
+                        month = 0
+                    date_from_payslip = "%s-%s-%s"%(year, month+1, '01')
+                    date_to_payslip = "%s-%s-%s"%(year, month+1, 15)
+        
+        return date_from_payslip, date_to_payslip
+
+    def get_esperated_hours(self, date_from, date_to, payslip_date_from, payslip_date_to, department_id):
+        # Aseguramos que todas las fechas sean objetos date (si ya lo son, no las altera)
+        date_from = fields.Date.to_date(date_from)
+        date_to = fields.Date.to_date(date_to)
+        payslip_date_from = fields.Date.to_date(payslip_date_from)
+        payslip_date_to = fields.Date.to_date(payslip_date_to)
+
+        date = payslip_date_from
+        esperated_hours = 0
+        last_day_year = calendar.monthrange(date_from.year, date_from.month)[1]
+
+        if department_id.calculate_hours == 'one':
+            saturdays, sundays = self.count_weekends(date_from.year, date_from.month)
+            min_date = date_from
+            max_date = date_to
+            diff = (max_date - min_date)
+            saturdays_hours = saturdays * 4
+            month_hours = ((diff.days + 1) - saturdays - sundays) * 8
+            esperated_hours = saturdays_hours + month_hours
+        else:
+            if payslip_date_from and payslip_date_from.day == 1:
+                min_date = (date - relativedelta(months=1)).replace(day=25)
+                max_date = date.replace(day=10)
+                diff = (max_date - min_date)
+                esperated_hours = (diff.days - 3) * 8
+            elif payslip_date_from and payslip_date_from.day == 16:
+                min_date = date.replace(day=10)
+                max_date = date.replace(day=25)
+                diff = (max_date - min_date)
+                esperated_hours = (diff.days - 3) * 8
+            else:
+                esperated_hours = 0
+
+        return esperated_hours
+
+    def count_weekends(self, year, month):
+        cal = calendar.monthcalendar(year, month)
+        saturdays = sum(1 for week in cal if week[calendar.SATURDAY] != 0)
+        sundays = sum(1 for week in cal if week[calendar.SUNDAY] != 0)
+        return saturdays, sundays

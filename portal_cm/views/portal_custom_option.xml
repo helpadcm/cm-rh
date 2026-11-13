@@ -159,6 +159,30 @@
                     </form>
 
                     <h4 class="text-center mt-4">Horas Ingresadas</h4>
+                    <div class="alert alert-danger shadow-sm mb-3" role="alert" style="border-radius: 10px;">
+                        <div class="d-flex flex-column gap-1">
+                            <!-- Fila 1 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Esperadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(eh)"/></span>
+                            </div>
+
+                            <!-- Fila 2 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Generadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(totalh)"/></span>
+                            </div>
+
+                            <!-- Fila 3 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Diferencia:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(diff)"/></span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle historical_table">
                             <thead class="table-dark">
@@ -171,7 +195,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                     <th class="header_historical">Estado</th>
                                     <th class="header_historical">Acción</th>
@@ -191,8 +215,8 @@
                                         <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <!-- <td ><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
+                                        <td ><t t-esc="'{:,.2f}'.format(days.oh)"/></td>
+                                        <td style="text-align:center"><t t-esc="'{:,.2f}'.format(days.aditional_hours)"/></td>
                                         <td style="text-align:center" t-if="days.state == 'draft'">
                                             <span class="badge bg-warning text-dark">
                                                 BORRADOR
@@ -216,7 +240,7 @@
                                         <td style="text-align:center" t-if="days.state == 'validated'">
                                             <i class="fa fa-check"></i>
                                         </td>
-                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <t t-set="total_wt" t-value="total_wt + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
@@ -225,14 +249,38 @@
                                         <i class="fa fa-calculator me-1"></i>
                                         TOTAL
                                     </td>
-                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                    <td><strong><t t-esc="'{:,.2f}'.format(total_wt)"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="'{:,.2f}'.format(total_eh)"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="container tab-pane fade show p-4 shadow-sm" id="tab2" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    <div class="alert alert-danger shadow-sm mb-3" role="alert" style="border-radius: 10px;">
+                        <div class="d-flex flex-column gap-1">
+                            <!-- Fila 1 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Esperadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(eh1)"/></span>
+                            </div>
+
+                            <!-- Fila 2 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Generadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(totalh1)"/></span>
+                            </div>
+
+                            <!-- Fila 3 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Diferencia:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(diff1)"/></span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle historical_table">
                             <thead class="table-dark">
@@ -245,7 +293,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
@@ -263,9 +311,9 @@
                                         <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
-                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <td><t t-esc="'{:,.2f}'.format(days.oh)"/></td>
+                                        <td style="text-align:center"><t t-esc="'{:,.2f}'.format(days.aditional_hours)"/></td>
+                                        <t t-set="total_wt" t-value="total_wt + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
@@ -274,14 +322,38 @@
                                         <i class="fa fa-calculator me-1"></i>
                                         TOTAL
                                     </td>
-                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                    <td><strong><t t-esc="'{:,.2f}'.format(total_wt)"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="'{:,.2f}'.format(total_eh)"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="container tab-pane fade show p-4 shadow-sm" id="tab3" style="background: rgba(255,255,255,0.8);border-radius:10px;">
+                    <div class="alert alert-danger shadow-sm mb-3" role="alert" style="border-radius: 10px;">
+                        <div class="d-flex flex-column gap-1">
+                            <!-- Fila 1 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Esperadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(eh2)"/></span>
+                            </div>
+
+                            <!-- Fila 2 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Horas Generadas:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(totalh2)"/></span>
+                            </div>
+
+                            <!-- Fila 3 -->
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 fs-5"></i>
+                                <span style="min-width: 155px;"><strong>Diferencia:</strong></span>
+                                <span><t t-esc="'{:,.2f}'.format(diff2)"/></span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle historical_table">
                             <thead class="table-dark">
@@ -294,7 +366,7 @@
                                     <th class="header_historical">Turno B</th>
                                     <th class="header_historical">Entrada 2</th>
                                     <th class="header_historical">Salida 2</th>
-                                    <!-- <th class="header_historical">Horas Trabajadas</th> -->
+                                    <th class="header_historical">HO</th>
                                     <th class="header_historical">HE</th>
                                 </tr>
                             </thead>
@@ -312,9 +384,9 @@
                                         <td style="text-align:center"><t t-esc="days.turn_type_b.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_in_id.name"/></td>
                                         <td style="text-align:center"><t t-esc="days.schedule2_out_id.name"/></td>
-                                        <!-- <td><t t-esc="days.ordinary_hours"/></td> -->
-                                        <td style="text-align:center"><t t-esc="days.aditional_hours"/></td>
-                                        <t t-set="total_wt" t-value="total_wt + days.ordinary_hours"/>
+                                        <td><t t-esc="'{:,.2f}'.format(days.oh)"/></td>
+                                        <td style="text-align:center"><t t-esc="'{:,.2f}'.format(days.aditional_hours)"/></td>
+                                        <t t-set="total_wt" t-value="total_wt + days.oh"/>
                                         <t t-set="total_eh" t-value="total_eh + days.aditional_hours"/>
                                     </tr>
                                 </t>
@@ -323,8 +395,8 @@
                                         <i class="fa fa-calculator me-1"></i>
                                         TOTAL
                                     </td>
-                                    <!-- <td><strong><t t-esc="total_wt"/></strong></td> -->
-                                    <td style="text-align:center"><strong><t t-esc="total_eh"/></strong></td>
+                                    <td><strong><t t-esc="'{:,.2f}'.format(total_wt)"/></strong></td>
+                                    <td style="text-align:center"><strong><t t-esc="'{:,.2f}'.format(total_eh)"/></strong></td>
                                 </tr>
                             </tbody>
                         </table>
