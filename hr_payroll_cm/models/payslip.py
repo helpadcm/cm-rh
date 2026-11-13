@@ -423,11 +423,15 @@ class workedDaysInh(models.Model):
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME50':
                     hours_extra = hours_amount * 1.50
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
+                    raw_total = hours_extra * worked_days.number_of_hours
+                    clean_total = round(raw_total, 6)
+                    amount_days = float_round(clean_total, precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME75':
                     hours_extra = hours_extra * 1.75
-                    amount_days = float_round((hours_amount * worked_days.number_of_hours), precision_rounding=rounding)
+                    raw_total = hours_extra * worked_days.number_of_hours
+                    clean_total = round(raw_total, 6)
+                    amount_days = float_round(clean_total, precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'WORK100':
                     date_from = worked_days.payslip_id.date_from
