@@ -133,9 +133,8 @@
                                             type="object"
                                             icon="fa-sticky-note"
                                             title="Tiene nota de turno"
-                                            class="text-warning"
-                                            invisible="not turn_note"
-                                            disabled="1"/>
+                                            style="color: #f0ad45; opacity: 1;"
+                                            invisible="not turn_note"/>
                                 </list>
                                 <form>
                                     <group col="3" string="DIA">
