@@ -116,17 +116,26 @@
                                 <list create="false" delete="false">
                                     <field name="date"/>
                                     <field name="day"/>
-                                    <field name="check_in_1"/>
-                                    <field name="check_out_1"/>
-                                    <field name="check_in_2"/>
-                                    <field name="check_out_2"/>
-                                    <field name="check_in_3"/>
-                                    <field name="check_out_3"/>
+                                    <field name="check_type" />
+                                    <field name="entrance_1"/>
+                                    <field name="exit_1"/>
+                                    <field name="entrance_2"/>
+                                    <field name="exit_2"/>
+                                    <field name="entrance_3"/>
+                                    <field name="exit_3"/>
                                     <field name="total_hours" sum="Horas totales"/>
                                     <field name="ordinary_hours" sum="Total Horas ordinarias"/>
                                     <field name="extra_hours" sum="Total Horas Extras"/>
                                     <field name="observations"/>
                                     <field name="bonus" sum="Total Bono"/>
+                                    <field name="turn_note" column_invisible="1"/>
+                                    <button name="action_dummy"
+                                            type="object"
+                                            icon="fa-sticky-note"
+                                            title="Tiene nota de turno"
+                                            class="text-warning"
+                                            invisible="not turn_note"
+                                            disabled="1"/>
                                 </list>
                                 <form>
                                     <group col="3" string="DIA">

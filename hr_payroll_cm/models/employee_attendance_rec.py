@@ -244,6 +244,31 @@ class lineAttendanceRecords(models.Model):
     turn_note = fields.Text(string="Notas de turno")
     check_type = fields.Selection([('mark','Marcaje'),('turn','Planificación')],string="Revisar segun")
 
+    entrance_1 = fields.Char(string="Entrada 1",compute="calculate_schedules")
+    exit_1 = fields.Char(string="Salida 1",compute="calculate_schedules")
+    entrance_2 = fields.Char(string="Entrada 2",compute="calculate_schedules")
+    exit_2 = fields.Char(string="Salida 2",compute="calculate_schedules")
+    entrance_3 = fields.Char(string="Entrada 3",compute="calculate_schedules")
+    exit_3 = fields.Char(string="Salida 3",compute="calculate_schedules")
+
+    @api.depends('check_type')
+    def calculate_schedules(self):
+        for rec in self:
+            if rec.check_type == 'turn':
+                rec.entrance_1  = rec.schedule1_in_date
+                rec.exit_1  = rec.schedule1_out_date
+                rec.entrance_2  = rec.schedule2_in_date
+                rec.exit_2  = rec.schedule2_out_date
+                rec.entrance_3  = False
+                rec.exit_3  = False
+            else:
+                rec.entrance_1 = rec.check_in_1
+                rec.exit_1 = rec.check_out_1
+                rec.entrance_2 = rec.check_in_2
+                rec.exit_2 = rec.check_out_2
+                rec.entrance_3 = rec.check_in_3
+                rec.exit_3 = rec.check_out_3
+
     @api.onchange('personal_action','date')
     def personal_action_change(self):
         if self.personal_action:
@@ -365,3 +390,6 @@ class lineAttendanceRecords(models.Model):
             if max(check2) >= employee_id.late_checkout_bonus_time:
                 bonus += employee_id.value_bonus
         return bonus
+
+    def action_dummy(self):
+        return True
