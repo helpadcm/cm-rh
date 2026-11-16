@@ -105,8 +105,8 @@
                             color: #94a3b8;
                         }
                         .badge-plan {
-                            background-color: #dbeafe;
-                            color: #1e40af;
+                            background-color: #e2e8f0;
+                            color: #475569;
                             padding: 2px 7px;
                             border-radius: 4px;
                             font-weight: bold;

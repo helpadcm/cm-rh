@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
 import time
-from odoo import _, models
 import time
 import base64
+from datetime import datetime, timedelta
+from odoo.exceptions import ValidationError
+from odoo import _, models
 from io import BytesIO
 
 class summaryHESTXLS(models.AbstractModel):
@@ -181,6 +182,11 @@ class summaryHESTXLS(models.AbstractModel):
         department_ids = []
         department_data = []
         period = ''
+
+        qty_period_ids = len(list(set(rec_ids.mapped('period'))))
+        if qty_period_ids > 1:
+            raise ValidationError("Solo se puede seleccionar un periodo a la vez.")
+
         for rec in rec_ids:
             period = rec.period
             eh_25 = rec.real_eh_pay
