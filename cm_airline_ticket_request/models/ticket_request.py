@@ -470,6 +470,12 @@ class ticket_request_line(models.Model):
             phone = self.employee_id.mobile_phone or self.employee_id.private_phone
             birthdate = self.employee_id.birthday
             nationality = self.employee_id.country_of_birth.name
+            
+            if self.employee_id and self.employee_id.id_card:
+                attachment_id = self.employee_id.id_card
+                attachment_name = f'ID {self.employee_id.name}'
+                self.id_file = attachment_id
+                self.id_file_name = attachment_name
         else:
             user_name = False
             identity = False
