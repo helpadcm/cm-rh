@@ -56,5 +56,39 @@
                 </field>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="expense_employee_inh">
+            <field name="name">expense.employee.inh</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_expense.hr_employee_view_form_inherit_expense"/>
+            <field name="arch" type="xml">
+                <field name="expense_manager_id" position="after">
+                    <field name="expense_approver_id" widget="many2one_avatar_user" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="airport_list_inh">
+            <field name="name">cargo.airport.list.inh</field>
+            <field name="model">cargo.airport</field>
+            <field name="inherit_id" ref="cm_cargo_handling.cargo_airport_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="valid_destinations" position="after">
+                    <field name="hotel_contact"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="flight_routes_list_inh">
+            <field name="name">flight.routes.list.inh</field>
+            <field name="model">flight.routes</field>
+            <field name="inherit_id" ref="hr_absences_cm.flight_routes_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="exit_tax"/>
+                    <field name="analytic_account_id" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -141,6 +141,25 @@ class account_invoice_inherit(models.Model):
                 self.partner_id.available_credit += self.amount_residual
         return res
 
+    def action_send_and_print(self):
+        """Sobreescribe el método nativo para abrir el wizard personalizado."""
+        # Se mantienen las validaciones nativas de Odoo si existen
+        if hasattr(self.env['account.move.send'], '_check_move_constraints'):
+            self.env['account.move.send']._check_move_constraints(self)
+
+        return {
+            'name': _("Enviar Facturas por Correo"),
+            'type': 'ir.actions.act_window',
+            'res_model': 'custom.invoice.send',  # <--- Tu modelo asistente
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'active_model': 'account.move',
+                'active_ids': self.ids,
+                'active_id': self.ids[0] if self.ids else False,
+            },
+        }
+
 class AccountPartialReconcile(models.Model):
     _inherit = 'account.partial.reconcile'
 

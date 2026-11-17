@@ -3,6 +3,8 @@ from odoo.http import request
 from odoo.tools.misc import format_date
 from math import ceil,floor
 from odoo.exceptions import AccessError, UserError, ValidationError
+from collections import defaultdict
+from datetime import timedelta
 
 class HrLeavesType(models.Model):
     _inherit = 'hr.leave.type'
@@ -12,6 +14,12 @@ class HrLeavesType(models.Model):
 
 class HrLeavesInh(models.Model):
     _inherit = 'hr.leave'
+
+    HOURS_PER_DAY = 8.0
+
+    # Horario utilizado únicamente para descontar el almuerzo
+    LUNCH_START = 12.0
+    LUNCH_END = 13.0    
     
     tickets_request = fields.Integer(string="Boletos Solicitados", tracking=True)
     code = fields.Char(related="holiday_status_id.code",string="Codigo")
@@ -82,19 +90,19 @@ class HrLeavesInh(models.Model):
             else:
                 hours_taken = self.number_of_days * 8
             self.employee_id.compensatory_hours -= hours_taken
-        elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
-            self.validate_beneficiaries()
-            if self.holiday_status_id.code == 'PFLY':
+        # elif self.holiday_status_id.code in ['PFLY','SCP','SCSE']:
+        #     self.validate_beneficiaries()
+        #     if self.holiday_status_id.code == 'PFLY':
                     
-                if self.company_id.id == 1:
-                    if self.tickets_request > self.employee_id.program_to_fly:
-                        raise ValidationError(f"""Los boletos disponibles para el empleado {self.employee_id.name} es de {self.employee_id.program_to_fly}""")
+        #         if self.company_id.id == 1:
+        #             if self.tickets_request > self.employee_id.program_to_fly:
+        #                 raise ValidationError(f"""Los boletos disponibles para el empleado {self.employee_id.name} es de {self.employee_id.program_to_fly}""")
 
-                    if self.exit_only:
-                        self.employee_id.program_to_fly -= (self.tickets_request/2)
-                    else:
-                        self.employee_id.program_to_fly -= self.tickets_request
-            self.send_email()
+        #             if self.exit_only:
+        #                 self.employee_id.program_to_fly -= (self.tickets_request/2)
+        #             else:
+        #                 self.employee_id.program_to_fly -= self.tickets_request
+        #     self.send_email()
         return res
 
     def validate_beneficiaries(self):
@@ -183,151 +191,294 @@ class HrLeavesInh(models.Model):
         template_id.attachment_ids = [(6, 0, self.supported_attachment_ids.ids)]
         template_id.with_context(**template_ctx).sudo().send_mail(self.id,force_send=True)
 
-    # def _check_validity(self):
-    #     sorted_leaves = defaultdict(lambda: self.env['hr.leave'])
-    #     for leave in self:
-    #         sorted_leaves[(leave.holiday_status_id, leave.date_from.date())] |= leave
-    #     for (leave_type, date_from), leaves in sorted_leaves.items():
-    #         if not leave_type.requires_allocation:
-    #             continue
-    #         employees = leaves.employee_id
-    #         leave_data = leave_type.get_allocation_data(employees, date_from)
-    #         if leave_type.allows_negative:
-    #             max_excess = leave_type.max_allowed_negative
-    #             for employee in employees:
-    #                 if not leave_data[employee]:
-    #                     raise ValidationError(_("You do not have any allocation for this time off type.\n"
-    #                                             "Please request an allocation before submitting your time off request."))
-    #                 if leave_data[employee] and leave_data[employee][0][1]['virtual_remaining_leaves'] < -max_excess:
-    #                     raise ValidationError(_("There is no valid allocation to cover that request."))
-    #             continue
-
-    #         previous_leave_data = leave_type.with_context(
-    #             ignored_leave_ids=leaves.ids
-    #         ).get_allocation_data(employees, date_from)
-    #         for employee in employees:
-    #             previous_emp_data = previous_leave_data[employee] and previous_leave_data[employee][0][1]['virtual_excess_data']
-    #             emp_data = leave_data[employee] and leave_data[employee][0][1]['virtual_excess_data']
-    #             if not leave_data[employee]:
-    #                 raise ValidationError(_("You do not have any allocation for this time off type.\n"
-    #                                         "Please request an allocation before submitting your time off request."))
-    #             if not previous_emp_data and not emp_data:
-    #                 continue
-    #             if previous_emp_data != emp_data and len(emp_data) >= len(previous_emp_data):
-    #                 raise ValidationError(_("There is no valid allocation to cover that request."))
-    #     is_leave_user = self.env.user.has_group('hr_holidays.group_hr_holidays_user')
-    #     if not is_leave_user and any(leave.has_mandatory_day for leave in self):
-    #         raise ValidationError(_('You are not allowed to request time off on a Mandatory Day'))
-
-    # @api.constrains('date_from', 'date_to', 'employee_id')
-    # def _check_date(self):
-    #     if self.env.context.get('leave_skip_date_check', False):
-    #         return
-
-    #     all_employees = self.all_employee_ids
-    #     all_leaves = self.search([
-    #         ('date_from', '<', max(self.mapped('date_to'))),
-    #         ('date_to', '>', min(self.mapped('date_from'))),
-    #         ('code', 'not in', ['PFLY','SCP','SCSE']),
-    #         ('employee_id', 'in', all_employees.ids),
-    #         ('id', 'not in', self.ids),
-    #         ('state', 'not in', ['cancel', 'refuse']),
-    #     ])
-    #     for holiday in self:
-    #         domain = [
-    #             ('date_from', '<', holiday.date_to),
-    #             ('date_to', '>', holiday.date_from),
-    #             ('id', '!=', holiday.id),
-    #             ('state', 'not in', ['cancel', 'refuse']),
-    #         ]
-
-    #         employee_ids = (holiday.employee_id | holiday.employee_ids).ids
-    #         search_domain = domain + [('employee_id', 'in', employee_ids)]
-    #         conflicting_holidays = all_leaves.filtered_domain(search_domain)
-
-    #         if conflicting_holidays:
-    #             conflicting_holidays_list = []
-    #             # Do not display the name of the employee if the conflicting holidays have an employee_id.user_id equivalent to the user id
-    #             holidays_only_have_uid = bool(holiday.employee_id)
-    #             holiday_states = dict(conflicting_holidays.fields_get(allfields=['state'])['state']['selection'])
-    #             for conflicting_holiday in conflicting_holidays:
-    #                 conflicting_holiday_data = {}
-    #                 conflicting_holiday_data['employee_name'] = conflicting_holiday.employee_id.name
-    #                 conflicting_holiday_data['date_from'] = format_date(self.env, min(conflicting_holiday.mapped('date_from')))
-    #                 conflicting_holiday_data['date_to'] = format_date(self.env, min(conflicting_holiday.mapped('date_to')))
-    #                 conflicting_holiday_data['state'] = holiday_states[conflicting_holiday.state]
-    #                 if conflicting_holiday.employee_id.user_id.id != self.env.uid:
-    #                     holidays_only_have_uid = False
-    #                 if conflicting_holiday_data not in conflicting_holidays_list:
-    #                     conflicting_holidays_list.append(conflicting_holiday_data)
-    #             if not conflicting_holidays_list:
-    #                 return
-    #             conflicting_holidays_strings = []
-    #             if holidays_only_have_uid:
-    #                 for conflicting_holiday_data in conflicting_holidays_list:
-    #                     conflicting_holidays_string = _('from %(date_from)s to %(date_to)s - %(state)s',
-    #                                                     date_from=conflicting_holiday_data['date_from'],
-    #                                                     date_to=conflicting_holiday_data['date_to'],
-    #                                                     state=conflicting_holiday_data['state'])
-    #                     conflicting_holidays_strings.append(conflicting_holidays_string)
-    #                 if holiday.code not in ['PFLY','SCP','SCSE']:
-    #                     raise ValidationError(_("""\
-    # Ya programó tiempo personal que se sobrepone con este periodo:\n
-    # %s
-    # Intentar programar dos veces su tiempo personal ¡no mejorará sus vacaciones!\n
-    # """,
-    #                         "\n".join(conflicting_holidays_strings)))
-    #             for conflicting_holiday_data in conflicting_holidays_list:
-    #                 conflicting_holidays_string = "\n" + _('%(employee_name)s - from %(date_from)s to %(date_to)s - %(state)s',
-    #                                                 employee_name=conflicting_holiday_data['employee_name'],
-    #                                                 date_from=conflicting_holiday_data['date_from'],
-    #                                                 date_to=conflicting_holiday_data['date_to'],
-    #                                                 state=conflicting_holiday_data['state'])
-    #                 conflicting_holidays_strings.append(conflicting_holidays_string)
-    #             if holiday.code not in ['PFLY','SCP','SCSE']:
-    #                 raise ValidationError(_(
-    #                     "Un empleado ya programó un permiso que coincide con este periodo: %s",
-    #                     "".join(conflicting_holidays_strings)))
-
-    def _get_duration(self, check_leave_type=True, resource_calendar=None):
+    def _get_durations(self, check_leave_type=True, resource_calendar=None):
         """
-        This method is factored out into a separate method from
-        _compute_duration so it can be hooked and called without necessarily
-        modifying the fields and triggering more computes of fields that
-        depend on number_of_hours or number_of_days.
-        """
-        self.ensure_one()
-        resource_calendar = resource_calendar or self.resource_calendar_id
+        Calcula la duración de los permisos sin utilizar el
+        resource.calendar del empleado para determinar días laborables.
 
-        if not self.date_from or not self.date_to or not resource_calendar:
-            return (0, 0)
-        hours, days = (0, 0)
-        if self.employee_id:
-            # We force the company in the domain as we are more than likely in a compute_sudo
-            domain = [('time_type', '=', 'leave'),
-                        ('holiday_id.code', 'not in', ['PFLY','SCP','SCSE']),
-                      ('company_id', 'in', self.env.companies.ids + self.env.context.get('allowed_company_ids', [])),
-                      # When searching for resource leave intervals, we exclude the one that
-                      # is related to the leave we're currently trying to compute for.
-                      ('holiday_id', '!=', self.id)]
-            if self.leave_type_request_unit == 'day' and check_leave_type:
-                # list of tuples (day, hours)
-                work_time_per_day_list = self.employee_id.list_work_time_per_day(self.date_from, self.date_to, calendar=resource_calendar, domain=domain)
-                days = len(work_time_per_day_list)
-                hours = sum(map(lambda t: t[1], work_time_per_day_list))
-            else:
-                work_days_data = self.employee_id._get_work_days_data_batch(self.date_from, self.date_to, domain=domain, calendar=resource_calendar)[self.employee_id.id]
-                hours, days = work_days_data['hours'], work_days_data['days']
-        else:
-            today_hours = resource_calendar.get_work_hours_count(
-                datetime.combine(self.date_from.date(), time.min),
-                datetime.combine(self.date_from.date(), time.max),
-                False)
-            hours = resource_calendar.get_work_hours_count(self.date_from, self.date_to)
-            days = hours / (today_hours or HOURS_PER_DAY)
-        if self.leave_type_request_unit == 'day' and check_leave_type:
-            days = ceil(days)
-        return (days, hours)
+        Reglas:
+
+        - Día completo       = 8 horas
+        - Medio día          = 4 horas
+        - Horas específicas  = horas solicitadas
+        - 08:00 - 17:00     = 8 horas
+        - Se descuenta 1 hora de almuerzo cuando el intervalo
+          atraviesa 12:00 - 13:00.
+        - Sábados y domingos cuentan normalmente.
+        """
+
+        # Primero dejamos que Odoo haga su cálculo normal.
+        # Esto permite mantener compatibilidad con otros casos
+        # que no modificamos.
+        result = super()._get_durations(
+            check_leave_type=check_leave_type,
+            resource_calendar=resource_calendar,
+        )
+
+        for leave in self:
+
+            if not leave.employee_id:
+                continue
+
+            if ( not leave.employee_id.aeronatical_license and leave.holiday_status_id.code == 'VAC' ): 
+                leave_key = leave.id or leave._origin.id
+                if leave_key not in result:
+                    continue
+
+                d_start = fields.Date.to_date(leave.request_date_from)
+                d_end = fields.Date.to_date(leave.request_date_to)
+
+                if not d_start or not d_end:
+                    continue
+
+                # 1. Contar los sábados en el rango de fechas
+                saturdays = 0
+                curr_date = d_start
+                while curr_date <= d_end:
+                    if curr_date.weekday() == 5:  # 5 = Sábado
+                        saturdays += 1
+                    curr_date += timedelta(days=1)
+
+                # 2. Descontar 0.5 días y 4.0 horas por cada sábado encontrado
+                if saturdays > 0:
+                    days, hours = result[leave_key]
+                    new_days = max(0.0, days - (saturdays * 0.5))
+                    new_hours = max(0.0, hours - (saturdays * 4.0))
+
+                    result[leave_key] = (new_days, new_hours)
+                
+                return result
+
+            if not leave.request_date_from or not leave.request_date_to:
+                continue
+
+            # =====================================================
+            # 1. PERMISOS POR DÍAS
+            # =====================================================
+
+            if leave.leave_type_request_unit == 'day':
+
+                date_from = leave.request_date_from
+                date_to = leave.request_date_to
+
+                # Cantidad de días calendario.
+                #
+                # IMPORTANTE:
+                # No utilizamos resource_calendar.
+                #
+                # Ejemplo:
+                # viernes -> sábado -> domingo = 3 días
+                number_of_days = (
+                    date_to - date_from
+                ).days + 1
+
+                number_of_hours = (
+                    number_of_days * self.HOURS_PER_DAY
+                )
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+            # =====================================================
+            # 2. MEDIO DÍA
+            # =====================================================
+
+            elif leave.leave_type_request_unit == 'half_day':
+
+                date_from = leave.request_date_from
+                date_to = leave.request_date_to
+
+                if date_from == date_to:
+
+                    # Mismo día
+                    #
+                    # AM -> AM = 0.5
+                    # PM -> PM = 0.5
+                    # AM -> PM = 1
+                    if (
+                        leave.request_date_from_period
+                        == leave.request_date_to_period
+                    ):
+                        number_of_days = 0.5
+                    else:
+                        number_of_days = 1.0
+
+                else:
+
+                    # Varios días.
+                    #
+                    # Ejemplo:
+                    #
+                    # Lunes AM -> Miércoles PM
+                    #
+                    # Lunes      = 0.5
+                    # Martes     = 1
+                    # Miércoles  = 1
+                    #
+                    # Total = 2.5 días
+
+                    total_calendar_days = (
+                        date_to - date_from
+                    ).days + 1
+
+                    number_of_days = float(total_calendar_days)
+
+                    # Primer día
+                    if leave.request_date_from_period == 'pm':
+                        number_of_days -= 0.5
+
+                    # Último día
+                    if leave.request_date_to_period == 'am':
+                        number_of_days -= 0.5
+
+                number_of_hours = (
+                    number_of_days * self.HOURS_PER_DAY
+                )
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+            # =====================================================
+            # 3. PERMISOS POR HORAS
+            # =====================================================
+
+            elif leave.leave_type_request_unit == 'hour':
+
+                hour_from = leave.request_hour_from
+                hour_to = leave.request_hour_to
+
+                if hour_from is None or hour_to is None:
+                    continue
+
+                # -------------------------------------------------
+                # Mismo día
+                # -------------------------------------------------
+
+                if leave.request_date_from == leave.request_date_to:
+
+                    number_of_hours = (
+                        hour_to - hour_from
+                    )
+
+                    if number_of_hours < 0:
+                        number_of_hours += 24
+
+                    # Descontar almuerzo únicamente si el intervalo
+                    # atraviesa completamente o parcialmente
+                    # el período 12:00 - 13:00.
+                    lunch_overlap = self._get_lunch_overlap(
+                        hour_from,
+                        hour_to,
+                    )
+
+                    number_of_hours -= lunch_overlap
+
+                    number_of_hours = max(
+                        number_of_hours,
+                        0.0
+                    )
+
+                    number_of_days = (
+                        number_of_hours /
+                        self.HOURS_PER_DAY
+                    )
+
+                # -------------------------------------------------
+                # Varios días
+                # -------------------------------------------------
+
+                else:
+                    total_calendar_days = (leave.request_date_to - leave.request_date_from).days + 1
+
+                    # Definición dinámica de la jornada laboral basada en el horario configurado
+                    # Si hour_from es temprano (ej. 8), fin de jornada es hour_from + HOURS_PER_DAY + almuerzo
+                    work_hours = getattr(self, 'HOURS_PER_DAY', 8.0)
+                    
+                    # 1. PRIMER DÍA: Desde hour_from hasta la hora de cierre de jornada habitual
+                    # Se asume que la jornada termina a (hour_from + horas de trabajo + 1 hr de almuerzo)
+                    standard_work_end = hour_from + work_hours + 1.0  
+                    first_day_hours = max(standard_work_end - hour_from, 0.0)
+                    first_day_hours -= self._get_lunch_overlap(hour_from, standard_work_end)
+                    first_day_hours = min(first_day_hours, work_hours)  # Cap a jornada completa
+
+                    # 2. ÚLTIMO DÍA: Desde la hora de inicio de jornada habitual hasta hour_to
+                    # Se asume que la jornada inicia a (hour_to - horas de trabajo - 1 hr de almuerzo) si hour_to es salida
+                    standard_work_start = max(hour_to - work_hours - 1.0, 0.0)
+                    
+                    # Si hour_to es menor que hour_from en casos estándar, ajustamos inicio al hour_from habitual
+                    if hour_to <= (hour_from + work_hours):
+                        standard_work_start = hour_from
+
+                    last_day_hours = max(hour_to - standard_work_start, 0.0)
+                    last_day_hours -= self._get_lunch_overlap(standard_work_start, hour_to)
+                    last_day_hours = min(last_day_hours, work_hours)  # Cap a jornada completa
+
+                    # 3. DÍAS INTERMEDIOS: Días completos (multiplicados por HOURS_PER_DAY)
+                    intermediate_days = total_calendar_days - 2
+                    intermediate_hours = max(intermediate_days, 0) * work_hours
+
+                    # Totalización general
+                    number_of_hours = first_day_hours + intermediate_hours + last_day_hours
+                    number_of_days = number_of_hours / work_hours
+
+                result[leave.id] = (
+                    number_of_days,
+                    number_of_hours,
+                )
+
+        return result
+
+    def _get_lunch_overlap(self, hour_from, hour_to):
+        """
+        Devuelve cuántas horas del intervalo solicitado
+        coinciden con el horario de almuerzo 12:00 - 13:00.
+
+        Ejemplos:
+
+        08:00 - 17:00 -> 1 hora
+        08:00 - 12:00 -> 0 horas
+        13:00 - 17:00 -> 0 horas
+        10:00 - 14:00 -> 1 hora
+        11:00 - 12:30 -> 0.5 horas
+        """
+
+        lunch_start = self.LUNCH_START
+        lunch_end = self.LUNCH_END
+
+        overlap_start = max(
+            hour_from,
+            lunch_start,
+        )
+
+        overlap_end = min(
+            hour_to,
+            lunch_end,
+        )
+
+        if overlap_end <= overlap_start:
+            return 0.0
+
+        return overlap_end - overlap_start
+
+
+    @api.depends('date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit')
+    def _compute_duration(self):
+        durations = self._get_durations()
+        for leave in self:
+            days, hours = durations[leave.id]
+            if days == 0 and hours == 0:
+
+                print ("################################")
+                print (durations)
+                print (leave.request_hour_from)
+                print (leave.request_hour_to)
+
+            leave.number_of_hours = hours
+            leave.number_of_days = days
 
 class hrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
@@ -336,6 +487,8 @@ class hrEmployeeInh(models.Model):
     show_pfly_menu = fields.Boolean(string="Programa a Volar")
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
+    show_update_data_emp = fields.Boolean(string="Actualizar datos")
+    updated_data = fields.Boolean(string="Datos actualizados desde Portal", default=False)
 
 class employeePublicInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -344,3 +497,5 @@ class employeePublicInh(models.Model):
     show_pfly_menu = fields.Boolean(string="Programa a Volar")
     show_reserve_room_menu = fields.Boolean(string="Reservar sala")
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
+    show_update_data_emp = fields.Boolean(string="Actualizar datos")
+    updated_data = fields.Boolean(string="Datos actualizados desde Portal", default=False)

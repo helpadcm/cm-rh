@@ -11,6 +11,7 @@ class confExpenses(models.Model):
     name = fields.Char(string="Nombre")
     details_expenses_ids = fields.One2many('cm.expenses.conf.details','conf_id',string="Detalles de viaticos")
     job_ids = fields.Many2many('hr.job',string="Puestos de trabajo")
+    lodging_list_ids = fields.One2many('cm.lodging.availables','conf_id',string="Sitios de hospedaje disponibles")
 
 class expensesDetails(models.Model):
     _name = 'cm.expenses.conf.details'
@@ -27,3 +28,12 @@ class expensesDetails(models.Model):
     @api.onchange('breakfast_amount','lunch_amount','dinner_amount')
     def get_total(self):
         self.total_amount = self.breakfast_amount + self.lunch_amount + self.dinner_amount
+
+
+class lodgingAvailables(models.Model):
+    _name = 'cm.lodging.availables'
+    _description = "Sitios de hospedaje disponibles"
+
+    conf_id = fields.Many2one('conf.expenses.request',string="Conf")
+    cti_id = fields.Many2one('cargo.airport',string="Ciudad")
+    lodging_ids = fields.Many2many('expense.lodging.cobus',string="Sitios")

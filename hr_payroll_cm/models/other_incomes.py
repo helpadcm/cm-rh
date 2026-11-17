@@ -8,6 +8,7 @@ class otherIncomes(models.Model):
     _name = 'hr.other.incomes'
     _description = 'Ingresos: Modelo para el agregar otros ingresos para calculo de planilla'
     _inherit = ['mail.thread','mail.activity.mixin']
+    _order = 'employee_id asc, start_date desc'
 
     name = fields.Char(string="Descripcion",tracking=True)
     employee_id = fields.Many2one('hr.employee',string="Empleado", tracking=True)
@@ -23,6 +24,47 @@ class otherIncomes(models.Model):
     monthly_type = fields.Selection([('first','Primera'),('second','Segunda')],string="Quincena", default="first")
     quotes_number = fields.Integer(string="Cuotas")
     by_quotes = fields.Boolean(string="Por Cuotas")
+    payment_amount = fields.Float(string="Monto Pagado", compute="get_amounts", store=True)
+    pending_amount = fields.Float(string="Monto Pendiente", compute="get_amounts", store=True)
+    amount_to_applied = fields.Float(string="Monto Aplicar", compute="get_amounts", store=True)
+    
+    @api.depends(
+        'payslip_id',
+        'payslip_id.state',
+        'payment_plan_ids',
+        'payment_plan_ids.state',
+        'payment_plan_ids.amount',
+        'payment_plan_ids.payslip_id',
+        'by_quotes',
+        'amount'
+    )
+    def get_amounts(self):
+        for rec in self:
+            if rec.by_quotes:
+                paid_lines = rec.payment_plan_ids.filtered(lambda l: l.state == 'paid')
+                pending_lines = rec.payment_plan_ids.filtered(lambda l: l.state != 'paid')
+
+                payment_amount = sum(paid_lines.mapped('amount'))
+                pending_amount = sum(pending_lines.mapped('amount'))
+
+                first_pending = pending_lines[0] if pending_lines else False
+                applied_amount = first_pending.amount if first_pending else 0.0
+
+            else:
+                payslip_state = rec.payslip_id.state if rec.payslip_id else False
+
+                if payslip_state == 'paid':
+                    payment_amount = rec.amount
+                    pending_amount = 0.0
+                    applied_amount = 0.0
+                else:
+                    payment_amount = 0.0
+                    pending_amount = rec.amount
+                    applied_amount = rec.amount
+
+            rec.payment_amount = payment_amount
+            rec.pending_amount = pending_amount
+            rec.amount_to_applied = applied_amount
 
     @api.onchange('input_type_id')
     def _onchange_input_type_id(self):

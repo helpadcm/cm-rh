@@ -174,6 +174,9 @@ class paymentPlanDed(models.Model):
     state = fields.Selection(related='payslip_id.state',string="Estado")
     amount = fields.Float(string="Monto")
     payslip_id = fields.Many2one('hr.payslip',string="Nomina")
+    other_deduction_id = fields.Many2one('hr.other.deductions',string="Otra Deduccion")
+    rec_deduction_id = fields.Many2one('hr.salary.attachment',string="Rec. Deduccion")
+    deduction_created = fields.Boolean(string="Deduccion creada")
 
     def unlink(self):
         for val in self:

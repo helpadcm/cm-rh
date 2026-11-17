@@ -49,12 +49,28 @@
         sequence="82"
         action="action_inc_ded_rules"/>
 
+    <menuitem
+        id="distribution_expense_accounts_menuitem"
+        name="Distribución de cuentas de gastos"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+        sequence="83"
+        action="action_distribution_expense_accounts"/>
+
 <!-- ############################################################################################ -->
 
+    <menuitem
+        id="other_deductions_menuitem"
+        name="Deducciones Salariales"
+        parent="hr_payroll.menu_hr_payroll_employees"
+        groups="hr_payroll_cm.manager_rrhh_cm"
+        sequence="40"
+        action="action_other_deductions"/>
+    
     <menuitem
         id="other_incomes_menuitem"
         name="Ingresos Salariales"
         parent="hr_payroll.menu_hr_payroll_employees"
+        groups="hr_payroll_cm.manager_rrhh_cm"
         sequence="40"
         action="action_other_incomes"/>
 

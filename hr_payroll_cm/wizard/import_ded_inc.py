@@ -22,6 +22,9 @@ class importIncomesDeductions(models.TransientModel):
     note = fields.Text(string="Nota", default=_get_default_note)
 
     def import_document(self):
+        if not self.format_doc:
+            raise ValidationError("Debe cargar un archivo para importar")
+
         file_content = base64.b64decode(self.format_doc)
 
         wb = load_workbook(filename=BytesIO(file_content))
@@ -84,22 +87,27 @@ class importIncomesDeductions(models.TransientModel):
                         amount_total = fees_qty * fixed_fee
 
             if self.options == 'deductions':
+                if not final_date:
+                    raise ValidationError("Debe agregar la fecha de finalizacion")
+
                 values = {
-                    'employee_ids': [(4, employee_id.id)],
-                    'other_input_type_id': type_id.id,
-                    'description': description,
-                    'date_start': initial_date,
-                    'monthly_amount': monthly_amount,
-                    'total_amount': amount_total,
+                    'employee_id': employee_id.id,
+                    'input_type_id': type_id.id,
+                    'name': description,
+                    'start_date': initial_date,
+                    'end_date': final_date,
+                    'amount': amount_total,
+                    'state': 'in_progress',
                     'by_quotes': fees_values,
                     'quotes_number': fees_qty,
                     'fixed_fee': fixed_fee_value
                 }
 
-                deduction_id = self.env['hr.salary.attachment'].create(values)
+                deduction_id = self.env['hr.other.deductions'].create(values)
 
                 if fees_values:
                     deduction_id.create_plan()
+                deduction_id.get_amounts()
             else:
                 if not final_date:
                     raise ValidationError("Debe agregar la fecha de finalizacion")
@@ -120,4 +128,9 @@ class importIncomesDeductions(models.TransientModel):
 
                 if fees_values:
                     income_id.create_plan()
+                income_id.get_amounts()
             line_number += 1
+
+
+    def download_template(self):
+        return self.env.ref('hr_payroll_cm.action_download_inc_ded_template_xlsx').report_action(self,data=False)

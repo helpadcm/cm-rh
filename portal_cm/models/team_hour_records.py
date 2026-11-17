@@ -112,7 +112,15 @@ class teamHourRecord(models.Model):
                 elif rec.turn_type_b.code == 'VAC' and rec.turn_type_a.code == 'LID':
                     rec.oh = amount2 / 100
 
-                rec.aditional_hours = rec.ordinary_hours - rec.oh
+                if rec.ordinary_hours <= rec.oh:
+                    rec.oh = rec.ordinary_hours
+                    
+                ah = rec.ordinary_hours - rec.oh
+                if ah > 0:
+                    rec.aditional_hours = ah
+                else:
+                    rec.aditional_hours = 0
+            
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
                 rec.oh = 0
@@ -121,6 +129,15 @@ class teamHourRecord(models.Model):
         for rec in self:
             rec_real_id = self.env['hr.turn.registration'].search([('date','=',rec.date),('employee_id','=',rec.employee_id.id),('state','=','draft')])
             if rec_real_id:
+
+                if rec.turn_type_a.code == 'LID':
+                    if rec.schedule1_in_id.name != 'NA' or rec.schedule1_out_id.name != 'NA':
+                        raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
+                if rec.turn_type_b.code == 'LID':
+                    if rec.schedule2_in_id.name != 'NA' or rec.schedule2_out_id.name != 'NA':
+                        raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
                 update_vals = {
                     'validated_by_id': self.env.user.id,
                     'turn_type_a':rec.turn_type_a.id, 

@@ -2,11 +2,11 @@
 <odoo>
     <data noupdate="0">
     <!-- ############################  CATEGORY  ######################################## -->
-		 <record model="ir.module.category" id="category_email_signatures">
-		    <field name="name">Firma de correo</field>
-		    <field name="description">Permisos para generacion de firmas de correo.</field>
-		    <field name="sequence">20</field>
-		</record>
+         <record model="ir.module.category" id="category_email_signatures">
+            <field name="name">Firma de correo</field>
+            <field name="description">Permisos para generacion de firmas de correo.</field>
+            <field name="sequence">20</field>
+        </record>
 
         <!-- ############################  PRIVILEGES  ######################################## -->
 
@@ -14,6 +14,13 @@
             <field name="name">Firma de correos</field>
             <field name="category_id" ref="category_email_signatures"/>
             <field name="sequence">10</field>
+        </record>
+
+        <!-- Privilegio para Entrevistas de Salida vinculado a la categoría nativa de RRHH -->
+        <record id="privilege_exit_survey" model="res.groups.privilege">
+            <field name="name">Entrevistas de Salida</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+            <field name="sequence">25</field>
         </record>
 
         <!-- ############################  GROUPS  ######################################## -->
@@ -26,6 +33,12 @@
         <record id="user_digital_sign_cm" model="res.groups">
             <field name="name">Usuario Firma CM</field>
             <field name="privilege_id" ref="privilege_email_signature"/>
+        </record>
+
+        <!-- Grupo de Administrador para las Entrevistas de Salida -->
+        <record id="group_employee_exit_survey_manager" model="res.groups">
+            <field name="name">Enviar Entrevista de Salida</field>
+            <field name="privilege_id" ref="privilege_exit_survey"/>
         </record>
 
     </data>

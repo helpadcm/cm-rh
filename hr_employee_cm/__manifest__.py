@@ -10,19 +10,26 @@
         This module provides the necessary functionality for CM Airlines.
         - Gets the employees who have birthdays during the month
         """,
-    'depends': ['base_address_extended', 'hr', 'hr_gamification', ],
+    'depends': ['base_address_extended', 'hr', 'hr_gamification'],
     'data': [
         'security/groups.xml',
         'security/ir.model.access.csv',
+        'wizard/send_survey_view.xml',
         'views/hr_branch_views.xml',
         'views/hr_employee_views.xml',
         'views/hr_employee_public_views.xml',
         'views/conf_digital_sign.xml',
         'views/digital_sign_creator_view.xml',
         'views/menus.xml',
+        'views/hr_employee_view.xml', 
+        'views/product_view.xml',
+        'reports/indumentaria_report.xml',
+        'views/employee_exit_survey_template.xml',
         # 'data/cron_create_portal_user_to_employee.xml',
         'data/cron_award_one_anniversary_badge.xml',
         'data/gamification_badge_data_cm.xml',
+        'reports/employee_exit_survey_report.xml',
+
         ],
     'installable': True,
     'application': False,

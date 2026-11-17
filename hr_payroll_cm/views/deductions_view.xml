@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_other_deductions_form" model="ir.ui.view">
+        <field name="name">other_deductions.form</field>
+        <field name="model">hr.other.deductions</field>
+        <field name="arch" type="xml">
+            <form string="Otras Deducciones">
+                <header>
+                    <button string="En progreso" name="change_state" invisible="state != 'draft'" type="object" class="oe_highlight"/>
+                    <button string="Crear Plan" name="create_plan" invisible="state != 'draft'" type="object" class="oe_highlight"/>
+                    <button string="Regresar a Borrador" name="send_draft" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <button string="Marcar como Completado" name="send_completed" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <button string="Cancelar" name="send_cancel" invisible="state != 'in_progress'" type="object" class="oe_highlight"/>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"> 
+                        <button name="show_payroll" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['in_progress']">Recibos de Nomina</button>
+                        <button name="show_deductions" type="object" class="oe_stat_button" icon="fa-dollar" invisible="state not in ['in_progress']">Deducciones</button>
+                    </div>
+                    <h1><field name="name" readonly="state != 'draft'" required="1" placeholder="Nombre de la deduccion"/></h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'" required="1" options="{'no_create': True}" widget="many2one_avatar_employee"/>
+                            <field name="start_date" readonly="state != 'draft'" required="1"/>
+                            <field name="end_date" readonly="state != 'draft'" required="not by_quotes"/>
+                            <field name="payment_amount"/>
+                        </group>
+                        <group>
+                            <field name="input_type_id" readonly="state != 'draft'" domain="[('entry_type','=','deduction')]" required="1" options="{'no_create': True}"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                            <field name="by_quotes" readonly="state != 'draft'"/>
+                            <field name="pending_amount"/>
+                            <field name="amount_to_deducted" invisible="1"/>
+                        </group>
+                    </group>
+                    <group name="name" string="Configuracion plan" invisible="not by_quotes">
+                        <group>
+                            <field name="payment_type" readonly="state != 'draft'" required="1"/>
+                            <field name="monthly_type" invisible="payment_type != 'monthly'" required="payment_type == 'monthly'"/>
+                        </group>
+                        <group>
+                            <field name="quotes_number" readonly="state != 'draft'"/>
+                            <field name="fixed_fee" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="payment_plan" string="Plan de pago" invisible="not by_quotes" readonly="state in ['completed','cancel']">
+                            <field name="payment_plan_ids">
+                                <list editable="bottom" create="false" delete="false">
+                                    <field name="number" readonly="1"/>
+                                    <field name="date" readonly="1"/>
+                                    <field name="amount" readonly="state not in ['draft',False]" sum="Total"/>
+                                    <field name="payslip_id" column_invisible="1"/>
+                                    <field name="deduction_created" column_invisible="1"/>
+                                    <field name="rec_deduction_id" column_invisible="1"/>
+                                    <field name="state" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_other_deductions_tree" model="ir.ui.view">
+        <field name="name">other.deductions.tree</field>
+        <field name="model">hr.other.deductions</field>
+        <field name="arch" type="xml">
+            <list string="Deducciones">
+                <field name="name" />
+                <field name="employee_id"/>
+                <field name="input_type_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="amount_to_deducted" sum="Cuotas"/>
+                <field name="amount" sum="Total"/>
+                <field name="payment_amount" sum="Total pagado"/>
+                <field name="pending_amount" sum="Total pendiente"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'completed'" decoration-success="state == 'in_progress'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_other_deductions_search" model="ir.ui.view">
+        <field name="name">other.deductions.search</field>
+        <field name="model">hr.other.deductions</field>
+        <field name="arch" type="xml">
+            <search string="Busqueda otros ingresos">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <separator/>
+                <filter string="En borrador" name="draft_filter" domain="[('state','=','draft')]"/>
+                <filter string="En proceso" name="in_process_filter" domain="[('state','=','in_progress')]"/>
+                <filter string="Completado" name="completed_filter" domain="[('state','=','completed')]"/>
+                <group>
+                    <filter string="Empleado" name="employee_group" context="{'group_by':'employee_id'}"/>
+                    <filter string="Tipo de Deduccion" name="input_type_group" context="{'group_by':'input_type_id'}"/>
+                    <filter string="Estado" name="state_group" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_other_deductions" model="ir.actions.act_window">
+        <field name="name">Deducciones</field>
+        <field name="res_model">hr.other.deductions</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
