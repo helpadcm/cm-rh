@@ -476,6 +476,9 @@ class ticket_request_line(models.Model):
                 attachment_name = f'ID {self.employee_id.name}'
                 self.id_file = attachment_id
                 self.id_file_name = attachment_name
+            else:
+                self.id_file = False
+                self.id_file_name = False
         else:
             user_name = False
             identity = False
