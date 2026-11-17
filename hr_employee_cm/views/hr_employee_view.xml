@@ -29,6 +29,7 @@
                         type="object" 
                         class="btn-primary" 
                         data-hotkey="q"
+                        invisible="not active"
                         groups="hr.group_hr_user,base.group_system"/>
             </xpath>
 

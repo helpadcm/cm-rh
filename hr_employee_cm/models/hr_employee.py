@@ -65,6 +65,9 @@ class HrEmployeeIndumentariaLine(models.Model):
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
+    # Campo añadido para mantener compatibilidad con las vistas existentes
+    registration_number = fields.Char(string='Número de Registro')
+
     indumentaria_line_ids = fields.One2many(
         'hr.employee.indumentaria.line', 
         'employee_id', 
@@ -72,8 +75,22 @@ class HrEmployee(models.Model):
     )
 
     def action_deliver_indumentaria(self):
-        """Acción del botón: procesa la entrega y asegura la descarga del PDF si hay uniformes"""
+        """Acción del botón: procesa la entrega y descarga el PDF correcto según el tipo de activo"""
         self.ensure_one()
+
+        # RESTRICCIÓN: Si el empleado está archivado (active = False), no permite la entrega
+        if not self.active:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Acción no permitida',
+                    'message': 'No se puede procesar la entrega de indumentaria a un empleado archivado.',
+                    'type': 'danger',
+                    'sticky': False,
+                }
+            }
+
         lines = self.indumentaria_line_ids
         if not lines:
             return {
@@ -92,11 +109,19 @@ class HrEmployee(models.Model):
             line.state = 'delivered'
             line.fecha_entrega = fields.Date.context_today(self)
 
-        # Verifica si hay al menos un artículo de tipo 'uniforme'
+        # Verificamos qué tipos de activos están presentes en la entrega
         has_uniforme = any(line.tipo_activo == 'uniforme' for line in lines)
+        has_epp = any(line.tipo_activo == 'epp' for line in lines)
 
-        if has_uniforme:
-            # Retorna la acción para descargar el PDF de forma directa
+        # Lógica de descarga de reportes según los tipos de activo
+        if has_uniforme and not has_epp:
+            # Solo Uniforme
+            return self.env.ref('hr_employee_cm.action_report_indumentaria_cm').report_action(self)
+        elif has_epp and not has_uniforme:
+            # Solo EPP (Constancia HS-RG-01)
+            return self.env.ref('hr_employee_cm.action_report_epp_cm').report_action(self)
+        elif has_uniforme and has_epp:
+            # Si tiene ambos en la misma entrega, por defecto lanzamos el de Uniforme 
             return self.env.ref('hr_employee_cm.action_report_indumentaria_cm').report_action(self)
         else:
             return {
@@ -104,7 +129,7 @@ class HrEmployee(models.Model):
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Éxito',
-                    'message': 'Indumentaria (EPP) entregada correctamente.',
+                    'message': 'Indumentaria entregada correctamente.',
                     'type': 'success',
                     'sticky': False,
                 }

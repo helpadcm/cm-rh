@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_report_indumentaria_cm" model="ir.actions.report">
+
+    <!-- ACCIÓN DE REPORTE: UNIFORME -->
+    <!-- <record id="action_report_indumentaria_cm" model="ir.actions.report">
         <field name="name">Comprobante de Entrega de Uniforme e Indumentaria</field>
         <field name="model">hr.employee</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hr_employee_cm.report_indumentaria_document</field>
         <field name="report_file">hr_employee_cm.report_indumentaria_document</field>
+        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
         <field name="binding_model_id" ref="hr.model_hr_employee"/>
         <field name="binding_type">report</field>
-    </record>
+    </record> -->
 
-    <!-- Configuración de márgenes equilibrados para estirar el contenido verticalmente -->
+    <!-- CONFIGURACIÓN DE FORMATO DE PAPEL -->
     <record id="paperformat_indumentaria_cm" model="report.paperformat">
         <field name="name">Formato Comprobante Indumentaria</field>
         <field name="default" eval="False"/>
@@ -25,34 +28,61 @@
         <field name="dpi">90</field>
     </record>
 
-    <record id="action_report_indumentaria_cm" model="ir.actions.report">
-        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
-    </record>
-
+    <!-- PLANTILLA QWeb: UNIFORME -->
     <template id="report_indumentaria_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <!-- Letra aumentada a 14px y mayor espaciado interno para ocupar mejor la hoja -->
                 <div class="article" style="font-size: 14px; font-family: Arial, sans-serif; color: #000; padding: 10px 10px; line-height: 1.6;">
                     
-                    <!-- ENCABEZADO: Tabla cerrada con el logo a la izquierda y el título -->
-                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <!-- ENCABEZADO NORMATIVO: título/código + logo, y fila de revisión/fecha/página -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px; font-size: 14px;">
                         <tr>
-                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 30%; padding: 10px;">
-                                <img t-att-src="'/hr_employee_cm/static/src/logo_cm.png'" style="max-height: 60px; max-width: 150px; object-fit: contain;" alt="CM Airlines"/>
+                            <td colspan="2" style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 54%; padding: 14px;">
+                                <div style="font-weight: bold; font-size: 17px; line-height: 1.3;">
+                                    Comprobante de Entrega<br/>
+                                    de Carnet y Uniforme
+                                </div>
+                                <div style="font-size: 13px; margin-top: 4px;">
+                                    <strong>Código:</strong> RH-RG-03
+                                </div>
                             </td>
-                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 70%; padding: 14px;">
-                                <h3 style="font-weight: bold; text-decoration: underline; margin: 0; font-size: 19px;">COMPROBANTE ENTREGA DE UNIFORME</h3>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 46%; padding: 10px;">
+                                <img t-att-src="'/hr_employee_cm/static/src/logo_cm.png'" style="max-height: 80px; max-width: 220px; object-fit: contain;" alt="CM Airlines"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 27%; padding: 9px;">
+                                Revisión 01
+                            </td>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 27%; padding: 9px;">
+                                Fecha: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+                            </td>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 46%; padding: 9px;">
+                                Página No. 1 de 1
                             </td>
                         </tr>
                     </table>
 
+                    <!-- TÍTULO DEL COMPROBANTE -->
+                    <div style="text-align: center; margin-bottom: 35px;">
+                        <span style="font-weight: bold; text-decoration: underline; font-size: 14px;">COMPROBANTE ENTREGA DE UNIFORME</span>
+                    </div>
+
                     <!-- DATOS DEL EMPLEADO -->
                     <div style="margin-bottom: 25px; line-height: 28px;">
-                        <div><strong>Nombre del Empleado:</strong> <span t-field="o.name" style="border-bottom: 1px solid #000; display: inline-block; width: 73%; padding-left: 5px; font-weight: bold;"/></div>
+                        <div>
+                            <strong>Nombre del Empleado:</strong>
+                            <span t-field="o.name" style="border-bottom: 1px solid #000; display: inline-block; width: 73%; padding-left: 5px; font-weight: bold;"/>
+                        </div>
                         <div style="margin-top: 10px;">
-                            <span style="display: inline-block; width: 50%;"><strong>Numero de identidad:</strong> <span t-field="o.identification_id" style="border-bottom: 1px solid #000; display: inline-block; width: 40%; padding-left: 5px;"/></span>
-                            <span style="display: inline-block; width: 50%;"><strong>Departamento/área:</strong> <span t-field="o.department_id.name" style="border-bottom: 1px solid #000; display: inline-block; width: 48%; padding-left: 5px;"/></span>
+                            <span style="display: inline-block; width: 50%;">
+                                <strong>Numero de identidad:</strong>
+                                <span t-field="o.identification_id" style="border-bottom: 1px solid #000; display: inline-block; width: 40%; padding-left: 5px;"/>
+                            </span>
+                            <span style="display: inline-block; width: 50%;">
+                                <strong>Departamento/área:</strong>
+                                <span t-field="o.department_id.name" style="border-bottom: 1px solid #000; display: inline-block; width: 48%; padding-left: 5px;"/>
+                            </span>
                         </div>
                     </div>
 
@@ -72,15 +102,23 @@
                                 <th style="border: 1px solid #000; padding: 11px; width: 15%;">Talla</th>
                                 <th style="border: 1px solid #000; padding: 11px; width: 18%;">Color</th>
                                 <th t-if="has_reposicion" style="border: 1px solid #000; padding: 11px; width: 20%;">Fecha Reposición</th>
-                             </tr>
+                            </tr>
                         </thead>
                         <tbody>
                             <t t-foreach="uniforme_lines" t-as="line">
                                 <tr>
-                                    <td style="border: 1px solid #000; padding: 10px;"><span t-field="line.product_id.name"/></td>
-                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.quantity"/></td>
-                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.talla"/></td>
-                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;"><span t-field="line.color"/></td>
+                                    <td style="border: 1px solid #000; padding: 10px;">
+                                        <span t-field="line.product_id.name"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">
+                                        <span t-field="line.quantity"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">
+                                        <span t-field="line.talla"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 10px; text-align: center;">
+                                        <span t-field="line.color"/>
+                                    </td>
                                     <td t-if="has_reposicion" style="border: 1px solid #000; padding: 10px; text-align: center;">
                                         <span t-field="line.fecha_reposicion"/>
                                     </td>
@@ -89,7 +127,7 @@
                         </tbody>
                     </table>
 
-                    <!-- BLOQUE DE OBSERVACIONES (Altura ampliada a 130px para ocupar mejor el espacio) -->
+                    <!-- BLOQUE DE OBSERVACIONES -->
                     <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                         <tr>
                             <td style="border: 1px solid #000; padding: 14px; width: 25%; vertical-align: top; font-weight: bold;">
@@ -97,7 +135,9 @@
                             </td>
                             <td style="border: 1px solid #000; padding: 14px; width: 75%; height: 130px; vertical-align: top;">
                                 <t t-foreach="uniforme_lines" t-as="line">
-                                    <span t-if="line.observaciones"><span t-field="line.observaciones"/><br/></span>
+                                    <span t-if="line.observaciones">
+                                        <span t-field="line.observaciones"/><br/>
+                                    </span>
                                 </t>
                             </td>
                         </tr>
@@ -105,7 +145,8 @@
 
                     <!-- PÁRRAFOS LEGALES Y DE PUESTO -->
                     <p style="text-align: justify; margin-top: 15px; margin-bottom: 18px; line-height: 24px;">
-                        En calidad de préstamo, para realizar las funciones en el puesto de: <strong><span t-field="o.job_id.name"/></strong>
+                        En calidad de préstamo, para realizar las funciones en el puesto de:
+                        <strong><span t-field="o.job_id.name"/></strong>
                     </p>
 
                     <p style="text-align: justify; margin-top: 15px; margin-bottom: 30px; line-height: 24px;">
@@ -114,7 +155,8 @@
 
                     <!-- LUGAR Y FECHA -->
                     <div style="margin-top: 30px; margin-bottom: 50px; font-size: 14.5px;">
-                        <strong>Lugar y Fecha:</strong> Torre Xcala, piso 9, Tegucigalpa, M.D.C., a <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+                        <strong>Lugar y Fecha:</strong> Torre Xcala, piso 9, Tegucigalpa, M.D.C., a
+                        <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                     </div>
 
                     <!-- SECCIÓN DE FIRMA Y HUELLA -->
@@ -130,4 +172,198 @@
             </t>
         </t>
     </template>
+
+    <!-- ACCIÓN DE REPORTE: EPP (HS-RG-01) -->
+    <!-- <record id="action_report_epp_cm" model="ir.actions.report">
+        <field name="name">Constancia de Entrega de EPP (HS-RG-01)</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_cm.report_epp_document</field>
+        <field name="report_file">hr_employee_cm.report_epp_document</field>
+        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record> -->
+
+    <!-- PLANTILLA QWeb: EPP (HS-RG-01) -->
+    <template id="report_epp_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article" style="font-size: 13px; font-family: Arial, sans-serif; color: #000; padding: 10px; line-height: 1.5;">
+                    
+                    <!-- Fecha de emisión dinámica -->
+                    <t t-set="fecha_emision" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
+
+                    <!-- 1. ENCABEZADO NORMATIVO -->
+                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 25%; padding: 8px;">
+                                <img t-att-src="'/hr_employee_cm/static/src/logo_cm.png'" style="max-height: 55px; max-width: 140px; object-fit: contain;" alt="CM Airlines"/>
+                            </td>
+                            <td style="border: 1px solid #000; text-align: center; vertical-align: middle; width: 50%; padding: 8px;">
+                                <strong style="font-size: 13px; display: block;">CM AIRLINES, S. DE R.L.</strong>
+                                <h4 style="font-weight: bold; margin: 5px 0 0 0; font-size: 14px;">
+                                    CONSTANCIA DE ENTREGA DE EQUIPO DE PROTECCIÓN PERSONAL (EPP)
+                                </h4>
+                            </td>
+                            <td style="border: 1px solid #000; text-align: left; vertical-align: middle; width: 25%; padding: 6px; font-size: 11px; line-height: 1.4;">
+                                <div>
+                                    <strong>Código:</strong> HS-RG-01
+                                </div>
+                                <div style="border-top: 1px solid #000; margin-top: 3px; padding-top: 3px;">
+                                    <strong>Versión:</strong> 4
+                                </div>
+                                <div style="border-top: 1px solid #000; margin-top: 3px; padding-top: 3px;">
+                                    <strong>Revisión:</strong> <span t-esc="fecha_emision"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- PARRAFO INTRODUCTORIO -->
+                    <p style="text-align: justify; margin-bottom: 20px; font-size: 13px;">
+                        Con el presente documento, se registra y controla la entrega a los empleados del Equipo de Protección Personal (EPP) necesarios en su puesto de trabajo, así como el compromiso del uso y cuidado de los mismos.
+                    </p>
+
+                    <!-- 2. DATOS DEL EMPLEADO -->
+                    <div style="margin-bottom: 20px; line-height: 24px; font-size: 13px;">
+                        <div style="margin-bottom: 6px;">
+                            <strong style="display: inline-block; width: 170px;">Nombre completo:</strong>
+                            <span t-field="o.legal_name" style="border-bottom: 1px solid #000; display: inline-block; width: calc(100% - 180px); padding-left: 5px; font-weight: bold;"/>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <strong style="display: inline-block; width: 170px;"># de empleado:</strong>
+                            <span t-field="o.barcode" style="border-bottom: 1px solid #000; display: inline-block; width: calc(100% - 180px); padding-left: 5px;"/>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <strong style="display: inline-block; width: 170px;">Cargo/Puesto:</strong>
+                            <span t-field="o.job_id.name" style="border-bottom: 1px solid #000; display: inline-block; width: calc(100% - 180px); padding-left: 5px;"/>
+                        </div>
+                        <div style="margin-bottom: 6px;">
+                            <strong style="display: inline-block; width: 170px;">Departamento y estación:</strong>
+                            <span style="border-bottom: 1px solid #000; display: inline-block; width: calc(100% - 180px); padding-left: 5px;">
+                                <span t-field="o.department_id.name"/>
+                                <t t-if="o.branch_id">
+                                    - <span t-field="o.branch_id.name"/>
+                                </t>
+                            </span>
+                        </div>
+                    </div>
+
+                    <h5 style="text-align: center; font-weight: bold; margin-top: 25px; margin-bottom: 15px; font-size: 14px;">
+                        EQUIPO DE PROTECCIÓN PERSONAL (EPP)
+                    </h5>
+
+                    <!-- 3. TABLA DE ARTÍCULOS EPP -->
+                    <t t-set="epp_lines" t-value="o.indumentaria_line_ids.filtered(lambda l: l.tipo_activo == 'epp')"/>
+                    <t t-set="has_epp_reposicion" t-value="any(line.fecha_reposicion for line in epp_lines)"/>
+
+                    <table class="table table-bordered" style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2; text-align: center; font-size: 12px;">
+                                <th style="border: 1px solid #000; padding: 6px; width: 5%;">N°</th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 40%;">Equipo de Protección Personal entregado</th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 10%;">Cantidad</th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 15%;">Talla</th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 15%;">Fecha de entrega</th>
+                                <th t-if="has_epp_reposicion" style="border: 1px solid #000; padding: 6px; width: 15%;">Fecha de reposición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="epp_lines" t-as="line">
+                                <tr style="font-size: 12px;">
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <span t-esc="line_index + 1"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 6px;">
+                                        <span t-field="line.product_id.name"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <span t-field="line.quantity"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <span t-field="line.talla"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <span t-field="line.fecha_entrega"/>
+                                    </td>
+                                    <td t-if="has_epp_reposicion" style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <span t-field="line.fecha_reposicion"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <!-- Fila de 'Otro': Absolutamente limpia si es EPP y no hay observaciones reales -->
+                            <tr style="font-size: 12px;">
+                                <td style="border: 1px solid #000; padding: 8px;" t-att-colspan="has_epp_reposicion and 6 or 5">
+                                    <strong>Otro (especifique):</strong>
+                                    <t t-foreach="epp_lines" t-as="line">
+                                        <t t-if="line.observaciones and line.observaciones.strip() and line.observaciones.lower() not in ['nada', 'nadaaa']">
+                                            <span t-esc="line.observaciones"/>
+                                        </t>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 4. TEXTOS LEGALES Y COMPROMISOS -->
+                    <div style="text-align: justify; font-size: 12.5px; line-height: 1.5; margin-top: 15px;">
+                        <p style="margin-bottom: 10px;">
+                            Hago constar que a través de este documento, CM AIRLINES me ha hecho entrega de los Equipos de Protección Personal (EPP) requeridos y adecuados a las condiciones de trabajo correspondiente a mi cargo laboral, como uno de mis derechos como empleado. He recibido por parte de CM AIRLINES las instrucciones necesarias para el uso correcto del EPP, y entiendo que tengo responsabilidad de utilizarlos en forma correcta así como mantenerlos en buenas condiciones, para lo cual daré aviso inmediato a las personas encargadas de la entrega o mi superior sobre el extravío o deterioro de los mismos.
+                        </p>
+                        <p style="margin-bottom: 10px;">
+                            Agrego que me comprometo a cumplir los siguientes puntos:
+                        </p>
+                        <ol style="font-weight: bold; padding-left: 20px; margin-bottom: 12px;">
+                            <li style="margin-bottom: 4px;">En caso de extraviar el EPP me comprometo a reponerlo.</li>
+                            <li style="margin-bottom: 4px;">En caso de hacer un mal uso del EPP y que resulte dañado me comprometo a reponerlo.</li>
+                            <li style="margin-bottom: 4px;">La falta de uso del EPP asignado resultará en sanciones disciplinarias (Reglamento Interno del Trabajo)</li>
+                        </ol>
+                        <p style="margin-bottom: 25px;">
+                            Reconozco que el EPP contribuye a la minimización y control de los riesgos asociados a mi trabajo, y entiendo que la estricta observancia y cumplimiento con lo establecido en el artículo #272 y el artículo #273 del Reglamento General de Medidas Preventivas de Accidentes de Trabajo y Enfermedades Profesionales, que detallan las disposiciones sobre dispositivos de protección personal, es una obligación que contribuirá en el mantenimiento de mi bienestar físico, biológico, psicológico y social. Mi compromiso es seguir estas normativas en beneficio de mi seguridad y la de mis compañeros de trabajo.
+                        </p>
+                    </div>
+
+                    <!-- 5. RECUADROS DE FIRMAS DEL EMPLEADO -->
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 50px; page-break-inside: avoid;">
+                        <tr>
+                            <td style="border: 1px solid #000; width: 50%; height: 75px; text-align: center; vertical-align: bottom; padding-bottom: 5px;">
+                                <!-- Celda vacía para firma y huella -->
+                            </td>
+                            <td style="border: 1px solid #000; width: 50%; height: 75px; text-align: center; vertical-align: middle;">
+                                <span t-field="o.identification_id" style="font-weight: bold; font-size: 14px;"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center; padding: 5px; font-weight: bold; font-size: 12px;">
+                                Firma y huella del empleado
+                            </td>
+                            <td style="border: 1px solid #000; text-align: center; padding: 5px; font-weight: bold; font-size: 12px;">
+                                Número de identidad (DNI)
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- 6. FIRMAS INFERIORES: tres líneas flotantes -->
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 60px; page-break-inside: avoid; border: 0; table-layout: fixed;">
+                        <tr>
+                            <td style="width: 30%; border: 0; padding: 0; vertical-align: top;">
+                                <div style="border-top: 1px solid #000; padding-top: 6px; text-align: center; font-weight: bold; font-size: 12px;">Entregado por</div>
+                            </td>
+                            <td style="width: 5%; border: 0; padding: 0;"></td>
+                            <td style="width: 30%; border: 0; padding: 0; vertical-align: top;">
+                                <div style="border-top: 1px solid #000; padding-top: 6px; text-align: center; font-weight: bold; font-size: 12px;">Cargo laboral</div>
+                            </td>
+                            <td style="width: 5%; border: 0; padding: 0;"></td>
+                            <td style="width: 30%; border: 0; padding: 0; vertical-align: top;">
+                                <div style="border-top: 1px solid #000; padding-top: 6px; text-align: center; font-weight: bold; font-size: 12px;">Firma y sello</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
 </odoo>

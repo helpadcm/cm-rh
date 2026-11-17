@@ -42,6 +42,12 @@ class HrEmployee(models.Model):
     relationship = fields.Char(string="Parentesco",tracking=True)
     actual_picture = fields.Binary(string="Fotografia Actual", groups="hr.group_hr_user")
 
+    # Campo booleano invisible para llevar el registro interno del formulario enviado
+    exit_survey_sent = fields.Boolean(
+        string="Formulario enviado",
+        default=False
+    )
+
     @api.constrains('barcode')
     def _verify_barcode(self):
         for employee in self:
