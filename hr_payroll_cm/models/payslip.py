@@ -419,7 +419,7 @@ class workedDaysInh(models.Model):
                     hours_extra = hours_amount * 1.25
                     raw_total = hours_extra * worked_days.number_of_hours
                     clean_total = round(raw_total, 6)
-                    amount_days = float_round(clean_total, precision_rounding=rounding, rounding_method='DOWN')
+                    amount_days = float_round(clean_total, precision_rounding=rounding)
 
                 elif worked_days.work_entry_type_id.code == 'OVERTIME50':
                     hours_extra = hours_amount * 1.50
