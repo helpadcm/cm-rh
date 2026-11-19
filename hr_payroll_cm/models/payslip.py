@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError, UserError
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict, Counter
 from datetime import datetime, time, timedelta
+from datetime import date as py_date
 from odoo.tools import float_round
 
 from odoo.tools.safe_eval import safe_eval, datetime as safe_eval_datetime, dateutil as safe_eval_dateutil
@@ -313,6 +314,11 @@ class HrPayslipBonus(models.Model):
             eh_amount = sum(mark_ids.mapped('eh_holiday'))
             ehx_amount = float_round(sum(mark_ids.mapped('eh_holiday_extra')), precision_digits=precision)
             wage = self.employee_id.contract_wage * 2
+            if self.employee_id.historical_salaries_ids:
+                result = self.get_historical_salary(self.employee_id, self.date_to) * 2
+                if result > 0:
+                    wage = self.get_historical_salary(self.employee_id, self.date_to) * 2
+
             if eh_amount > 0:
                 eh_type_id = self.env['hr.payslip.input.type'].search([('code','=','HF')])
                 if eh_type_id:
@@ -387,6 +393,29 @@ class HrPayslipBonus(models.Model):
         for line in self.worked_days_line_ids:
             line._compute_amount()
 
+    def get_historical_salary(self, employee, date):
+        fortnight_amount = 0.0
+        if not employee or not date:
+            return fortnight_amount
+
+        target_date = fields.Date.to_date(date)
+
+        if employee.historical_salaries_ids:
+            lines = employee.historical_salaries_ids.sorted(
+                key=lambda l: l.end_date_payroll or py_date.max
+            )
+
+            for line in lines:
+                # Evalúa que la fecha de la planilla esté entre start_date y end_date_payroll
+                if (
+                    line.start_date
+                    and line.end_date_payroll
+                    and line.start_date <= target_date <= line.end_date_payroll
+                ):
+                    fortnight_amount = line.amount / 2.0
+                    break
+        return fortnight_amount
+
 class workedDaysInh(models.Model):
     _inherit = 'hr.payslip.worked_days'
 
@@ -410,6 +439,11 @@ class workedDaysInh(models.Model):
             amount_days = 0
             employee_id = worked_days.payslip_id.employee_id
             wage = employee_id.contract_wage * 2
+            if employee_id.historical_salaries_ids:
+                salary_historical = self.get_historical_salary(employee_id,worked_days.payslip_id.date_to)
+                if salary_historical > 0:
+                    wage = salary_historical * 2
+
             if worked_days.payslip_id.wage_type == "hourly":
                 hourly_rate = version.hourly_wage
                 amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
@@ -442,6 +476,10 @@ class workedDaysInh(models.Model):
 
                     # Por defecto, salario completo
                     amount_days = employee_id.contract_wage
+                    if employee_id.historical_salaries_ids:
+                        salary_historical = self.get_historical_salary(employee_id,worked_days.payslip_id.date_to)
+                        if salary_historical > 0:
+                            amount_days = salary_historical
 
                     # Verificar si el inicio o final del contrato
                     # están dentro del período de la nómina
@@ -485,6 +523,29 @@ class workedDaysInh(models.Model):
                     hourly_rate = version.contract_wage / attendance_hours
                     amount_days = hourly_rate * worked_days.number_of_hours * amount_rate if worked_days.is_paid else 0
             worked_days.amount = amount_days
+
+    def get_historical_salary(self, employee, date):
+        fortnight_amount = 0.0
+        if not employee or not date:
+            return fortnight_amount
+
+        target_date = fields.Date.to_date(date)
+
+        if employee.historical_salaries_ids:
+            lines = employee.historical_salaries_ids.sorted(
+                key=lambda l: l.end_date_payroll or py_date.max
+            )
+
+            for line in lines:
+                # Evalúa que la fecha de la planilla esté entre start_date y end_date_payroll
+                if (
+                    line.start_date
+                    and line.end_date_payroll
+                    and line.start_date <= target_date <= line.end_date_payroll
+                ):
+                    fortnight_amount = line.amount / 2.0
+                    break
+        return fortnight_amount
 
     @api.depends('work_entry_type_id', 'number_of_days', 'number_of_hours', 'payslip_id')
     def _compute_name(self):

@@ -2,10 +2,13 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import date as py_date
 import pytz
 
 class versionInh(models.Model):
     _inherit = 'hr.version'
+
+    # monthly_wage = fields.Monetary(string="Salario Mensual", tracking=True)
 
     def calculate_deductions(self, code, payslip=False):
         amount = 0
@@ -106,7 +109,7 @@ class versionInh(models.Model):
         total = contract_actual + basic_amount - extras + other
         return (total / 12)
 
-    def calculate_rap(self, code):
+    def calculate_rap(self, code, payslip):
         amount = 0
         name = ''
         if code not in self.employee_id.skip_rules_ids.mapped('code'):
@@ -116,11 +119,38 @@ class versionInh(models.Model):
             if code == 'RAP':
                 percentage = (rap_id.percentage) / 100
                 total_salary = self.wage * 2
-                name = 'RAP'
+                if self.employee_id.historical_salaries_ids:
+                    result = self.get_historical_salary(self.employee_id, payslip.date_to) * 2
+                    if result > 0:
+                        total_salary = result
 
+                name = 'RAP'
                 amount = ((total_salary - rap_id.min_salary) * percentage) / 2
             elif code == 'SSH':
                 amount = rap_id.ihss_amount / 2
                 name = 'IHSS'
 
         return amount * -1, name
+
+    def get_historical_salary(self, employee, date):
+        fortnight_amount = 0.0
+        if not employee or not date:
+            return fortnight_amount
+
+        target_date = fields.Date.to_date(date)
+
+        if employee.historical_salaries_ids:
+            lines = employee.historical_salaries_ids.sorted(
+                key=lambda l: l.end_date_payroll or py_date.max
+            )
+
+            for line in lines:
+                # Evalúa que la fecha de la planilla esté entre start_date y end_date_payroll
+                if (
+                    line.start_date
+                    and line.end_date_payroll
+                    and line.start_date <= target_date <= line.end_date_payroll
+                ):
+                    fortnight_amount = line.amount / 2.0
+                    break
+        return fortnight_amount
