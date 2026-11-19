@@ -79,4 +79,15 @@
         </field>
     </record>
 
+    <record id="resource_calendar_form" model="ir.ui.view">
+        <field name="name">resource.calendar.inh</field>
+        <field name="model">resource.calendar</field>
+        <field name="inherit_id" ref="resource.resource_calendar_form"/>
+        <field name="arch" type="xml">
+            <group name="resource_working_hours" position="inside">
+                <field name="skip_rule" />
+            </group>
+        </field>
+    </record>
+
 </odoo>

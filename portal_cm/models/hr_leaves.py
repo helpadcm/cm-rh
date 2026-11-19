@@ -240,12 +240,13 @@ class HrLeavesInh(models.Model):
                     curr_date += timedelta(days=1)
 
                 # 2. Descontar 0.5 días y 4.0 horas por cada sábado encontrado
-                if saturdays > 0:
-                    days, hours = result[leave_key]
-                    new_days = max(0.0, days - (saturdays * 0.5))
-                    new_hours = max(0.0, hours - (saturdays * 4.0))
+                if not leave.employee_id.resource_calendar_id.skip_rule:
+                    if saturdays > 0:
+                        days, hours = result[leave_key]
+                        new_days = max(0.0, days - (saturdays * 0.5))
+                        new_hours = max(0.0, hours - (saturdays * 4.0))
 
-                    result[leave_key] = (new_days, new_hours)
+                        result[leave_key] = (new_days, new_hours)
                 
                 return result
 
@@ -464,22 +465,6 @@ class HrLeavesInh(models.Model):
 
         return overlap_end - overlap_start
 
-
-    @api.depends('date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit')
-    def _compute_duration(self):
-        durations = self._get_durations()
-        for leave in self:
-            days, hours = durations[leave.id]
-            if days == 0 and hours == 0:
-
-                print ("################################")
-                print (durations)
-                print (leave.request_hour_from)
-                print (leave.request_hour_to)
-
-            leave.number_of_hours = hours
-            leave.number_of_days = days
-
 class hrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
 
@@ -499,3 +484,8 @@ class employeePublicInh(models.Model):
     show_download_signature_menu = fields.Boolean(string="Descargar Firma")
     show_update_data_emp = fields.Boolean(string="Actualizar datos")
     updated_data = fields.Boolean(string="Datos actualizados desde Portal", default=False)
+
+class resourceCalendarInh(models.Model):
+    _inherit = 'resource.calendar'
+
+    skip_rule = fields.Boolean(string="Onitir Regla")
