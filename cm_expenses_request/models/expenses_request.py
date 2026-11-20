@@ -336,6 +336,11 @@ class expensesRequest(models.Model):
 
             if not self.expenses_ids and not has_employee_balance:
                 next_state = 'finalized'
+                
+        if next_state == 'canceled' and not self.env.user.has_group("cm_expenses_request.group_expenses_request_manager"):
+            if self.env.user.id not in [self.employee_id.user_id.id, self.assign_to_id.user_id.id, self.boss_id.user_id.id]:
+                raise ValidationError("Solo el empleado que solicita, el aprobador de viaticos o la persona asignada puede cancelar una solicitud")
+
         self.state = next_state
 
     def send_email_hotel(self):

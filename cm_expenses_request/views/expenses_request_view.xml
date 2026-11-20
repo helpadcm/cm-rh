@@ -23,6 +23,7 @@
                         <button name="%(cm_expenses_request.exeptional_reason_action)d" context="{'state': 'exception'}" class="oe_highlight" type="action" 
                                 string="Solicitar Reembolso" invisible="state != 'assigned' or infavor_employee_amount == 0 or infavor_employee_amount &lt; 0" />
                         <button name="change_state" context="{'state': 'draft'}" class="oe_highlight btn-info" type="object" string="Regresar a Borrador" invisible="state != 'required'"/>
+                        <button name="change_state" context="{'state': 'canceled'}" class="oe_highlight btn-danger" type="object" string="Cancelar" invisible="state != 'required'"/>
 
                         <button name="approve_exception" class="oe_highlight" type="object" string="Aprobar Excepcion" invisible="state != 'exception'"/>
                         <button name="reject_exception" class="oe_highlight btn-danger" type="object" string="Rechazar Excepcion" invisible="state != 'exception'"/>

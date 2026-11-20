@@ -20,6 +20,10 @@ class expensesSheetRequest(models.Model):
     def _default_employee_id(self):
         return self.env.user.employee_id
 
+    @api.model
+    def _default_date(self):
+        return datetime.now().date()
+
 
     name = fields.Char(string="Nombre", tracking=True)
     employee_id = fields.Many2one('hr.employee', string="Empleado", default=_default_employee_id)
@@ -32,6 +36,7 @@ class expensesSheetRequest(models.Model):
     company_id = fields.Many2one('res.company',string="Empresa",required=True,readonly=True,default=lambda self: self.env.company)
     move_id = fields.Many2one('account.move',string="Asiento Contable")
     exception_solution = fields.Selection([('according','Conforme'),('exception','Reembolsado'),('rejected','Rechazado')],string="Solucion de Reembolso")
+    date = fields.Date(string="Fecha", default=_default_date)
 
     advance_amount = fields.Float(string="Anticipo al Empleado", related="request_id.advance_amount")
     total_expense_amount = fields.Float(string="Total de gastos", related="request_id.total_expense_amount")
@@ -88,7 +93,7 @@ class expensesSheetRequest(models.Model):
         
         # Moneda de la compañía del diario/asiento
         company_currency = self.journal_id.company_id.currency_id
-        move_date = fields.Date.context_today(self)
+        move_date = self.date
 
         lines = []
         total_debit_company = 0.0  # Total acumulado en Moneda de la Compañía
@@ -142,10 +147,10 @@ class expensesSheetRequest(models.Model):
             if not account_id:
                 raise UserError("No se encontró la cuenta contable 512.06")
 
-            if self.exception_solution == 'exception' and self.refund:
+            if self.refund:
                 desc = f"Reembolso aprobado para el empleado {self.employee_id.name}"
-            
-            if self.exception_solution in ['rejected', 'according'] or not self.refund:
+                account_id = self.env['account.account'].search([('code', '=', '105.01')], limit=1)
+            else:
                 desc = f"Reembolso no realizado para el empleado {self.employee_id.name}"
                 self.request_id.refund_state = 'na'
 
