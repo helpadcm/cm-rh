@@ -464,6 +464,9 @@ class ticket_request_line(models.Model):
                 self.id_file_name = self.external_user_id.id_file_name
         
         elif self.passenger_type == 'internal':
+            if not self.employee_id.identification_id:
+                raise ValidationError(f"El pasajero {self.employee_id.name} no tiene agregado su numero de identidad")
+
             user_name = self.employee_id.name
             identity = self.employee_id.identification_id
             email = self.employee_id.work_email or self.employee_id.private_email

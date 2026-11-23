@@ -32,7 +32,7 @@
                         </group>
                         <group string="Documentos">
                             <group>
-                                <field name="id_file" readonly="state != 'draft'" required="1" filename="id_file_name" widget="binary"/>
+                                <field name="id_file" readonly="state != 'draft'" filename="id_file_name" widget="binary"/>
                                 <field name="id_file_name" invisible="1"/>
                             </group>
                             <group>

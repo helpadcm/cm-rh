@@ -42,6 +42,29 @@ class expensesTicketRequest(models.Model):
     quote_file_name = fields.Char(string="Nombre Cotización")
     quote_amount = fields.Float(string="Monto de cotización")
 
+    @api.constrains('list_routes_ids', 'request_type')
+    def validate_routes(self):
+        for rec in self:
+            if rec.list_routes_ids:
+                if len(rec.list_routes_ids) == 0:
+                    raise ValidationError("No hay rutas ingresadas a la solicitud")
+
+                if rec.request_type == 'round_trip':
+                    if len(rec.list_routes_ids) != 2:
+                        raise ValidationError("Si el tipo de solicitud es de Ida y Vuelta debe agregar dos rutas")
+                    
+                    line1_id = rec.list_routes_ids[0].route_id
+                    line2_id = rec.list_routes_ids[1].route_id
+                    if line1_id.destination != line2_id.origin:
+                        raise ValidationError(f"Si su solicitud es de Ida y Vuelta el destino de su primera ruta ({line1_id.destination}) debe coincidir con el origen de la segunda ({line2_id.origin})")
+
+                    if line2_id.destination != line1_id.origin:
+                        raise ValidationError(f"Si su solicitud es de Ida y Vuelta el destino de su segunda ruta ({line2_id.destination}) debe coincidir con el origen de la primera ({line1_id.origin})")
+
+                elif rec.request_type == 'exit_only':
+                    if len(rec.list_routes_ids) != 1:
+                        raise ValidationError("Si el tipo de solicitud es Solo de Ida debe agregar una ruta")
+
 class ticket_requestInh(models.Model):    
     _inherit = 'cm.ticket.request'
 
