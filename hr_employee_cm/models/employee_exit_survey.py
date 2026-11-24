@@ -7,10 +7,10 @@ class EmployeeExitSurvey(models.Model):
 
     # Datos del Colaborador
     employee_id = fields.Many2one('hr.employee', string="Empleado")
-    employee_name = fields.Char(string="Nombre del Colaborador")
-    job_title = fields.Char(string="Puesto")
-    department_name = fields.Char(string="Departamento")
-    manager_name = fields.Char(string="Jefe Inmediato")
+    employee_name = fields.Char(string="Nombre Completo")
+    job_title = fields.Char(string="Puesto que ejecuto")
+    department_name = fields.Char(string="Departamento al que Perteneció")
+    manager_name = fields.Char(string="Quien fue su Jefe Inmediato")
     first_contract_date = fields.Date(string="Fecha de Ingreso")
     departure_date = fields.Date(string="Fecha de Salida")
     seniority = fields.Char(string="Antigüedad")

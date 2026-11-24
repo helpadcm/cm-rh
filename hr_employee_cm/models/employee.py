@@ -185,4 +185,3 @@ class employeePublicInh(models.Model):
 
     rrhh_boss = fields.Boolean(string="Encargado RRHH")
     function_rrhh = fields.Selection([('rrhh_boss','Encargado RRHH'),('rrhh_manager','Responsable RRHH')],string="Puesto en RRHH")
-    exit_survey_sent = fields.Boolean(string="Formulario enviado",default=False)

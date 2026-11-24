@@ -135,10 +135,10 @@
                     <!-- I. DATOS GENERALES -->
                     <h4 style="border-bottom: 2px solid #1a2b4c; padding-bottom: 4px; color: #1a2b4c; font-weight: bold; margin-top: 15px;">I. DATOS GENERALES</h4>
                     <table style="width: 100%; margin-bottom: 15px;">
-                        <tr><td style="padding: 3px 0;"><strong>Nombre del colaborador:</strong> <span t-field="o.employee_name"/></td></tr>
-                        <tr><td style="padding: 3px 0;"><strong>Puesto:</strong> <span t-field="o.job_title"/></td></tr>
-                        <tr><td style="padding: 3px 0;"><strong>Departamento:</strong> <span t-field="o.department_name"/></td></tr>
-                        <tr><td style="padding: 3px 0;"><strong>Jefe inmediato:</strong> <span t-field="o.manager_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Nombre Completo:</strong> <span t-field="o.employee_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Puesto que ejecuto:</strong> <span t-field="o.job_title"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Departamento al que perteneció:</strong> <span t-field="o.department_name"/></td></tr>
+                        <tr><td style="padding: 3px 0;"><strong>Quien Fue su Jefe Inmediato:</strong> <span t-field="o.manager_name"/></td></tr>
                         <tr><td style="padding: 3px 0;"><strong>Fecha de ingreso:</strong> <span t-field="o.first_contract_date"/> &#160;&#160;&#160;&#160; <strong>Fecha de salida:</strong> <span t-field="o.departure_date"/></td></tr>
                         <tr><td style="padding: 3px 0;"><strong>Antigüedad en la empresa:</strong> <span t-field="o.seniority"/></td></tr>
                         <tr><td style="padding: 3px 0;"><strong>Tipo de salida:</strong> <span t-field="o.departure_type_display"/></td></tr>

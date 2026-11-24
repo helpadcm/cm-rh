@@ -27,18 +27,16 @@
         sequence="2"/>
 
     <!-- ========================================== -->
-    <!-- MENÚS DE ENTREVISTAS DE SALIDA (Nuevos)    -->
+    <!-- MENÚS DE ENTREVISTAS DE SALIDA  -->
     <!-- ========================================== -->
     <menuitem id="menu_employee_interview_category"
               name="Entrevista"
               parent="hr.hr_menu_hr_reports"
-              groups="hr_employee_cm.group_employee_exit_survey_manager"
               sequence="50"/>
 
     <menuitem id="menu_employee_exit_survey_report"
               name="Enviar Entrevista de Salida"
               parent="menu_employee_interview_category"
               action="action_employee_exit_survey"
-              groups="hr_employee_cm.group_employee_exit_survey_manager"
               sequence="10"/>
 </odoo>

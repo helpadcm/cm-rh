@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
@@ -12,7 +14,7 @@ class HrEmployeeIndumentariaLine(models.Model):
     _description = 'Línea de Indumentaria de Empleado'
 
     employee_id = fields.Many2one('hr.employee', string='Empleado', required=True, ondelete='cascade')
-    
+
     tipo_activo = fields.Selection([
         ('uniforme', 'Uniforme'),
         ('epp', 'EPP')
@@ -24,10 +26,10 @@ class HrEmployeeIndumentariaLine(models.Model):
         required=True,
         domain="[('is_talento_humano', '=', True)]"
     )
-    
+
     color = fields.Char(string='Color')
     observaciones = fields.Char(string='Observaciones')
-    
+
     # Campo para obtener la talla dinámicamente de las variantes del producto
     talla = fields.Char(string='Talla', compute='_compute_talla', store=True)
 
@@ -44,14 +46,23 @@ class HrEmployeeIndumentariaLine(models.Model):
                     talla_val = ', '.join(line.product_id.product_template_attribute_value_ids.mapped('name'))
             line.talla = talla_val
 
-    quantity = fields.Float(string='Cantidad', default=1.0, required=True)
-    
+    quantity = fields.Float(string='Cantidad Entregada', default=1.0, required=True)
+    quantity_received = fields.Float(string='Cantidad Recibida', default=0.0)
+
+    @api.constrains('quantity', 'quantity_received')
+    def _check_quantities(self):
+        for line in self:
+            if line.quantity < 0 or line.quantity_received < 0:
+                raise ValidationError("Las cantidades no pueden ser negativas.")
+            if line.quantity_received > line.quantity:
+                raise ValidationError("La cantidad recibida no puede ser mayor a la cantidad entregada.")
+
     fecha_entrega = fields.Date(
         string='Fecha de Entrega', 
         default=fields.Date.context_today, 
         required=True
     )
-    
+
     fecha_reposicion = fields.Date(
         string='Fecha de Reposición'
     )
@@ -103,7 +114,7 @@ class HrEmployee(models.Model):
                     'sticky': False,
                 }
             }
-            
+
         # Actualiza a 'delivered' las líneas que estén pendientes
         for line in lines.filtered(lambda l: l.state == 'draft'):
             line.state = 'delivered'

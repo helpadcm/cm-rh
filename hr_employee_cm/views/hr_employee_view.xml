@@ -9,7 +9,8 @@
                 <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
                 <field name="talla" readonly="1"/>
                 <field name="color"/>
-                <field name="quantity"/>
+                <field name="quantity" string="Cantidad Entregada"/>
+                <field name="quantity_received" string="Cantidad Recibida"/>
                 <field name="fecha_entrega"/>
                 <field name="fecha_reposicion"/>
                 <field name="observaciones"/>
@@ -18,12 +19,13 @@
         </field>
     </record>
 
-    <!-- <record id="view_employee_form_inherit_indumentaria_cm" model="ir.ui.view">
+    <record id="view_employee_form_inherit_indumentaria_cm" model="ir.ui.view">
         <field name="name">hr.employee.form.inherit.indumentaria.cm</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <!-- Restricción: El botón se oculta automáticamente si el empleado está archivado (active = False) -->
                 <button name="action_deliver_indumentaria" 
                         string="Entregar Indumentaria" 
                         type="object" 
@@ -41,7 +43,8 @@
                             <field name="product_id" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="talla" readonly="1"/>
                             <field name="color"/>
-                            <field name="quantity"/>
+                            <field name="quantity" string="Cantidad Entregada"/>
+                            <field name="quantity_received" string="Cantidad Recibida"/>
                             <field name="fecha_entrega"/>
                             <field name="fecha_reposicion"/>
                             <field name="observaciones"/>
@@ -51,5 +54,5 @@
                 </page>
             </xpath>
         </field>
-    </record> -->
+    </record>
 </odoo>

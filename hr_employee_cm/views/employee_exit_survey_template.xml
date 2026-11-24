@@ -30,19 +30,19 @@
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold"><i class="fa fa-user me-1"></i> Nombre del Colaborador</label>
+                                    <label class="form-label fw-bold"><i class="fa fa-user me-1"></i> Nombre Completo</label>
                                     <input type="text" name="employee_name" class="form-control" placeholder="Escriba su nombre completo" required="required"/>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold"><i class="fa fa-briefcase me-1"></i> Puesto</label>
+                                    <label class="form-label fw-bold"><i class="fa fa-briefcase me-1"></i> Puesto que Ejecutaste</label>
                                     <input type="text" name="job_title" class="form-control" placeholder="Escriba su puesto" required="required"/>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold"><i class="fa fa-building me-1"></i> Departamento</label>
+                                    <label class="form-label fw-bold"><i class="fa fa-building me-1"></i> Departamento al que perteneciste</label>
                                     <input type="text" name="department_name" class="form-control" placeholder="Escriba su departamento" required="required"/>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold"><i class="fa fa-user-secret me-1"></i> Jefe Inmediato</label>
+                                    <label class="form-label fw-bold"><i class="fa fa-user-secret me-1"></i>Quien fue tu Jefe Inmediato</label>
                                     <input type="text" name="manager_name" class="form-control" placeholder="Escriba el nombre de su jefe" required="required"/>
                                 </div>
                                 <div class="col-md-4">
