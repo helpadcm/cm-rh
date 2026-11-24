@@ -501,12 +501,18 @@ class banks_deposits(models.Model):
 	def add_account(self):
 		if self.move_id:
 			account_id = self.env['account.account'].search([('code','=','102.02')])
+			account_trans_id = self.env['account.account'].search([('code','=','102.14')])
 			self.unreconciliate_deposit()
 			line_id = self.mcheck_ids[0]
-			line_id.account_id = account_id.id
-			analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
-			if analytic_account_id:
-				line_id.chqmanalitics = analytic_account_id.id
+			if line_id.account_id.id == account_id.id or line_id.account_id.id == account_trans_id.id:
+				analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
+				if analytic_account_id:
+					line_id.chqmanalitics = analytic_account_id.id
+			else:
+				line_id.account_id = account_id.id
+				analytic_account_id = self.env['account.analytic.account'].search([('partner_id','=',self.user_id.partner_id.id)])
+				if analytic_account_id:
+					line_id.chqmanalitics = analytic_account_id.id
 			# print ("//////////////////////////////")
 			# print (analytic_account_id)
 			# if self.move_id:
