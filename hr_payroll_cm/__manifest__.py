@@ -32,6 +32,7 @@
         'wizard/get_hours_record_view.xml',
         'wizard/payslip_employee_view.xml',
         'wizard/summary_inc_ded_view.xml',
+        'wizard/summary_hours_transport_view.xml',
         'views/menus.xml',
         'reports/payslip_report.xml',
         'reports/markings_format.xml',

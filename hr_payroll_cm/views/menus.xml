@@ -32,6 +32,13 @@
         sequence="81"
         action="incomes_deductions_summary_action"/>
 
+    <!-- <menuitem
+        id="hours_transport_summary_menuitem"
+        name="Resumen Horas y Transporte"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="82"
+        action="hours_transport_summary_action"/> -->
+
 
 <!-- ############################################################################################ -->
 
