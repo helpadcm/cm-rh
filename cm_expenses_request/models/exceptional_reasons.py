@@ -18,3 +18,14 @@ class lodgingCobus(models.Model):
 
     name = fields.Char(string="Nombre")
     cti_id = fields.Many2one('cargo.airport',string="Ciudad")
+
+class transportDistribution(models.Model):
+    _name = 'transport.distribution.cobus'
+    _description = "Ditribucion de montos de transporte"
+
+    cti_id = fields.Many2one('cargo.airport',string="Ciudad")
+    name = fields.Char(string="Ruta")
+    currency_id = fields.Many2one('res.currency',string="Moneda")
+    day_amount = fields.Float(string="Dia")
+    night_amount = fields.Float(string="Noche")
+    morning_amount = fields.Float(string="Madrugada")

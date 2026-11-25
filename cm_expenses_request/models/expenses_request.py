@@ -836,12 +836,84 @@ class expensesRequestDetails(models.Model):
     dinner_amount = fields.Float(string="Monto Cena")
     currency_id = fields.Many2one('res.currency',string="Moneda")
 
+    need_transport = fields.Boolean(string="Necesita transporte?")
+    transport_cti_id = fields.Many2one('cargo.airport',string="Ciudad")
+    transport_time = fields.Selection([('day','Dia'),('night','Noche'),('morning','Mañana')],string="Jornada",default="day")
+    transport_route_id = fields.Many2one('transport.distribution.cobus',string="Ruta para transporte")
     transport_amount = fields.Float(string="Transporte")
+
     tax_amount = fields.Float(string="Impuestos")
     parking_amount = fields.Float(string="Parqueo")
     purchase_amount = fields.Float(string="Compras")
     others_amount = fields.Float(string="Otros")
     total_amount = fields.Float(string="TOTAL")
+
+    # @api.onchange('transport_route_id','breakfast_cti_id','lunch_cti_id','dinner_cti_id','transport_cti_id','transport_time','need_transport')
+    # def get_transport_amount(self):
+    #     trans_amount = 0
+    #     if self.need_transport:
+    #         filled_airports = [airport for airport in (self.breakfast_cti_id, self.lunch_cti_id, self.dinner_cti_id) if airport]
+
+    #         if filled_airports and len(set(filled_airports)) == 1:
+    #             same_airport = filled_airports[0]
+    #             self.transport_cti_id = same_airport.id
+    #             distribution_id = self.env['transport.distribution.cobus'].search([('cti_id','=',self.transport_cti_id.id)])
+    #             if len(distribution_id) == 1:
+    #                 self.transport_route_id = distribution_id
+    #                 if self.transport_time == 'day':
+    #                     trans_amount = self.transport_route_id.day_amount
+    #                 elif self.transport_time == 'night':
+    #                     trans_amount = self.transport_route_id.night_amount
+    #                 elif self.transport_time == 'morning':
+    #                     trans_amount = self.transport_route_id.morning_amount
+    #     self.transport_amount = trans_amount
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('need_transport'):
+                vals['transport_amount'] = 0.0
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if 'need_transport' in vals and not vals['need_transport']:
+            vals['transport_amount'] = 0.0
+        return super().write(vals)
+
+    @api.onchange('need_transport')
+    def _onchange_need_transport(self):
+        if not self.need_transport:
+            self.transport_cti_id = False
+            self.transport_route_id = False
+            self.transport_time = False
+            self.transport_amount = 0.0
+
+    @api.onchange('transport_cti_id')
+    def _onchange_transport_cti_id(self):
+        self.transport_route_id = False
+        self.transport_amount = 0.0
+        if self.need_transport and self.transport_cti_id:
+            distributions = self.env['transport.distribution.cobus'].search([
+                ('cti_id', '=', self.transport_cti_id.id)
+            ])
+            if len(distributions) == 1:
+                self.transport_route_id = distributions.id
+
+    @api.onchange('need_transport', 'transport_route_id', 'transport_time')
+    def _onchange_transport_route_or_time(self):
+        if not self.need_transport:
+            self.transport_amount = 0.0
+            return
+
+        self.transport_amount = 0.0
+        if self.transport_route_id and self.transport_time:
+            if self.transport_time == 'day':
+                self.transport_amount = self.transport_route_id.day_amount
+            elif self.transport_time == 'night':
+                self.transport_amount = self.transport_route_id.night_amount
+            elif self.transport_time == 'morning':
+                self.transport_amount = self.transport_route_id.morning_amount
+
     
     @api.onchange('breakfast_amount','lunch_amount','dinner_amount','transport_amount','tax_amount','parking_amount','purchase_amount','others_amount')
     def get_total_day(self):

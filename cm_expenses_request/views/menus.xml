@@ -90,4 +90,12 @@
         action="action_lodging_cobus"
         groups="group_expenses_request_manager"
         sequence="3"/>
+
+    <menuitem
+        id="distribution_transport_list_menu"
+        name="Distribucion de transporte"
+        parent="conf_expenses_request_menu"
+        action="action_distribution_transport"
+        groups="group_expenses_request_manager"
+        sequence="4"/>
 </odoo>

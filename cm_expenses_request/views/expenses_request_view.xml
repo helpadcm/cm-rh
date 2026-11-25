@@ -68,25 +68,25 @@
                                 <field name="allow_employee_ids" widget="many2many_tags" options="{'no_create': True,'no_open': True}" invisible="1" force_save="1" />
                             </group>
                         </group>
-                        <group string="Otras solicitudes" col="3" invisible="direct_settlement">
+                        <group string="Otras solicitudes" col="2" invisible="direct_settlement">
                             <group>
                                 <field name="need_tickets" readonly="state != 'draft'"/>
                             </group>
-                            <group>
-                                <field name="need_transport" readonly="state != 'draft'"/>
-                            </group>
+                            <!-- <group>
+                                <field name="need_transport" readonly="state != 'draft'" />
+                            </group> -->
                             <group>
                                 <field name="need_hotel" readonly="state != 'draft'"/>
                                 <!-- <field name="ctis_hotels_ids" invisible="not need_hotel" required="need_hotel" domain="[('hotel_contact','=',True)]" widget="many2many_tags"/> -->
                             </group>
                         </group>
-                        <group string="Otras solicitudes" col="3" invisible="not direct_settlement">
+                        <group string="Otras solicitudes" col="2" invisible="not direct_settlement">
                             <group>
                                 <field name="need_tickets" readonly="state != 'assigned'"/>
                             </group>
-                            <group>
+                            <!-- <group>
                                 <field name="need_transport" readonly="state != 'assigned'"/>
-                            </group>
+                            </group> -->
                             <!-- <group>
                                 <field name="need_hotel" readonly="state != 'assigned'"/>
                                 <field name="ctis_hotels_ids" invisible="not need_hotel" required="need_hotel and not assigned" domain="[('hotel_contact','=',True)]" widget="many2many_tags"/>
@@ -108,7 +108,7 @@
                         <notebook>
                             <page name="details" string="Detalles de Gasto" invisible="direct_settlement">
                                 <field name="request_details_ids" required="1" context="{'default_job_id': job_id, 'default_currency_id': currency_id}" readonly="state != 'draft'">
-                                    <list editable="bottom">
+                                    <list>
                                         <field name="currency_id" column_invisible="1" options="{'no_create': True,'no_open': True}"/>
                                         <field name="job_id" column_invisible="1"/>
                                         <field name="date" required="1"/>
@@ -125,6 +125,52 @@
                                         <field name="others_amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total Otros"/>
                                         <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1" sum="Total Dia"/>
                                     </list>
+                                    <form>
+                                        <group>
+                                            <group>
+                                                <field name="date" required="1"/>
+                                                <field name="need_transport" widget="boolean_toggle"/>
+                                            </group>
+                                            <group>
+                                                <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group string="Alimentacion">
+                                            <group>
+                                                <field name="breakfast_cti_id" options="{'no_create': True,'no_open': True}"/>
+                                                <field name="lunch_cti_id" options="{'no_create': True,'no_open': True}"/>
+                                                <field name="dinner_cti_id" options="{'no_create': True,'no_open': True}"/>
+                                                <field name="currency_id" invisible="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="breakfast_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                                <field name="lunch_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                                <field name="dinner_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                        <group string="Otros">
+                                            <group>
+                                                <field name="tax_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                                <field name="parking_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            </group>
+                                            <group>
+                                                <field name="purchase_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                                <field name="others_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            </group>
+                                        </group>
+                                        <group string="Transporte" col="3" invisible="not need_transport">
+                                            <group>
+                                                <field name="transport_cti_id" required="need_transport" options="{'no_create': True,'no_open': True}"/>
+                                            </group>
+                                            <group>
+                                                <field name="transport_route_id" required="need_transport" domain="[('cti_id','=',transport_cti_id),('currency_id','=',currency_id)]" options="{'no_create': True,'no_open': True}"/>
+                                            </group>
+                                            <group>
+                                                <field name="transport_time" required="need_transport"/>
+                                                <field name="transport_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1" force_save="1"/>
+                                            </group>
+                                        </group>
+                                    </form>
                                 </field>
                             </page>
                             <page invisible="not need_hotel" name="lodging" string="Detalles de Hospedaje">
