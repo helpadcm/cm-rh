@@ -907,18 +907,24 @@ class expensesRequestDetails(models.Model):
 
     @api.onchange('breakfast_cti_id')
     def get_breakfast_amount(self):
+        amount = 0
         if self.breakfast_cti_id:
-            self.breakfast_amount = self.get_amount(self.breakfast_cti_id, 'breakfast')
+            amount = self.get_amount(self.breakfast_cti_id, 'breakfast')
+        self.breakfast_amount = amount
 
     @api.onchange('lunch_cti_id')
     def get_lunch_amount(self):
+        amount = 0
         if self.lunch_cti_id:
-            self.lunch_amount = self.get_amount(self.lunch_cti_id, 'lunch')
+            amount = self.get_amount(self.lunch_cti_id, 'lunch')
+        self.lunch_amount = amount
 
     @api.onchange('dinner_cti_id')
     def get_dinner_amount(self):
+        amount = 0
         if self.dinner_cti_id:
-            self.dinner_amount = self.get_amount(self.dinner_cti_id, 'dinner')
+            amount = self.get_amount(self.dinner_cti_id, 'dinner')
+        self.dinner_amount = amount
 
     def get_amount(self, cti, food_time):
         conf_ids = self.env['conf.expenses.request'].search([])
