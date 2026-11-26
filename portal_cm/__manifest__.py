@@ -15,6 +15,7 @@
         'data/cron.xml',
         'data/email_templates.xml',
         'data/action_server.xml',
+        'data/paperformat.xml',
         'security/groups.xml',
         'security/ir.model.access.csv',
         'wizard/turn_notes_view.xml',
@@ -28,6 +29,8 @@
         'views/team_hour_rec_view.xml',
         'views/leave_view_inh.xml',
         'views/menus.xml',
+        'reports/records_hours.xml',
+        'reports/report_reports.xml'
         ],
     'assets': {
         'web.assets_frontend': [
