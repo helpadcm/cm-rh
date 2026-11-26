@@ -49,6 +49,8 @@ class HrAttendance(models.Model):
 
     attendance_date = fields.Date(string="Fecha de asistencia")
 
+    active = fields.Boolean(string='Activo', default=True)
+
     def get_attendance_date(self):
         self.attendance_date = (self.check_in - timedelta(hours=6)).date()
 
