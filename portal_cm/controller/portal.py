@@ -46,9 +46,7 @@ class CustomPortal(http.Controller):
 
 
         draft_domain = [
-            ('employee_id', '=', employee_id.id),
-            ('date', '>=', cal_start),
-            ('date', '<=', cal_end),
+            ('employee_id', '=', employee_id.id)
         ]
 
         domain = [
