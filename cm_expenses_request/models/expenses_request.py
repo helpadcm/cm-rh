@@ -132,6 +132,7 @@ class expensesRequest(models.Model):
             self.refund_done = True
 
     def create_debit(self):
+        self.env.user.company_id = 1
         journal_id = self.env['account.journal'].search([('code','=','BPLPS')])
         account_id = self.env['account.account'].search([('code','=','105.01')])
         debit_id = self.env['debit.credit'].create({
@@ -267,6 +268,11 @@ class expensesRequest(models.Model):
                 self.name = sequence_id.next_by_id()
         
         if next_state == 'required':
+            rec_ids = self.search([('state','=','assigned'),('assign_to_id','=',self.assign_to_id.id)])
+            if len(rec_ids) >= 3:
+                rec_names = ', '.join([rec.name for rec in rec_ids])
+                raise ValidationError(f"No puede validar la solicitud, tiene tres liquidaciones pendientes: {rec_names}. Debe liquidar al menos una para poder solicitar una nueva,")
+
             currency_ids = self.request_details_ids.mapped('currency_id')
             if len(currency_ids) > 1:
                 raise ValidationError(f"Solo se puede realizar solicitud en una sola moneda, en este caso {self.currency_id.currency_unit_label}")
@@ -847,26 +853,6 @@ class expensesRequestDetails(models.Model):
     purchase_amount = fields.Float(string="Compras")
     others_amount = fields.Float(string="Otros")
     total_amount = fields.Float(string="TOTAL")
-
-    # @api.onchange('transport_route_id','breakfast_cti_id','lunch_cti_id','dinner_cti_id','transport_cti_id','transport_time','need_transport')
-    # def get_transport_amount(self):
-    #     trans_amount = 0
-    #     if self.need_transport:
-    #         filled_airports = [airport for airport in (self.breakfast_cti_id, self.lunch_cti_id, self.dinner_cti_id) if airport]
-
-    #         if filled_airports and len(set(filled_airports)) == 1:
-    #             same_airport = filled_airports[0]
-    #             self.transport_cti_id = same_airport.id
-    #             distribution_id = self.env['transport.distribution.cobus'].search([('cti_id','=',self.transport_cti_id.id)])
-    #             if len(distribution_id) == 1:
-    #                 self.transport_route_id = distribution_id
-    #                 if self.transport_time == 'day':
-    #                     trans_amount = self.transport_route_id.day_amount
-    #                 elif self.transport_time == 'night':
-    #                     trans_amount = self.transport_route_id.night_amount
-    #                 elif self.transport_time == 'morning':
-    #                     trans_amount = self.transport_route_id.morning_amount
-    #     self.transport_amount = trans_amount
 
     @api.model_create_multi
     def create(self, vals_list):
