@@ -366,12 +366,21 @@ class lotFormatXlsx(models.AbstractModel):
 
         return {'department_data': departments_dict, 'deductions_name': deductions_name, 'incomes_name': incomes_name, 'payslip_name': payslip_name}
 
-    def _add_or_sum_item(target_list, item, match_by='code'):
+    def _add_or_sum_item(self, target_list, item, match_by='code'):
+        if isinstance(item, (list, tuple)):
+            for sub_item in item:
+                self._add_or_sum_item(target_list, sub_item, match_by=match_by)
+            return
+
+        if not isinstance(item, dict):
+            return
+
         key = item.get(match_by)
         for existing in target_list:
-            if existing.get(match_by) == key:
+            if isinstance(existing, dict) and existing.get(match_by) == key:
                 existing['amount'] = float_round(
                     (existing.get('amount') or 0.0) + (item.get('amount') or 0.0),
                     precision_digits=2,
                 )
-        return target_list.append(item)
+                return
+        target_list.append(item)
