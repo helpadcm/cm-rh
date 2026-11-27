@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from datetime import datetime, timedelta
 from collections import defaultdict
 from datetime import date as py_date
+from odoo.tools import float_round
 import pytz
 
 class versionInh(models.Model):
@@ -49,15 +50,9 @@ class versionInh(models.Model):
         return amount
 
     def calculate_basic(self,payslip):
-        # if payslip.worked_days_line_ids:
-        #     work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
-        #     extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
-        #     if work100_amount == 0:
-        #         work100_amount = self.wage
-        #     amount = work100_amount + extras_amount
-        # else:
-        #     amount = self.wage
-        # return amount
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         if payslip.worked_days_line_ids:
             work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
             extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
@@ -67,20 +62,53 @@ class versionInh(models.Model):
 
             amount = work100_amount + extras_amount
         else:
+            date_from = payslip.date_from
+            date_to = payslip.date_to
+
+            contract_start = self.employee_id.contract_date_start
+            contract_end = self.employee_id.contract_date_end
+
+            # Por defecto, salario completo
             amount = self.wage
+            if self.employee_id.historical_salaries_ids:
+                salary_historical = self.get_historical_salary(self.employee_id, payslip.date_to)
+                if salary_historical > 0:
+                    amount = salary_historical
 
-        # contract_end_date = payslip.version_id.contract_date_end
+            # Verificar si el inicio o final del contrato
+            # están dentro del período de la nómina
+            contract_affects_period = (
+                (contract_start and date_from <= contract_start <= date_to)
+                or
+                (contract_end and date_from <= contract_end <= date_to)
+            )
 
-        # Si el contrato inició durante esta quincena, calcular proporcional
-        # extra_day = 0
-        # if contract_end_date and out_line_id:
-        #     if contract_end_date and payslip.date_from <= contract_end_date <= payslip.date_to:
-        #         # total_days = (payslip.date_to - payslip.date_from).days
-        #         # worked_days = (payslip.date_to - contract_end_date).days
-        #         total_days = 15
-        #         extra_day = payslip.version_id.wage/total_days
-        #         amount += extra_day
-                # amount = (amount / total_days) * worked_days
+            if contract_affects_period:
+
+                # Fecha desde la que se debe pagar
+                payment_start = max(
+                    date_from,
+                    contract_start
+                ) if contract_start else date_from
+
+                # Fecha hasta la que se debe pagar
+                payment_end = min(
+                    date_to,
+                    contract_end
+                ) if contract_end else date_to
+                
+                #Si el dia final tiene 31 dias restar un dia
+                if payment_end.day == 31:
+                    payment_end = payment_end - timedelta(days=1)
+
+                # Días trabajados, incluyendo ambos días
+                days_worked = (payment_end - payment_start).days + 1
+
+                # Salario diario usando 30 días
+                daily_amount = (self.wage * 2) / 30
+
+                # Salario proporcional
+                amount = float_round((daily_amount * days_worked), precision_rounding=rounding)
         return amount
 
 
