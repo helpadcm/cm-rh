@@ -1,7 +1,8 @@
+import logging
+import base64
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime, timedelta
-import logging
 
 week_days = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo']
 
@@ -112,7 +113,15 @@ class teamHourRecord(models.Model):
                 elif rec.turn_type_b.code == 'VAC' and rec.turn_type_a.code == 'LID':
                     rec.oh = amount2 / 100
 
-                rec.aditional_hours = rec.ordinary_hours - rec.oh
+                if rec.ordinary_hours <= rec.oh:
+                    rec.oh = rec.ordinary_hours
+                    
+                ah = rec.ordinary_hours - rec.oh
+                if ah > 0:
+                    rec.aditional_hours = ah
+                else:
+                    rec.aditional_hours = 0
+            
             elif rec.ordinary_hours == 0:
                 rec.aditional_hours = 0
                 rec.oh = 0
@@ -121,6 +130,15 @@ class teamHourRecord(models.Model):
         for rec in self:
             rec_real_id = self.env['hr.turn.registration'].search([('date','=',rec.date),('employee_id','=',rec.employee_id.id),('state','=','draft')])
             if rec_real_id:
+
+                if rec.turn_type_a.code == 'LID':
+                    if rec.schedule1_in_id.name != 'NA' or rec.schedule1_out_id.name != 'NA':
+                        raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
+                if rec.turn_type_b.code == 'LID':
+                    if rec.schedule2_in_id.name != 'NA' or rec.schedule2_out_id.name != 'NA':
+                        raise ValidationError(f"No se puede validar un turno de tipo LID en la fecha {rec.date.strftime('%d/%m/%Y')} con horarios de entrada o salida asignados")
+
                 update_vals = {
                     'validated_by_id': self.env.user.id,
                     'turn_type_a':rec.turn_type_a.id, 
@@ -149,4 +167,58 @@ class teamHourRecord(models.Model):
         if delete_date:
             rec_ids = self.env['team.hour.record'].search([('date','<=',delete_date)])
             if rec_ids:
+                self.generate_and_send_report(rec_ids, delete_date)
                 rec_ids.unlink()
+
+    @api.model
+    def generate_and_send_report(self, rec_ids, delete_date):
+        records = self.browse(rec_ids) if isinstance(rec_ids, (list, tuple)) else rec_ids
+
+        report_ref = 'portal_cm.action_hours_record_cm'
+        report_action = self.env.ref(report_ref)
+
+        # Modelo en Python donde está definido get_data
+        report_model = self.env['report.portal_cm.hours_record_cm']  # <-- ajusta al nombre técnico real
+        report_data = report_model.get_data(records.ids)
+
+        pdf_content, _ = report_action._render_qweb_pdf(
+            report_ref,
+            res_ids=records.ids,
+            data={'data': report_data},
+        )
+
+        attachment = self.env['ir.attachment'].create({
+            'name': f"Horas_registradas_{datetime.now().date()}.pdf",
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content),
+            'mimetype': 'application/pdf',
+            'res_model': 'team.hour.record',
+            'res_id': records[:1].id or False,
+        })
+
+        body = f"""
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family: Verdana, Arial, sans-serif; color: #454748; width: 100%; border-collapse: separate;">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse: separate;">
+                            <tbody>
+                                <tr>
+                                    <td style="font-size: 13px; line-height: 1.5; padding: 8px;">
+                                        A continuación se adjuntan las horas registradas mediante portal a la fecha <strong>{delete_date.date()}</strong>.
+                                        <br/><br/>Saludos,<br/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        """
+
+        mail = self.env['mail.mail'].create({
+            'subject': f'Horas registradas al dia {datetime.now().date()}',
+            'body_html': body,
+            'email_to': 'indira@cmairlines.com',
+            'attachment_ids': [(4, attachment.id)],
+        })
+        mail.send()

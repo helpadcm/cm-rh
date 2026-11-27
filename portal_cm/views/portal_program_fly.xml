@@ -461,7 +461,7 @@
                         <table class="table table-hover table-striped align-middle historical_table">
                             <thead class="table-dark">
                                 <tr>
-                                    <th class="header_historical">Tipo de Ausencia</th>
+                                    <th class="header_historical">Tipo de Boleto</th>
                                     <th class="header_historical">Descripcion</th>
                                     <th class="header_historical">Fecha de Inicio</th>
                                     <th class="header_historical">Fecha de Finalizacion</th>

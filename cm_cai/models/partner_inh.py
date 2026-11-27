@@ -4,14 +4,16 @@ from odoo.exceptions import UserError, ValidationError
 
 class partnerInh(models.Model):
     _inherit = "res.partner"
+    _rec_names_search = ['complete_name', 'email', 'ref', 'vat', 'company_registry', 'comercial_name']
 
     odoo10_id = fields.Integer(string="Id Odoo 10")
-    identity = fields.Char(string="Identidad")
-    is_customer = fields.Boolean(string="Es Cliente")
-    is_supplier = fields.Boolean(string="Es proveedor")
-    default_client = fields.Boolean(string="Cliente por defecto")
+    identity = fields.Char(string="Identidad",tracking=True)
+    is_customer = fields.Boolean(string="Es Cliente",tracking=True)
+    is_supplier = fields.Boolean(string="Es proveedor",tracking=True)
+    default_client = fields.Boolean(string="Cliente por defecto",tracking=True)
 
     cai_ids	= fields.One2many('management.cai','supplier_id','Listado de Numeros Cai Asociados')
+    comercial_name = fields.Char(string="Nombre Comercial",tracking=True,index=True)
 
     def default_get(self, fields_list):
         res = super().default_get(fields_list)

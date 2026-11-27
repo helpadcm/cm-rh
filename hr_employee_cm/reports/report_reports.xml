@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<record id="action_report_employee_exit_survey" model="ir.actions.report">
+    <field name="name">Entrevista de Salida (PDF)</field>
+    <field name="model">employee.exit.survey</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">hr_employee_cm.report_employee_exit_survey_document</field>
+    <field name="report_file">hr_employee_cm.report_employee_exit_survey_document</field>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="hr_employee_cm.paperformat_exit_survey_cm"/>
+    <field name="binding_model_id" ref="hr_employee_cm.model_employee_exit_survey"/>
+</record>
+
+<!-- ACCIÓN DE REPORTE: UNIFORME -->
+    <record id="action_report_indumentaria_cm" model="ir.actions.report">
+        <field name="name">Comprobante de Entrega de Uniforme e Indumentaria</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_cm.report_indumentaria_document</field>
+        <field name="report_file">hr_employee_cm.report_indumentaria_document</field>
+        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+<!-- ACCIÓN DE REPORTE: EPP (HS-RG-01) -->
+    <record id="action_report_epp_cm" model="ir.actions.report">
+        <field name="name">Constancia de Entrega de EPP (HS-RG-01)</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_employee_cm.report_epp_document</field>
+        <field name="report_file">hr_employee_cm.report_epp_document</field>
+        <field name="paperformat_id" ref="paperformat_indumentaria_cm"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

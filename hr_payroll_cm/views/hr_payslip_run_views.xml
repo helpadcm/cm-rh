@@ -31,6 +31,15 @@
         </field>
     </record>
 
+    <record id="hr_payroll.action_hr_payroll_open_pay_run" model="ir.actions.act_window">
+        <field name="name">Recibos del periodo de nómina</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            'search_default_group_by_department_id': 1,
+        }</field>
+    </record>
+
     <record id="payslip_run_kanban_inherit" model="ir.ui.view">
         <field name="name">payslip.run.kanban.inherit</field>
         <field name="model">hr.payslip.run</field>

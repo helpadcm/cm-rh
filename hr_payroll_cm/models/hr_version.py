@@ -2,10 +2,14 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import date as py_date
+from odoo.tools import float_round
 import pytz
 
 class versionInh(models.Model):
     _inherit = 'hr.version'
+
+    # monthly_wage = fields.Monetary(string="Salario Mensual", tracking=True)
 
     def calculate_deductions(self, code, payslip=False):
         amount = 0
@@ -14,14 +18,18 @@ class versionInh(models.Model):
             if code in ['RAP','SSH']:
                 amount, name = self.calculate_rap(code)
             else:
-                deduction_ids = self.env['hr.salary.attachment'].search([('employee_ids','in',[self.employee_id.id]),('state','=','open'),('other_input_type_id.code','=',code)])
+                deduction_ids = self.env['hr.other.deductions'].search([('employee_id','=',self.employee_id.id),('state','=','in_progress'),('input_type_id.code','=',code)])
                 if deduction_ids:
-                    name = ','.join([dedu.description for dedu in deduction_ids])
+                    name = ','.join([dedu.name for dedu in deduction_ids])
                     for ded in deduction_ids:
-                        if ded.other_input_type_id.code == code:
-                            payslip.salary_attachment_ids = [(4, ded.id)]
+                        if ded.input_type_id.code == code:
+                            # payslip.salary_attachment_ids = [(4, ded.id)]
                             if not ded.by_quotes:
-                                amount += ded.monthly_amount
+                                amount += ded.amount
+                                if not payslip:
+                                    raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
+                                    
+                                ded.payslip_id = payslip.id
                             else:
                                 if not payslip:
                                     raise ValidationError(f"""Revise la configuracion de la regla salarial {code}""")
@@ -42,14 +50,65 @@ class versionInh(models.Model):
         return amount
 
     def calculate_basic(self,payslip):
+        company = self.env.user.company_id
+        precision = company.currency_id.decimal_places or 2
+        rounding = company.currency_id.rounding
         if payslip.worked_days_line_ids:
             work100_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code == 'WORK100').mapped('amount'))
             extras_amount = sum(payslip.worked_days_line_ids.filtered(lambda line: line.work_entry_type_id.code != 'WORK100').mapped('amount'))
+
             if work100_amount == 0:
                 work100_amount = self.wage
+
             amount = work100_amount + extras_amount
         else:
+            date_from = payslip.date_from
+            date_to = payslip.date_to
+
+            contract_start = self.employee_id.contract_date_start
+            contract_end = self.employee_id.contract_date_end
+
+            # Por defecto, salario completo
             amount = self.wage
+            if self.employee_id.historical_salaries_ids:
+                salary_historical = self.get_historical_salary(self.employee_id, payslip.date_to)
+                if salary_historical > 0:
+                    amount = salary_historical
+
+            # Verificar si el inicio o final del contrato
+            # están dentro del período de la nómina
+            contract_affects_period = (
+                (contract_start and date_from <= contract_start <= date_to)
+                or
+                (contract_end and date_from <= contract_end <= date_to)
+            )
+
+            if contract_affects_period:
+
+                # Fecha desde la que se debe pagar
+                payment_start = max(
+                    date_from,
+                    contract_start
+                ) if contract_start else date_from
+
+                # Fecha hasta la que se debe pagar
+                payment_end = min(
+                    date_to,
+                    contract_end
+                ) if contract_end else date_to
+                
+                #Si el dia final tiene 31 dias restar un dia
+                if payment_end.day == 31:
+                    payment_end = payment_end - timedelta(days=1)
+
+                # Días trabajados, incluyendo ambos días
+                days_worked = (payment_end - payment_start).days + 1
+
+                # Salario diario usando 30 días
+                daily_amount = (self.wage * 2) / 30
+
+                # Salario proporcional
+                amount = float_round((daily_amount * days_worked), precision_rounding=rounding)
         return amount
 
 
@@ -78,7 +137,7 @@ class versionInh(models.Model):
         total = contract_actual + basic_amount - extras + other
         return (total / 12)
 
-    def calculate_rap(self, code):
+    def calculate_rap(self, code, payslip):
         amount = 0
         name = ''
         if code not in self.employee_id.skip_rules_ids.mapped('code'):
@@ -88,11 +147,38 @@ class versionInh(models.Model):
             if code == 'RAP':
                 percentage = (rap_id.percentage) / 100
                 total_salary = self.wage * 2
-                name = 'RAP'
+                if self.employee_id.historical_salaries_ids:
+                    result = self.get_historical_salary(self.employee_id, payslip.date_to) * 2
+                    if result > 0:
+                        total_salary = result
 
+                name = 'RAP'
                 amount = ((total_salary - rap_id.min_salary) * percentage) / 2
             elif code == 'SSH':
                 amount = rap_id.ihss_amount / 2
                 name = 'IHSS'
 
         return amount * -1, name
+
+    def get_historical_salary(self, employee, date):
+        fortnight_amount = 0.0
+        if not employee or not date:
+            return fortnight_amount
+
+        target_date = fields.Date.to_date(date)
+
+        if employee.historical_salaries_ids:
+            lines = employee.historical_salaries_ids.sorted(
+                key=lambda l: l.end_date_payroll or py_date.max
+            )
+
+            for line in lines:
+                # Evalúa que la fecha de la planilla esté entre start_date y end_date_payroll
+                if (
+                    line.start_date
+                    and line.end_date_payroll
+                    and line.start_date <= target_date <= line.end_date_payroll
+                ):
+                    fortnight_amount = line.amount / 2.0
+                    break
+        return fortnight_amount

@@ -54,7 +54,7 @@
                                                             Huespedes: <t t-out="object.people_qty or ''"/><br/><br/>
                                                             <table style="border:1px solid black;border-collapse: collapse;width:100%">
                                                                 <tr>
-                                                                    <td style="border:1px solid black;text-align:center;padding:3px" colspan="3"><strong>BENEFICIARIOS</strong></td>
+                                                                    <td style="border:1px solid black;text-align:center;padding:3px" colspan="4"><strong>BENEFICIARIOS</strong></td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="border:1px solid black;text-align:center;padding:3px"><strong>Nombre</strong></td>
@@ -70,7 +70,7 @@
                                                                             <t t-out="ben.identity or ''"/>
                                                                         </td>
                                                                         <td style="border:1px solid black;padding:3px;text-align:center">
-                                                                            <t t-out="ben.birthday.strftime('%d/%m/%Y') or ''"/>
+                                                                            <t t-out="ben.birthday.strftime('%d/%m/%Y') if ben.birthday else ''"/>
                                                                         </td>
                                                                     </tr>
                                                                 </t>

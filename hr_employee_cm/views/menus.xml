@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
+    <!-- ========================================== -->
+    <!-- MENÚS DE FIRMA DE CORREO (Tus menús actuales) -->
+    <!-- ========================================== -->
     <menuitem
         id="hr_digital_sign_menu"
         name="Firma de Correo"
@@ -22,4 +25,18 @@
         parent="hr_digital_sign_menu"
         groups="hr_employee_cm.manager_digital_sign_cm"
         sequence="2"/>
+
+    <!-- ========================================== -->
+    <!-- MENÚS DE ENTREVISTAS DE SALIDA  -->
+    <!-- ========================================== -->
+    <menuitem id="menu_employee_interview_category"
+              name="Entrevista"
+              parent="hr.hr_menu_hr_reports"
+              sequence="50"/>
+
+    <menuitem id="menu_employee_exit_survey_report"
+              name="Enviar Entrevista de Salida"
+              parent="menu_employee_interview_category"
+              action="action_employee_exit_survey"
+              sequence="10"/>
 </odoo>

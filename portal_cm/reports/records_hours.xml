@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="hours_record_cm">
+            <t t-call="web.html_container">
+                <head>
+                    <meta charset="utf-8"/>
+                </head>
+                <t t-set="company" t-value="res_company"/>
+                <div class="page" style="font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #1f2937;">
+                    <style>
+                        .report-header-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 16px;
+                            border-bottom: 2px solid #2c3e50;
+                        }
+                        .report-title-main {
+                            font-size: 20px;
+                            font-weight: bold;
+                            color: #111827;
+                            margin: 0 0 4px 0;
+                        }
+                        .report-title-sub {
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #4b5563;
+                            margin: 0;
+                        }
+                        .hours-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 8px;
+                        }
+                        .hours-table tr {
+                            page-break-inside: avoid;
+                        }
+                        .group-team td {
+                            background-color: #2c3e50;
+                            color: #ffffff;
+                            font-size: 12px;
+                            font-weight: bold;
+                            padding: 7px 10px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.4px;
+                        }
+                        .group-employee td {
+                            background-color: #e5e7eb;
+                            color: #111827;
+                            font-size: 11.5px;
+                            font-weight: bold;
+                            padding: 6px 10px;
+                            border-top: 1px solid #cbd5e1;
+                            border-bottom: 1px solid #cbd5e1;
+                        }
+                        .col-headers th {
+                            background-color: #f8fafc;
+                            color: #334155;
+                            font-size: 10px;
+                            font-weight: bold;
+                            padding: 6px 5px;
+                            border-bottom: 1.5px solid #64748b;
+                            vertical-align: middle;
+                        }
+                        .data-row td {
+                            font-size: 10px;
+                            padding: 5px 5px;
+                            border-bottom: 1px solid #e5e7eb;
+                            vertical-align: middle;
+                        }
+                        .data-row:nth-child(even) td {
+                            background-color: #f9fafb;
+                        }
+                        .subtotal-row td {
+                            background-color: #f1f5f9;
+                            font-size: 10px;
+                            font-weight: bold;
+                            color: #1e293b;
+                            padding: 6px 5px;
+                            border-top: 1px solid #94a3b8;
+                            border-bottom: 1.5px solid #64748b;
+                        }
+                        .text-left { text-align: left; }
+                        .text-center { text-align: center; }
+                        .text-right { text-align: right; }
+                    </style>
+
+                    <!-- Encabezado institucional -->
+                    <table class="report-header-table">
+                        <tr>
+                            <td style="width: 18%; padding: 8px 10px; vertical-align: middle; border: none;">
+                                <img t-if="company.logo"
+                                     t-att-src="image_data_uri(company.logo)"
+                                     style="max-height: 70px; max-width: 100%;"
+                                     alt="Logo"/>
+                            </td>
+                            <td style="width: 82%; padding: 8px 10px; text-align: center; vertical-align: middle; border: none;">
+                                <div class="report-title-main">
+                                    <span t-field="company.name"/>
+                                </div>
+                                <div class="report-title-sub">
+                                    Horas registradas
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Tabla principal agrupada -->
+                    <table class="hours-table">
+                        <tbody>
+                            <t t-foreach="data" t-as="team">
+                                <tr class="group-team">
+                                    <td colspan="12">
+                                        <span t-esc="team.get('team_name') or team.get('department_name') or ''"/>
+                                    </td>
+                                </tr>
+
+                                <t t-foreach="team.get('employees')" t-as="employee">
+                                    <tr class="group-employee">
+                                        <td colspan="12">
+                                            Empleado: <span t-esc="employee.get('employee_name')"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr class="col-headers">
+                                        <th class="text-left" style="width: 9%;">Fecha</th>
+                                        <th class="text-left" style="width: 7%;">Día</th>
+                                        <th class="text-left" style="width: 10%;">Tipo Turno A</th>
+                                        <th class="text-center" style="width: 7%;">Entrada 1</th>
+                                        <th class="text-center" style="width: 7%;">Salida 1</th>
+                                        <th class="text-left" style="width: 10%;">Tipo Turno B</th>
+                                        <th class="text-center" style="width: 7%;">Entrada 2</th>
+                                        <th class="text-center" style="width: 7%;">Salida 2</th>
+                                        <th class="text-right" style="width: 8%;">Horas Totales</th>
+                                        <th class="text-right" style="width: 7%;">HO</th>
+                                        <th class="text-right" style="width: 9%;">Tiempo Adicional</th>
+                                        <th class="text-left" style="width: 13%;">Nota</th>
+                                    </tr>
+
+                                    <t t-foreach="employee.get('records')" t-as="rec">
+                                        <tr class="data-row">
+                                            <td class="text-left"><span t-esc="rec.get('date') or ''"/></td>
+                                            <td class="text-left"><span t-esc="rec.get('day') or ''"/></td>
+                                            <td class="text-left"><span t-esc="rec.get('turn_type_a') or ''"/></td>
+                                            <td class="text-center"><span t-esc="rec.get('entry1') or ''"/></td>
+                                            <td class="text-center"><span t-esc="rec.get('out1') or ''"/></td>
+                                            <td class="text-left"><span t-esc="rec.get('turn_type_b') or ''"/></td>
+                                            <td class="text-center"><span t-esc="rec.get('entry2') or ''"/></td>
+                                            <td class="text-center"><span t-esc="rec.get('out2') or ''"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % (rec.get('total_hours') or 0.0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % (rec.get('oh') or 0.0)"/></td>
+                                            <td class="text-right"><span t-esc="'%.2f' % (rec.get('aditional') or 0.0)"/></td>
+                                            <td class="text-left"><span t-esc="rec.get('notes') or ''"/></td>
+                                        </tr>
+                                    </t>
+
+                                    <tr class="subtotal-row">
+                                        <td colspan="8" class="text-right">
+                                            Subtotal <span t-esc="employee.get('employee_name')"/>:
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % (employee.get('total_ordinary_hours') or 0.0)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % (employee.get('total_oh') or 0.0)"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % (employee.get('total_aditional') or 0.0)"/>
+                                        </td>
+                                        <td/>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

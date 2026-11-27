@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_exit_survey_cm" model="report.paperformat">
+        <field name="name">Formato Entrevista de Salida</field>
+        <field name="default" eval="False"/>
+        <field name="orientation">Portrait</field>
+        <field name="format">Letter</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">15</field>
+        <field name="margin_right">15</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+     <!-- CONFIGURACIÓN DE FORMATO DE PAPEL -->
+    <record id="paperformat_indumentaria_cm" model="report.paperformat">
+        <field name="name">Formato Comprobante Indumentaria</field>
+        <field name="default" eval="False"/>
+        <field name="orientation">Portrait</field>
+        <field name="format">Letter</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">15</field>
+        <field name="margin_right">15</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+    
+</odoo>

@@ -208,6 +208,7 @@ class historicalSalaries(models.Model):
     end_date = fields.Date(string="Fecha Final")
     end_date_payroll = fields.Date(string="Ultima fecha aplicada en nomina")
     amount = fields.Float(string="Sueldo Anterior")
+    note = fields.Text(string="Nota")
 
 class workEntryTypeInh(models.Model):
     _inherit = 'hr.work.entry.type'

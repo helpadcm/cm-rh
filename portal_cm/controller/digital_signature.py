@@ -5,6 +5,7 @@ from odoo.exceptions import ValidationError
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from odoo.tools.misc import file_path
+import tempfile
 
 class digitalSignaturePortal(http.Controller):
 
@@ -91,15 +92,17 @@ class digitalSignaturePortal(http.Controller):
 
         # Cargar la fuente (puede cambiar la ruta a una fuente TTF personalizada)
         try:
-            name_font = ImageFont.truetype(name_font_path, name_font_size)
-            job_font = ImageFont.truetype(job_font_path, job_font_size)
-            address_font = ImageFont.truetype(job_font_path, address_font_size)
-            company_font = ImageFont.truetype(job_font_path, address_font_size)
+            name_font = self._load_font(conf_id.name_font, conf_id.name_font_size)
+            job_font = self._load_font(conf_id.job_font, conf_id.job_font_size)
+            address_font = self._load_font(conf_id.address_font, conf_id.address_font_size)
+            mobile_font = self._load_font(conf_id.mobile_font, conf_id.mobile_font_size)
+            company_font = self._load_font(conf_id.company_font, conf_id.phone_comp_font_size)
         except IOError:
             name_font = ImageFont.load_default()
             job_font = ImageFont.load_default()
             address_font = ImageFont.load_default()
             company_font = ImageFont.load_default()
+            mobile_font = ImageFont.load_default()
 
         # Dibujar el texto en la posición predefinida
         name_text_position = (x_name_position, y_name_position)
@@ -110,11 +113,11 @@ class digitalSignaturePortal(http.Controller):
         color_hex = "#1B371F"
         name_color_rgb = self.hex_to_rgb(color_hex)
 
-        draw.text(name_text_position, config.name, fill=name_color_rgb, font=name_font)
-        draw.text(job_text_position, config.employee_id.job_title or '', fill=name_color_rgb, font=job_font)
-        draw.text(address_text_position, config.employee_id.work_location_id.name or '', fill="white", font=address_font)
-        draw.text(mobile_text_position, config.employee_id.mobile_phone or '', fill="white", font=address_font)
-        draw.text(company_text_position, config.employee_id.company_id.phone or '', fill="white", font=company_font)
+        draw.text(name_text_position, config.name, fill=self.hex_to_rgb(conf_id.name_color), font=name_font)
+        draw.text(job_text_position, config.employee_id.job_title, fill=self.hex_to_rgb(conf_id.job_color), font=job_font)
+        draw.text(address_text_position, config.employee_id.work_location_id.name or '', fill=self.hex_to_rgb(conf_id.address_color), font=address_font)
+        draw.text(mobile_text_position, config.employee_id.mobile_phone or '', fill=self.hex_to_rgb(conf_id.mobile_color), font=mobile_font)
+        draw.text(company_text_position, config.employee_id.company_id.phone or '', fill=self.hex_to_rgb(conf_id.company_color), font=company_font)
 
         # Guardar la imagen en memoria
         output = BytesIO()
@@ -135,3 +138,15 @@ class digitalSignaturePortal(http.Controller):
         """Convierte un color hexadecimal a una tupla RGB."""
         hex_color = hex_color.lstrip("#")  # Elimina el "#" si está presente
         return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+    def _load_font(self, font_binary, size):
+        if not font_binary:
+            return ImageFont.load_default()
+
+        data = base64.b64decode(font_binary)
+
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ttf")
+        tmp.write(data)
+        tmp.close()
+
+        return ImageFont.truetype(tmp.name, size)

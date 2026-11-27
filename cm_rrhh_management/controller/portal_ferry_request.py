@@ -167,11 +167,13 @@ class ferryRequestPortal(http.Controller):
             request_id.sudo().change_business()
             request_id.sudo().get_qty_available()
             for i in tickets:
-                request.env['request.beneficiary'].sudo().create({
+                beneficiary_id = request.env['request.beneficiary'].sudo().create({
                     'request_id': request_id.id,
                     'beneficiary_id': int(i),
                     'employee_id': employee_id.id
                 })
+                beneficiary_id.sudo().data_beneficiary()
+                beneficiary_id.sudo()._onchange_birth_date()
 
             attachment_ids = []
             for file in attachments:

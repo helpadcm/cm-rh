@@ -30,11 +30,12 @@
                             <page string="Periodos">
                                 <field colspan="4" name="period_ids" nolabel="1" widget="one2many_list" readonly="state != 'open'">
                                     <list colors="blue:parent.state == 'draft';green:special==True;gray:special !=true"  string="Period" editable="bottom" create="false" delete="false">
-                                            <field name="sequence" readonly="1"/>
-                                            <field name="code" readonly="1"/>
-                                            <field name="date_start" readonly="1"/>
-                                            <field name="date_stop" readonly="1"/>
-                                            <field name="special" groups="account_fiscal_year_period.group_fiscal_year_open_close"/>
+                                        <field name="sequence" readonly="1"/>
+                                        <field name="code" readonly="1"/>
+                                        <field name="date_start" readonly="1"/>
+                                        <field name="date_stop" readonly="1"/>
+                                        <field name="user_ids" readonly="not special" options="{'no_create': True}" widget="many2many_tags" placeholder="Si permanece vacio todos los usuarios tendran permiso"/>
+                                        <field name="special" groups="account_fiscal_year_period.group_fiscal_year_open_close"/>
                                     </list>
                                 </field>
                                 </page>

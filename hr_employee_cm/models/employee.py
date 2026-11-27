@@ -1,12 +1,20 @@
+# -*- coding: utf-8 -*-
 import logging
 import re
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 
 _logger = logging.getLogger(__name__)
 
+relationship_select = [
+    ('mother', 'Madre'),
+    ('father', 'Padre'),
+    ('siblings', 'Hermano(a)'),
+    ('mother', 'Madre'),
+    ('mother', 'Madre'),
+]
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
@@ -30,6 +38,16 @@ class HrEmployee(models.Model):
         compute="_format_identification_with_dashes"
         )
 
+    employee_age = fields.Integer(string="Edad",compute='_compute_next_birthday')
+    relationship = fields.Char(string="Parentesco",tracking=True)
+    actual_picture = fields.Binary(string="Fotografia Actual", groups="hr.group_hr_user")
+
+    # Campo booleano invisible para llevar el registro interno del formulario enviado
+    exit_survey_sent = fields.Boolean(
+        string="Formulario enviado",
+        default=False
+    )
+
     @api.constrains('barcode')
     def _verify_barcode(self):
         for employee in self:
@@ -41,10 +59,16 @@ class HrEmployee(models.Model):
     @api.model
     def _get_certificate_selection(self):
         res = super(HrEmployee, self)._get_certificate_selection()
-        res.append(('university intern', 'Pasante Universitario'))
-        res.append(('engineering', 'Ingeniería'))
-        res.append(('basic', 'Educación Básica'))
-        return res
+        return [
+            ('primary', self.env._('Primaria')),
+            ('secondary', self.env._('Secundaria Completa')),
+            ('technical', self.env._('Técnico')),
+            ('university_intern', self.env._('Pasante Universitario')),
+            ('degree', self.env._('Licenciatura')),
+            ('master', self.env._('Maestria')),
+            ('doctor', self.env._('Doctorado')),
+
+        ]
 
     @api.onchange('birthday')
     def calculate_month(self):
@@ -64,8 +88,18 @@ class HrEmployee(models.Model):
                 if today > next_birthday:
                     next_birthday += relativedelta(years=1)
                 record.next_birthday = next_birthday
+
+                record.employee_age = (
+                    today.year
+                    - record.birthday.year
+                    - (
+                        (today.month, today.day)
+                        < (record.birthday.month, record.birthday.day)
+                    )
+                )
             else:
                 record.next_birthday = False
+                record.employee_age = 0
 
     @api.onchange('identification_id')
     def _format_identification_id(self):
@@ -93,28 +127,6 @@ class HrEmployee(models.Model):
                 record.format_identification_id = formatted_identification_with_dashes
             else:
                 record.format_identification_id = False
-
-    @api.model
-    def cron_create_portal_user_to_employee(self):
-        employees = self.env['hr.employee'].search([('user_id', '=', False), ('work_email', '!=', False)])
-        for employee in employees:
-            login = employee.work_email
-            if self.env['res.users'].search([('login', '=', login)]):
-                if not self.env['hr.employee'].search([('user_id.login', '=', login)]):
-                    employee.user_id = self.env['res.users'].search([('login', '=', login)], limit=1).id
-                    _logger.info("User found for employee %s: %s", employee.name, login)
-                continue
-            user = self.env['res.users'].create(
-                {
-                    'name': employee.name,
-                    'login': login,
-                    'share': True,
-                    'group_ids': [(6, 0, [self.env.ref('base.group_portal').id])],
-                    }
-                )
-            employee.user_id = user.id
-            _logger.info("User created for employee %s: %s", employee.name, login)
-        _logger.info("Cron job to create portal users executed")
 
     @api.model
     def cron_award_one_year_badge(self):
@@ -151,3 +163,25 @@ class HrEmployee(models.Model):
                             'employee_id': employee.id,
                             }
                         )
+
+    def action_send_survey(self):
+        """Abre la ventana emergente para enviar la entrevista de salida."""
+        self.ensure_one()
+        email_to = self.work_email or self.private_email or ''
+        return {
+            'name': _('Enviar Formulario'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'send.survey',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_emails': email_to,
+                'default_employee_id': self.id,
+            }
+        }
+
+class employeePublicInh(models.Model):
+    _inherit = 'hr.employee.public'
+
+    rrhh_boss = fields.Boolean(string="Encargado RRHH")
+    function_rrhh = fields.Selection([('rrhh_boss','Encargado RRHH'),('rrhh_manager','Responsable RRHH')],string="Puesto en RRHH")

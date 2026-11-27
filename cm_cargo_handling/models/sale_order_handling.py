@@ -41,7 +41,7 @@ class saleOrderHandling(models.Model):
         lps_currency_id = self.env.ref('base.HNL')
         usd_currency_id = self.env.ref('base.USD')
         rec = super(saleOrderHandling, self).default_get(fields)
-        context = dict(self._context or {})
+        context = self.env.context
         active_ids = context.get('active_ids')
         rec.update({
             'local_currency_id': lps_currency_id.id,
@@ -583,7 +583,7 @@ class saleOrderHandling(models.Model):
         if self.parent_id:
             invoice_partner_id = self.parent_id
 
-        if not self.partner_id.grouping_invoice:
+        if not self.partner_id.grouping_invoice or self.modality in ['upon_delivery']:
             move_vals = {
                 'partner_id': invoice_partner_id.id,
                 'partner_name': self.client_name or invoice_partner_id.name,
@@ -601,7 +601,7 @@ class saleOrderHandling(models.Model):
                 'internal_number': 'Borrador',
             }
 
-            self.move_id = self.env['account.move'].create(move_vals)
+            self.move_id = self.env['account.move'].sudo().create(move_vals)
 
             line_vals = {
                 'product_id': self.product_id.id,
@@ -636,7 +636,7 @@ class saleOrderHandling(models.Model):
                     'source_id': source_id.id
                 })
 
-            self.env['account.move.line'].create(line_vals)
+            self.env['account.move.line'].sudo().create(line_vals)
 
         if self.modality in ['counted','credit']:
             if self.modality == 'credit' and not self.created_invoice:

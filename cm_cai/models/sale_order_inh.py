@@ -26,7 +26,6 @@ class companyInherit(models.Model):
         valor = number
         number = int(number)
         decimal_value = round((valor - number), 2)
-
         # if decimal_value >= 0.5:
         #     centavos = math.ceil(round(decimal_value, 2) * 100)
         # else:
@@ -34,6 +33,7 @@ class companyInherit(models.Model):
         #        centavos = 29
         #     else:
         centavos = int((round(valor-number,2)) * 100)
+        centavos=round(decimal_value * 100)
 
         #else:
         #    centavos = (round(valor-number,2)) * 100

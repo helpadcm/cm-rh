@@ -153,6 +153,7 @@ class AccountMonthPeriod(models.Model):
     date_stop = fields.Date('Hasta', required=True, tracking=True)
     fiscalyear_id = fields.Many2one('account.fiscalyear.periods', 'Año Fiscal', tracking=True)
     company_id = fields.Many2one('res.company',string='Compañia',related='fiscalyear_id.company_id',store=True)
+    user_ids = fields.Many2many('res.users',string="Usuarios permitidos")
 
     def get_closest_open_date(self,dates):
         period = self.sudo().with_context(company_id=self.env.company.id).search([('date_start', '<=', dates), ('date_stop', '>=', dates),('special','=',True),('company_id','=',self.env.company.id)],limit=1)
@@ -201,11 +202,19 @@ class AccountMove(models.Model):
                     elif fiscal_rec.state == 'open':
                         period_rec = period_obj.sudo().with_context(company_id=rec.company_id.id).search([('date_start', '<=', rec.date), ('date_stop', '>=', rec.date),('fiscalyear_id','=',fiscal_rec.id)],limit=1)
                         if not period_rec:
-                            raise ValidationError(
-                                _('La fecha debe estar dentro del periodo de duracion.'))
+                            raise ValidationError(_('La fecha debe estar dentro del periodo de duracion.'))
                         elif not period_rec.special:
-                            raise ValidationError(f"""El periodo fiscal {period_rec.code} esta cerrado""")
-                        else:return True
-                    else:raise ValidationError(
-                                _('El año fiscal debe estar abierto'))
-        else: return res                         
+                            raise ValidationError(f"""El periodo fiscal {period_rec.code} del {period_rec.fiscalyear_id.fiscal_year_id.name} esta cerrado""")
+                        else:
+                            return self.validate_rec(period_rec)
+                    else:
+                        raise ValidationError(_('El año fiscal debe estar abierto'))
+        else: 
+            return res                         
+
+    def validate_rec(self, period):
+        validation = True
+        if period.user_ids:
+            if self.env.user.id not in period.user_ids.ids:
+                raise ValidationError(f"El usuario {self.env.user.name} no tiene permiso para modificar en este periodo")
+        return validation
