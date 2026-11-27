@@ -306,7 +306,8 @@ class lotFormatXlsx(models.AbstractModel):
                                         'code': 'HFF'
                                     })
 
-                        incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
+                        self._add_or_sum_item(incomes, {'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded,'code': line.salary_rule_id.code})
+                        # incomes.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
 
                     if line.category_id.code == 'DED':
                         rule_name = line.salary_rule_id.name
@@ -315,7 +316,8 @@ class lotFormatXlsx(models.AbstractModel):
                         if rule_name not in deductions_name:
                             deductions_name.append(rule_name)
                             deductions_sequence[rule_name] = sequence
-                        deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
+                        self._add_or_sum_item(deductions, {'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded,'code': line.salary_rule_id.code})
+                        # deductions.append({'rule_name': line.salary_rule_id.name, 'amount': line_total_rounded, 'code': line.salary_rule_id.code})
 
             net_line = payslip.line_ids.filtered(lambda l: l.code == 'NET')
             net_amount = net_line.total if net_line else (payslip.net_wage or 0.0)
@@ -363,3 +365,13 @@ class lotFormatXlsx(models.AbstractModel):
         )
 
         return {'department_data': departments_dict, 'deductions_name': deductions_name, 'incomes_name': incomes_name, 'payslip_name': payslip_name}
+
+    def _add_or_sum_item(target_list, item, match_by='code'):
+        key = item.get(match_by)
+        for existing in target_list:
+            if existing.get(match_by) == key:
+                existing['amount'] = float_round(
+                    (existing.get('amount') or 0.0) + (item.get('amount') or 0.0),
+                    precision_digits=2,
+                )
+        return target_list.append(item)
