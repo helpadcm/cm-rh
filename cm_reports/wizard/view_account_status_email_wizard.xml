@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_status_wizard_view_email_inherit" model="ir.ui.view">
+        <field name="name">Account Status Email Inherit</field>
+        <field name="model">cm_reports.wizard_account_status</field>
+        <field name="inherit_id" ref="cm_reports.account_status_wizard_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_to']" position="after">
+                <field name="send_email"/>
+                <field name="partner_email"
+                       invisible="not send_email"
+                       required="send_email"
+                       placeholder="separe los correos por coma"/>
+            </xpath>
+            <xpath expr="//footer/button[@name='report_status'][last()]" position="after">
+                <button name="action_send_email_report"
+                        string="Enviar Correo"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not send_email"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_status_email_wizard_form" model="ir.ui.view">
+        <field name="name">cm_reports.account.status.email.wizard.form</field>
+        <field name="model">cm_reports.account.status.email.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enviar Estado de Cuenta">
+                <sheet>
+                    <group>
+                        <field name="email_to" placeholder="separe los correos por coma"/>
+                        <field name="subject"/>
+                        <field name="email_cc" placeholder="separe los correos por coma"/>
+                    </group>
+                    <div class="mt-3">
+                        <field name="body_html" nolabel="1" options="{'collaborative': false}"/>
+                    </div>
+                    <div class="mt-3">
+                        <field name="attachment_ids" widget="many2many_tags" options="{'no_create': true}"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_send_email"
+                            string="Enviar Correo"
+                            type="object"
+                            class="oe_highlight"
+                            confirm="¿Está seguro de que desea enviar el correo electrónico?"/>
+                    <button string="Cancelar" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -4,35 +4,31 @@
         <field name="name">Account Status</field>
         <field name="model">cm_reports.wizard_account_status</field>
         <field name="arch" type="xml">
-        <form string="Report Options">
-            <sheet>
+            <form string="Report Options">
                 <group col="2">
                     <group>
                         <field name="date_start" required="1"/>
                         <field name="payment_state" required="1"/>
-                        <field name="partner_id" invisible="1"/>
-                        <field name="partner_ids" domain="[('is_customer','=',True)]" widget="many2many_tags" options="{'no_create':True}" invisible="context.get('from_partner')"/>
+                        <field name="partner_ids"
+                               domain="[('is_customer','=',True)]"
+                               widget="many2many_tags"
+                               options="{'no_create':True}"
+                               invisible="context.get('from_partner')"/>
                     </group>
-                    
                     <group>
                         <field name="date_to" required="1"/>
-                        <field name="send_email"/>
-                        <field name="partner_email" invisible="not send_email" required="send_email"/>
                         <field name="zero_balance" invisible="1"/>
                     </group>
                 </group>
-            </sheet>
 
-            <footer>
-                <button name="report_status" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
-                <button name="report_status" string="Excel" type="object" class="oe_highlight" context="{'export_excel':True}"/>
-                
-                <!-- Botón de enviar correo -->
-                <button name="action_send_email_report" string="Enviar Correo" type="object" class="oe_highlight" invisible="not send_email"/>
-                
-                <button string="Cancelar" class="oe_link" special="cancel" />
-            </footer>
-        </form>
+                <field name="partner_id" invisible="1"/>
+
+                <footer>
+                    <button name="report_status" string="Imprimir" type="object" default_focus="1" class="oe_highlight"/>
+                    <button name="report_status" string="Excel" type="object" class="oe_highlight" context="{'export_excel':True}"/>
+                    <button string="Cancelar" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 
@@ -43,42 +39,4 @@
         <field name="view_id" ref="account_status_wizard_view"/>
         <field name="target">new</field>
     </record>
-
-    <!-- Plantilla de correo electrónico -->
-    <record id="email_template_account_status" model="mail.template">
-        <field name="name">Estado de Cuenta: Enviar por Correo</field>
-        <field name="model_id" ref="cm_reports.model_cm_reports_wizard_account_status"/>
-        <field name="subject">Estado de cuenta - {{ object.date_start.strftime('%d/%m/%Y') if object.date_start else '' }} al {{ object.date_to.strftime('%d/%m/%Y') if object.date_to else '' }}</field>
-        <field name="email_to">{{ object.partner_email }}</field>
-        <field name="body_html" type="html">
-            <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
-                <p>Buen día, estimado/a <strong><t t-out="object.partner_id.name or (object.partner_ids[:1].name if object.partner_ids else 'cliente')"/></strong>:</p>
-                <p>Por medio de la presente, adjuntamos su Estado de Cuenta con corte al <strong><t t-out="object.date_to.strftime('%d/%m/%Y') if object.date_to else ''"/></strong> para su revisión y gestión de pago correspondiente.</p>
-                <p>En caso de haber realizado algún pago reciente, le agradeceremos nos envíe el comprobante para actualizar nuestros registros.</p>
-                <p>Para cualquier consulta, puede comunicarse directamente al correo <a href="mailto:marina@cmairlines.com">marina@cmairlines.com</a>.<br/>
-                Quedamos a su entera disposición.</p>
-                <br/>
-                <p>Saludos cordiales,</p>
-            </div>
-        </field>
-    </record>
-
-    <record id="cm_reports_hide_reply_to_compose" model="ir.ui.view">
-        <field name="name">mail.compose.message.hide.reply.to.cm</field>
-        <field name="model">mail.compose.message</field>
-        <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='subject']" position="after">
-                <field name="cm_email_cc" string="Cc." placeholder="correo@ejemplo.com"/>
-            </xpath>
-            <xpath expr="//field[@name='reply_to']" position="attributes">
-                <attribute name="invisible">1</attribute>
-                <attribute name="required">0</attribute>
-            </xpath>
-            <xpath expr="//button[@name='action_send_mail']" position="attributes">
-                <attribute name="confirm">¿Está seguro de que desea enviar el correo electrónico?</attribute>
-            </xpath>
-        </field>
-    </record>
-    
 </odoo>

@@ -12,6 +12,7 @@
 		'data/paperformat.xml',
 		'wizard/invoice_report_view.xml',
 		'wizard/view_wizard_account_status.xml',
+		'wizard/view_account_status_email_wizard.xml',
 		'wizard/view_wizard_check_list.xml',
 		'views/company_inh_view.xml',
 		'views/menus.xml',
