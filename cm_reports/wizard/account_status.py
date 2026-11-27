@@ -51,18 +51,16 @@ class wizard_account_status(models.TransientModel):
         if not self.partner_email:
             raise ValidationError("Debe indicar al menos un correo electrónico válido para realizar el envío.")
 
-        # Validar que solo haya un correo electrónico
-        raw_emails = [
+        # Limpiar y unir uno o varios correos separados por coma o punto y coma
+        emails_list = [
             e.strip()
             for e in self.partner_email.replace(';', ',').split(',')
             if e.strip()
         ]
-        if len(raw_emails) > 1:
-            raise ValidationError(
-                "Solo se permite un correo electrónico. Por favor elimine los correos adicionales y deje solo uno."
-            )
+        if not emails_list:
+            raise ValidationError("Debe indicar al menos un correo electrónico válido para realizar el envío.")
 
-        single_email = raw_emails[0]
+        email_to_str = ", ".join(emails_list)
 
         # Buscar la plantilla de correo
         template = self.env.ref('cm_reports.email_template_account_status', raise_if_not_found=False)
@@ -110,9 +108,9 @@ class wizard_account_status(models.TransientModel):
                 'default_res_ids': self.ids,
                 'default_template_id': template.id,
                 'default_composition_mode': 'comment',
-                'default_email_to': single_email,
+                'default_email_to': email_to_str,
                 'default_cm_email_cc': 'marina@cmairlines.com',
-                'default_reply_to': False,
+                'default_reply_to': 'marina@cmairlines.com',
                 'default_attachment_ids': [(4, attachment.id)],
                 'force_email': True,
             }
@@ -155,20 +153,39 @@ class MailComposeMessage(models.TransientModel):
         return list(set(parsed_ids))
 
     def _action_send_mail(self, auto_commit=False):
+        cc_value = ""
+        reply_to_value = ""
         for wizard in self:
-            if wizard.cm_email_cc and 'email_cc' in wizard._fields:
-                wizard.email_cc = wizard.cm_email_cc
+            if wizard.cm_email_cc and wizard.cm_email_cc.strip():
+                cc_value = wizard.cm_email_cc.strip()
+                if 'email_cc' in wizard._fields:
+                    wizard.email_cc = cc_value
+            if 'reply_to' in wizard._fields and wizard.reply_to and wizard.reply_to.strip():
+                reply_to_value = wizard.reply_to.strip()
+
+        if not cc_value:
+            cc_value = (self.env.context.get('default_cm_email_cc') or '').strip()
+        if not reply_to_value:
+            reply_to_value = (self.env.context.get('default_reply_to') or 'marina@cmairlines.com').strip()
+
         res = super()._action_send_mail(auto_commit=auto_commit)
-        single_email = (self.env.context.get('default_email_to') or '').strip()
+
+        target_emails = (self.env.context.get('default_email_to') or '').strip()
         res_ids = self._get_parsed_res_ids()
-        if single_email and res_ids:
+        if res_ids:
             mails = self.env['mail.mail'].sudo().search([
                 ('model', '=', 'cm_reports.wizard_account_status'),
                 ('res_id', 'in', res_ids),
             ], order='id desc', limit=1)
             if mails:
-                mails.write({
-                    'email_to': single_email,
-                    'recipient_ids': [(5, 0, 0)],
-                })
+                vals = {}
+                if target_emails:
+                    vals['email_to'] = target_emails
+                    vals['recipient_ids'] = [(5, 0, 0)]
+                if cc_value:
+                    vals['email_cc'] = cc_value
+                if reply_to_value and 'reply_to' in mails._fields:
+                    vals['reply_to'] = reply_to_value
+                if vals:
+                    mails.write(vals)
         return res
