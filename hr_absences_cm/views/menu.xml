@@ -13,4 +13,12 @@
         parent="hr_holidays.menu_hr_holidays_configuration"
         action="hr_absences_cm.action_paid_leaves"
         sequence="21"/>
+
+    <menuitem
+        id="vacations_details_menuitem"
+        name="Detalles de vacaciones"
+        parent="hr.menu_human_resources_configuration"
+        action="action_vacations_details"
+        groups="base.group_no_one"
+        sequence="120"/>
 </odoo>

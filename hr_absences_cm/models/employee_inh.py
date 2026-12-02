@@ -1,5 +1,6 @@
 from odoo import fields, models, api
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 relationship_list = [
     ('mother', 'Madre'), ('father','Padre'),
@@ -10,12 +11,12 @@ relationship_list = [
 class HrEmployeeInh(models.Model):
     _inherit = 'hr.employee'
 
-    compensatory_hours = fields.Float(string="Horas compensatorios Disp.")
+    compensatory_hours = fields.Float(string="Horas compensatorios Disp.",tracking=True)
     compensatory_day = fields.Float(string="Eq. Dias", compute="calculate_days")
     compensatory_day_string = fields.Char(string="Equivalente Dias", compute="calculate_days")
     vacations_day = fields.Float(string="Vacaciones Disp.",compute="get_available_vacations")
-    early_vacations = fields.Float(string="Vacaciones Adelantadas")
-    program_to_fly = fields.Float(string="Programa a Volar Disp.")
+    early_vacations = fields.Float(string="Vacaciones Adelantadas",tracking=True)
+    program_to_fly = fields.Float(string="Programa a Volar Disp.",tracking=True)
     first_year = fields.Boolean(string="1er Año")
     second_year = fields.Boolean(string="2do Año")
     vacation_details_ids = fields.One2many('vacations.detail.list','employee_id',string="Detalle de vacaciones")
@@ -44,117 +45,116 @@ class HrEmployeeInh(models.Model):
                 rec.compensatory_day = 0
                 rec.compensatory_day_string = 'No disponibles'
 
+    def _get_contract_years(self, contract_date, actual_date=None):
+        """Devuelve los años completos de antigüedad."""
+        actual_date = actual_date or datetime.now().date()
+
+        if not contract_date or actual_date < contract_date:
+            return 0
+
+        return relativedelta(actual_date, contract_date).years
+
+    def _get_vacation_days(self, years, has_aeronautical_license=False):
+        """Devuelve los días de vacaciones correspondientes."""
+        
+        if has_aeronautical_license:
+            return 30
+
+        vacation_days = {
+            1: 10,
+            2: 12,
+            3: 15,
+        }
+
+        return vacation_days.get(years, 20) if years >= 1 else 0
+
+    def _create_vacation(self, employee, year):
+        """Crea el período de vacaciones manteniendo máximo 2 períodos acumulados."""
+
+        vacation_obj = self.env['vacations.detail.list']
+
+        # Verificar si ya existe este año
+        existing = employee.vacation_details_ids.filtered(
+            lambda line: line.year == year
+        )
+
+        if existing:
+            return
+
+        # Obtener los períodos actuales
+        vacations = employee.vacation_details_ids.sorted(
+            key=lambda line: line.year
+        )
+
+        # Si ya tiene 2 períodos, eliminar el más antiguo
+        if len(vacations) >= 2:
+            oldest = vacations[0]
+            oldest.unlink()
+
+        assigned_days = self._get_vacation_days(
+            year,
+            employee.aeronatical_license
+        )
+
+        if assigned_days <= 0:
+            return
+
+        # Calcular días pendientes
+        pending_days = assigned_days
+
+        if employee.early_vacations > 0:
+            pending_days = max(
+                assigned_days - employee.early_vacations,
+                0
+            )
+
+            employee.early_vacations = 0
+
+        vacation_obj.create({
+            'name': f'Vacaciones {year} año(s)',
+            'employee_id': employee.id,
+            'assigned_days': assigned_days,
+            'pending_days': pending_days,
+            'year': year,
+        })
+
     def update_personal_time(self):
         actual_date = datetime.now().date()
-        for rec in self.search([]):
-            if rec.contract_date_start:
-                contract_date = rec.contract_date_start
-                antique = int((actual_date - contract_date).days / 365)
-                tickets = 0
-                if antique == 1 and not rec.first_year:
-                    tickets = 2
-                    rec.first_year = True
-                    self.create_vacations(rec,antique)
-                elif antique == 2 and not rec.second_year:
-                    tickets = 3
-                    rec.second_year = True
-                    self.create_vacations(rec,antique)
-                elif antique >= 3:
-                    tickets = 4
-                    rec.second_year = True
-                    rec.first_year = True
-                    self.create_vacations(rec,antique)
 
-                if antique != rec.years_old:
-                    rec.program_to_fly = tickets
-                
-                rec.years_old = antique
-                
+        employees = self.search([('contract_date_start', '!=', False)])
 
-    def create_vacations(self, employee_id, years):
-        assigned_days = 0
-        pending_days = 0
-        if years == 1:
-            assigned_days = 10
-        elif years == 2:
-            assigned_days = 12
-        elif years == 3:
-            assigned_days = 15
-        elif years >= 4:
-            assigned_days = 20
-        
-        if assigned_days > 0:
-            if employee_id.aeronatical_license:
-                assigned_days = 30
+        for employee in employees:
 
-            pending_days = assigned_days
-            if employee_id.early_vacations > 0:
-                pending_days = assigned_days - employee_id.early_vacations
-                employee_id.early_vacations = 0
+            contract_date = employee.contract_date_start
 
-            vals = {
-                'name': 'Vacaciones %s año(s)'%(years),
-                'employee_id': employee_id.id,
-                'assigned_days': assigned_days,
-                'pending_days': pending_days,
-                'year': years
-            }
-            if len(employee_id.vacation_details_ids) > 0:
-                line_id = employee_id.vacation_details_ids.filtered(lambda line: line.year == years)
-                if not line_id:
-                    if len(employee_id.vacation_details_ids) in [0,1]:
-                        employee_id.env['vacations.detail.list'].create(vals)
-                    elif len(employee_id.vacation_details_ids) == 2:
-                        employee_id.vacation_details_ids[0].unlink()
-                        employee_id.env['vacations.detail.list'].create(vals)
+            # Años completos de antigüedad
+            years = self._get_contract_years(contract_date,actual_date)
+
+            # Actualizar antigüedad
+            employee.years_old = years
+
+            # Menos de un año
+            if years < 1:
+                employee.program_to_fly = 0
+                continue
+
+            # Beneficio de boletos
+            if years == 1:
+                employee.program_to_fly = 2
+            elif years == 2:
+                employee.program_to_fly = 3
             else:
-                employee_id.env['vacations.detail.list'].create(vals)
+                employee.program_to_fly = 4
 
-    def assign_vacations(self):
-        actual_date = datetime.now().date()
-        if self.date_start_contract:
-            contract_date = self.date_start_contract
-            years = int((actual_date - contract_date).days / 365)
-            assigned_days = 0
-            pending_days = 0
-            
-            for year in range(1,years+1):
-                if year == 1:
-                    assigned_days = 10
-                elif year == 2:
-                    assigned_days = 12
-                elif year == 3:
-                    assigned_days = 15
-                elif year >= 4:
-                    assigned_days = 20
+            # Fecha exacta del aniversario
+            anniversary = contract_date + relativedelta(
+                years=years
+            )
 
-                if self.aeronatical_license:
-                    assigned_days = 30
+            # Solo asignar vacaciones el día del aniversario
 
-                pending_days = assigned_days
-                if self.early_vacations > 0:
-                    pending_days = assigned_days - self.early_vacations
-                    self.early_vacations = 0
-                    
-                vals = {
-                    'name': 'Vacaciones %s año(s)'%(year),
-                    'employee_id': self.id,
-                    'assigned_days': assigned_days,
-                    'pending_days': pending_days,
-                    'year': year
-                }
-                if len(self.vacation_details_ids) > 0:
-                    line_id = self.vacation_details_ids.filtered(lambda line: line.year == year)
-                    if not line_id:
-                        if year in [1,2]:
-                            if len(self.vacation_details_ids) in [0,1]:
-                                self.env['vacations.detail.list'].create(vals)
-                        elif year >= 3:
-                            if len(self.vacation_details_ids) == 2:
-                                self.vacation_details_ids[0].unlink()
-                                self.env['vacations.detail.list'].create(vals)
-                else:
-                    self.env['vacations.detail.list'].create(vals)
+            if actual_date == anniversary:
+                self._create_vacation(employee,years)
 
 class employeePublicHRInh(models.Model):
     _inherit = 'hr.employee.public'
@@ -196,7 +196,7 @@ class vacationsDetail(models.Model):
     employee_id = fields.Many2one('hr.employee',string="Empleado")
     year = fields.Integer(string="Año")
 
-class vacationsDetail(models.Model):
+class beneficiariesDetail(models.Model):
     _name = 'beneficiaries.detail.list'
     _description = 'Beneficiarios programa a volar'
 

@@ -38,6 +38,7 @@
                                         <field name="name" />
                                         <field name="assigned_days" />
                                         <field name="pending_days" />
+                                        <field name="year" column_invisible="1"/>
                                     </list>
                                 </field>
                             </page>
